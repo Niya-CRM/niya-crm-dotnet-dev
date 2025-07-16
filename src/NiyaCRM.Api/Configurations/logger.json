@@ -1,0 +1,17 @@
+{
+  "LoggerSettings": {
+    "WriteToFile": true,
+    "LogFilePath": "logs\\",
+    "CompactConsoleLogging": false,
+    "ElasticSearchUrl": null,
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Information",
+      "Microsoft.AspNetCore": "Information",
+      "Microsoft.Hosting.Lifetime": "Information",
+      "Microsoft.AspNetCore.Authentication": "Information",
+      "Microsoft.AspNetCore.Mvc.Infrastructure": "Information",
+      "Microsoft.EntityFrameworkCore": "Information"
+    }
+  }
+}
