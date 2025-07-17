@@ -6,6 +6,7 @@ namespace NiyaCRM.Infrastructure.Logging.Serilog
         public string LogFilePath { get; set; } = "logs/";
         public bool CompactConsoleLogging { get; set; }
         public string? ElasticSearchUrl { get; set; }
+        public string? S3Bucket { get; set; }
         public LogLevelSettings LogLevel { get; set; } = new();
 
         public class LogLevelSettings

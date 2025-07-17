@@ -4,6 +4,7 @@
     "LogFilePath": "logs\\",
     "CompactConsoleLogging": false,
     "ElasticSearchUrl": null,
+    "S3Bucket": null,
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Information",

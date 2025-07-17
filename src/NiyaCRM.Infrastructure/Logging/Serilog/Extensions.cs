@@ -68,8 +68,8 @@ namespace NiyaCRM.Infrastructure.Logging.Serilog
                 ConfigureWriteToFile(configuration, writeToFile, logFilePath, outputTemplate, applicationName, environment);
 
                 string? elasticSearchUrl = loggerSettings.ElasticSearchUrl; // TO DO
+                string? s3Bucket = loggerSettings.S3Bucket; // TO DO
 
-                // TO DO S3 integration
             });
         }
 
