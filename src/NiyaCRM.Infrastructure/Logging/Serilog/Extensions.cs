@@ -13,8 +13,8 @@ using Serilog.Formatting.Json;
 using System;
 
 namespace NiyaCRM.Infrastructure.Logging.Serilog
-{
-    public static class Extensions
+{`
+    public static class LoggingExtensions
     {
         // Extension method to register Serilog
         public static void RegisterSerilog(this IHostBuilder hostBuilder)
