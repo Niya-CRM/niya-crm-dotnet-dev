@@ -26,7 +26,7 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("Upgrade-Insecure-Requests");
     logging.RequestHeaders.Add("sec-ch-ua");
     logging.RequestHeaders.Add("sec-ch-ua-mobile");
-
+    logging.RequestHeaders.Add("sec-ch-ua-platform");
     logging.ResponseHeaders.Add("x-correlation-id");
     logging.ResponseHeaders.Add("Pragma");
     logging.ResponseHeaders.Add("Cache-Control");
