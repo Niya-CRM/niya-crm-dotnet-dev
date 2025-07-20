@@ -38,6 +38,9 @@ builder.Services.AddControllers();
 // For http request context accessing
 builder.Services.AddHttpContextAccessor();
 
+// Register ApplicationDbContext with PostgreSQL
+builder.Services.AddPostgreSqlDbContext(builder.Configuration);
+
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();
 

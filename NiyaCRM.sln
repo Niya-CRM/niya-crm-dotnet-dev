@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NiyaCRM.Domain", "src\NiyaCRM.Domain\NiyaCRM.Domain.csproj", "{D08E2FF3-D8FA-4735-A61F-507EFB93C22B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NiyaCRM.Core", "src\NiyaCRM.Core\NiyaCRM.Core.csproj", "{D08E2FF3-D8FA-4735-A61F-507EFB93C22B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NiyaCRM.Application", "src\NiyaCRM.Application\NiyaCRM.Application.csproj", "{0AD8108B-753E-46F8-87A9-149B3E968131}"
 	ProjectSection(ProjectDependencies) = postProject
