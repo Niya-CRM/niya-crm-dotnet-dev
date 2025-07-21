@@ -14,6 +14,7 @@ using NiyaCRM.Core;
 using Serilog;
 using System.Reflection;
 using NiyaCRM.Core.Tenants.DTOs;
+using NiyaCRM.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,8 +76,12 @@ builder.Host.RegisterSerilog();
 
 var app = builder.Build();
 
+// Add CorrelationId to response headers for all requests
+app.UseMiddleware<CorrelationIdMiddleware>();
+
 // Log all requests and response.
 app.UseHttpLogging();
+
 
 // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
 app.UseSerilogRequestLogging();
