@@ -263,10 +263,6 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateTenantRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         try
         {
             _logger.LogInformation("Activating tenant: {TenantId}", id);
@@ -301,10 +297,6 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] DeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         try
         {
             _logger.LogInformation("Deactivating tenant: {TenantId}", id);
