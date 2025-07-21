@@ -4,6 +4,11 @@ public static class CommonConstant
 {
     public const string DEFAULT_USER = "NiyaCRM";
 
+    // Message Constants
+    public const string MESSAGE_INVALID_REQUEST = "Invalid Request";
+    public const string MESSAGE_CONFLICT = "Conflict";
+    public const string MESSAGE_INTERNAL_SERVER_ERROR = "Internal Server Error";
+
     // Error Level
     public const string ERROR_LEVEL_INFORMATION = "Information";
     public const string ERROR_LEVEL_WARNING = "Warning";

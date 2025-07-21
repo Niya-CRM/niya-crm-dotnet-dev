@@ -62,7 +62,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Invalid tenant creation request: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
-                Title = "Invalid Request",
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
                 Detail = ex.Message,
                 Status = StatusCodes.Status400BadRequest
             });
@@ -72,7 +72,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
             return Conflict(new ProblemDetails
             {
-                Title = "Conflict",
+                Title = CommonConstant.MESSAGE_CONFLICT,
                 Detail = ex.Message,
                 Status = StatusCodes.Status409Conflict
             });
@@ -98,7 +98,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
-                Title = "Tenant Not Found",
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                 Detail = $"Tenant with ID '{id}' was not found.",
                 Status = StatusCodes.Status404NotFound
             });
@@ -126,7 +126,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found for host: {Host}", host);
             return NotFound(new ProblemDetails
             {
-                Title = "Tenant Not Found",
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                 Detail = $"Tenant with host '{host}' was not found.",
                 Status = StatusCodes.Status404NotFound
             });
@@ -177,7 +177,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
-                Title = "Invalid Request",
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
                 Detail = ex.Message,
                 Status = StatusCodes.Status400BadRequest
             });
@@ -223,7 +223,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Invalid tenant update request: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
-                Title = "Invalid Request",
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
                 Detail = ex.Message,
                 Status = StatusCodes.Status400BadRequest
             });
@@ -233,7 +233,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Tenant not found for update: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
-                Title = "Tenant Not Found",
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                 Detail = ex.Message,
                 Status = StatusCodes.Status404NotFound
             });
@@ -243,7 +243,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning(ex, "Tenant update conflict: {Message}", ex.Message);
             return Conflict(new ProblemDetails
             {
-                Title = "Conflict",
+                Title = CommonConstant.MESSAGE_CONFLICT,
                 Detail = ex.Message,
                 Status = StatusCodes.Status409Conflict
             });
@@ -277,7 +277,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found for activation: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
-                Title = "Tenant Not Found",
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                 Detail = ex.Message,
                 Status = StatusCodes.Status404NotFound
             });
@@ -311,7 +311,7 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
-                Title = "Tenant Not Found",
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                 Detail = ex.Message,
                 Status = StatusCodes.Status404NotFound
             });
@@ -339,7 +339,7 @@ public class TenantController : ControllerBase
                 _logger.LogWarning("Tenant not found for deletion: {TenantId}", id);
                 return NotFound(new ProblemDetails
                 {
-                    Title = "Tenant Not Found",
+                    Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
                     Detail = $"Tenant with ID '{id}' was not found.",
                     Status = StatusCodes.Status404NotFound
                 });
@@ -353,7 +353,7 @@ public class TenantController : ControllerBase
             _logger.LogError(ex, "Error deleting tenant: {TenantId}", id);
             return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
             {
-                Title = "Internal Server Error",
+                Title = CommonConstant.MESSAGE_INTERNAL_SERVER_ERROR,
                 Detail = "An error occurred while deleting the tenant.",
                 Status = StatusCodes.Status500InternalServerError
             });
