@@ -34,6 +34,10 @@ namespace NiyaCRM.Api.Controllers
             [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var logs = await _auditLogService.GetAuditLogsAsync(module, mappedId, createdBy, startDate, endDate, pageNumber, pageSize, cancellationToken);
             return Ok(logs);
         }
@@ -46,6 +50,10 @@ namespace NiyaCRM.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<AuditLog>> GetById(Guid id, CancellationToken cancellationToken = default)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var log = await _auditLogService.GetAuditLogByIdAsync(id, cancellationToken);
             if (log == null)
                 return NotFound();

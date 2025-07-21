@@ -38,6 +38,10 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<Tenant>> CreateTenant([FromBody] CreateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             _logger.LogInformation("Creating tenant with name: {Name}", request.Name);
@@ -194,6 +198,10 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<Tenant>> UpdateTenant(Guid id, [FromBody] UpdateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             _logger.LogInformation("Updating tenant: {TenantId}", id);
@@ -251,9 +259,14 @@ public class TenantController : ControllerBase
     /// <returns>The activated tenant.</returns>
     [HttpPost("{id:guid}/activate")]
     [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             _logger.LogInformation("Activating tenant: {TenantId}", id);
@@ -284,9 +297,14 @@ public class TenantController : ControllerBase
     /// <returns>The deactivated tenant.</returns>
     [HttpPost("{id:guid}/deactivate")]
     [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] DeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         try
         {
             _logger.LogInformation("Deactivating tenant: {TenantId}", id);
