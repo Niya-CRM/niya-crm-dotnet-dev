@@ -57,6 +57,11 @@ builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
+// Register Cache Services
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<NiyaCRM.Core.Cache.ICacheRepository, NiyaCRM.Infrastructure.Cache.CacheRepository>();
+builder.Services.AddScoped<NiyaCRM.Core.Cache.ICacheService, NiyaCRM.Application.Cache.CacheService>();
+
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
