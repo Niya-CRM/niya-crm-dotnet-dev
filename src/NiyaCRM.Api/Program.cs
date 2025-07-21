@@ -4,6 +4,8 @@ using NiyaCRM.Infrastructure.Logging.Serilog;
 using NiyaCRM.Infrastructure.Data;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Application.Tenants;
+using FluentValidation;
+using NiyaCRM.Application.Tenants.Validators;
 using NiyaCRM.Infrastructure.Data.Tenants;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
@@ -11,6 +13,7 @@ using NiyaCRM.Infrastructure.Data.AuditLogs;
 using NiyaCRM.Core;
 using Serilog;
 using System.Reflection;
+using NiyaCRM.Core.Tenants.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +43,10 @@ builder.Services.AddHttpLogging(logging =>
 });
 
 builder.Services.AddControllers();
+
+// Register validator for ActivateDeactivateTenantRequest
+builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, ActivateDeactivateTenantRequestValidator>();
+
 
 // For http request context accessing
 builder.Services.AddHttpContextAccessor();

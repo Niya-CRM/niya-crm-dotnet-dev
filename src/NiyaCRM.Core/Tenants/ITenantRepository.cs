@@ -62,14 +62,6 @@ public interface ITenantRepository
     Task<Tenant> UpdateAsync(Tenant tenant, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Deletes a tenant.
-    /// </summary>
-    /// <param name="id">The tenant identifier.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>True if deleted successfully, otherwise false.</returns>
-    Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Checks if a tenant exists with the specified host.
     /// </summary>
     /// <param name="host">The host to check.</param>

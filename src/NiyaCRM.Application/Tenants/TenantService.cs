@@ -243,7 +243,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> ActivateTenantAsync(Guid id, string? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> ActivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating tenant: {TenantId}", id);
 
@@ -260,15 +260,15 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         tenant.IsActive = true;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
+        tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation
         await AddTenantAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id.ToString(),
-            $"Tenant activated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
-            modifiedBy ?? CommonConstant.DEFAULT_USER,
+            $"Tenant activated: {{ \"Reason\": \"{reason}\" }}",
+            CommonConstant.DEFAULT_USER,
             cancellationToken
         );
 
@@ -279,7 +279,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> DeactivateTenantAsync(Guid id, string? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> DeactivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating tenant: {TenantId}", id);
 
@@ -296,15 +296,15 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         tenant.IsActive = false;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
+        tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for deactivation
         await AddTenantAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id.ToString(),
-            $"Tenant deactivated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
-            modifiedBy ?? CommonConstant.DEFAULT_USER,
+            $"Tenant deactivated: {{ \"Reason\": \"{reason}\" }}",
+            CommonConstant.DEFAULT_USER,
             cancellationToken
         );
         

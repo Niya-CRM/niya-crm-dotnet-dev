@@ -52,19 +52,19 @@ public interface ITenantService
     /// Activates a tenant.
     /// </summary>
     /// <param name="id">The tenant identifier.</param>
-    /// <param name="modifiedBy">The user activating the tenant.</param>
+    /// <param name="reason">The reason for activation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The activated tenant.</returns>
-    Task<Tenant> ActivateTenantAsync(Guid id, string? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> ActivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deactivates a tenant.
     /// </summary>
     /// <param name="id">The tenant identifier.</param>
-    /// <param name="modifiedBy">The user deactivating the tenant.</param>
+    /// <param name="reason">The reason for deactivation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The deactivated tenant.</returns>
-    Task<Tenant> DeactivateTenantAsync(Guid id, string? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> DeactivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all active tenants.

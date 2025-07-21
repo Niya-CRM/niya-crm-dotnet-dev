@@ -3,6 +3,7 @@ using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Core.Common;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 
 namespace NiyaCRM.Api.Controllers.Tenants;
 
@@ -14,16 +15,18 @@ public class TenantController : ControllerBase
 {
     private readonly ITenantService _tenantService;
     private readonly ILogger<TenantController> _logger;
+    private readonly IValidator<ActivateDeactivateTenantRequest> _activateDeactivateTenantRequestValidator;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TenantController"/> class.
     /// </summary>
     /// <param name="tenantService">The tenant service.</param>
     /// <param name="logger">The logger.</param>
-    public TenantController(ITenantService tenantService, ILogger<TenantController> logger)
+    public TenantController(ITenantService tenantService, ILogger<TenantController> logger, IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator)
     {
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _activateDeactivateTenantRequestValidator = activateDeactivateTenantRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateTenantRequestValidator));
     }
 
     /// <summary>
@@ -202,21 +205,34 @@ public class TenantController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+
+        var tenant = await _tenantService.GetTenantByIdAsync(id, cancellationToken);
+        if (tenant == null)
+        {
+            _logger.LogWarning("Tenant not found: {TenantId}", id);
+            return NotFound(new ProblemDetails
+            {
+                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
+                Detail = $"Tenant with ID '{id}' was not found.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
         try
         {
             _logger.LogInformation("Updating tenant: {TenantId}", id);
             
-            var tenant = await _tenantService.UpdateTenantAsync(
+            var updatedTenant = await _tenantService.UpdateTenantAsync(
                 id: id,
-                name: request.Name,
-                host: request.Host,
-                email: request.Email,
-                databaseName: request.DatabaseName,
-                modifiedBy: request.ModifiedBy,
+                name: request.Name ?? tenant.Name,
+                host: request.Host ?? tenant.Host,
+                email: request.Email ?? tenant.Email,
+                databaseName: request.DatabaseName ?? tenant.DatabaseName,
+                modifiedBy: CommonConstant.DEFAULT_USER,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
-            return Ok(tenant);
+            return Ok(updatedTenant);
         }
         catch (ArgumentException ex)
         {
@@ -261,13 +277,23 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
+                Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)),
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
         try
         {
             _logger.LogInformation("Activating tenant: {TenantId}", id);
             
-            var tenant = await _tenantService.ActivateTenantAsync(id, request.ModifiedBy, cancellationToken);
+            var tenant = await _tenantService.ActivateTenantAsync(id, request.Reason, cancellationToken);
             
             _logger.LogInformation("Successfully activated tenant: {TenantId}", id);
             return Ok(tenant);
@@ -295,13 +321,23 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] DeactivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
+                Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)),
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
         try
         {
             _logger.LogInformation("Deactivating tenant: {TenantId}", id);
             
-            var tenant = await _tenantService.DeactivateTenantAsync(id, request.ModifiedBy, cancellationToken);
+            var tenant = await _tenantService.DeactivateTenantAsync(id, request.Reason, cancellationToken);
             
             _logger.LogInformation("Successfully deactivated tenant: {TenantId}", id);
             return Ok(tenant);
