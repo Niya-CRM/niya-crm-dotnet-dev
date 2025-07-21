@@ -43,6 +43,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup .NET for backend
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      # Restore and Build Backend
+      - name: Restore backend dependencies
+        run: dotnet restore .
+        
+      - name: Build backend
+        run: dotnet build . --no-incremental
+
       - name: Analyze with SonarCloud
 
         # You can pin the exact commit or the version.
