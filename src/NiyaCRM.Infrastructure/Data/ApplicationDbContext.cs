@@ -1,4 +1,6 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using NiyaCRM.Core.Tenants;
 
 namespace NiyaCRM.Infrastructure.Data
 {
@@ -14,14 +16,21 @@ namespace NiyaCRM.Infrastructure.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            /// <summary>
-            /// Configures the model and customizes Identity table names.
-            /// </summary>
-            protected override void OnModelCreating(ModelBuilder builder)
-            {
-                base.OnModelCreating(builder);
-            }
+        }
 
+        /// <summary>
+        /// Gets or sets the tenants DbSet.
+        /// </summary>
+        public DbSet<Tenant> Tenants { get; set; } = null!;
+
+        /// <summary>
+        /// Configures the model and customizes Identity table names.
+        /// </summary>
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            
+            // Apply all entity configurations from the current assembly
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }

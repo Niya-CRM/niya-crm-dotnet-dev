@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NiyaCRM.Api.Configurations;
+using NiyaCRM.Core.Configurations;
 
 namespace NiyaCRM.Infrastructure.Data
 {
@@ -20,9 +20,11 @@ namespace NiyaCRM.Infrastructure.Data
             configuration.GetSection("PostgreSQL").Bind(postgreSqlSettings);
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(postgreSqlSettings.ConnectionString))
-                    .EnableSensitiveDataLogging()
-                    .EnableDetailedErrors();
+            {
+                options.UseNpgsql(postgreSqlSettings.ConnectionString);
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+            });
 
             return services;
         }

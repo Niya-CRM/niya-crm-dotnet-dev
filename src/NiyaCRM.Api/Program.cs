@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.HttpLogging;
 using NiyaCRM.Api.Configurations;
 using NiyaCRM.Infrastructure.Logging.Serilog;
+using NiyaCRM.Infrastructure.Data;
+using NiyaCRM.Core.Tenants;
+using NiyaCRM.Application.Tenants;
+using NiyaCRM.Infrastructure.Data.Tenants;
 using Serilog;
 using System.Reflection;
 
@@ -41,6 +45,10 @@ builder.Services.AddHttpContextAccessor();
 // Register ApplicationDbContext with PostgreSQL
 builder.Services.AddPostgreSqlDbContext(builder.Configuration);
 
+// Register Tenant Services
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();
 
@@ -51,6 +59,8 @@ app.UseHttpLogging();
 
 // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
 app.UseSerilogRequestLogging();
+
+app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");
 

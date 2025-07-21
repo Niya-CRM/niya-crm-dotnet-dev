@@ -17,6 +17,9 @@ namespace NiyaCRM.Api.Configurations
                     .AddJsonFile($"{configurationsDirectory}/logger.json", optional: false, reloadOnChange: true)
                     .AddJsonFile($"{configurationsDirectory}/logger.{env}.json", optional: true, reloadOnChange: true)
 
+                    .AddJsonFile($"{configurationsDirectory}/postgresql.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile($"{configurationsDirectory}/postgresql.{env}.json", optional: true, reloadOnChange: true)
+
                     //.AddJsonFile($"{configurationsDirectory}/hangfire.json", optional: false, reloadOnChange: true)
                     //.AddJsonFile($"{configurationsDirectory}/hangfire.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
                     //.AddJsonFile($"{configurationsDirectory}/cache.json", optional: false, reloadOnChange: true)

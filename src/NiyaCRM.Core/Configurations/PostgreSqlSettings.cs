@@ -1,4 +1,4 @@
-namespace NiyaCRM.Api.Configurations
+namespace NiyaCRM.Core.Configurations
 {
     public class PostgreSqlSettings
     {
