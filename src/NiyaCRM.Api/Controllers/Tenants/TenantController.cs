@@ -4,7 +4,7 @@ using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Core.Common;
 using System.ComponentModel.DataAnnotations;
 
-namespace NiyaCRM.Api.Controllers;
+namespace NiyaCRM.Api.Controllers.Tenants;
 
 /// <summary>
 /// Controller for managing tenant operations in the multi-tenant CRM system.
@@ -59,7 +59,7 @@ public class TenantController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning("Invalid tenant creation request: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Invalid tenant creation request: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Request",
@@ -69,7 +69,7 @@ public class TenantController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("Tenant creation conflict: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
             return Conflict(new ProblemDetails
             {
                 Title = "Conflict",
@@ -174,7 +174,7 @@ public class TenantController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning("Invalid pagination parameters: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Request",
@@ -220,7 +220,7 @@ public class TenantController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            _logger.LogWarning("Invalid tenant update request: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Invalid tenant update request: {Message}", ex.Message);
             return BadRequest(new ProblemDetails
             {
                 Title = "Invalid Request",
@@ -230,7 +230,7 @@ public class TenantController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning("Tenant not found for update: {TenantId}", id);
+            _logger.LogWarning(ex, "Tenant not found for update: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
                 Title = "Tenant Not Found",
@@ -240,7 +240,7 @@ public class TenantController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("Tenant update conflict: {Message}", ex.Message);
+            _logger.LogWarning(ex, "Tenant update conflict: {Message}", ex.Message);
             return Conflict(new ProblemDetails
             {
                 Title = "Conflict",

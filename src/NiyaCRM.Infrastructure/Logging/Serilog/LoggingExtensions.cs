@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NiyaCRM.Core.Common;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -136,12 +137,12 @@ namespace NiyaCRM.Infrastructure.Logging.Serilog
         private static void OverideMinimumLogLevel(LoggerConfiguration configuration, LoggerSettings loggerSettings)
         {
             configuration
-                     .MinimumLevel.Override("Microsoft", GetLoggingLevel(loggerSettings.LogLevel.Microsoft ?? "Warning"))
-                     .MinimumLevel.Override("Microsoft.AspNetCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCore ?? "Warning"))
-                     .MinimumLevel.Override("\"Microsoft.Hosting.Lifetime", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftHostingLifetime ?? "Information"))
-                     .MinimumLevel.Override("\"\"Microsoft.AspNetCore.Authentication", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreAuthentication ?? "Warning"))
-                     .MinimumLevel.Override("\"Microsoft.AspNetCore.Mvc.Infrastructure", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreMvcInfrastructure ?? "Warning"))
-                     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? "Warning"));
+                     .MinimumLevel.Override("Microsoft", GetLoggingLevel(loggerSettings.LogLevel.Microsoft ?? CommonConstant.ERROR_LEVEL_WARNING))
+                     .MinimumLevel.Override("Microsoft.AspNetCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCore ?? CommonConstant.ERROR_LEVEL_WARNING))
+                     .MinimumLevel.Override("Microsoft.Hosting.Lifetime", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftHostingLifetime ?? CommonConstant.ERROR_LEVEL_INFORMATION))
+                     .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreAuthentication ?? CommonConstant.ERROR_LEVEL_WARNING))
+                     .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Infrastructure", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreMvcInfrastructure ?? CommonConstant.ERROR_LEVEL_WARNING))
+                     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? CommonConstant.ERROR_LEVEL_WARNING));
         }
 
         private static LoggingLevelSwitch GetLoggingLevel(string logLevel)

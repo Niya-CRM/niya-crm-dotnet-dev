@@ -2,6 +2,15 @@ namespace NiyaCRM.Core.Common;
 
 public static class CommonConstant
 {
+    public const string DEFAULT_USER = "NiyaCRM";
+
+    // Error Level
+    public const string ERROR_LEVEL_INFORMATION = "Information";
+    public const string ERROR_LEVEL_WARNING = "Warning";
+    public const string ERROR_LEVEL_ERROR = "Error";
+    public const string ERROR_LEVEL_FATAL = "Fatal";
+
+    // Pagination Constants
     public const int PAGE_NUMBER_DEFAULT = 1;
     public const int PAGE_SIZE_DEFAULT = 50;
     public const int PAGE_SIZE_MIN = 1;

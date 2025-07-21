@@ -12,8 +12,6 @@ using NiyaCRM.Core;
 using Serilog;
 using System.Reflection;
 
-//var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddConfigurations();

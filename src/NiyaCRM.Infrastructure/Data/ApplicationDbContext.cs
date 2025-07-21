@@ -28,12 +28,12 @@ namespace NiyaCRM.Infrastructure.Data
         /// <summary>
         /// Configures the model and customizes Identity table names.
         /// </summary>
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            base.OnModelCreating(modelBuilder);
             
             // Apply all entity configurations from the current assembly
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

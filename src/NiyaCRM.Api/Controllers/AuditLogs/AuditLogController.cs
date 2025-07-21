@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using NiyaCRM.Core.AuditLogs;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using NiyaCRM.Core.Common;
+using NiyaCRM.Core.AuditLogs.DTOs;
 
-namespace NiyaCRM.Api.Controllers
+namespace NiyaCRM.Api.Controllers.AuditLogs
 {
     [ApiController]
     [Route("api/audit-logs")]
@@ -25,22 +24,24 @@ namespace NiyaCRM.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<AuditLog>), 200)]
         public async Task<ActionResult<IEnumerable<AuditLog>>> GetAll(
-            [FromQuery] string? module = null,
-            [FromQuery] string? mappedId = null,
-            [FromQuery] string? createdBy = null,
-            [FromQuery] DateTime? startDate = null,
-            [FromQuery] DateTime? endDate = null,
-            [FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-            [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
-            CancellationToken cancellationToken = default)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var logs = await _auditLogService.GetAuditLogsAsync(module, mappedId, createdBy, startDate, endDate, pageNumber, pageSize, cancellationToken);
-            return Ok(logs);
-        }
+    [FromQuery] AuditLogQueryDto query,
+    CancellationToken cancellationToken = default)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+    var logs = await _auditLogService.GetAuditLogsAsync(
+        query.Module,
+        query.MappedId,
+        query.CreatedBy,
+        query.StartDate,
+        query.EndDate,
+        query.PageNumber,
+        query.PageSize,
+        cancellationToken);
+    return Ok(logs);
+}
 
         /// <summary>
         /// Gets a specific audit log by its ID.

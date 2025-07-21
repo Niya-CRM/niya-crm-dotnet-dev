@@ -39,7 +39,7 @@ namespace NiyaCRM.Application.Cache
         /// </summary>
         /// <param name="key">The original cache key.</param>
         /// <returns>A sanitized cache key.</returns>
-        private string SanitizeKey(string key)
+        private static string SanitizeKey(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Cache key cannot be null or whitespace.");

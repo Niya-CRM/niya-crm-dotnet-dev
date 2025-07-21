@@ -59,7 +59,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             databaseName: normalizedDatabaseName,
             isActive: true,
             createdAt: DateTime.UtcNow,
-            createdBy: createdBy ?? "NiyaCRM"
+            createdBy: createdBy ?? CommonConstant.DEFAULT_USER
         );
 
         // Save tenant
@@ -74,7 +74,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             ip: string.Empty, // Optionally pass IP if available
             data: $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
             createdAt: DateTime.UtcNow,
-            createdBy: createdBy ?? "NiyaCRM"
+            createdBy: createdBy ?? CommonConstant.DEFAULT_USER
         );
         await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
 
@@ -160,7 +160,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.Email = normalizedEmail;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
+        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
 
         // Save changes
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
@@ -174,7 +174,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             ip: string.Empty, // Optionally pass IP if available
             data: $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
             createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? "NiyaCRM"
+            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
         );
         await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -197,7 +197,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         tenant.IsActive = true;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
+        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation
@@ -209,7 +209,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             ip: GetUserIp(),
             data: $"Tenant activated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
             createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? "NiyaCRM"
+            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
         );
         await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -232,7 +232,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         tenant.IsActive = false;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
+        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for deactivation
@@ -244,7 +244,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             ip: GetUserIp(),
             data: $"Tenant deactivated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
             createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? "NiyaCRM"
+            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
         );
         await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -298,7 +298,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
                 ip: GetUserIp(),
                 data: $"Tenant deleted: {{ \"TenantId\": \"{id}\" }}",
                 createdAt: DateTime.UtcNow,
-                createdBy: "NiyaCRM"
+                createdBy: CommonConstant.DEFAULT_USER
             );
             await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

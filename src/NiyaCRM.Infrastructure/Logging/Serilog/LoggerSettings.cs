@@ -1,3 +1,4 @@
+using NiyaCRM.Core.Common;
 namespace NiyaCRM.Infrastructure.Logging.Serilog
 {
     public class LoggerSettings
@@ -11,13 +12,13 @@ namespace NiyaCRM.Infrastructure.Logging.Serilog
 
         public class LogLevelSettings
         {
-            public string Default { get; set; } = "Information";
-            public string? Microsoft { get; set; } = "Warning";
-            public string? MicrosoftAspNetCore { get; set; } = "Warning";
-            public string? MicrosoftHostingLifetime { get; set; } = "Warning";
-            public string? MicrosoftAspNetCoreAuthentication { get; set; } = "Warning";
-            public string? MicrosoftAspNetCoreMvcInfrastructure { get; set; } = "Warning";
-            public string? MicrosoftEntityFrameworkCore { get; set; } = "Warning";
+            public string Default { get; set; } = CommonConstant.ERROR_LEVEL_INFORMATION;
+            public string? Microsoft { get; set; } = CommonConstant.ERROR_LEVEL_WARNING;
+            public string? MicrosoftAspNetCore { get; set; } = CommonConstant.ERROR_LEVEL_WARNING;
+            public string? MicrosoftHostingLifetime { get; set; } = CommonConstant.ERROR_LEVEL_INFORMATION;
+            public string? MicrosoftAspNetCoreAuthentication { get; set; } = CommonConstant.ERROR_LEVEL_WARNING;
+            public string? MicrosoftAspNetCoreMvcInfrastructure { get; set; } = CommonConstant.ERROR_LEVEL_WARNING;
+            public string? MicrosoftEntityFrameworkCore { get; set; } = CommonConstant.ERROR_LEVEL_WARNING;
         }
     }
 }
