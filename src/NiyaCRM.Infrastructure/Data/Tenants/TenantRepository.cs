@@ -118,27 +118,6 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Deleting tenant: {TenantId}", id);
-        
-        var tenant = await _dbSet
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
-            
-        if (tenant == null)
-        {
-            _logger.LogWarning("Tenant not found for deletion: {TenantId}", id);
-            return false;
-        }
-
-        _dbSet.Remove(tenant);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        
-        _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
-        return true;
-    }
-
-    /// <inheritdoc />
     public async Task<bool> ExistsByHostAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(host))

@@ -317,46 +317,4 @@ public class TenantController : ControllerBase
             });
         }
     }
-
-    /// <summary>
-    /// Deletes a tenant.
-    /// </summary>
-    /// <param name="id">The tenant identifier.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>No content if successful.</returns>
-    [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteTenant(Guid id, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            _logger.LogInformation("Deleting tenant: {TenantId}", id);
-            
-            var deleted = await _tenantService.DeleteTenantAsync(id, cancellationToken);
-            if (!deleted)
-            {
-                _logger.LogWarning("Tenant not found for deletion: {TenantId}", id);
-                return NotFound(new ProblemDetails
-                {
-                    Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                    Detail = $"Tenant with ID '{id}' was not found.",
-                    Status = StatusCodes.Status404NotFound
-                });
-            }
-
-            _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting tenant: {TenantId}", id);
-            return StatusCode(StatusCodes.Status500InternalServerError, new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INTERNAL_SERVER_ERROR,
-                Detail = "An error occurred while deleting the tenant.",
-                Status = StatusCodes.Status500InternalServerError
-            });
-        }
-    }
 }

@@ -2,13 +2,12 @@ using System;
 using System.Threading.Tasks;
 using NiyaCRM.Core.Cache;
 using Microsoft.Extensions.Logging;
-
 namespace NiyaCRM.Application.Cache
 {
     /// <summary>
     /// Implements caching logic and delegates to the repository.
     /// </summary>
-    public class CacheService : ICacheService
+    public partial class CacheService : ICacheService
     {
         private readonly ICacheRepository _cacheRepository;
         private readonly Microsoft.Extensions.Logging.ILogger<CacheService> _logger;
@@ -30,6 +29,10 @@ namespace NiyaCRM.Application.Cache
         public Task SetAsync<T>(string key, T value, TimeSpan? absoluteExpiration = null, TimeSpan? slidingExpiration = null)
         {
             var sanitizedKey = SanitizeKey(key);
+
+            absoluteExpiration = absoluteExpiration ?? CacheConstant.DEFAULT_CACHE_EXPIRATION;
+            slidingExpiration = slidingExpiration ?? CacheConstant.DEFAULT_CACHE_SLIDING_EXPIRATION;
+
             _logger.LogDebug("Setting cache entry for key: {Key} (sanitized: {SanitizedKey}), Expiration: {AbsoluteExpiration}, Sliding: {SlidingExpiration}", key, sanitizedKey, absoluteExpiration, slidingExpiration);
 
             return _cacheRepository.SetAsync(sanitizedKey, value, absoluteExpiration, slidingExpiration);
@@ -53,7 +56,11 @@ namespace NiyaCRM.Application.Cache
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Cache key cannot be null or whitespace.");
             
-            return key.Trim().Replace(" ", "_").ToLowerInvariant();
+            var trimmed = key.Trim().ToLowerInvariant();
+            return MyRegex().Replace(trimmed, "");
         }
+
+        [System.Text.RegularExpressions.GeneratedRegex("[^a-zA-Z0-9_:]")]
+        private static partial System.Text.RegularExpressions.Regex MyRegex();
     }
 }

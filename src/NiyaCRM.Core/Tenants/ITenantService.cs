@@ -90,12 +90,4 @@ public interface ITenantService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if the host is available, otherwise false.</returns>
     Task<bool> IsHostAvailableAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Deletes a tenant.
-    /// </summary>
-    /// <param name="id">The tenant identifier.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>True if the tenant was deleted, otherwise false.</returns>
-    Task<bool> DeleteTenantAsync(Guid id, CancellationToken cancellationToken = default);
 }

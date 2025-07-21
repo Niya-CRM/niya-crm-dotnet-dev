@@ -1,22 +1,26 @@
 using Microsoft.Extensions.Logging;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Common;
+using NiyaCRM.Core;
+using NiyaCRM.Core.AuditLogs;
+
+using Microsoft.AspNetCore.Http;
+using NiyaCRM.Application.Cache;
+using NiyaCRM.Core.Cache;
 
 namespace NiyaCRM.Application.Tenants;
 
 /// <summary>
 /// Service implementation for tenant management operations.
 /// </summary>
-using NiyaCRM.Core;
-using NiyaCRM.Core.AuditLogs;
-
-using Microsoft.AspNetCore.Http;
-
-public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger, IHttpContextAccessor httpContextAccessor) : ITenantService
+public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger, IHttpContextAccessor httpContextAccessor, ICacheService cacheService) : ITenantService
 {
+    private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly ILogger<TenantService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+    private readonly string _tenantCachePrefix = "tenant:";
 
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
@@ -115,7 +119,20 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
-        return await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        var cacheKey = $"{_tenantCachePrefix}{id}";
+        var cachedTenant = await _cacheService.GetAsync<Tenant>(cacheKey);
+        if (cachedTenant != null)
+        {
+            _logger.LogDebug("Tenant {TenantId} found in cache", id);
+            return cachedTenant;
+        }
+        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        if (tenant != null)
+        {
+            await _cacheService.SetAsync(cacheKey, tenant);
+            _logger.LogDebug("Tenant {TenantId} cached", id);
+        }
+        return tenant;
     }
 
     /// <inheritdoc />
@@ -125,8 +142,23 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             throw new ArgumentException("Host cannot be null or empty.", nameof(host));
 
         var normalizedHost = host.Trim().ToLowerInvariant();
+        var cacheKey = $"{_tenantCachePrefix}{normalizedHost}";
         _logger.LogDebug("Getting tenant by host: {Host}", normalizedHost);
-        return await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
+
+        var cachedTenant = await _cacheService.GetAsync<Tenant>(cacheKey);
+        if (cachedTenant != null)
+        {
+            _logger.LogDebug("Tenant for host {Host} found in cache", normalizedHost);
+            return cachedTenant;
+        }
+
+        var tenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
+        if (tenant != null)
+        {
+            await _cacheService.SetAsync(cacheKey, tenant);
+            _logger.LogDebug("Tenant for host {Host} cached", normalizedHost);
+        }
+        return tenant;
     }
 
     /// <inheritdoc />
@@ -180,6 +212,10 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             }
         }
 
+        // Remove cache
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
+
         // Update tenant properties
         tenant.Name = normalizedName;
         tenant.Host = normalizedHost;
@@ -218,6 +254,10 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             throw new InvalidOperationException($"Tenant with ID '{id}' not found.");
         }
 
+        // Remove cache
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
+
         tenant.IsActive = true;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
@@ -249,6 +289,10 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
             throw new InvalidOperationException($"Tenant with ID '{id}' not found.");
         }
+
+        // Remove cache
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
 
         tenant.IsActive = false;
         tenant.LastModifiedAt = DateTime.UtcNow;
@@ -295,34 +339,5 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     {
         _logger.LogDebug("Getting all tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
         return await _unitOfWork.Tenants.GetAllAsync(pageNumber, pageSize, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task<bool> DeleteTenantAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Deleting tenant: {TenantId}", id);
-        
-        var deleted = await _unitOfWork.Tenants.DeleteAsync(id, cancellationToken);
-        
-        if (deleted)
-        {
-            // Insert audit log for deletion
-            await AddTenantAuditLogAsync(
-                CommonConstant.AUDIT_LOG_EVENT_DELETE,
-                id.ToString(),
-                $"Tenant deleted: {{ \"TenantId\": \"{id}\" }}",
-                CommonConstant.DEFAULT_USER,
-                cancellationToken
-            );
-            
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
-        }
-        else
-        {
-            _logger.LogWarning("Tenant not found for deletion: {TenantId}", id);
-        }
-        
-        return deleted;
     }
 }
