@@ -7,10 +7,19 @@ namespace NiyaCRM.Application.Tenants;
 /// <summary>
 /// Service implementation for tenant management operations.
 /// </summary>
-public class TenantService(ITenantRepository tenantRepository, ILogger<TenantService> logger) : ITenantService
+using NiyaCRM.Core;
+using NiyaCRM.Core.AuditLogs;
+
+using Microsoft.AspNetCore.Http;
+
+public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger, IHttpContextAccessor httpContextAccessor) : ITenantService
 {
-    private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly ILogger<TenantService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+    private string GetUserIp() =>
+        _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
     /// <inheritdoc />
     public async Task<Tenant> CreateTenantAsync(string name, string host, string email, string? databaseName = null, string? createdBy = null, CancellationToken cancellationToken = default)
@@ -34,7 +43,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         var normalizedDatabaseName = databaseName?.Trim();
 
         // Check if host is already taken
-        var existingTenant = await _tenantRepository.GetByHostAsync(normalizedHost, cancellationToken);
+        var existingTenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
         if (existingTenant != null)
         {
             _logger.LogWarning("Attempt to create tenant with existing host: {Host}", normalizedHost);
@@ -53,8 +62,24 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
             createdBy: createdBy ?? "NiyaCRM"
         );
 
-        // Save to repository
-        var createdTenant = await _tenantRepository.AddAsync(tenant, cancellationToken);
+        // Save tenant
+        var createdTenant = await _unitOfWork.Tenants.AddAsync(tenant, cancellationToken);
+
+        // Insert audit log
+        var auditLog = new AuditLog(
+            id: Guid.NewGuid(),
+            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
+            mappedId: createdTenant.Id.ToString(),
+            ip: string.Empty, // Optionally pass IP if available
+            data: $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
+            createdAt: DateTime.UtcNow,
+            createdBy: createdBy ?? "NiyaCRM"
+        );
+        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+
+        // Commit transaction
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully created tenant with ID: {TenantId}", createdTenant.Id);
         return createdTenant;
@@ -64,7 +89,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
-        return await _tenantRepository.GetByIdAsync(id, cancellationToken);
+        return await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -75,7 +100,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
 
         var normalizedHost = host.Trim().ToLowerInvariant();
         _logger.LogDebug("Getting tenant by host: {Host}", normalizedHost);
-        return await _tenantRepository.GetByHostAsync(normalizedHost, cancellationToken);
+        return await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -94,7 +119,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
             throw new ArgumentException("Tenant email cannot be null or empty.", nameof(email));
 
         // Get existing tenant
-        var tenant = await _tenantRepository.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for update: {TenantId}", id);
@@ -110,7 +135,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         // Check if new host conflicts with existing tenant (excluding current tenant)
         if (normalizedHost != tenant.Host)
         {
-            var existingTenant = await _tenantRepository.GetByHostAsync(normalizedHost, cancellationToken);
+            var existingTenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
             if (existingTenant != null && existingTenant.Id != id)
             {
                 _logger.LogWarning("Attempt to update tenant {TenantId} to existing host: {Host}", id, normalizedHost);
@@ -121,7 +146,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         // Check if new email conflicts with existing tenant (excluding current tenant)
         if (normalizedEmail != tenant.Email)
         {
-            var existingTenant = await _tenantRepository.GetByEmailAsync(normalizedEmail, cancellationToken);
+            var existingTenant = await _unitOfWork.Tenants.GetByEmailAsync(normalizedEmail, cancellationToken);
             if (existingTenant != null && existingTenant.Id != id)
             {
                 _logger.LogWarning("Attempt to update tenant {TenantId} to existing email: {Email}", id, normalizedEmail);
@@ -138,7 +163,21 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
 
         // Save changes
-        var updatedTenant = await _tenantRepository.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+
+        // Insert audit log for update
+        var auditLog = new AuditLog(
+            id: Guid.NewGuid(),
+            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            mappedId: updatedTenant.Id.ToString(),
+            ip: string.Empty, // Optionally pass IP if available
+            data: $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
+            createdAt: DateTime.UtcNow,
+            createdBy: modifiedBy ?? "NiyaCRM"
+        );
+        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
         return updatedTenant;
@@ -149,7 +188,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     {
         _logger.LogInformation("Activating tenant: {TenantId}", id);
 
-        var tenant = await _tenantRepository.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for activation: {TenantId}", id);
@@ -159,7 +198,21 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         tenant.IsActive = true;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
-        var updatedTenant = await _tenantRepository.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+
+        // Insert audit log for activation
+        var auditLog = new AuditLog(
+            id: Guid.NewGuid(),
+            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            mappedId: updatedTenant.Id.ToString(),
+            ip: GetUserIp(),
+            data: $"Tenant activated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
+            createdAt: DateTime.UtcNow,
+            createdBy: modifiedBy ?? "NiyaCRM"
+        );
+        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully activated tenant: {TenantId}", id);
         return updatedTenant;
@@ -170,7 +223,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     {
         _logger.LogInformation("Deactivating tenant: {TenantId}", id);
 
-        var tenant = await _tenantRepository.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
@@ -180,7 +233,21 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         tenant.IsActive = false;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = modifiedBy ?? "NiyaCRM";
-        var updatedTenant = await _tenantRepository.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+
+        // Insert audit log for deactivation
+        var auditLog = new AuditLog(
+            id: Guid.NewGuid(),
+            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            mappedId: updatedTenant.Id.ToString(),
+            ip: GetUserIp(),
+            data: $"Tenant deactivated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
+            createdAt: DateTime.UtcNow,
+            createdBy: modifiedBy ?? "NiyaCRM"
+        );
+        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully deactivated tenant: {TenantId}", id);
         return updatedTenant;
@@ -190,7 +257,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     public async Task<IEnumerable<Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all active tenants");
-        return await _tenantRepository.GetActiveTenantsAsync(cancellationToken);
+        return await _unitOfWork.Tenants.GetActiveTenantsAsync(cancellationToken);
     }
 
     /// <inheritdoc />
@@ -202,7 +269,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
         var normalizedHost = host.Trim().ToLowerInvariant();
         _logger.LogDebug("Checking host availability: {Host}", normalizedHost);
 
-        var exists = await _tenantRepository.ExistsByHostAsync(normalizedHost, excludeId, cancellationToken);
+        var exists = await _unitOfWork.Tenants.ExistsByHostAsync(normalizedHost, excludeId, cancellationToken);
         return !exists;
     }
 
@@ -210,7 +277,7 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     public async Task<IEnumerable<Tenant>> GetAllTenantsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-        return await _tenantRepository.GetAllAsync(pageNumber, pageSize, cancellationToken);
+        return await _unitOfWork.Tenants.GetAllAsync(pageNumber, pageSize, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -218,10 +285,23 @@ public class TenantService(ITenantRepository tenantRepository, ILogger<TenantSer
     {
         _logger.LogInformation("Deleting tenant: {TenantId}", id);
         
-        var deleted = await _tenantRepository.DeleteAsync(id, cancellationToken);
+        var deleted = await _unitOfWork.Tenants.DeleteAsync(id, cancellationToken);
         
         if (deleted)
         {
+            // Insert audit log for deletion
+            var auditLog = new AuditLog(
+                id: Guid.NewGuid(),
+                module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+                @event: CommonConstant.AUDIT_LOG_EVENT_DELETE,
+                mappedId: id.ToString(),
+                ip: GetUserIp(),
+                data: $"Tenant deleted: {{ \"TenantId\": \"{id}\" }}",
+                createdAt: DateTime.UtcNow,
+                createdBy: "NiyaCRM"
+            );
+            await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
         }
         else

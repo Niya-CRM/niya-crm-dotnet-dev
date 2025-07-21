@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using NiyaCRM.Core.Tenants;
+using NiyaCRM.Core.AuditLogs;
 
 namespace NiyaCRM.Infrastructure.Data
 {
@@ -19,9 +20,10 @@ namespace NiyaCRM.Infrastructure.Data
         }
 
         /// <summary>
-        /// Gets or sets the tenants DbSet.
+        /// Gets or sets the DbSet.
         /// </summary>
         public DbSet<Tenant> Tenants { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

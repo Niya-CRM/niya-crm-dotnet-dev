@@ -5,6 +5,10 @@ using NiyaCRM.Infrastructure.Data;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Application.Tenants;
 using NiyaCRM.Infrastructure.Data.Tenants;
+using NiyaCRM.Core.AuditLogs;
+using NiyaCRM.Application.AuditLogs;
+using NiyaCRM.Infrastructure.Data.AuditLogs;
+using NiyaCRM.Core;
 using Serilog;
 using System.Reflection;
 
@@ -48,6 +52,13 @@ builder.Services.AddPostgreSqlDbContext(builder.Configuration);
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+
+// Register AuditLog Services
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+// Register Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();

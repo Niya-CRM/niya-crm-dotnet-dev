@@ -43,6 +43,7 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
 
             builder.Property(a => a.Data)
                 .HasColumnName("data")
+                .HasMaxLength(4000)
                 .IsRequired();
 
             builder.Property(a => a.CreatedAt)
