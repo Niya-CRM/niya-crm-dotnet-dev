@@ -274,7 +274,7 @@ public class TenantController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("Tenant not found for activation: {TenantId}", id);
+            _logger.LogWarning(ex, "Tenant not found for activation: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
                 Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
@@ -308,7 +308,7 @@ public class TenantController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
+            _logger.LogWarning(ex, "Tenant not found for deactivation: {TenantId}", id);
             return NotFound(new ProblemDetails
             {
                 Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,

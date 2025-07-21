@@ -21,6 +21,36 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
+    /// <summary>
+    /// Adds an audit log entry for tenant-related actions.
+    /// </summary>
+    /// <param name="module">The audit log module/category.</param>
+    /// <param name="event">The event/action type.</param>
+    /// <param name="mappedId">The ID of the affected entity.</param>
+    /// <param name="ip">The IP address of the user.</param>
+    /// <param name="data">The data/details of the action.</param>
+    /// <param name="createdBy">The user who performed the action.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    private async Task AddTenantAuditLogAsync(
+        string @event,
+        string mappedId,
+        string data,
+        string createdBy,
+        CancellationToken cancellationToken)
+    {
+        var auditLog = new AuditLog(
+            id: Guid.NewGuid(),
+            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            @event: @event,
+            mappedId: mappedId,
+            ip: GetUserIp(),
+            data: data,
+            createdAt: DateTime.UtcNow,
+            createdBy: createdBy
+        );
+        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+    }
+
     /// <inheritdoc />
     public async Task<Tenant> CreateTenantAsync(string name, string host, string email, string? databaseName = null, string? createdBy = null, CancellationToken cancellationToken = default)
     {
@@ -66,17 +96,13 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var createdTenant = await _unitOfWork.Tenants.AddAsync(tenant, cancellationToken);
 
         // Insert audit log
-        var auditLog = new AuditLog(
-            id: Guid.NewGuid(),
-            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
-            @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            mappedId: createdTenant.Id.ToString(),
-            ip: string.Empty, // Optionally pass IP if available
-            data: $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
-            createdAt: DateTime.UtcNow,
-            createdBy: createdBy ?? CommonConstant.DEFAULT_USER
+        await AddTenantAuditLogAsync(
+            CommonConstant.AUDIT_LOG_EVENT_CREATE,
+            createdTenant.Id.ToString(),
+            $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
+            createdBy ?? CommonConstant.DEFAULT_USER,
+            cancellationToken
         );
-        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
 
         // Commit transaction
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -166,17 +192,14 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for update
-        var auditLog = new AuditLog(
-            id: Guid.NewGuid(),
-            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
-            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            mappedId: updatedTenant.Id.ToString(),
-            ip: string.Empty, // Optionally pass IP if available
-            data: $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
-            createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
+        await AddTenantAuditLogAsync(
+            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            updatedTenant.Id.ToString(),
+            $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
+            modifiedBy ?? CommonConstant.DEFAULT_USER,
+            cancellationToken
         );
-        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
@@ -201,17 +224,14 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation
-        var auditLog = new AuditLog(
-            id: Guid.NewGuid(),
-            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
-            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            mappedId: updatedTenant.Id.ToString(),
-            ip: GetUserIp(),
-            data: $"Tenant activated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
-            createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
+        await AddTenantAuditLogAsync(
+            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            updatedTenant.Id.ToString(),
+            $"Tenant activated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
+            modifiedBy ?? CommonConstant.DEFAULT_USER,
+            cancellationToken
         );
-        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully activated tenant: {TenantId}", id);
@@ -236,17 +256,14 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for deactivation
-        var auditLog = new AuditLog(
-            id: Guid.NewGuid(),
-            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
-            @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            mappedId: updatedTenant.Id.ToString(),
-            ip: GetUserIp(),
-            data: $"Tenant deactivated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
-            createdAt: DateTime.UtcNow,
-            createdBy: modifiedBy ?? CommonConstant.DEFAULT_USER
+        await AddTenantAuditLogAsync(
+            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            updatedTenant.Id.ToString(),
+            $"Tenant deactivated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\" }}",
+            modifiedBy ?? CommonConstant.DEFAULT_USER,
+            cancellationToken
         );
-        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+        
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Successfully deactivated tenant: {TenantId}", id);
@@ -290,17 +307,14 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         if (deleted)
         {
             // Insert audit log for deletion
-            var auditLog = new AuditLog(
-                id: Guid.NewGuid(),
-                module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
-                @event: CommonConstant.AUDIT_LOG_EVENT_DELETE,
-                mappedId: id.ToString(),
-                ip: GetUserIp(),
-                data: $"Tenant deleted: {{ \"TenantId\": \"{id}\" }}",
-                createdAt: DateTime.UtcNow,
-                createdBy: CommonConstant.DEFAULT_USER
+            await AddTenantAuditLogAsync(
+                CommonConstant.AUDIT_LOG_EVENT_DELETE,
+                id.ToString(),
+                $"Tenant deleted: {{ \"TenantId\": \"{id}\" }}",
+                CommonConstant.DEFAULT_USER,
+                cancellationToken
             );
-            await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+            
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
         }
