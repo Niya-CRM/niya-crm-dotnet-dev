@@ -80,4 +80,4 @@ app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");
 
-app.Run();
+await app.RunAsync();
