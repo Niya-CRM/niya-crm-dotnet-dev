@@ -10,21 +10,23 @@ namespace NiyaCRM.Infrastructure.Data.Tenants;
 /// </summary>
 public class TenantRepository : ITenantRepository
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<TenantRepository> _logger;
+    private readonly DbSet<Tenant> _dbSet;
 
     /// <summary>
     /// Initializes a new instance of the TenantRepository.
     /// </summary>
     /// <param name="context">The database context.</param>
     /// <param name="logger">The logger.</param>
-    public TenantRepository(ApplicationDbContext context, ILogger<TenantRepository> logger)
+    public TenantRepository(ApplicationDbContext dbContext, ILogger<TenantRepository> logger)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(logger);
         
-        _context = context;
+        _dbContext = dbContext;
         _logger = logger;
+        _dbSet = dbContext.Set<Tenant>();
     }
 
     /// <inheritdoc />
@@ -32,8 +34,7 @@ public class TenantRepository : ITenantRepository
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         
-        return await _context.Set<Tenant>()
-            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        return await _dbSet.FindAsync([id], cancellationToken);
     }
 
     /// <inheritdoc />
@@ -45,8 +46,7 @@ public class TenantRepository : ITenantRepository
         _logger.LogDebug("Getting tenant by host: {Host}", host);
         
         var normalizedHost = host.Trim().ToLowerInvariant();
-        return await _context.Set<Tenant>()
-            .FirstOrDefaultAsync(t => t.Host == normalizedHost, cancellationToken);
+        return await _dbSet.FirstOrDefaultAsync(t => t.Host == normalizedHost, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -58,8 +58,7 @@ public class TenantRepository : ITenantRepository
         _logger.LogDebug("Getting tenant by email: {Email}", email);
         
         var normalizedEmail = email.Trim().ToLowerInvariant();
-        return await _context.Set<Tenant>()
-            .FirstOrDefaultAsync(t => t.Email == normalizedEmail, cancellationToken);
+        return await _dbSet.FirstOrDefaultAsync(t => t.Email == normalizedEmail, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -67,8 +66,7 @@ public class TenantRepository : ITenantRepository
     {
         _logger.LogDebug("Getting all active tenants");
         
-        return await _context.Set<Tenant>()
-            .Where(t => t.IsActive)
+        return await _dbSet.Where(t => t.IsActive)
             .OrderBy(t => t.Name)
             .ToListAsync(cancellationToken);
     }
@@ -84,7 +82,7 @@ public class TenantRepository : ITenantRepository
 
         _logger.LogDebug("Getting tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
         
-        return await _context.Set<Tenant>()
+        return await _dbSet
             .OrderBy(t => t.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
@@ -98,8 +96,8 @@ public class TenantRepository : ITenantRepository
 
         _logger.LogDebug("Adding new tenant: {TenantName} with host: {Host}", tenant.Name, tenant.Host);
         
-        var entry = await _context.Set<Tenant>().AddAsync(tenant, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        var entry = await _dbSet.AddAsync(tenant, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
         
         _logger.LogInformation("Successfully added tenant with ID: {TenantId}", tenant.Id);
         return entry.Entity;
@@ -112,8 +110,8 @@ public class TenantRepository : ITenantRepository
 
         _logger.LogDebug("Updating tenant: {TenantId}", tenant.Id);
         
-        var entry = _context.Set<Tenant>().Update(tenant);
-        await _context.SaveChangesAsync(cancellationToken);
+        var entry = _dbSet.Update(tenant);
+        await _dbContext.SaveChangesAsync(cancellationToken);
         
         _logger.LogInformation("Successfully updated tenant: {TenantId}", tenant.Id);
         return entry.Entity;
@@ -124,7 +122,7 @@ public class TenantRepository : ITenantRepository
     {
         _logger.LogDebug("Deleting tenant: {TenantId}", id);
         
-        var tenant = await _context.Set<Tenant>()
+        var tenant = await _dbSet
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
             
         if (tenant == null)
@@ -133,8 +131,8 @@ public class TenantRepository : ITenantRepository
             return false;
         }
 
-        _context.Set<Tenant>().Remove(tenant);
-        await _context.SaveChangesAsync(cancellationToken);
+        _dbSet.Remove(tenant);
+        await _dbContext.SaveChangesAsync(cancellationToken);
         
         _logger.LogInformation("Successfully deleted tenant: {TenantId}", id);
         return true;
@@ -149,7 +147,7 @@ public class TenantRepository : ITenantRepository
         _logger.LogDebug("Checking if host exists: {Host}, excluding ID: {ExcludeId}", host, excludeId);
         
         var normalizedHost = host.Trim().ToLowerInvariant();
-        var query = _context.Set<Tenant>().Where(t => t.Host == normalizedHost);
+        var query = _dbSet.Where(t => t.Host == normalizedHost);
         
         if (excludeId.HasValue)
         {
@@ -168,7 +166,7 @@ public class TenantRepository : ITenantRepository
         _logger.LogDebug("Checking if email exists: {Email}, excluding ID: {ExcludeId}", email, excludeId);
         
         var normalizedEmail = email.Trim().ToLowerInvariant();
-        var query = _context.Set<Tenant>().Where(t => t.Email == normalizedEmail);
+        var query = _dbSet.Where(t => t.Email == normalizedEmail);
         
         if (excludeId.HasValue)
         {
