@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using NiyaCRM.Core;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.AuditLogs;
@@ -13,25 +17,39 @@ namespace NiyaCRM.Infrastructure.Data
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _dbContext;
-        public ITenantRepository Tenants { get; }
-        public IAuditLogRepository AuditLogs { get; }
+        private readonly IServiceProvider _serviceProvider;
+        private readonly Dictionary<Type, object> _repositories = new();
+        private IDbContextTransaction? _transaction;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnitOfWork"/> class.
         /// </summary>
         /// <param name="dbContext">The application database context.</param>
-        /// <param name="tenantRepository">The tenant repository.</param>
-        /// <param name="auditLogRepository">The audit log repository.</param>
+        /// <param name="serviceProvider">The service provider for repository resolution.</param>
         public UnitOfWork(
             ApplicationDbContext dbContext,
-            ITenantRepository tenantRepository,
-            IAuditLogRepository auditLogRepository)
+            IServiceProvider serviceProvider)
         {
             _dbContext = dbContext;
-            Tenants = tenantRepository;
-            AuditLogs = auditLogRepository;
+            _serviceProvider = serviceProvider;
         }
 
+        /// <summary>
+        /// Gets a repository instance for the specified type.
+        /// </summary>
+        /// <typeparam name="TRepository">The repository type to retrieve.</typeparam>
+        /// <returns>An instance of the specified repository type.</returns>
+        public TRepository GetRepository<TRepository>() where TRepository : class
+        {
+            var type = typeof(TRepository);
+            if (!_repositories.TryGetValue(type, out var repository))
+            {
+                repository = _serviceProvider.GetRequiredService<TRepository>();
+                _repositories[type] = repository;
+            }
+            return (TRepository)repository;
+        }
+        
         /// <summary>
         /// Saves all changes made in this context to the database asynchronously.
         /// </summary>
@@ -75,6 +93,67 @@ namespace NiyaCRM.Infrastructure.Data
         ~UnitOfWork()
         {
             Dispose(false);
+        }
+        
+        /// <summary>
+        /// Begins a transaction asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_transaction != null)
+            {
+                throw new InvalidOperationException("A transaction is already in progress.");
+            }
+            
+            _transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        }
+        
+        /// <summary>
+        /// Commits the current transaction asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_transaction == null)
+            {
+                throw new InvalidOperationException("No active transaction to commit.");
+            }
+            
+            try
+            {
+                await _transaction.CommitAsync(cancellationToken);
+            }
+            finally
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+        
+        /// <summary>
+        /// Rolls back the current transaction asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            if (_transaction == null)
+            {
+                throw new InvalidOperationException("No active transaction to roll back.");
+            }
+            
+            try
+            {
+                await _transaction.RollbackAsync(cancellationToken);
+            }
+            finally
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
     }
 }

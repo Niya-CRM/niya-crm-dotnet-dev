@@ -49,6 +49,13 @@ public interface ITenantService
     Task<Tenant> UpdateTenantAsync(Guid id, string name, string host, string email, string? databaseName = null, string? modifiedBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Checks if any tenants exist in the system.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True if at least one tenant exists, otherwise false.</returns>
+    Task<bool> AnyTenantsExistAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Activates a tenant.
     /// </summary>
     /// <param name="id">The tenant identifier.</param>

@@ -4,6 +4,7 @@ using NiyaCRM.Core.Common;
 using NiyaCRM.Core.Onboarding;
 using NiyaCRM.Core.Onboarding.DTOs;
 using NiyaCRM.Core.Tenants;
+using NiyaCRM.Application.Tenants;
 using System.Text.Json;
 
 namespace NiyaCRM.Application.Onboarding;
@@ -22,7 +23,6 @@ public class OnboardingService : IOnboardingService
     /// Initializes a new instance of the <see cref="OnboardingService"/> class.
     /// </summary>
     /// <param name="unitOfWork">The unit of work.</param>
-    /// <param name="tenantService">The tenant service.</param>
     /// <param name="logger">The logger.</param>
     public OnboardingService(
         IUnitOfWork unitOfWork,
@@ -53,22 +53,19 @@ public class OnboardingService : IOnboardingService
             throw new InvalidOperationException(CommonConstant.MESSAGE_CONFLICT + ": The application is already installed");
         }
 
-        // Validate required fields
-        ValidateInstallationDto(installationDto);
-
         try
         {
             // Begin transaction
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            // 1. Create the tenant
+            // 1. Create the tenant using TenantService to ensure proper audit logging
             var tenant = await _tenantService.CreateTenantAsync(
                 name: installationDto.TenantName,
                 host: installationDto.TenantHost,
                 email: installationDto.TenantEmail,
-                // No database name as per user's DTO modification
                 createdBy: "System.Installer",
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken
+            );
 
             _logger.LogInformation("Created initial tenant with ID: {TenantId}", tenant.Id);
 
@@ -116,46 +113,6 @@ public class OnboardingService : IOnboardingService
         // Check if any tenants exist
         // This is a simple way to determine if the application is installed
         // In a more sophisticated implementation, we might check for a specific flag or setting
-        var tenants = await _tenantService.GetAllTenantsAsync(pageNumber: 1, pageSize: 1, cancellationToken);
-        return tenants.Any();
-    }
-
-    /// <summary>
-    /// Validates the installation DTO to ensure all required fields are provided.
-    /// </summary>
-    /// <param name="installationDto">The installation DTO to validate.</param>
-    private void ValidateInstallationDto(AppInstallationDto installationDto)
-    {
-        var validationErrors = new List<string>();
-
-        // Tenant validation
-        if (string.IsNullOrWhiteSpace(installationDto.TenantName))
-            validationErrors.Add("Tenant name is required");
-        if (string.IsNullOrWhiteSpace(installationDto.TenantHost))
-            validationErrors.Add("Tenant host is required");
-        if (string.IsNullOrWhiteSpace(installationDto.TenantEmail))
-            validationErrors.Add("Tenant email is required");
-
-        // Admin user validation
-        if (string.IsNullOrWhiteSpace(installationDto.AdminFirstName))
-            validationErrors.Add("Admin first name is required");
-        if (string.IsNullOrWhiteSpace(installationDto.AdminLastName))
-            validationErrors.Add("Admin last name is required");
-        if (string.IsNullOrWhiteSpace(installationDto.AdminEmail))
-            validationErrors.Add("Admin email is required");
-        if (string.IsNullOrWhiteSpace(installationDto.AdminPassword))
-            validationErrors.Add("Admin password is required");
-
-        // System preferences validation
-        if (string.IsNullOrWhiteSpace(installationDto.TimeZone))
-            validationErrors.Add("Time zone is required");
-        if (string.IsNullOrWhiteSpace(installationDto.Locale))
-            validationErrors.Add("Locale is required");
-
-        if (validationErrors.Any())
-        {
-            throw new ArgumentException(
-                $"{CommonConstant.MESSAGE_INVALID_REQUEST}: {string.Join("; ", validationErrors)}");
-        }
+        return await _tenantService.AnyTenantsExistAsync(cancellationToken);
     }
 }

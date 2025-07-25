@@ -52,7 +52,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             createdAt: DateTime.UtcNow,
             createdBy: createdBy
         );
-        await _unitOfWork.AuditLogs.AddAsync(auditLog, cancellationToken);
+        await _unitOfWork.GetRepository<IAuditLogRepository>().AddAsync(auditLog, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -77,7 +77,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var normalizedDatabaseName = databaseName?.Trim();
 
         // Check if host is already taken
-        var existingTenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
+        var existingTenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByHostAsync(normalizedHost, cancellationToken);
         if (existingTenant != null)
         {
             _logger.LogWarning("Attempt to create tenant with existing host: {Host}", normalizedHost);
@@ -97,7 +97,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         );
 
         // Save tenant
-        var createdTenant = await _unitOfWork.Tenants.AddAsync(tenant, cancellationToken);
+        var createdTenant = await _unitOfWork.GetRepository<ITenantRepository>().AddAsync(tenant, cancellationToken);
 
         // Insert audit log
         await AddTenantAuditLogAsync(
@@ -126,7 +126,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             _logger.LogDebug("Tenant {TenantId} found in cache", id);
             return cachedTenant;
         }
-        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
         if (tenant != null)
         {
             await _cacheService.SetAsync(cacheKey, tenant);
@@ -152,7 +152,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             return cachedTenant;
         }
 
-        var tenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByHostAsync(normalizedHost, cancellationToken);
         if (tenant != null)
         {
             await _cacheService.SetAsync(cacheKey, tenant);
@@ -177,7 +177,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             throw new ArgumentException("Tenant email cannot be null or empty.", nameof(email));
 
         // Get existing tenant
-        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for update: {TenantId}", id);
@@ -193,7 +193,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         // Check if new host conflicts with existing tenant (excluding current tenant)
         if (normalizedHost != tenant.Host)
         {
-            var existingTenant = await _unitOfWork.Tenants.GetByHostAsync(normalizedHost, cancellationToken);
+            var existingTenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByHostAsync(normalizedHost, cancellationToken);
             if (existingTenant != null && existingTenant.Id != id)
             {
                 _logger.LogWarning("Attempt to update tenant {TenantId} to existing host: {Host}", id, normalizedHost);
@@ -204,7 +204,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         // Check if new email conflicts with existing tenant (excluding current tenant)
         if (normalizedEmail != tenant.Email)
         {
-            var existingTenant = await _unitOfWork.Tenants.GetByEmailAsync(normalizedEmail, cancellationToken);
+            var existingTenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByEmailAsync(normalizedEmail, cancellationToken);
             if (existingTenant != null && existingTenant.Id != id)
             {
                 _logger.LogWarning("Attempt to update tenant {TenantId} to existing email: {Email}", id, normalizedEmail);
@@ -225,7 +225,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
 
         // Save changes
-        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for update
         await AddTenantAuditLogAsync(
@@ -247,7 +247,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     {
         _logger.LogInformation("Activating tenant: {TenantId}", id);
 
-        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for activation: {TenantId}", id);
@@ -261,7 +261,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.IsActive = true;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
-        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation
         await AddTenantAuditLogAsync(
@@ -283,7 +283,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     {
         _logger.LogInformation("Deactivating tenant: {TenantId}", id);
 
-        var tenant = await _unitOfWork.Tenants.GetByIdAsync(id, cancellationToken);
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
@@ -297,7 +297,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.IsActive = false;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
-        var updatedTenant = await _unitOfWork.Tenants.UpdateAsync(tenant, cancellationToken);
+        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for deactivation
         await AddTenantAuditLogAsync(
@@ -318,7 +318,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     public async Task<IEnumerable<Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all active tenants");
-        return await _unitOfWork.Tenants.GetActiveTenantsAsync(cancellationToken);
+        return await _unitOfWork.GetRepository<ITenantRepository>().GetActiveTenantsAsync(cancellationToken);
     }
 
     /// <inheritdoc />
@@ -330,7 +330,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var normalizedHost = host.Trim().ToLowerInvariant();
         _logger.LogDebug("Checking host availability: {Host}", normalizedHost);
 
-        var exists = await _unitOfWork.Tenants.ExistsByHostAsync(normalizedHost, excludeId, cancellationToken);
+        var exists = await _unitOfWork.GetRepository<ITenantRepository>().ExistsByHostAsync(normalizedHost, excludeId, cancellationToken);
         return !exists;
     }
 
@@ -338,6 +338,14 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     public async Task<IEnumerable<Tenant>> GetAllTenantsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-        return await _unitOfWork.Tenants.GetAllAsync(pageNumber, pageSize, cancellationToken);
+        return await _unitOfWork.GetRepository<ITenantRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> AnyTenantsExistAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Checking if any tenants exist in the system");
+        var tenants = await _unitOfWork.GetRepository<ITenantRepository>().GetAllAsync(pageNumber: 1, pageSize: 1, cancellationToken);
+        return tenants.Any();
     }
 }
