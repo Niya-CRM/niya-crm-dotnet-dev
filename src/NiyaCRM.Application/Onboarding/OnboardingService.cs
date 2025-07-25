@@ -39,10 +39,7 @@ public class OnboardingService : IOnboardingService
     /// <inheritdoc/>
     public async Task<Tenant> InstallApplicationAsync(AppInstallationDto installationDto, CancellationToken cancellationToken = default)
     {
-        if (installationDto == null)
-        {
-            throw new ArgumentNullException(nameof(installationDto));
-        }
+        ArgumentNullException.ThrowIfNull(installationDto);
 
         _logger.LogInformation("Starting application installation process for tenant: {TenantName}", installationDto.TenantName);
 
