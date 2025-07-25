@@ -67,6 +67,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Niya-CRM_niya-crm-dotnet-dev" /o:"niya-crm" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.exclusions="**/Migrations/**/*,**/_NOTUSED/**/*"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Niya-CRM_niya-crm-dotnet-dev" /o:"niya-crm" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.exclusions="**/Migrations/**/*,**/_NOTUSED/**/*" /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml"
           dotnet build
+          dotnet test --collect:"XPlat Code Coverage" --results-directory:TestResults/ -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
