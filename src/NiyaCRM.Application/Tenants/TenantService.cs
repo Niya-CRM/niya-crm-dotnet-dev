@@ -330,8 +330,8 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         var normalizedHost = host.Trim().ToLowerInvariant();
         _logger.LogDebug("Checking host availability: {Host}", normalizedHost);
 
-        var exists = await _unitOfWork.GetRepository<ITenantRepository>().ExistsByHostAsync(normalizedHost, excludeId, cancellationToken);
-        return !exists;
+        var existingTenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByHostAsync(normalizedHost, cancellationToken);
+        return existingTenant == null || (excludeId.HasValue && existingTenant.Id == excludeId.Value);
     }
 
     /// <inheritdoc />

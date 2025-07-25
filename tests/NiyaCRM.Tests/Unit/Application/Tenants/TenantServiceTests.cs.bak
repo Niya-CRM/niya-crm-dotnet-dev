@@ -1,0 +1,225 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Moq;
+using NiyaCRM.Application.Tenants;
+using NiyaCRM.Core;
+using NiyaCRM.Core.AuditLogs;
+using NiyaCRM.Core.Cache;
+using NiyaCRM.Core.Common;
+using NiyaCRM.Core.Tenants;
+using Shouldly;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace NiyaCRM.Tests.Unit.Application.Tenants
+{
+    public class TenantServiceTests
+    {
+        private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+        private readonly Mock<ILogger<TenantService>> _mockLogger;
+        private readonly Mock<ICacheService> _mockCacheService;
+        private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+        private readonly Mock<ITenantRepository> _mockTenantRepository;
+        private readonly Mock<IAuditLogRepository> _mockAuditLogRepository;
+        private readonly TenantService _tenantService;
+
+        public TenantServiceTests()
+        {
+            _mockUnitOfWork = new Mock<IUnitOfWork>();
+            _mockLogger = new Mock<ILogger<TenantService>>();
+            _mockCacheService = new Mock<ICacheService>();
+            _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            _mockTenantRepository = new Mock<ITenantRepository>();
+            _mockAuditLogRepository = new Mock<IAuditLogRepository>();
+
+            // Setup repository factory pattern
+            _mockUnitOfWork
+                .Setup(uow => uow.GetRepository<ITenantRepository>())
+                .Returns(_mockTenantRepository.Object);
+            
+            _mockUnitOfWork
+                .Setup(uow => uow.GetRepository<IAuditLogRepository>())
+                .Returns(_mockAuditLogRepository.Object);
+
+            // Setup HttpContextAccessor with a user
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, "testuser"),
+                new Claim(ClaimTypes.NameIdentifier, "user123")
+            }, "mock"));
+        
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockConnection = new Mock<ConnectionInfo>();
+            var mockIpAddress = new Mock<System.Net.IPAddress>(new byte[] { 127, 0, 0, 1 });
+        
+            mockConnection.Setup(c => c.RemoteIpAddress).Returns(mockIpAddress.Object);
+            mockHttpContext.Setup(c => c.Connection).Returns(mockConnection.Object);
+            mockHttpContext.Setup(c => c.User).Returns(user);
+        
+            _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
+
+            _tenantService = new TenantService(
+                _mockUnitOfWork.Object,
+                _mockLogger.Object,
+                _mockHttpContextAccessor.Object,
+                _mockCacheService.Object);
+        }
+
+        [Fact]
+        public async Task CreateTenantAsync_ShouldCreateTenant_AndLogAudit()
+        {
+            // Arrange
+            var tenantName = "Test Tenant";
+            var tenantHost = "test.domain.com";
+            var tenantEmail = "test@example.com";
+            
+            var tenant = new Tenant
+            {
+                Name = tenantName,
+                Host = tenantHost,
+                Email = tenantEmail,
+                IsActive = true
+            };
+
+            _mockTenantRepository
+                .Setup(repo => repo.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenant);
+
+            _mockUnitOfWork
+                .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            // Act
+            var result = await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Name.ShouldBe("Test Tenant");
+            result.Host.ShouldBe("test.domain.com");
+            result.Email.ShouldBe("test@example.com");
+            result.IsActive.ShouldBeTrue();
+
+            // Verify tenant was added
+            _mockTenantRepository.Verify(
+                repo => repo.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify audit log was created
+            _mockAuditLogRepository.Verify(
+                repo => repo.AddAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify changes were saved
+            _mockUnitOfWork.Verify(
+                uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify cache was invalidated
+            _mockCacheService.Verify(
+                cache => cache.RemoveAsync(It.IsAny<string>()),
+                Times.AtLeastOnce);
+        }
+
+        [Fact]
+        public async Task DeactivateTenantAsync_ShouldDeactivateTenant_AndLogAudit()
+        {
+            // Arrange
+            var tenantId = Guid.NewGuid();
+            var tenant = new Tenant
+            {
+                Id = tenantId,
+                Name = "Test Tenant",
+                Host = "test.domain.com",
+                Email = "test@example.com",
+                IsActive = true
+            };
+
+            _mockTenantRepository
+                .Setup(repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenant);
+
+            _mockUnitOfWork
+                .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
+            // Act
+            var result = await _tenantService.DeactivateTenantAsync(tenantId, "Test deactivation");
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.IsActive.ShouldBeFalse();
+
+            // Verify tenant was retrieved
+            _mockTenantRepository.Verify(
+                repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify audit log was created
+            _mockAuditLogRepository.Verify(
+                repo => repo.AddAsync(It.IsAny<AuditLog>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify changes were saved
+            _mockUnitOfWork.Verify(
+                uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            // Verify cache was invalidated
+            _mockCacheService.Verify(
+                cache => cache.RemoveAsync(It.IsAny<string>()),
+                Times.AtLeastOnce);
+        }
+
+        [Fact]
+        public async Task AnyTenantsExistAsync_ShouldReturnTrue_WhenTenantsExist()
+        {
+            // Arrange
+            var tenants = new List<Tenant>
+            {
+                new Tenant { Id = Guid.NewGuid(), Name = "Tenant 1" }
+            };
+
+            _mockTenantRepository
+                .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenants);
+
+            // Act
+            var result = await _tenantService.AnyTenantsExistAsync(CancellationToken.None);
+
+            // Assert
+            result.ShouldBeTrue();
+            
+            // Verify repository was called
+            _mockTenantRepository.Verify(
+                repo => repo.GetAllAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task AnyTenantsExistAsync_ShouldReturnFalse_WhenNoTenantsExist()
+        {
+            // Arrange
+            var tenants = new List<Tenant>();
+
+            _mockTenantRepository
+                .Setup(repo => repo.GetAllAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tenants);
+
+            // Act
+            var result = await _tenantService.AnyTenantsExistAsync(CancellationToken.None);
+
+            // Assert
+            result.ShouldBeFalse();
+            
+            // Verify repository was called
+            _mockTenantRepository.Verify(
+                repo => repo.GetAllAsync(It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+}
