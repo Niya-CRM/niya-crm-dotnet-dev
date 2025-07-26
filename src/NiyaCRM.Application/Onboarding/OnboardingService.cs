@@ -83,8 +83,6 @@ public class OnboardingService : IOnboardingService
 
             _logger.LogInformation("Created initial admin user with email: {Email}", installationDto.AdminEmail);
             */
-            // For now, log that this would happen
-            _logger.LogInformation("Would create initial admin user with email: {Email} (functionality pending)", installationDto.AdminEmail);
 
             // Store the installation completion flag
             // For now we can just store it as a tenant property or other mechanism
@@ -98,7 +96,7 @@ public class OnboardingService : IOnboardingService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during application installation: {Message}", ex.Message);
+            _logger.LogError("Error during application installation: {Message}", ex.Message);
             await _unitOfWork.RollbackTransactionAsync(cancellationToken);
             throw;
         }

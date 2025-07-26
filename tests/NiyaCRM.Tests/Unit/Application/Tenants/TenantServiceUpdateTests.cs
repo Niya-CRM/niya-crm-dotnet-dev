@@ -25,7 +25,6 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         private readonly Mock<ITenantRepository> _mockTenantRepository;
         private readonly Mock<IAuditLogRepository> _mockAuditLogRepository;
         private readonly TenantService _tenantService;
-        private readonly string _tenantCachePrefix = "tenant:";
 
         public TenantServiceUpdateTests()
         {
