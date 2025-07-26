@@ -82,6 +82,9 @@ var app = builder.Build();
 // Add CorrelationId to response headers for all requests
 app.UseMiddleware<CorrelationIdMiddleware>();
 
+// Add Domain to log context for all requests
+app.UseMiddleware<DomainMiddleware>();
+
 // Log all requests and response.
 app.UseHttpLogging();
 

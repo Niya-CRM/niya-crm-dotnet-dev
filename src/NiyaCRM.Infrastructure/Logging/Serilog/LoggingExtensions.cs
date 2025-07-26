@@ -52,7 +52,7 @@ namespace NiyaCRM.Infrastructure.Logging.Serilog
                 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
                 string applicationName = context.Configuration["ApplicationName"]?.Replace(".", "-").Replace(" ", "-") ?? "MyDotNetApplication";
 
-                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{CorrelationId}] [{SourceContext}] [{Host}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
+                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{CorrelationId}] [{SourceContext}] [{Domain}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
 
                 var minLogLevel = context.Configuration["LoggerSettings:LogLevel:Default"] ?? "Information";
                 SetMinimumLogLevel(configuration, minLogLevel);
