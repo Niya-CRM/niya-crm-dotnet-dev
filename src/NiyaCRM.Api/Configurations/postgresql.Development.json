@@ -1,5 +1,5 @@
 {
   "PostgreSQL": {
-    "ConnectionString": "Host=${DB_HOST};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}"
+    "ConnectionString": "Host=127.0.0.1;Database=niya_crm;Username=postgres;Password=postgres"
   }
 }

@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using NiyaCRM.Api.Configurations;
 using NiyaCRM.Infrastructure.Logging.Serilog;
 using NiyaCRM.Infrastructure.Data;
@@ -11,8 +14,10 @@ using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
 using NiyaCRM.Infrastructure.Data.AuditLogs;
 using NiyaCRM.Core;
+using NiyaCRM.Core.Identity;
 using Serilog;
 using System.Reflection;
+using System.Text;
 using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Api.Middleware;
 
@@ -43,7 +48,7 @@ builder.Services.AddHttpLogging(logging =>
     logging.ResponseHeaders.Add("max-age");
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 
 // Register validator for ActivateDeactivateTenantRequest
 builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, ActivateDeactivateTenantRequestValidator>();
@@ -54,6 +59,48 @@ builder.Services.AddHttpContextAccessor();
 
 // Register ApplicationDbContext with PostgreSQL
 builder.Services.AddPostgreSqlDbContext(builder.Configuration);
+
+// Configure Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    
+    // User settings
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(options => {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options => {
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "defaultSecretKeyWhichShouldBeReplaced"))
+    };
+});
+
+// Add Authorization policies
+builder.Services.AddAuthorization();
 
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -88,11 +135,16 @@ app.UseMiddleware<DomainMiddleware>();
 // Log all requests and response.
 app.UseHttpLogging();
 
+// Enable authentication & authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
 app.UseSerilogRequestLogging();
 
-app.MapControllers();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapGet("/", () => "Hello World!");
 
