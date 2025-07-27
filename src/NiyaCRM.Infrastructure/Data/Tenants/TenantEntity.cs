@@ -43,6 +43,12 @@ public class TenantEntity : IEntityTypeConfiguration<Tenant>
             .HasMaxLength(100)
             .IsRequired();
 
+        // TimeZone property
+        builder.Property(t => t.TimeZone)
+            .HasColumnName("time_zone")
+            .HasMaxLength(100)
+            .IsRequired();
+
         // Database name property
         builder.Property(t => t.DatabaseName)
             .HasColumnName("database_name")

@@ -14,12 +14,7 @@ public class AppInstallationDto
     /// <summary>
     /// Gets or sets the host/domain for the tenant.
     /// </summary>
-    public string TenantHost { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the primary email address for the tenant.
-    /// </summary>
-    public string TenantEmail { get; set; } = string.Empty;
+    public string Host { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the first name of the admin user.

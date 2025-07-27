@@ -30,7 +30,7 @@ public interface IAuditLogRepository
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
         string? module = null,
         string? mappedId = null,
-        string? createdBy = null,
+        Guid? createdBy = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
         int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,

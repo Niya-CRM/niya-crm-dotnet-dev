@@ -27,6 +27,16 @@ public class Tenant
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the default time zone identifier for this tenant.
+    /// </summary>
+    public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;
+
+    /// <summary>
+    /// Gets or sets the user identifier associated with this tenant.
+    /// </summary>
+    public Guid UserId { get; set; }
+
+    /// <summary>
     /// Gets or sets the database name for this tenant.
     /// </summary>
     public string? DatabaseName { get; set; }
@@ -34,7 +44,7 @@ public class Tenant
     /// <summary>
     /// Gets or sets a value indicating whether the tenant is active.
     /// </summary>
-    public bool IsActive { get; set; }
+    public string IsActive { get; set; } = "Y";
 
     /// <summary>
     /// Gets or sets the date and time when the tenant was created.
@@ -47,14 +57,19 @@ public class Tenant
     public DateTime LastModifiedAt { get; set; }
 
     /// <summary>
+    /// Gets or sets the date and time when the tenant was deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; set; }
+
+    /// <summary>
     /// Gets or sets the user who created the tenant.
     /// </summary>
-    public string CreatedBy { get; set; } = string.Empty;
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last modified the tenant.
     /// </summary>
-    public string LastModifiedBy { get; set; } = string.Empty;
+    public Guid LastModifiedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Tenant"/> class.
@@ -74,17 +89,20 @@ public class Tenant
     /// <param name="isActive">Whether the tenant is active.</param>
     /// <param name="createdAt">The creation timestamp.</param>
     /// <param name="createdBy">The user who created the tenant.</param>
-    public Tenant(Guid id, string name, string host, string email, string? databaseName, bool isActive, DateTime createdAt, string createdBy)
+    public Tenant(Guid id, string name, string host, string email, Guid userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, Guid createdBy)
     {
         Id = id;
         Name = name;
         Host = host;
         Email = email;
+        UserId = userId;
+        TimeZone = timeZone;
         DatabaseName = databaseName;
         IsActive = isActive;
         CreatedAt = createdAt;
         CreatedBy = createdBy;
         LastModifiedAt = createdAt;
         LastModifiedBy = createdBy;
+        DeletedAt = null;
     }
 }

@@ -39,7 +39,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         string @event,
         string mappedId,
         string data,
-        string createdBy,
+        Guid createdBy,
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
@@ -56,7 +56,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(string name, string host, string email, string? databaseName = null, string? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", name, host, email);
 
@@ -90,8 +90,10 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             name: normalizedName,
             host: normalizedHost,
             email: normalizedEmail,
+            userId: userId,
+            timeZone: timeZone,
             databaseName: normalizedDatabaseName,
-            isActive: true,
+            isActive: "Y",
             createdAt: DateTime.UtcNow,
             createdBy: createdBy ?? CommonConstant.DEFAULT_USER
         );
@@ -162,7 +164,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, string name, string host, string email, string? databaseName = null, string? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(Guid id, string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, name, host, email, databaseName);
 
@@ -220,6 +222,8 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.Name = normalizedName;
         tenant.Host = normalizedHost;
         tenant.Email = normalizedEmail;
+        tenant.UserId = userId;
+        tenant.TimeZone = timeZone;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;
@@ -258,7 +262,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
 
-        tenant.IsActive = true;
+        tenant.IsActive = "Y";
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
@@ -294,7 +298,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
 
-        tenant.IsActive = false;
+        tenant.IsActive = "N";
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);

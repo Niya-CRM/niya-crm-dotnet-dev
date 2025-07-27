@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
+using NiyaCRM.Core.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NiyaCRM.Api.Configurations;
 using NiyaCRM.Infrastructure.Logging.Serilog;
@@ -14,7 +15,6 @@ using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
 using NiyaCRM.Infrastructure.Data.AuditLogs;
 using NiyaCRM.Core;
-using NiyaCRM.Core.Identity;
 using Serilog;
 using System.Reflection;
 using System.Text;
@@ -61,7 +61,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddPostgreSqlDbContext(builder.Configuration);
 
 // Configure Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
     // Password settings
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;

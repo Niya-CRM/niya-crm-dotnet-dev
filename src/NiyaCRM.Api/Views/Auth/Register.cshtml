@@ -45,19 +45,6 @@
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
         
-        @if (ViewBag.ShowTenantField ?? false)
-        {
-            <div class="mb-3">
-                <label asp-for="TenantId" class="form-label">Tenant ID</label>
-                <input asp-for="TenantId" class="form-control" />
-                <span asp-validation-for="TenantId" class="text-danger"></span>
-            </div>
-        }
-        else
-        {
-            <input type="hidden" asp-for="TenantId" value="@(null)" />
-        }
-        
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary">Register</button>
         </div>

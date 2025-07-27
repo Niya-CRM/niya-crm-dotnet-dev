@@ -63,8 +63,7 @@ namespace NiyaCRM.Api.Controllers
                 UserName = model.Email,
                 Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName,
-                TenantId = model.TenantId
+                LastName = model.LastName
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -110,7 +109,7 @@ namespace NiyaCRM.Api.Controllers
                 return View(model);
             }
 
-            if (!user.IsActive)
+            if (user.IsActive != "Y")
             {
                 ModelState.AddModelError(string.Empty, "Account is deactivated");
                 return View(model);
@@ -145,17 +144,11 @@ namespace NiyaCRM.Api.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-
-            // Add tenant claim if user has a tenant
-            if (user.TenantId.HasValue)
-            {
-                claims.Add(new Claim("TenantId", user.TenantId.Value.ToString()));
-            }
 
             // Add role claims
             foreach (var role in userRoles)

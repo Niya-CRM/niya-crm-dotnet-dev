@@ -5,6 +5,8 @@ using NiyaCRM.Core.Onboarding;
 using NiyaCRM.Core.Onboarding.DTOs;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Application.Tenants;
+using Microsoft.AspNetCore.Identity;
+using NiyaCRM.Core.Identity;
 using System.Text.Json;
 
 namespace NiyaCRM.Application.Onboarding;
@@ -17,7 +19,8 @@ public class OnboardingService : IOnboardingService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantService _tenantService;
     private readonly ILogger<OnboardingService> _logger;
-    // private readonly IUserService _userService; // Will be uncommented when User service is available
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OnboardingService"/> class.
@@ -27,13 +30,15 @@ public class OnboardingService : IOnboardingService
     public OnboardingService(
         IUnitOfWork unitOfWork,
         ITenantService tenantService,
-        // IUserService userService, // Will be uncommented when User service is available
+        UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager,
         ILogger<OnboardingService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        // _userService = userService ?? throw new ArgumentNullException(nameof(userService)); // Will be uncommented when User service is available
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
     }
 
     /// <inheritdoc/>
@@ -55,34 +60,51 @@ public class OnboardingService : IOnboardingService
             // Begin transaction
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            // 1. Create the tenant using TenantService to ensure proper audit logging
+            var userId = Guid.NewGuid();
+
+            // 1. Create the initial admin user
+            var user = new ApplicationUser
+            {
+                Id = userId,
+                UserName = installationDto.AdminEmail,
+                Email = installationDto.AdminEmail,
+                FirstName = installationDto.AdminFirstName,
+                LastName = installationDto.AdminLastName,
+                TimeZone = installationDto.TimeZone,
+                IsActive = "Y",
+                CreatedBy = userId, 
+                UpdatedBy = userId
+            };
+
+            var createResult = await _userManager.CreateAsync(user, installationDto.AdminPassword);
+            if (!createResult.Succeeded)
+            {
+                _logger.LogError("Failed to create initial admin user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
+                throw new InvalidOperationException("Failed to create initial admin user");
+            }
+
+            // Assign the Admin role if it exists
+            if (await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+            }
+
+            _logger.LogInformation("Created initial admin user with email: {Email}", installationDto.AdminEmail);
+
+            // 2. Create the tenant using TenantService to ensure proper audit logging
             var tenant = await _tenantService.CreateTenantAsync(
                 name: installationDto.TenantName,
-                host: installationDto.TenantHost,
-                email: installationDto.TenantEmail,
-                createdBy: "System.Installer",
+                host: installationDto.Host,
+                email: installationDto.AdminEmail,
+                userId: user.Id,
+                timeZone: installationDto.TimeZone,
+                createdBy: user.Id,
                 cancellationToken: cancellationToken
             );
 
             _logger.LogInformation("Created initial tenant with ID: {TenantId}", tenant.Id);
 
-            // 2. Create the initial admin user
-            // This section is commented out as the User service is not available yet
-            /*
-            await _userService.CreateUserAsync(
-                firstName: installationDto.AdminFirstName,
-                lastName: installationDto.AdminLastName,
-                email: installationDto.AdminEmail,
-                password: installationDto.AdminPassword,
-                tenantId: tenant.Id,
-                isAdmin: true,
-                timeZone: installationDto.TimeZone,
-                locale: installationDto.Locale,
-                createdBy: "System.Installer",
-                cancellationToken: cancellationToken);
-
-            _logger.LogInformation("Created initial admin user with email: {Email}", installationDto.AdminEmail);
-            */
+            
 
             // Store the installation completion flag
             // For now we can just store it as a tenant property or other mechanism

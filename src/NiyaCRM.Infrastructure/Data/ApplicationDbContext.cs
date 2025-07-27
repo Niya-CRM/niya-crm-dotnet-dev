@@ -1,9 +1,10 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Identity;
+using Microsoft.EntityFrameworkCore;
+using NiyaCRM.Core.Helpers.Naming;
+using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Tenants;
 
 namespace NiyaCRM.Infrastructure.Data
@@ -11,7 +12,7 @@ namespace NiyaCRM.Infrastructure.Data
     /// <summary>
     /// Application database context.
     /// </summary>
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.
@@ -38,41 +39,45 @@ namespace NiyaCRM.Infrastructure.Data
             // Apply all entity configurations from the current assembly
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            // Customize the ASP.NET Identity schema
-            modelBuilder.Entity<ApplicationUser>(entity =>
+            // Apply snake_case naming convention to all tables, columns, keys and indexes
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
             {
-                entity.ToTable(name: "Users");
-            });
+                // table names – default snake_case
+                var defaultTableName = entity.GetTableName()!.ToSnakeCase();
 
-            modelBuilder.Entity<IdentityRole>(entity =>
-            {
-                entity.ToTable(name: "Roles");
-            });
+                // For ASP.NET Identity tables, override to concise names (users, roles, etc.)
+                defaultTableName = entity.ClrType switch
+                {
+                    Type t when t == typeof(ApplicationUser)              => "users",
+                    Type t when t == typeof(ApplicationRole) || t == typeof(IdentityRole<Guid>)                 => "roles",
+                    Type t when t == typeof(IdentityUserRole<Guid>)     => "user_roles",
+                    Type t when t == typeof(IdentityUserClaim<Guid>)    => "user_claims",
+                    Type t when t == typeof(IdentityUserLogin<Guid>)    => "user_logins",
+                    Type t when t == typeof(IdentityRoleClaim<Guid>)    => "role_claims",
+                    Type t when t == typeof(IdentityUserToken<Guid>)    => "user_tokens",
+                    _                                                     => defaultTableName
+                };
 
-            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
-            {
-                entity.ToTable("UserRoles");
-            });
+                entity.SetTableName(defaultTableName);
 
-            modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
-            {
-                entity.ToTable("UserClaims");
-            });
+                // column names
+                foreach (var property in entity.GetProperties())
+                {
+                    property.SetColumnName(property.Name.ToSnakeCase());
+                }
 
-            modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
-            {
-                entity.ToTable("UserLogins");
-            });
+                // key names
+                foreach (var key in entity.GetKeys())
+                {
+                    key.SetName(key.GetName()!.ToSnakeCase());
+                }
 
-            modelBuilder.Entity<IdentityRoleClaim<string>>(entity =>
-            {
-                entity.ToTable("RoleClaims");
-            });
-
-            modelBuilder.Entity<IdentityUserToken<string>>(entity =>
-            {
-                entity.ToTable("UserTokens");
-            });
+                // index names
+                foreach (var index in entity.GetIndexes())
+                {
+                    index.SetDatabaseName(index.GetDatabaseName()!.ToSnakeCase());
+                }
+            }
         }
     }
 }

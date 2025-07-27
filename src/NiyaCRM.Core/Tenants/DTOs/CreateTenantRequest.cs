@@ -22,22 +22,19 @@ public class CreateTenantRequest
     public string Host { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the tenant email.
+    /// Gets or sets the user identifier.
     /// </summary>
     [Required]
-    [EmailAddress]
+    public string UserId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the tenant time zone.
+    /// </summary>
     [StringLength(100, MinimumLength = 1)]
-    public string Email { get; set; } = string.Empty;
+    public string? TimeZone { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the database name (optional).
     /// </summary>
-    [StringLength(100)]
     public string? DatabaseName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user creating the tenant.
-    /// </summary>
-    [StringLength(100)]
-    public string? CreatedBy { get; set; }
 }

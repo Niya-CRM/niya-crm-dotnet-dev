@@ -66,7 +66,7 @@ public class TenantRepository : ITenantRepository
     {
         _logger.LogDebug("Getting all active tenants");
         
-        return await _dbSet.Where(t => t.IsActive)
+        return await _dbSet.Where(t => t.IsActive == "Y")
             .OrderBy(t => t.Name)
             .ToListAsync(cancellationToken);
     }

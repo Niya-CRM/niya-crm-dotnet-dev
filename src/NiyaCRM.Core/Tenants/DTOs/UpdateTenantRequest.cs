@@ -27,6 +27,12 @@ public class UpdateTenantRequest
     public string? Email { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the tenant time zone.
+    /// </summary>
+    [StringLength(100, MinimumLength = 1)]
+    public string? TimeZone { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the database name (optional).
     /// </summary>
     [StringLength(100)]

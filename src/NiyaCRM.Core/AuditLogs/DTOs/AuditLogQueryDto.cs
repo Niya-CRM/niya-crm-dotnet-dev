@@ -9,7 +9,7 @@ namespace NiyaCRM.Core.AuditLogs.DTOs
     {
         public string? Module { get; set; }
         public string? MappedId { get; set; }
-        public string? CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int PageNumber { get; set; } = CommonConstant.PAGE_NUMBER_DEFAULT;

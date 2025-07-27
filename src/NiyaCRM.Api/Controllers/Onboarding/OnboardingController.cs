@@ -9,6 +9,7 @@ namespace NiyaCRM.Api.Controllers.Onboarding;
 /// <summary>
 /// Controller for handling application onboarding and installation operations.
 /// </summary>
+[ApiController]
 [Route("api/onboarding")]
 public class OnboardingController : ControllerBase
 {

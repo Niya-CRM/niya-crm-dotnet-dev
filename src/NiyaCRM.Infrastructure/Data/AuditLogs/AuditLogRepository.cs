@@ -29,7 +29,7 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
             string? module = null,
             string? mappedId = null,
-            string? createdBy = null,
+            Guid? createdBy = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
             int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
@@ -42,8 +42,8 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
                 query = query.Where(a => a.Module == module);
             if (!string.IsNullOrEmpty(mappedId))
                 query = query.Where(a => a.MappedId == mappedId);
-            if (!string.IsNullOrEmpty(createdBy))
-                query = query.Where(a => a.CreatedBy == createdBy);
+            if (createdBy.HasValue)
+                query = query.Where(a => a.CreatedBy == createdBy.Value);
             if (startDate.HasValue)
                 query = query.Where(a => a.CreatedAt >= startDate.Value);
             if (endDate.HasValue)

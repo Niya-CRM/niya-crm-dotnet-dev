@@ -18,7 +18,7 @@ public interface IAuditLogService
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created audit log entry.</returns>
-    Task<AuditLog> CreateAuditLogAsync(string module, string @event, string mappedId, string ip, string data, string createdBy, CancellationToken cancellationToken = default);
+    Task<AuditLog> CreateAuditLogAsync(string module, string @event, string mappedId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an audit log by its identifier.
@@ -43,7 +43,7 @@ public interface IAuditLogService
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
         string? module = null,
         string? mappedId = null,
-        string? createdBy = null,
+        Guid? createdBy = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
         int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,

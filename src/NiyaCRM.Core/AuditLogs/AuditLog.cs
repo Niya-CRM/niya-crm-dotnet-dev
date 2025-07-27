@@ -44,7 +44,7 @@ public class AuditLog
     /// <summary>
     /// Gets or sets the user who performed the action.
     /// </summary>
-    public string CreatedBy { get; set; } = string.Empty;
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuditLog"/> class.
@@ -64,7 +64,7 @@ public class AuditLog
     /// <param name="data">The audit data.</param>
     /// <param name="createdAt">The creation timestamp.</param>
     /// <param name="createdBy">The user who performed the action.</param>
-    public AuditLog(Guid id, string module, string @event, string mappedId, string ip, string data, DateTime createdAt, string createdBy)
+    public AuditLog(Guid id, string module, string @event, string mappedId, string ip, string data, DateTime createdAt, Guid createdBy)
     {
         Id = id;
         Module = module;
