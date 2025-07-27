@@ -1,4 +1,8 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
+using NiyaCRM.Core.Identity;
+using NiyaCRM.Tests.Helpers;
 using Moq;
 using NiyaCRM.Application.Onboarding;
 using NiyaCRM.Core;
@@ -18,6 +22,8 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ITenantService> _mockTenantService;
         private readonly Mock<ILogger<OnboardingService>> _mockLogger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly OnboardingService _onboardingService;
 
         public OnboardingServiceTests()
@@ -25,10 +31,14 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockTenantService = new Mock<ITenantService>();
             _mockLogger = new Mock<ILogger<OnboardingService>>();
+            _userManager = TestHelpers.MockUserManager();
+            _roleManager = TestHelpers.MockRoleManager();
 
             _onboardingService = new OnboardingService(
                 _mockUnitOfWork.Object,
                 _mockTenantService.Object,
+                _userManager,
+                _roleManager,
                 _mockLogger.Object);
         }
 
@@ -79,8 +89,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
             var installationDto = new AppInstallationDto
             {
                 TenantName = "Test Organization",
-                TenantHost = "test-organization",
-                TenantEmail = "admin@test.com",
+                Host = "support.organization.com",
                 AdminEmail = "admin@test.com",
                 AdminPassword = "Password123!",
                 AdminFirstName = "Admin",
@@ -91,18 +100,20 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
             {
                 Id = Guid.NewGuid(),
                 Name = "Test Organization",
-                Host = "test-organization",
+                Host = "support.organization.com",
                 Email = "admin@test.com",
-                IsActive = true
+                IsActive = "Y"
             };
 
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
                     It.Is<string>(name => name == installationDto.TenantName),
-                    It.Is<string>(host => host == installationDto.TenantHost),
-                    It.Is<string>(email => email == installationDto.TenantEmail),
+                    It.Is<string>(host => host == installationDto.Host),
                     It.IsAny<string>(),
+                    It.IsAny<Guid>(),
                     It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tenant);
 
@@ -136,10 +147,12 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
             _mockTenantService.Verify(
                 service => service.CreateTenantAsync(
                     It.Is<string>(name => name == installationDto.TenantName),
-                    It.Is<string>(host => host == installationDto.TenantHost),
-                    It.Is<string>(email => email == installationDto.TenantEmail),
+                    It.Is<string>(host => host == installationDto.Host),
                     It.IsAny<string>(),
+                    It.IsAny<Guid>(),
                     It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
@@ -151,8 +164,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
             var installationDto = new AppInstallationDto
             {
                 TenantName = "Test Organization",
-                TenantHost = "test-organization",
-                TenantEmail = "admin@test.com",
+                Host = "test-organization",
                 AdminEmail = "admin@test.com",
                 AdminPassword = "Password123!",
                 AdminFirstName = "Admin",
@@ -164,8 +176,10 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<string>(),
+                    It.IsAny<Guid>(),
                     It.IsAny<string>(),
-                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Test exception"));
 
@@ -194,3 +208,5 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
         }
     }
 }
+
+

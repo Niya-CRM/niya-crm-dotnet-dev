@@ -79,7 +79,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain("name");
             exception.ParamName.ShouldBe("name");
@@ -96,7 +96,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain("host");
             exception.ParamName.ShouldBe("host");
@@ -113,7 +113,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain("email");
             exception.ParamName.ShouldBe("email");
@@ -134,7 +134,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<InvalidOperationException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain(tenantId.ToString());
             
@@ -160,7 +160,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Existing Tenant",
                 Host = host.Trim().ToLowerInvariant(),
                 Email = "existing@example.com",
-                IsActive = true
+                IsActive = "Y"
             };
 
             var currentTenant = new Tenant
@@ -169,7 +169,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Current Tenant",
                 Host = "current.domain.com",
                 Email = "current@example.com",
-                IsActive = true
+                IsActive = "Y"
             };
 
             _mockTenantRepository
@@ -182,7 +182,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<InvalidOperationException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain(host.Trim().ToLowerInvariant());
             
@@ -213,7 +213,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Existing Tenant",
                 Host = "existing.domain.com",
                 Email = email.Trim().ToLowerInvariant(),
-                IsActive = true
+                IsActive = "Y"
             };
 
             var currentTenant = new Tenant
@@ -222,7 +222,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Current Tenant",
                 Host = host,
                 Email = "current@example.com",
-                IsActive = true
+                IsActive = "Y"
             };
 
             _mockTenantRepository
@@ -235,7 +235,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<InvalidOperationException>(
-                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email));
+                async () => await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC"));
 
             exception.Message.ShouldContain(email.Trim().ToLowerInvariant());
             
@@ -259,7 +259,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             var host = "updated.domain.com";
             var email = "updated@example.com";
             var databaseName = "updated_db";
-            var modifiedBy = "test_user";
+            var modifiedBy = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
             var existingTenant = new Tenant
             {
@@ -268,9 +268,9 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Host = "original.domain.com",
                 Email = "original@example.com",
                 DatabaseName = "original_db",
-                IsActive = true,
+                IsActive = "Y",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                CreatedBy = "system"
+                CreatedBy = Guid.Parse("00000000-0000-0000-0000-000000000001")
             };
 
             var updatedTenant = new Tenant
@@ -280,7 +280,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Host = host.Trim().ToLowerInvariant(),
                 Email = email.Trim().ToLowerInvariant(),
                 DatabaseName = databaseName,
-                IsActive = true,
+                IsActive = "Y",
                 CreatedAt = existingTenant.CreatedAt,
                 CreatedBy = existingTenant.CreatedBy,
                 LastModifiedAt = DateTime.UtcNow,
@@ -308,16 +308,16 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _tenantService.UpdateTenantAsync(tenantId, name, host, email, databaseName, modifiedBy);
+            var result = await _tenantService.UpdateTenantAsync(tenantId, name, host, email, Guid.NewGuid(), "UTC", databaseName: "custom_db");
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(tenantId);
+            result.Id.ToString().ShouldBe(tenantId.ToString());
             result.Name.ShouldBe(name);
             result.Host.ShouldBe(host.Trim().ToLowerInvariant());
             result.Email.ShouldBe(email.Trim().ToLowerInvariant());
             result.DatabaseName.ShouldBe(databaseName);
-            result.LastModifiedBy.ShouldBe(modifiedBy);
+            result.LastModifiedBy.ToString().ShouldBe(modifiedBy.ToString());
             
             // Verify tenant was retrieved
             _mockTenantRepository.Verify(
@@ -376,9 +376,9 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Host = host,
                 Email = email,
                 DatabaseName = "original_db",
-                IsActive = true,
+                IsActive = "Y",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                CreatedBy = "system"
+                CreatedBy = Guid.Parse("00000000-0000-0000-0000-000000000001")
             };
 
             var updatedTenant = new Tenant
@@ -388,7 +388,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Host = host,
                 Email = email,
                 DatabaseName = databaseName,
-                IsActive = true,
+                IsActive = "Y",
                 CreatedAt = existingTenant.CreatedAt,
                 CreatedBy = existingTenant.CreatedBy,
                 LastModifiedAt = DateTime.UtcNow,
@@ -408,11 +408,11 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _tenantService.UpdateTenantAsync(tenantId, name, host, email, databaseName);
+            var result = await _tenantService.UpdateTenantAsync(tenantId, name, host, email, userId: Guid.NewGuid(), timeZone: "UTC");
 
             // Assert
             result.ShouldNotBeNull();
-            result.Name.ShouldBe(name);
+            result.Name.ShouldBe(name, "UTC");
             
             // Verify tenant was retrieved
             _mockTenantRepository.Verify(
@@ -450,3 +450,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
     }
 }
+
+
+
+

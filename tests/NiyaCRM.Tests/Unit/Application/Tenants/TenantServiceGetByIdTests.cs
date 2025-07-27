@@ -79,7 +79,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                IsActive = true
+                IsActive = "Y"
             };
 
             _mockTenantRepository
@@ -95,7 +95,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             result.Name.ShouldBe("Test Tenant");
             result.Host.ShouldBe("test.domain.com");
             result.Email.ShouldBe("test@example.com");
-            result.IsActive.ShouldBeTrue();
+            result.IsActive.ShouldBe("Y");
 
             // Verify tenant was looked up
             _mockTenantRepository.Verify(
@@ -126,3 +126,5 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
     }
 }
+
+
