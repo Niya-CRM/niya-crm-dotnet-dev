@@ -12,6 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Clean remote target directory
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "Cleaning target directory..."
+            rm -rf /var/www/niyacrm/*
+            rm -rf /var/www/niyacrm/.[!.]*
+            echo "Target directory cleaned."
+
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.6
         with:
