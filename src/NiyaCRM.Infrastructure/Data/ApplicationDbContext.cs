@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using NiyaCRM.Core.Helpers.Naming;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Tenants;
+using NiyaCRM.Core.Referentials;
+using NiyaCRM.Core.DynamicObjects;
+using NiyaCRM.Core.ValueLists;
 
 namespace NiyaCRM.Infrastructure.Data
 {
@@ -28,6 +31,10 @@ namespace NiyaCRM.Infrastructure.Data
         /// </summary>
         public DbSet<Tenant> Tenants { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<Country> Countries { get; set; } = null!;
+        public DbSet<DynamicObject> DynamicObjects { get; set; } = null!;
+        public DbSet<ValueList> ValueLists { get; set; } = null!;
+        public DbSet<ValueListItem> ValueListItems { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

@@ -31,6 +31,41 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "countries",
+                columns: table => new
+                {
+                    country_code = table.Column<string>(type: "varchar(2)", maxLength: 2, nullable: false),
+                    country_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    country_code_alpha3 = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
+                    is_active = table.Column<string>(type: "varchar(1)", maxLength: 1, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_countries", x => x.country_code);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "dynamic_objects",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    singular_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    plural_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    object_type = table.Column<string>(type: "varchar(10)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_dynamic_objects", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -99,6 +134,25 @@ namespace NiyaCRM.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "value_lists",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    value_list_type = table.Column<string>(type: "varchar(10)", nullable: false),
+                    is_active = table.Column<string>(type: "varchar(1)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_value_lists", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -207,10 +261,41 @@ namespace NiyaCRM.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "value_list_items",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    value_list_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    is_active = table.Column<string>(type: "varchar(1)", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_value_list_items", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_value_list_items_value_lists_value_list_id",
+                        column: x => x.value_list_id,
+                        principalTable: "value_lists",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "ix_audit_logs_module_mapped_id_created_at",
                 table: "audit_logs",
                 columns: new[] { "module", "mapped_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_dynamic_objects_key",
+                table: "dynamic_objects",
+                column: "key",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
@@ -264,6 +349,17 @@ namespace NiyaCRM.Infrastructure.Migrations
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_value_list_items_key",
+                table: "value_list_items",
+                column: "key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_value_list_items_value_list_id",
+                table: "value_list_items",
+                column: "value_list_id");
         }
 
         /// <inheritdoc />
@@ -271,6 +367,12 @@ namespace NiyaCRM.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "audit_logs");
+
+            migrationBuilder.DropTable(
+                name: "countries");
+
+            migrationBuilder.DropTable(
+                name: "dynamic_objects");
 
             migrationBuilder.DropTable(
                 name: "role_claims");
@@ -291,10 +393,16 @@ namespace NiyaCRM.Infrastructure.Migrations
                 name: "user_tokens");
 
             migrationBuilder.DropTable(
+                name: "value_list_items");
+
+            migrationBuilder.DropTable(
                 name: "roles");
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "value_lists");
         }
     }
 }
