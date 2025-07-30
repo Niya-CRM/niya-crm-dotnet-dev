@@ -281,35 +281,7 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
-        var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)),
-                Status = StatusCodes.Status400BadRequest
-            });
-        }
-        try
-        {
-            _logger.LogInformation("Activating tenant: {TenantId}", id);
-            
-            var tenant = await _tenantService.ActivateTenantAsync(id, request.Reason, cancellationToken);
-            
-            _logger.LogInformation("Successfully activated tenant: {TenantId}", id);
-            return Ok(tenant);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Tenant not found for activation: {TenantId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = ex.Message,
-                Status = StatusCodes.Status404NotFound
-            });
-        }
+        return await ChangeTenantActivationStatus(id, request, true, cancellationToken);
     }
 
     /// <summary>
@@ -325,6 +297,19 @@ public class TenantController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
+        return await ChangeTenantActivationStatus(id, request, false, cancellationToken);
+    }
+
+    /// <summary>
+    /// Private helper method to handle tenant activation status changes.
+    /// </summary>
+    /// <param name="id">The tenant identifier.</param>
+    /// <param name="request">The activation/deactivation request.</param>
+    /// <param name="activate">True to activate, false to deactivate.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>ActionResult with the updated tenant.</returns>
+    private async Task<ActionResult<Tenant>> ChangeTenantActivationStatus(Guid id, ActivateDeactivateTenantRequest request, bool activate, CancellationToken cancellationToken = default)
+    {
         var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
@@ -335,18 +320,30 @@ public class TenantController : ControllerBase
                 Status = StatusCodes.Status400BadRequest
             });
         }
+
         try
         {
-            _logger.LogInformation("Deactivating tenant: {TenantId}", id);
+            string action = activate ? "Activating" : "Deactivating";
+            _logger.LogInformation("{Action} tenant: {TenantId}", action, id);
             
-            var tenant = await _tenantService.DeactivateTenantAsync(id, request.Reason, cancellationToken);
+            Tenant tenant;
+            if (activate)
+            {
+                tenant = await _tenantService.ActivateTenantAsync(id, request.Reason, cancellationToken);
+            }
+            else
+            {
+                tenant = await _tenantService.DeactivateTenantAsync(id, request.Reason, cancellationToken);
+            }
             
-            _logger.LogInformation("Successfully deactivated tenant: {TenantId}", id);
+            string completedAction = activate ? "activated" : "deactivated";
+            _logger.LogInformation("Successfully {CompletedAction} tenant: {TenantId}", completedAction, id);
             return Ok(tenant);
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "Tenant not found for deactivation: {TenantId}", id);
+            string action = activate ? "activation" : "deactivation";
+            _logger.LogWarning(ex, "Tenant not found for {Action}: {TenantId}", action, id);
             return NotFound(new ProblemDetails
             {
                 Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
