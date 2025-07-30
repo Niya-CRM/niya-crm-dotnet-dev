@@ -27,8 +27,8 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
         }
 
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-            string? module = null,
-            string? mappedId = null,
+            string? objectKey = null,
+            string? objectItemId = null,
             Guid? createdBy = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
@@ -38,10 +38,10 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
         {
             var query = _dbSet.AsQueryable();
 
-            if (!string.IsNullOrEmpty(module))
-                query = query.Where(a => a.Module == module);
-            if (!string.IsNullOrEmpty(mappedId))
-                query = query.Where(a => a.MappedId == mappedId);
+            if (!string.IsNullOrEmpty(objectKey))
+                query = query.Where(a => a.ObjectKey == objectKey);
+            if (!string.IsNullOrEmpty(objectItemId))
+                query = query.Where(a => a.ObjectItemId == objectItemId);
             if (createdBy.HasValue)
                 query = query.Where(a => a.CreatedBy == createdBy.Value);
             if (startDate.HasValue)

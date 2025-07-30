@@ -28,25 +28,23 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     /// <summary>
     /// Adds an audit log entry for tenant-related actions.
     /// </summary>
-    /// <param name="module">The audit log module/category.</param>
     /// <param name="event">The event/action type.</param>
-    /// <param name="mappedId">The ID of the affected entity.</param>
-    /// <param name="ip">The IP address of the user.</param>
+    /// <param name="objectItemId">The ID of the affected entity.</param>
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     private async Task AddTenantAuditLogAsync(
         string @event,
-        string mappedId,
+        string objectItemId,
         string data,
         Guid createdBy,
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
             id: Guid.NewGuid(),
-            module: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            objectKey: CommonConstant.AUDIT_LOG_MODULE_TENANT,
             @event: @event,
-            mappedId: mappedId,
+            objectItemId: objectItemId,
             ip: GetUserIp(),
             data: data,
             createdBy: createdBy

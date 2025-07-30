@@ -7,8 +7,8 @@ namespace NiyaCRM.Core.AuditLogs.DTOs
     /// </summary>
     public class AuditLogQueryDto
     {
-        public string? Module { get; set; }
-        public string? MappedId { get; set; }
+        public string? ObjectKey { get; set; }
+        public string? ObjectItemId { get; set; }
         public Guid? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

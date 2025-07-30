@@ -16,13 +16,13 @@ namespace NiyaCRM.Application.AuditLogs
             _repository = repository;
         }
 
-        public async Task<AuditLog> CreateAuditLogAsync(string module, string @event, string mappedId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default)
+        public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, string objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default)
         {
             var auditLog = new AuditLog(
                 Guid.NewGuid(),
-                module,
+                objectKey,
                 @event,
-                mappedId,
+                objectItemId,
                 ip,
                 data,
                 createdBy
@@ -36,8 +36,8 @@ namespace NiyaCRM.Application.AuditLogs
         }
 
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-            string? module = null,
-            string? mappedId = null,
+            string? objectKey = null,
+            string? objectItemId = null,
             Guid? createdBy = null,
             DateTime? startDate = null,
             DateTime? endDate = null,
@@ -45,7 +45,7 @@ namespace NiyaCRM.Application.AuditLogs
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
-            return await _repository.GetAuditLogsAsync(module, mappedId, createdBy, startDate, endDate, pageNumber, pageSize, cancellationToken);
+            return await _repository.GetAuditLogsAsync(objectKey, objectItemId, createdBy, startDate, endDate, pageNumber, pageSize, cancellationToken);
         }
 
         public async Task<IEnumerable<AuditLog>> GetAllAuditLogsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)

@@ -10,15 +10,15 @@ public interface IAuditLogService
     /// <summary>
     /// Creates a new audit log entry.
     /// </summary>
-    /// <param name="module">The module/entity type.</param>
+    /// <param name="objectKey">The object key/entity type.</param>
     /// <param name="event">The event/action type.</param>
-    /// <param name="mappedId">The affected entity ID.</param>
+    /// <param name="objectItemId">The affected entity ID.</param>
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created audit log entry.</returns>
-    Task<AuditLog> CreateAuditLogAsync(string module, string @event, string mappedId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default);
+    Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, string objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an audit log by its identifier.
@@ -31,8 +31,8 @@ public interface IAuditLogService
     /// <summary>
     /// Gets audit logs by optional filters. All filters are optional and can be combined.
     /// </summary>
-    /// <param name="module">The module/entity type (optional).</param>
-    /// <param name="mappedId">The mapped entity ID (optional).</param>
+    /// <param name="objectKey">The object key/entity type (optional).</param>
+    /// <param name="objectItemId">The object item ID (optional).</param>
     /// <param name="createdBy">The user who performed the action (optional).</param>
     /// <param name="startDate">The start date for filtering (optional).</param>
     /// <param name="endDate">The end date for filtering (optional).</param>
@@ -41,8 +41,8 @@ public interface IAuditLogService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of audit logs matching the filters.</returns>
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-        string? module = null,
-        string? mappedId = null,
+        string? objectKey = null,
+        string? objectItemId = null,
         Guid? createdBy = null,
         DateTime? startDate = null,
         DateTime? endDate = null,

@@ -17,9 +17,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    module = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
-                    mapped_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    object_item_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
                     data = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -287,14 +287,14 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_module_created_at",
+                name: "ix_audit_logs_object_key_created_at",
                 table: "audit_logs",
-                columns: new[] { "module", "created_at" });
+                columns: new[] { "object_key", "created_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_module_mapped_id_created_at",
+                name: "ix_audit_logs_object_key_object_item_id_created_at",
                 table: "audit_logs",
-                columns: new[] { "module", "mapped_id", "created_at" });
+                columns: new[] { "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_objects_object_key",

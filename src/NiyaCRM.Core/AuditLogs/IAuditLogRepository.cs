@@ -18,8 +18,8 @@ public interface IAuditLogRepository
     /// <summary>
     /// Gets audit logs by optional filters. All filters are optional and can be combined.
     /// </summary>
-    /// <param name="module">The module/entity type (optional).</param>
-    /// <param name="mappedId">The mapped entity ID (optional).</param>
+    /// <param name="objectKey">The object key/entity type (optional).</param>
+    /// <param name="objectItemId">The object item ID (optional).</param>
     /// <param name="createdBy">The user who performed the action (optional).</param>
     /// <param name="startDate">The start date for filtering (optional).</param>
     /// <param name="endDate">The end date for filtering (optional).</param>
@@ -28,8 +28,8 @@ public interface IAuditLogRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of audit logs matching the filters.</returns>
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-        string? module = null,
-        string? mappedId = null,
+        string? objectKey = null,
+        string? objectItemId = null,
         Guid? createdBy = null,
         DateTime? startDate = null,
         DateTime? endDate = null,

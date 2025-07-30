@@ -19,12 +19,12 @@ public class AuditLog
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the module/entity type that was affected.
+    /// Gets or sets the object key/entity type that was affected.
     /// </summary>
     [Column("module")]
     [Required]
     [MaxLength(100)]
-    public string Module { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the event/action that occurred.
@@ -40,7 +40,7 @@ public class AuditLog
     [Column("mapped_id")]
     [Required]
     [MaxLength(100)]
-    public string MappedId { get; set; } = string.Empty;
+    public string ObjectItemId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the IP address from which the action was performed.
@@ -81,18 +81,18 @@ public class AuditLog
     /// Constructor for creating new audit log entries.
     /// </summary>
     /// <param name="id">The audit log identifier.</param>
-    /// <param name="module">The module/entity type.</param>
+    /// <param name="objectKey">The object key/entity type.</param>
     /// <param name="event">The event/action type.</param>
-    /// <param name="mappedId">The affected entity ID.</param>
+    /// <param name="objectItemId">The affected entity ID.</param>
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
-    public AuditLog(Guid id, string module, string @event, string mappedId, string ip, string? data, Guid createdBy)
+    public AuditLog(Guid id, string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
     {
         Id = id;
-        Module = module;
+        ObjectKey = objectKey;
         Event = @event;
-        MappedId = mappedId;
+        ObjectItemId = objectItemId;
         IP = ip;
         Data = data;
         CreatedAt = DateTime.UtcNow;

@@ -13,8 +13,8 @@ namespace NiyaCRM.Infrastructure.Data.AuditLogs
         public void Configure(EntityTypeBuilder<AuditLog> builder)
         {            
             // Composite index for efficient filtering
-            builder.HasIndex(a => new { a.Module, a.MappedId, a.CreatedAt });
-            builder.HasIndex(a => new { a.Module, a.CreatedAt });
+            builder.HasIndex(a => new { a.ObjectKey, a.ObjectItemId, a.CreatedAt });
+            builder.HasIndex(a => new { a.ObjectKey, a.CreatedAt });
         }
     }
 }

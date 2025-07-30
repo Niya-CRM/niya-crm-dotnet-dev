@@ -32,8 +32,8 @@ namespace NiyaCRM.Api.Controllers.AuditLogs
         return BadRequest(ModelState);
     }
     var logs = await _auditLogService.GetAuditLogsAsync(
-        query.Module,
-        query.MappedId,
+        query.ObjectKey,
+        query.ObjectItemId,
         query.CreatedBy,
         query.StartDate,
         query.EndDate,

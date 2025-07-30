@@ -184,26 +184,26 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip");
 
-                    b.Property<string>("MappedId")
+                    b.Property<string>("ObjectItemId")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("mapped_id");
+                        .HasColumnName("object_item_id");
 
-                    b.Property<string>("Module")
+                    b.Property<string>("ObjectKey")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("module");
+                        .HasColumnName("object_key");
 
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
-                    b.HasIndex("Module", "CreatedAt")
-                        .HasDatabaseName("ix_audit_logs_module_created_at");
+                    b.HasIndex("ObjectKey", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_object_key_created_at");
 
-                    b.HasIndex("Module", "MappedId", "CreatedAt")
-                        .HasDatabaseName("ix_audit_logs_module_mapped_id_created_at");
+                    b.HasIndex("ObjectKey", "ObjectItemId", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_object_key_object_item_id_created_at");
 
                     b.ToTable("audit_logs");
                 });
