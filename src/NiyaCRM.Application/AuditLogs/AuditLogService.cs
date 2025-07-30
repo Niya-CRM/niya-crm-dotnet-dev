@@ -25,7 +25,6 @@ namespace NiyaCRM.Application.AuditLogs
                 mappedId,
                 ip,
                 data,
-                DateTime.UtcNow,
                 createdBy
             );
             return await _repository.AddAsync(auditLog, cancellationToken);

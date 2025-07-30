@@ -2,7 +2,7 @@ namespace NiyaCRM.Core.Common;
 
 public static class CommonConstant
 {
-    public static Guid DEFAULT_USER = Guid.Parse("00000000-0000-0000-0000-000000000000");
+    public static readonly Guid DEFAULT_USER = Guid.Parse("00000000-0000-0000-0000-000000000000");
 
     // Message Constants
     public const string MESSAGE_INVALID_REQUEST = "Invalid Request";

@@ -39,15 +39,15 @@ namespace NiyaCRM.Infrastructure.Data
         /// <summary>
         /// Configures the model and customizes Identity table names.
         /// </summary>
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
             
             // Apply all entity configurations from the current assembly
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
             // Apply snake_case naming convention to all tables, columns, keys and indexes
-            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            foreach (var entity in builder.Model.GetEntityTypes())
             {
                 // table names – default snake_case
                 var defaultTableName = entity.GetTableName()!.ToSnakeCase();

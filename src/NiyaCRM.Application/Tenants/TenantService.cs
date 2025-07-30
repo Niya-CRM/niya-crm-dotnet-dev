@@ -49,7 +49,6 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             mappedId: mappedId,
             ip: GetUserIp(),
             data: data,
-            createdAt: DateTime.UtcNow,
             createdBy: createdBy
         );
         await _unitOfWork.GetRepository<IAuditLogRepository>().AddAsync(auditLog, cancellationToken);

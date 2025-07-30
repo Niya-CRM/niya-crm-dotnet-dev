@@ -40,7 +40,7 @@ namespace NiyaCRM.Api.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterDTO model)
+        public async Task<IActionResult> Register(RegisterDto model)
         {
             // Always check ModelState.IsValid and return the view with the model
             if (!ModelState.IsValid)
@@ -95,7 +95,7 @@ namespace NiyaCRM.Api.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginDTO model)
+        public async Task<IActionResult> Login(LoginDto model)
         {
             if (!ModelState.IsValid)
             {

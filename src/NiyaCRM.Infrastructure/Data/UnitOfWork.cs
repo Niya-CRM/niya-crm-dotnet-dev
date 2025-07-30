@@ -72,6 +72,8 @@ namespace NiyaCRM.Infrastructure.Data
             {
                 if (disposing)
                 {
+                    _transaction?.Dispose();
+                    _transaction = null;
                     _dbContext.Dispose();
                 }
                 _disposed = true;

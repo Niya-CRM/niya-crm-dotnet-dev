@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NiyaCRM.Core.ValueLists;
 
-namespace NiyaCRM.Infrastructure.Data.Configurations
+namespace NiyaCRM.Infrastructure.Data.ValueLists
 {
     /// <summary>
     /// Configuration for the ValueListItem entity.
@@ -16,7 +16,7 @@ namespace NiyaCRM.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<ValueListItem> builder)
         {
             // Add index on Key property
-            builder.HasIndex(v => v.Key)
+            builder.HasIndex(v => v.ItemValue)
                 .IsUnique();
         }
     }

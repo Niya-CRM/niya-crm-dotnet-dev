@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NiyaCRM.Core.DynamicObjects;
 
-namespace NiyaCRM.Infrastructure.Data.Configurations
+namespace NiyaCRM.Infrastructure.Data.DyanamicObjects
 {
     /// <summary>
     /// Configuration for the DynamicObject entity.
@@ -16,7 +16,7 @@ namespace NiyaCRM.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<DynamicObject> builder)
         {
             // Add index on Key property
-            builder.HasIndex(o => o.Key)
+            builder.HasIndex(o => o.ObjectKey)
                 .IsUnique();
         }
     }

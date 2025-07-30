@@ -22,7 +22,7 @@ public class ValueListItem
     [Required]
     [StringLength(50)]
     [Column(TypeName = "varchar(50)")]
-    public string Name { get; set; } = string.Empty;
+    public string ItemName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the key of the value list item.
@@ -30,7 +30,7 @@ public class ValueListItem
     [Required]
     [StringLength(60)]
     [Column(TypeName = "varchar(60)")]
-    public string Key { get; set; } = string.Empty;
+    public string ItemValue { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the value list ID this item belongs to.
@@ -87,16 +87,16 @@ public class ValueListItem
     /// </summary>
     public ValueListItem(
         Guid id,
-        string name,
-        string key,
+        string itemName,
+        string itemValue,
         Guid valueListId,
         string isActive,
         DateTime createdAt,
         Guid createdBy)
     {
         Id = id;
-        Name = name;
-        Key = key;
+        ItemName = itemName;
+        ItemValue = itemValue;
         ValueListId = valueListId;
         IsActive = isActive;
         CreatedAt = createdAt;

@@ -22,7 +22,7 @@ public class DynamicObject
     [Required]
     [StringLength(50)]
     [Column(TypeName = "varchar(50)")]
-    public string Name { get; set; } = string.Empty;
+    public string ObjectName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the singular name of the dynamic object.
@@ -46,7 +46,7 @@ public class DynamicObject
     [Required]
     [StringLength(60)]
     [Column(TypeName = "varchar(60)")]
-    public string Key { get; set; } = string.Empty;
+    public string ObjectKey { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the description of the dynamic object.
@@ -94,20 +94,20 @@ public class DynamicObject
     /// </summary>
     public DynamicObject(
         Guid id,
-        string name,
+        string objectName,
         string singularName,
         string pluralName,
-        string key,
+        string objectKey,
         string description,
         string objectType,
         DateTime createdAt,
         Guid createdBy)
     {
         Id = id;
-        Name = name;
+        ObjectName = objectName;
         SingularName = singularName;
         PluralName = pluralName;
-        Key = key;
+        ObjectKey = objectKey;
         Description = description;
         ObjectType = objectType;
         CreatedAt = createdAt;

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NiyaCRM.Core.ValueLists;
 
-namespace NiyaCRM.Infrastructure.Data.Configurations
+namespace NiyaCRM.Infrastructure.Data.ValueLists
 {
     /// <summary>
     /// Configuration for the ValueList entity.

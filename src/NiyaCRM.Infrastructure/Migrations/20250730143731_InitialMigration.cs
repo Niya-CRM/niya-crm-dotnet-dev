@@ -20,10 +20,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                     module = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
                     mapped_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
-                    data = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
+                    data = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", maxLength: 256, nullable: false)
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,10 +49,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    object_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     singular_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     plural_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    object_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     object_type = table.Column<string>(type: "varchar(10)", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -266,8 +266,8 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    item_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    item_value = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     value_list_id = table.Column<Guid>(type: "uuid", nullable: false),
                     is_active = table.Column<string>(type: "varchar(1)", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -287,14 +287,19 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "ix_audit_logs_module_created_at",
+                table: "audit_logs",
+                columns: new[] { "module", "created_at" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_audit_logs_module_mapped_id_created_at",
                 table: "audit_logs",
                 columns: new[] { "module", "mapped_id", "created_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_dynamic_objects_key",
+                name: "ix_dynamic_objects_object_key",
                 table: "dynamic_objects",
-                column: "key",
+                column: "object_key",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -351,9 +356,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_value_list_items_key",
+                name: "ix_value_list_items_item_value",
                 table: "value_list_items",
-                column: "key",
+                column: "item_value",
                 unique: true);
 
             migrationBuilder.CreateIndex(

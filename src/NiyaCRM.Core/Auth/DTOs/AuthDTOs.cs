@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NiyaCRM.Core.Auth.DTOs
 {
-    public class RegisterDTO
+    public class RegisterDto
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -30,7 +30,7 @@ namespace NiyaCRM.Core.Auth.DTOs
         public string? Role { get; set; }
     }
 
-    public class LoginDTO
+    public class LoginDto
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -41,7 +41,7 @@ namespace NiyaCRM.Core.Auth.DTOs
         public required string Password { get; set; }
     }
 
-    public class AuthResultDTO
+    public class AuthResultDto
     {
         public bool Success { get; set; }
         public string? Message { get; set; }

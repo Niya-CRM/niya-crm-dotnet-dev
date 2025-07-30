@@ -164,14 +164,12 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasMaxLength(256)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Data")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
                         .HasColumnName("data");
 
                     b.Property<string>("Event")
@@ -181,6 +179,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnName("event");
 
                     b.Property<string>("IP")
+                        .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip");
@@ -200,10 +199,13 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
+                    b.HasIndex("Module", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_module_created_at");
+
                     b.HasIndex("Module", "MappedId", "CreatedAt")
                         .HasDatabaseName("ix_audit_logs_module_mapped_id_created_at");
 
-                    b.ToTable("audit_logs", (string)null);
+                    b.ToTable("audit_logs");
                 });
 
             modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.DynamicObject", b =>
@@ -227,17 +229,17 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("description");
 
-                    b.Property<string>("Key")
+                    b.Property<string>("ObjectKey")
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)")
-                        .HasColumnName("key");
+                        .HasColumnName("object_key");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("ObjectName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("name");
+                        .HasColumnName("object_name");
 
                     b.Property<string>("ObjectType")
                         .IsRequired()
@@ -267,9 +269,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_dynamic_objects");
 
-                    b.HasIndex("Key")
+                    b.HasIndex("ObjectKey")
                         .IsUnique()
-                        .HasDatabaseName("ix_dynamic_objects_key");
+                        .HasDatabaseName("ix_dynamic_objects_object_key");
 
                     b.ToTable("dynamic_objects");
                 });
@@ -619,17 +621,17 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("varchar(1)")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
-                        .HasColumnName("key");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("ItemName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("name");
+                        .HasColumnName("item_name");
+
+                    b.Property<string>("ItemValue")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("item_value");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -646,9 +648,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_value_list_items");
 
-                    b.HasIndex("Key")
+                    b.HasIndex("ItemValue")
                         .IsUnique()
-                        .HasDatabaseName("ix_value_list_items_key");
+                        .HasDatabaseName("ix_value_list_items_item_value");
 
                     b.HasIndex("ValueListId")
                         .HasDatabaseName("ix_value_list_items_value_list_id");
