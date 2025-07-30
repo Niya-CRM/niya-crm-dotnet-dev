@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250730195250_InitialMigration")]
+    [Migration("20250730213617_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Tests.Helpers;
 using Moq;
-using NiyaCRM.Application.Onboarding;
+using NiyaCRM.Application.ApplicationSetup;
 using NiyaCRM.Core;
-using NiyaCRM.Core.Onboarding;
-using NiyaCRM.Core.Onboarding.DTOs;
+using NiyaCRM.Core.ApplicationSetup;
+using NiyaCRM.Core.ApplicationSetup.DTOs;
 using NiyaCRM.Core.Tenants;
 using Shouldly;
 using System;
@@ -15,26 +15,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace NiyaCRM.Tests.Unit.Application.Onboarding
+namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
 {
-    public class OnboardingServiceTests
+    public class ApplicationSetupServiceTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ITenantService> _mockTenantService;
-        private readonly Mock<ILogger<OnboardingService>> _mockLogger;
+        private readonly Mock<ILogger<ApplicationSetupService>> _mockLogger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly OnboardingService _onboardingService;
+        private readonly ApplicationSetupService _applicationSetupService;
 
-        public OnboardingServiceTests()
+        public ApplicationSetupServiceTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockTenantService = new Mock<ITenantService>();
-            _mockLogger = new Mock<ILogger<OnboardingService>>();
+            _mockLogger = new Mock<ILogger<ApplicationSetupService>>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
-            _onboardingService = new OnboardingService(
+            _applicationSetupService = new ApplicationSetupService(
                 _mockUnitOfWork.Object,
                 _mockTenantService.Object,
                 _userManager,
@@ -51,7 +51,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _onboardingService.IsApplicationInstalledAsync();
+            var result = await _applicationSetupService.IsApplicationInstalledAsync();
 
             // Assert
             result.ShouldBeTrue();
@@ -71,7 +71,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _onboardingService.IsApplicationInstalledAsync();
+            var result = await _applicationSetupService.IsApplicationInstalledAsync();
 
             // Assert
             result.ShouldBeFalse();
@@ -91,9 +91,9 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 TenantName = "Test Organization",
                 Host = "support.organization.com",
                 AdminEmail = "admin@test.com",
-                AdminPassword = "Password123!",
-                AdminFirstName = "Admin",
-                AdminLastName = "User"
+                Password = "Password123!",
+                FirstName = "Admin",
+                LastName = "User"
             };
 
             var tenant = new Tenant
@@ -126,7 +126,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _onboardingService.InstallApplicationAsync(installationDto);
+            var result = await _applicationSetupService.InstallApplicationAsync(installationDto);
 
             // Assert
             result.ShouldNotBeNull();
@@ -166,9 +166,9 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 TenantName = "Test Organization",
                 Host = "test-organization",
                 AdminEmail = "admin@test.com",
-                AdminPassword = "Password123!",
-                AdminFirstName = "Admin",
-                AdminLastName = "User"
+                Password = "Password123!",
+                FirstName = "Admin",
+                LastName = "User"
             };
 
             _mockTenantService
@@ -192,7 +192,7 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
                 .Returns(Task.CompletedTask);
 
             // Act
-            Func<Task> act = async () => await _onboardingService.InstallApplicationAsync(installationDto, CancellationToken.None);
+            Func<Task> act = async () => await _applicationSetupService.InstallApplicationAsync(installationDto, CancellationToken.None);
             
             // Assert
             await act.ShouldThrowAsync<Exception>();
@@ -208,5 +208,3 @@ namespace NiyaCRM.Tests.Unit.Application.Onboarding
         }
     }
 }
-
-

@@ -31,63 +31,6 @@ namespace NiyaCRM.Api.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
-        {
-            // You can set ViewBag.ShowTenantField = true if you want to show the tenant field
-            // ViewBag.ShowTenantField = true;
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterDto model)
-        {
-            // Always check ModelState.IsValid and return the view with the model
-            if (!ModelState.IsValid)
-            {
-                // Add a message to help debug
-                foreach (var modelState in ModelState.Values) 
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        // This will help identify which fields are failing validation
-                        System.Diagnostics.Debug.WriteLine($"Validation Error: {error.ErrorMessage}");
-                    }
-                }
-                
-                return View(model);
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-                return View(model);
-            }
-
-            // Add user to role if specified
-            if (!string.IsNullOrEmpty(model.Role))
-            {
-                await _userManager.AddToRoleAsync(user, model.Role);
-            }
-
-            TempData["SuccessMessage"] = "Registration successful! Please log in."; 
-            return RedirectToAction(nameof(Login));
-        }
-
-        [HttpGet]
         public IActionResult Login()
         {
             return View();

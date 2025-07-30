@@ -1,15 +1,16 @@
-using NiyaCRM.Core.Onboarding.DTOs;
+using NiyaCRM.Core.ApplicationSetup.DTOs;
 using NiyaCRM.Core.Tenants;
 
-namespace NiyaCRM.Core.Onboarding;
+namespace NiyaCRM.Core.ApplicationSetup;
 
 /// <summary>
-/// Service interface for application onboarding and installation operations.
+/// Service interface for application setup and installation operations.
 /// </summary>
-public interface IOnboardingService
+public interface IApplicationSetupService
 {
     /// <summary>
     /// Installs the application and sets up the first tenant and admin user.
+    /// Also creates a technical system user with inactive status.
     /// </summary>
     /// <param name="installationDto">The installation details including tenant and admin information.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
