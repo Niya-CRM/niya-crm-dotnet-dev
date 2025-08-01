@@ -33,6 +33,17 @@ namespace NiyaCRM.Api.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            // Check if the user is already authenticated by looking for the access_token cookie
+            if (Request.Cookies.ContainsKey("access_token") && !string.IsNullOrEmpty(Request.Cookies["access_token"]))
+            {
+                // If we have a token cookie, the middleware will have validated it and set User.Identity.IsAuthenticated
+                if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    // Redirect to / if already logged in
+                    return Redirect("/");
+                }
+            }
+            
             return View();
         }
 
@@ -69,16 +80,23 @@ namespace NiyaCRM.Api.Controllers
             
             // Store token in cookie or session if needed
             // For example:
-            HttpContext.Response.Cookies.Append("AuthToken", token, new Microsoft.AspNetCore.Http.CookieOptions
+            HttpContext.Response.Cookies.Append("access_token", token, new Microsoft.AspNetCore.Http.CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTime.Now.AddHours(8)
+                Expires = DateTime.Now.AddHours(2)
             });
             
             // Redirect to home page or dashboard
-            return RedirectToAction("Index", "Home");
+            return Redirect("/");
+        }
+
+        [HttpPost("auth/logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("access_token");
+            return Ok();
         }
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
@@ -102,7 +120,7 @@ namespace NiyaCRM.Api.Controllers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration["JWT:Secret"] ?? "defaultSecretKeyWhichShouldBeReplaced"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddHours(8);
+            var expires = DateTime.Now.AddHours(1);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:Issuer"],

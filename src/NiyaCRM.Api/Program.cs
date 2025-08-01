@@ -135,6 +135,9 @@ app.UseMiddleware<DomainMiddleware>();
 // Log all requests and response.
 app.UseHttpLogging();
 
+// Add JWT cookie authentication middleware
+app.UseJwtCookieAuthentication();
+
 // Enable authentication & authorization
 app.UseAuthentication();
 app.UseAuthorization();

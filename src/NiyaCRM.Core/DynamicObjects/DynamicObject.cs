@@ -100,7 +100,6 @@ public class DynamicObject
         string objectKey,
         string description,
         string objectType,
-        DateTime createdAt,
         Guid createdBy)
     {
         Id = id;
@@ -110,8 +109,8 @@ public class DynamicObject
         ObjectKey = objectKey;
         Description = description;
         ObjectType = objectType;
-        CreatedAt = createdAt;
-        UpdatedAt = createdAt;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedBy = createdBy;
     }

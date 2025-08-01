@@ -91,7 +91,6 @@ public class ValueListItem
         string itemValue,
         Guid valueListId,
         string isActive,
-        DateTime createdAt,
         Guid createdBy)
     {
         Id = id;
@@ -99,8 +98,8 @@ public class ValueListItem
         ItemValue = itemValue;
         ValueListId = valueListId;
         IsActive = isActive;
-        CreatedAt = createdAt;
-        UpdatedAt = createdAt;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedBy = createdBy;
     }
