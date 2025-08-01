@@ -11,7 +11,7 @@ namespace NiyaCRM.Api.Controllers.Tenants;
 /// Controller for managing tenant operations in the multi-tenant CRM system.
 /// </summary>
 [ApiController]
-[Route("api/tenants")]
+[Route("tenants")]
 public class TenantController : ControllerBase
 {
     private readonly ITenantService _tenantService;

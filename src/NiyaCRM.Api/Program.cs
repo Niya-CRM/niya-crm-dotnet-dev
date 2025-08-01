@@ -20,6 +20,11 @@ using System.Reflection;
 using System.Text;
 using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Api.Middleware;
+using NiyaCRM.Api.Helpers;
+using NiyaCRM.Core.Auth.Constants;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using NiyaCRM.Api.Conventions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +53,12 @@ builder.Services.AddHttpLogging(logging =>
     logging.ResponseHeaders.Add("max-age");
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Add a route convention to prefix all controller routes with 'api'
+    // except for controllers that should be served directly
+    options.Conventions.Add(new ApiControllerRouteConvention());
+});
 
 // Register validator for ActivateDeactivateTenantRequest
 builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, ActivateDeactivateTenantRequestValidator>();
@@ -93,9 +103,9 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "defaultSecretKeyWhichShouldBeReplaced"))
+        ValidIssuer = AuthConstants.Jwt.Issuer,
+        ValidAudience = AuthConstants.Jwt.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration[AuthConstants.Jwt.SecretConfigKey] ?? throw new InvalidOperationException("JWT Secret not found")))
     };
 });
 
@@ -120,6 +130,9 @@ builder.Services.AddScoped<NiyaCRM.Core.Cache.ICacheService, NiyaCRM.Application
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Register JwtHelper
+builder.Services.AddScoped<JwtHelper>();
 
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();

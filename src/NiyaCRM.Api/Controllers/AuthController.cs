@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using NiyaCRM.Api.Helpers;
+using NiyaCRM.Core.Auth.Constants;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.Auth.DTOs;
 
@@ -19,15 +17,18 @@ namespace NiyaCRM.Api.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly JwtHelper _jwtHelper;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            JwtHelper jwtHelper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _jwtHelper = jwtHelper;
         }
 
         [HttpGet]
@@ -76,16 +77,15 @@ namespace NiyaCRM.Api.Controllers
                 return View(model);
             }
 
-            var token = await GenerateJwtToken(user);
+            var token = await _jwtHelper.GenerateJwtToken(user);
             
-            // Store token in cookie or session if needed
-            // For example:
-            HttpContext.Response.Cookies.Append("access_token", token, new Microsoft.AspNetCore.Http.CookieOptions
+            // Store token in cookie
+            HttpContext.Response.Cookies.Append(AuthConstants.Cookie.AccessTokenName, token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTime.Now.AddHours(2)
+                SameSite = Enum.Parse<SameSiteMode>(AuthConstants.Cookie.SameSiteMode),
+                Expires = DateTime.UtcNow.AddHours(AuthConstants.Cookie.ExpiryHours)
             });
             
             // Redirect to home page or dashboard
@@ -95,43 +95,11 @@ namespace NiyaCRM.Api.Controllers
         [HttpPost("auth/logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("access_token");
+            Response.Cookies.Delete(AuthConstants.Cookie.AccessTokenName);
             return Ok();
         }
 
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            // Add role claims
-            foreach (var role in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration["JWT:Secret"] ?? "defaultSecretKeyWhichShouldBeReplaced"));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddHours(1);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:Issuer"],
-                audience: _configuration["JWT:Audience"],
-                claims: claims,
-                expires: expires,
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
     }
 
 

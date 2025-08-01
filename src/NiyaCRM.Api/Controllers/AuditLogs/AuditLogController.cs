@@ -8,7 +8,7 @@ using NiyaCRM.Core.AuditLogs.DTOs;
 namespace NiyaCRM.Api.Controllers.AuditLogs
 {
     [ApiController]
-    [Route("api/audit-logs")]
+    [Route("audit-logs")]
     public class AuditLogController : ControllerBase
     {
         private readonly IAuditLogService _auditLogService;
