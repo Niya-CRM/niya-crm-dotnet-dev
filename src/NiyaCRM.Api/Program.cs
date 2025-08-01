@@ -25,6 +25,9 @@ using NiyaCRM.Core.Auth.Constants;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using NiyaCRM.Api.Conventions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -134,10 +137,16 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Register JwtHelper
 builder.Services.AddScoped<JwtHelper>();
 
+// Register Swagger/OpenAPI
+builder.Services.AddSwaggerServices(builder.Configuration);
+
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();
 
 var app = builder.Build();
+
+// Configure Swagger and Swagger UI
+app.UseSwaggerMiddleware(app.Environment);
 
 // Add CorrelationId to response headers for all requests
 app.UseMiddleware<CorrelationIdMiddleware>();
@@ -161,7 +170,5 @@ app.UseSerilogRequestLogging();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapGet("/", () => "Hello World!");
 
 await app.RunAsync();

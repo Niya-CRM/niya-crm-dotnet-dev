@@ -30,12 +30,12 @@ public class TenantController : ControllerBase
         _activateDeactivateTenantRequestValidator = activateDeactivateTenantRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateTenantRequestValidator));
     }
 
-    /// <summary>
-    /// Creates a new tenant.
-    /// </summary>
-    /// <param name="request">The tenant creation request.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The created tenant.</returns>
+    // <summary>
+    // Creates a new tenant.
+    // </summary>
+    // <param name="request">The tenant creation request.</param>
+    // <param name="cancellationToken">The cancellation token.</param>
+    // <returns>The created tenant.</returns>
     // [HttpPost]
     // [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
     // [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
