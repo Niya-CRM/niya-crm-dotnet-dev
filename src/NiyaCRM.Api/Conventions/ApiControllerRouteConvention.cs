@@ -11,7 +11,7 @@ namespace NiyaCRM.Api.Conventions
         {
             // Skip Auth and Setup controllers - they should be served directly
             if (controller.ControllerName.Equals("Auth", StringComparison.OrdinalIgnoreCase) ||
-                controller.ControllerName.Equals("Setup", StringComparison.OrdinalIgnoreCase) ||
+                controller.ControllerName.Equals("ApplicationSetup", StringComparison.OrdinalIgnoreCase) ||
                 controller.ControllerName.Equals("ApiAuth", StringComparison.OrdinalIgnoreCase))
             {
                 return;

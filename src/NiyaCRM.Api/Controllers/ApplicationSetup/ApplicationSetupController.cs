@@ -10,6 +10,7 @@ namespace NiyaCRM.Api.Controllers.ApplicationSetup;
 /// Controller for handling application setup and installation operations.
 /// This controller provides both API endpoints and MVC views for the initial setup wizard.
 /// </summary>
+[Route("setup")]
 public class ApplicationSetupController : Controller
 {
     private readonly ILogger<ApplicationSetupController> _logger;
@@ -32,7 +33,7 @@ public class ApplicationSetupController : Controller
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The setup view or redirect to login.</returns>
-    [HttpGet("setup")]
+    [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         // If system already installed, redirect to login
@@ -48,7 +49,7 @@ public class ApplicationSetupController : Controller
     /// <param name="model">The setup form data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Redirect to success page or show errors.</returns>
-    [HttpPost("setup")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(AppInstallationDto model, CancellationToken cancellationToken)
     {
@@ -85,7 +86,7 @@ public class ApplicationSetupController : Controller
     /// Displays the success page after successful installation.
     /// </summary>
     /// <returns>The success view.</returns>
-    [HttpGet("setup/success")]
+    [HttpGet("success")]
     public IActionResult Success()
     {
         return View();
