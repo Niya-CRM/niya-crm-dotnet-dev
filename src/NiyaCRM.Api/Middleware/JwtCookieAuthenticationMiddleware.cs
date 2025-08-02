@@ -2,6 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using NiyaCRM.Api.Helpers;
+using NiyaCRM.Core.Auth.Constants;
 
 namespace NiyaCRM.Api.Middleware
 {
@@ -25,16 +27,16 @@ namespace NiyaCRM.Api.Middleware
                 {
                     // Validate and parse the JWT token
                     var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.UTF8.GetBytes(_configuration["JWT:Secret"] ?? "defaultSecretKeyWhichShouldBeReplaced");
+                    var key = JwtHelper.GetJwtSigningKey();
                     
                     var validationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = true,
-                        ValidIssuer = _configuration["JWT:Issuer"],
+                        ValidIssuer = AuthConstants.Jwt.Issuer,
                         ValidateAudience = true,
-                        ValidAudience = _configuration["JWT:Audience"],
+                        ValidAudience = AuthConstants.Jwt.Audience,
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero
                     };
