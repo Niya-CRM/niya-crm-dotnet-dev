@@ -26,6 +26,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using NiyaCRM.Api.Conventions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -139,6 +140,14 @@ builder.Services.AddScoped<JwtHelper>();
 
 // Register Swagger/OpenAPI
 builder.Services.AddSwaggerServices(builder.Configuration);
+
+// Register Health Checks
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "service" })
+    .AddCheck<DatabaseHealthCheck>("database_connection", tags: new[] { "database" });
+
+// Register the database health check as a service
+builder.Services.AddScoped<DatabaseHealthCheck>();
 
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();
