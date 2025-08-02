@@ -244,74 +244,43 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> ActivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default)
+    public async Task<Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Activating tenant: {TenantId}", id);
-
-        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
-        if (tenant == null)
-        {
-            _logger.LogWarning("Tenant not found for activation: {TenantId}", id);
-            throw new InvalidOperationException($"Tenant with ID '{id}' not found.");
-        }
-
-        // Remove cache
-        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
-        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
-
-        tenant.IsActive = "Y";
-        tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
-        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
-
-        // Insert audit log for activation
-        await AddTenantAuditLogAsync(
-            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedTenant.Id.ToString(),
-            $"Tenant activated: {{ \"Reason\": \"{reason}\" }}",
-            CommonConstant.DEFAULT_USER,
-            cancellationToken
-        );
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        _logger.LogInformation("Successfully activated tenant: {TenantId}", id);
-        return updatedTenant;
-    }
-
-    /// <inheritdoc />
-    public async Task<Tenant> DeactivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Deactivating tenant: {TenantId}", id);
-
-        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
-        if (tenant == null)
-        {
-            _logger.LogWarning("Tenant not found for deactivation: {TenantId}", id);
-            throw new InvalidOperationException($"Tenant with ID '{id}' not found.");
-        }
-
-        // Remove cache
-        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
-        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
-
-        tenant.IsActive = "N";
-        tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
-        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
-
-        // Insert audit log for deactivation
-        await AddTenantAuditLogAsync(
-            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedTenant.Id.ToString(),
-            $"Tenant deactivated: {{ \"Reason\": \"{reason}\" }}",
-            CommonConstant.DEFAULT_USER,
-            cancellationToken
-        );
+        bool isActivating = action.Equals(TenantConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
+        string actionVerb = isActivating ? "Activating" : "Deactivating";
         
+        _logger.LogInformation("{ActionVerb} tenant: {TenantId}", actionVerb, id);
+
+        var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
+        if (tenant == null)
+        {
+            _logger.LogWarning("Tenant not found for {ActionVerb}: {TenantId}", actionVerb.ToLower(), id);
+            throw new InvalidOperationException($"Tenant with ID '{id}' not found.");
+        }
+
+        // Remove cache
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Id}");
+        await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
+
+        // Set active status based on action
+        tenant.IsActive = isActivating ? "Y" : "N";
+        tenant.LastModifiedAt = DateTime.UtcNow;
+        tenant.LastModifiedBy = CommonConstant.DEFAULT_USER;
+        var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
+
+        // Insert audit log for activation/deactivation
+        string actionPastTense = isActivating ? "activated" : "deactivated";
+        await AddTenantAuditLogAsync(
+            CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            updatedTenant.Id.ToString(),
+            $"Tenant {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
+            CommonConstant.DEFAULT_USER,
+            cancellationToken
+        );
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Successfully deactivated tenant: {TenantId}", id);
+        _logger.LogInformation("Successfully {ActionPastTense} tenant: {TenantId}", actionPastTense, id);
         return updatedTenant;
     }
 

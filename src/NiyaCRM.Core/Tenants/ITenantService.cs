@@ -58,22 +58,14 @@ public interface ITenantService
     Task<bool> AnyTenantsExistAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Activates a tenant.
+    /// Changes the activation status of a tenant.
     /// </summary>
     /// <param name="id">The tenant identifier.</param>
-    /// <param name="reason">The reason for activation.</param>
+    /// <param name="action">The action to perform (activate or deactivate).</param>
+    /// <param name="reason">The reason for the status change.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The activated tenant.</returns>
-    Task<Tenant> ActivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Deactivates a tenant.
-    /// </summary>
-    /// <param name="id">The tenant identifier.</param>
-    /// <param name="reason">The reason for deactivation.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The deactivated tenant.</returns>
-    Task<Tenant> DeactivateTenantAsync(Guid id, string reason, CancellationToken cancellationToken = default);
+    /// <returns>The updated tenant.</returns>
+    Task<Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all active tenants.

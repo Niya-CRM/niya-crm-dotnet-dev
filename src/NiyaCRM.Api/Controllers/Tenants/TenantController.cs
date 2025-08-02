@@ -23,6 +23,7 @@ public class TenantController : ControllerBase
     /// </summary>
     /// <param name="tenantService">The tenant service.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="activateDeactivateTenantRequestValidator">The validator for activate/deactivate tenant requests.</param>
     public TenantController(ITenantService tenantService, ILogger<TenantController> logger, IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator)
     {
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
@@ -323,18 +324,11 @@ public class TenantController : ControllerBase
 
         try
         {
-            string action = activate ? "Activating" : "Deactivating";
-            _logger.LogInformation("{Action} tenant: {TenantId}", action, id);
+            string action = activate ? TenantConstant.ActivationAction.Activate : TenantConstant.ActivationAction.Deactivate;
+            string actionVerb = activate ? "Activating" : "Deactivating";
+            _logger.LogInformation("{ActionVerb} tenant: {TenantId}", actionVerb, id);
             
-            Tenant tenant;
-            if (activate)
-            {
-                tenant = await _tenantService.ActivateTenantAsync(id, request.Reason, cancellationToken);
-            }
-            else
-            {
-                tenant = await _tenantService.DeactivateTenantAsync(id, request.Reason, cancellationToken);
-            }
+            var tenant = await _tenantService.ChangeTenantActivationStatusAsync(id, action, request.Reason, cancellationToken);
             
             string completedAction = activate ? "activated" : "deactivated";
             _logger.LogInformation("Successfully {CompletedAction} tenant: {TenantId}", completedAction, id);
