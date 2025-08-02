@@ -26,4 +26,20 @@ public static class CommonConstant
     public const string AUDIT_LOG_EVENT_DELETE = "Delete";
 
     public const string AUDIT_LOG_MODULE_TENANT = "Tenant";
+
+    /// <summary>
+    /// Constants related to health checks
+    /// </summary>
+    public static class HealthCheck
+    {
+        /// <summary>
+        /// Tags for service health checks
+        /// </summary>
+        public static readonly string[] ServiceTags = { "service" };
+        
+        /// <summary>
+        /// Tags for database health checks
+        /// </summary>
+        public static readonly string[] DatabaseTags = { "database" };
+    }
 }

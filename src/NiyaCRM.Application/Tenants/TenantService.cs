@@ -3,6 +3,7 @@ using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Common;
 using NiyaCRM.Core;
 using NiyaCRM.Core.AuditLogs;
+using NiyaCRM.Core.Tenants.DTOs;
 
 using Microsoft.AspNetCore.Http;
 using NiyaCRM.Application.Cache;
@@ -53,25 +54,25 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", name, host, email);
+        _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", request.Name, request.Host, request.Email);
 
         // Validation
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(name));
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(request.Name));
 
-        if (string.IsNullOrWhiteSpace(host))
-            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(host));
+        if (string.IsNullOrWhiteSpace(request.Host))
+            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(request.Host));
 
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(email));
+        if (string.IsNullOrWhiteSpace(request.Email))
+            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(request.Email));
 
         // Normalize inputs
-        var normalizedName = name.Trim();
-        var normalizedHost = host.Trim().ToLowerInvariant();
-        var normalizedEmail = email.Trim().ToLowerInvariant();
-        var normalizedDatabaseName = databaseName?.Trim();
+        var normalizedName = request.Name.Trim();
+        var normalizedHost = request.Host.Trim().ToLowerInvariant();
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedDatabaseName = request.DatabaseName?.Trim();
 
         // Check if host is already taken
         var existingTenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByHostAsync(normalizedHost, cancellationToken);
@@ -87,8 +88,8 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             name: normalizedName,
             host: normalizedHost,
             email: normalizedEmail,
-            userId: userId,
-            timeZone: timeZone,
+            userId: request.UserId,
+            timeZone: request.TimeZone ?? string.Empty,
             databaseName: normalizedDatabaseName,
             isActive: "Y",
             createdAt: DateTime.UtcNow,
@@ -161,19 +162,19 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, name, host, email, databaseName);
+        _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 
         // Validation
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(name));
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(request.Name));
 
-        if (string.IsNullOrWhiteSpace(host))
-            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(host));
+        if (string.IsNullOrWhiteSpace(request.Host))
+            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(request.Host));
 
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(email));
+        if (string.IsNullOrWhiteSpace(request.Email))
+            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(request.Email));
 
         // Get existing tenant
         var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);
@@ -184,10 +185,10 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         }
 
         // Normalize inputs
-        var normalizedName = name.Trim();
-        var normalizedHost = host.Trim().ToLowerInvariant();
-        var normalizedEmail = email.Trim().ToLowerInvariant();
-        var normalizedDatabaseName = databaseName?.Trim();
+        var normalizedName = request.Name.Trim();
+        var normalizedHost = request.Host.Trim().ToLowerInvariant();
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var normalizedDatabaseName = request.DatabaseName?.Trim();
 
         // Check if new host conflicts with existing tenant (excluding current tenant)
         if (normalizedHost != tenant.Host)
@@ -219,8 +220,8 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.Name = normalizedName;
         tenant.Host = normalizedHost;
         tenant.Email = normalizedEmail;
-        tenant.UserId = userId;
-        tenant.TimeZone = timeZone;
+        tenant.UserId = request.UserId;
+        tenant.TimeZone = request.TimeZone ?? string.Empty;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.LastModifiedAt = DateTime.UtcNow;
         tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_USER;

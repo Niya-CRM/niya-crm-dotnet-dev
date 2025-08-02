@@ -22,7 +22,7 @@ using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Api.Middleware;
 using NiyaCRM.Api.Helpers;
 using NiyaCRM.Core.Auth.Constants;
-using System.Security.Cryptography;
+using NiyaCRM.Core.Common;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using NiyaCRM.Api.Conventions;
 using Microsoft.Extensions.DependencyInjection;
@@ -143,8 +143,8 @@ builder.Services.AddSwaggerServices(builder.Configuration);
 
 // Register Health Checks
 builder.Services.AddHealthChecks()
-    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "service" })
-    .AddCheck<DatabaseHealthCheck>("database_connection", tags: new[] { "database" });
+    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: CommonConstant.HealthCheck.ServiceTags)
+    .AddCheck<DatabaseHealthCheck>("database_connection", tags: CommonConstant.HealthCheck.DatabaseTags);
 
 // Register the database health check as a service
 builder.Services.AddScoped<DatabaseHealthCheck>();

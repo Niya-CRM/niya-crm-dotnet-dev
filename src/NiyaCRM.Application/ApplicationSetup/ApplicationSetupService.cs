@@ -67,7 +67,7 @@ public class ApplicationSetupService : IApplicationSetupService
             var technicalUser = await CreateTechnicalUserAsync();
             
             // Create the initial admin user
-            var user = await CreateInitialAdminUserAsync(installationDto, technicalUser.Id);
+            await CreateInitialAdminUserAsync(installationDto, technicalUser.Id);
 
             // Create the tenant
             var tenant = await CreateInitialTenantAsync(installationDto, technicalUser.Id, cancellationToken);
@@ -80,14 +80,14 @@ public class ApplicationSetupService : IApplicationSetupService
         }
         catch (Exception ex)
         {
-            _logger.LogError("Error during application installation: {Message}", ex.Message);
+            _logger.LogError(ex, "Error during application installation");
             await _unitOfWork.RollbackTransactionAsync(cancellationToken);
             throw;
         }
     }
 
     /// <inheritdoc/>
-    private async Task<ApplicationUser> CreateInitialAdminUserAsync(AppInstallationDto installationDto, Guid technicalUserId)
+    private async Task CreateInitialAdminUserAsync(AppInstallationDto installationDto, Guid technicalUserId)
     {
         var userId = Guid.NewGuid();
 
@@ -118,7 +118,6 @@ public class ApplicationSetupService : IApplicationSetupService
         }
 
         _logger.LogInformation("Created initial admin user with email: {Email}", installationDto.AdminEmail);
-        return user;
     }
     
     /// <inheritdoc/>
@@ -156,12 +155,17 @@ public class ApplicationSetupService : IApplicationSetupService
     /// <inheritdoc/>
     private async Task<Tenant> CreateInitialTenantAsync(AppInstallationDto installationDto, Guid technicalUserId, CancellationToken cancellationToken = default)
     {
+        var createTenantRequest = new NiyaCRM.Core.Tenants.DTOs.CreateTenantRequest
+        {
+            Name = installationDto.TenantName,
+            Host = installationDto.Host,
+            Email = installationDto.AdminEmail,
+            UserId = technicalUserId,
+            TimeZone = installationDto.TimeZone
+        };
+
         var tenant = await _tenantService.CreateTenantAsync(
-            name: installationDto.TenantName,
-            host: installationDto.Host,
-            email: installationDto.AdminEmail,
-            userId: technicalUserId,
-            timeZone: installationDto.TimeZone,
+            request: createTenantRequest,
             createdBy: technicalUserId,
             cancellationToken: cancellationToken
         );

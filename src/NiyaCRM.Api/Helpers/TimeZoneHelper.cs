@@ -82,7 +82,7 @@ namespace NiyaCRM.Api.Helpers
             }
 
             // If it's already an IANA ID (contains a slash), return as is
-            if (timeZoneId.Contains("/"))
+            if (timeZoneId.Contains('/'))
             {
                 return timeZoneId;
             }
@@ -92,13 +92,15 @@ namespace NiyaCRM.Api.Helpers
                 // Try to map Windows time zone to IANA using mapping from NodaTime
                 var mappings = TzdbDateTimeZoneSource.Default.WindowsMapping.MapZones;
                 
-                foreach (var mapping in mappings)
+                // Find matching Windows ID using LINQ Where
+                var matchingMapping = mappings
+                    .Where(mapping => string.Equals(mapping.WindowsId, timeZoneId, StringComparison.OrdinalIgnoreCase))
+                    .FirstOrDefault();
+                
+                if (matchingMapping != null)
                 {
-                    if (string.Equals(mapping.WindowsId, timeZoneId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Return the first territory mapping (usually "001" which is the default)
-                        return mapping.TzdbIds.FirstOrDefault() ?? "UTC";
-                    }
+                    // Return the first territory mapping (usually "001" which is the default)
+                    return matchingMapping.TzdbIds.FirstOrDefault() ?? "UTC";
                 }
                 
                 // If no mapping found, try to find a close match
@@ -227,52 +229,24 @@ namespace NiyaCRM.Api.Helpers
         /// <returns>True if the timezone should be skipped</returns>
         private static bool ShouldSkipTimeZone(string tzId)
         {
-            // Skip problematic or redundant timezone IDs
-            return tzId.StartsWith("GMT") || // Skip direct GMT timezones
-                   tzId.StartsWith("SystemV/") || // Skip SystemV timezones
-                   tzId.StartsWith("US/") || // Skip US/ timezones (duplicates of America/)  
-                   tzId.StartsWith("Canada/") || // Skip Canada/ timezones (duplicates of America/)
-                   tzId.StartsWith("Brazil/") || // Skip Brazil/ timezones (duplicates of America/)
-                   tzId.StartsWith("Mexico/") || // Skip Mexico/ timezones (duplicates of America/)
-                   tzId.StartsWith("Chile/") || // Skip Chile/ timezones (duplicates of America/)
-                   tzId.StartsWith("Cuba") || // Skip Cuba timezones (duplicates of America/)
-                   tzId.StartsWith("Egypt") || // Skip Egypt timezones (duplicates of Africa/)
-                   tzId.StartsWith("GB") || // Skip GB timezones (duplicates of Europe/)
-                   tzId.StartsWith("Hongkong") || // Skip Hongkong timezones (duplicates of Asia/)
-                   tzId.StartsWith("Iceland") || // Skip Iceland timezones (duplicates of Atlantic/)
-                   tzId.StartsWith("Iran") || // Skip Iran timezones (duplicates of Asia/)
-                   tzId.StartsWith("Israel") || // Skip Israel timezones (duplicates of Asia/)
-                   tzId.StartsWith("Jamaica") || // Skip Jamaica timezones (duplicates of America/)
-                   tzId.StartsWith("Japan") || // Skip Japan timezones (duplicates of Asia/)
-                   tzId.StartsWith("Kwajalein") || // Skip Kwajalein timezones (duplicates of Pacific/)
-                   tzId.StartsWith("Libya") || // Skip Libya timezones (duplicates of Africa/)
-                   tzId.StartsWith("Navajo") || // Skip Navajo timezones (duplicates of America/)
-                   tzId.StartsWith("Poland") || // Skip Poland timezones (duplicates of Europe/)
-                   tzId.StartsWith("Portugal") || // Skip Portugal timezones (duplicates of Europe/)
-                   tzId.StartsWith("Singapore") || // Skip Singapore timezones (duplicates of Asia/)
-                   tzId.StartsWith("Turkey") || // Skip Turkey timezones (duplicates of Europe/)
-                   tzId.Contains("Zulu") || // Skip Zulu timezones
-                   tzId.Equals("PST8PDT") || // Skip PST8PDT
-                   tzId.Equals("MST7MDT") || // Skip MST7MDT
-                   tzId.Equals("CST6CDT") || // Skip CST6CDT
-                   tzId.Equals("EST5EDT") || // Skip EST5EDT
-                   tzId.Equals("EET") || // Skip EET
-                   tzId.Equals("CET") || // Skip CET
-                   tzId.Equals("MET") || // Skip MET
-                   tzId.Equals("WET") || // Skip WET
-                   tzId.StartsWith("Factory") || // Skip Factory
-                   tzId.StartsWith("Universal") || // Skip Universal
-                   tzId.StartsWith("UCT") || // Skip UCT
-                   tzId.StartsWith("ROC") || // Skip ROC
-                   tzId.StartsWith("ROK") || // Skip ROK
-                   tzId.StartsWith("W-SU") || // Skip W-SU
-                   tzId.StartsWith("NZ") || // Skip NZ (use Pacific/Auckland instead)
-                   tzId.StartsWith("PRC") || // Skip PRC (use Asia/Shanghai instead)
-                   tzId.StartsWith("MST") || // Skip MST
-                   tzId.StartsWith("HST") || // Skip HST
-                   tzId.StartsWith("EST") || // Skip EST
-                   tzId.StartsWith("CST6") || // Skip CST6
-                   tzId.StartsWith("Eire"); // Skip Eire
+            // List of prefixes to skip (duplicates or problematic timezones)
+            var prefixesToSkip = new[] {
+                "GMT", "SystemV/", "US/", "Canada/", "Brazil/", "Mexico/", "Chile/", 
+                "Cuba", "Egypt", "GB", "Hongkong", "Iceland", "Iran", "Israel", "Jamaica", 
+                "Japan", "Kwajalein", "Libya", "Navajo", "Poland", "Portugal", "Singapore", 
+                "Turkey", "Factory", "Universal", "UCT", "ROC", "ROK", "W-SU", "NZ", 
+                "PRC", "MST", "HST", "EST", "CST6", "Eire"
+            };
+            
+            // List of exact timezone IDs to skip
+            var exactIdsToSkip = new[] {
+                "PST8PDT", "MST7MDT", "CST6CDT", "EST5EDT", "EET", "CET", "MET", "WET"
+            };
+            
+            // Check if the timezone ID starts with any of the prefixes to skip
+            return prefixesToSkip.Any(prefix => tzId.StartsWith(prefix)) ||
+                   exactIdsToSkip.Any(id => tzId.Equals(id)) ||
+                   tzId.Contains("Zulu"); // Special case for Zulu
         }
     }
 }

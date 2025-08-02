@@ -15,18 +15,15 @@ namespace NiyaCRM.Api.Helpers
     public class JwtHelper
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
         
         // Static field to store the generated random key for development
         private static byte[]? _devSigningKey = null;
         private static readonly object _lockObject = new object();
 
         public JwtHelper(
-            UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
-            _configuration = configuration;
         }
         
         /// <summary>

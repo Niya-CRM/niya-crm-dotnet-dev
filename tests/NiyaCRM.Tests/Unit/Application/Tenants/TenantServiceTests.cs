@@ -7,6 +7,7 @@ using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Cache;
 using NiyaCRM.Core.Common;
 using NiyaCRM.Core.Tenants;
+using NiyaCRM.Core.Tenants.DTOs;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -74,57 +75,78 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenNameIsEmpty()
         {
             // Arrange
-            var tenantName = "";
-            var tenantHost = "test.domain.com";
-            var tenantEmail = "test@example.com";
+            var createRequest = new CreateTenantRequest
+            {
+                Name = "",
+                Host = "test.domain.com",
+                Email = "test@example.com",
+                UserId = Guid.NewGuid(),
+                TimeZone = "UTC"
+            };
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail, Guid.NewGuid(), "UTC"));
+                async () => await _tenantService.CreateTenantAsync(createRequest));
 
-            exception.Message.ShouldContain("name");
-            exception.ParamName.ShouldBe("name");
+            exception.Message.ShouldContain("Name");
+            exception.ParamName.ShouldBe("request.Name");
         }
 
         [Fact]
         public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenHostIsEmpty()
         {
             // Arrange
-            var tenantName = "Test Tenant";
-            var tenantHost = "";
-            var tenantEmail = "test@example.com";
+            var createRequest = new CreateTenantRequest
+            {
+                Name = "Test Tenant",
+                Host = "",
+                Email = "test@example.com",
+                UserId = Guid.NewGuid(),
+                TimeZone = "UTC"
+            };
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail, Guid.NewGuid(), "UTC"));
+                async () => await _tenantService.CreateTenantAsync(createRequest));
 
-            exception.Message.ShouldContain("host");
-            exception.ParamName.ShouldBe("host");
+            exception.Message.ShouldContain("Host");
+            exception.ParamName.ShouldBe("request.Host");
         }
 
         [Fact]
         public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenEmailIsEmpty()
         {
             // Arrange
-            var tenantName = "Test Tenant";
-            var tenantHost = "test.domain.com";
-            var tenantEmail = "";
+            var createRequest = new CreateTenantRequest
+            {
+                Name = "Test Tenant",
+                Host = "test.domain.com",
+                Email = "",
+                UserId = Guid.NewGuid(),
+                TimeZone = "UTC"
+            };
 
             // Act & Assert
             var exception = await Should.ThrowAsync<ArgumentException>(
-                async () => await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail, Guid.NewGuid(), "UTC"));
+                async () => await _tenantService.CreateTenantAsync(createRequest));
 
-            exception.Message.ShouldContain("email");
-            exception.ParamName.ShouldBe("email");
+            exception.Message.ShouldContain("Email");
+            exception.ParamName.ShouldBe("request.Email");
         }
 
         [Fact]
         public async Task CreateTenantAsync_ShouldThrowInvalidOperationException_WhenHostAlreadyExists()
         {
             // Arrange
-            var tenantName = "Test Tenant";
             var tenantHost = "existing.domain.com";
-            var tenantEmail = "test@example.com";
+            var createRequest = new CreateTenantRequest
+            {
+                Name = "Test Tenant",
+                Host = tenantHost,
+                Email = "test@example.com",
+                UserId = Guid.NewGuid(),
+                TimeZone = "UTC"
+            };
             
             var existingTenant = new Tenant
             {
@@ -141,7 +163,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
 
             // Act & Assert
             var exception = await Should.ThrowAsync<InvalidOperationException>(
-                async () => await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail, Guid.NewGuid(), "UTC"));
+                async () => await _tenantService.CreateTenantAsync(createRequest));
 
             exception.Message.ShouldContain(tenantHost.Trim().ToLowerInvariant());
             
@@ -331,6 +353,16 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             var tenantName = "Test Tenant";
             var tenantHost = "test.domain.com";
             var tenantEmail = "test@example.com";
+            var userId = Guid.NewGuid();
+            var createRequest = new CreateTenantRequest
+            {
+                Name = tenantName,
+                Host = tenantHost,
+                Email = tenantEmail,
+                UserId = userId,
+                TimeZone = "UTC"
+            };
+            
             var tenant = new Tenant
             {
                 Name = tenantName,
@@ -348,7 +380,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _tenantService.CreateTenantAsync(tenantName, tenantHost, tenantEmail, Guid.NewGuid(), "UTC");
+            var result = await _tenantService.CreateTenantAsync(createRequest);
 
             // Assert
             result.ShouldNotBeNull();

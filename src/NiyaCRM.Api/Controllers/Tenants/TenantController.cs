@@ -223,16 +223,21 @@ public class TenantController : ControllerBase
         {
             _logger.LogInformation("Updating tenant: {TenantId}", id);
             
+            var updateRequest = new UpdateTenantRequest
+            {
+                Name = request.Name ?? tenant.Name,
+                Host = request.Host ?? tenant.Host,
+                Email = request.Email ?? tenant.Email,
+                UserId = tenant.UserId,
+                TimeZone = request.TimeZone ?? tenant.TimeZone,
+                DatabaseName = request.DatabaseName ?? tenant.DatabaseName
+            };
+            
             var updatedTenant = await _tenantService.UpdateTenantAsync(
-                id: id,
-                name: request.Name ?? tenant.Name,
-                host: request.Host ?? tenant.Host,
-                email: request.Email ?? tenant.Email,
-                userId: tenant.UserId,
-                timeZone: request.TimeZone ?? tenant.TimeZone,
-                databaseName: request.DatabaseName ?? tenant.DatabaseName,
-                modifiedBy: CommonConstant.DEFAULT_USER,
-                cancellationToken: cancellationToken);
+                id, 
+                updateRequest, 
+                CommonConstant.DEFAULT_USER, 
+                cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
             return Ok(updatedTenant);

@@ -1,4 +1,5 @@
 using NiyaCRM.Core.Common;
+using NiyaCRM.Core.Tenants.DTOs;
 
 namespace NiyaCRM.Core.Tenants;
 
@@ -10,15 +11,11 @@ public interface ITenantService
     /// <summary>
     /// Creates a new tenant.
     /// </summary>
-    /// <param name="name">The tenant name.</param>
-    /// <param name="host">The tenant host.</param>
-    /// <param name="email">The tenant email.</param>
-    /// <param name="userId">The user identifier.</param>
-    /// <param name="databaseName">The database name (optional).</param>
+    /// <param name="request">The tenant creation request.</param>
     /// <param name="createdBy">The user creating the tenant.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created tenant.</returns>
-    Task<Tenant> CreateTenantAsync(string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? createdBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a tenant by its identifier.
@@ -40,15 +37,11 @@ public interface ITenantService
     /// Updates tenant information.
     /// </summary>
     /// <param name="id">The tenant identifier.</param>
-    /// <param name="name">The new tenant name.</param>
-    /// <param name="host">The new tenant host.</param>
-    /// <param name="email">The new tenant email.</param>
-    /// <param name="userId">The user identifier.</param>
-    /// <param name="databaseName">The new database name (optional).</param>
+    /// <param name="request">The tenant update request.</param>
     /// <param name="modifiedBy">The user updating the tenant.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
-    Task<Tenant> UpdateTenantAsync(Guid id, string name, string host, string email, Guid userId, string timeZone, string? databaseName = null, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if any tenants exist in the system.

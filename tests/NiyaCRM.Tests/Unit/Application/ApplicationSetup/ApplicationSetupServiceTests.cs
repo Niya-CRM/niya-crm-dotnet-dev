@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Tests.Helpers;
-using Moq;
-using NiyaCRM.Application.ApplicationSetup;
-using NiyaCRM.Core;
-using NiyaCRM.Core.ApplicationSetup;
-using NiyaCRM.Core.ApplicationSetup.DTOs;
 using NiyaCRM.Core.Tenants;
+using NiyaCRM.Core.Tenants.DTOs;
+using NiyaCRM.Application.ApplicationSetup;
+using NiyaCRM.Core.ApplicationSetup.DTOs;
+using NiyaCRM.Infrastructure.Data;
+using NiyaCRM.Core;
+using Moq;
 using Shouldly;
 using System;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using System.Reflection;
 
 namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
 {
@@ -105,14 +108,13 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 IsActive = "Y"
             };
 
+            // Setup with explicit matcher to avoid optional parameters in expression trees
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
-                    It.Is<string>(name => name == installationDto.TenantName),
-                    It.Is<string>(host => host == installationDto.Host),
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
+                    It.Is<CreateTenantRequest>(req => 
+                        req.Name == installationDto.TenantName && 
+                        req.Host == installationDto.Host && 
+                        req.Email == installationDto.AdminEmail),
                     It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tenant);
@@ -130,9 +132,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
 
             // Assert
             result.ShouldNotBeNull();
-            result.Id.ShouldBe(tenant.Id);
-            result.Name.ShouldBe(tenant.Name);
-            result.Host.ShouldBe(tenant.Host);
+            result.ShouldBe(tenant);
             
             // Verify transaction was used
             _mockUnitOfWork.Verify(
@@ -146,12 +146,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
             // Verify tenant service was used to create tenant
             _mockTenantService.Verify(
                 service => service.CreateTenantAsync(
-                    It.Is<string>(name => name == installationDto.TenantName),
-                    It.Is<string>(host => host == installationDto.Host),
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
+                    It.Is<CreateTenantRequest>(req => true),
                     It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
@@ -173,12 +168,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
 
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
+                    It.Is<CreateTenantRequest>(req => true),
                     It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Test exception"));
@@ -192,7 +182,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 .Returns(Task.CompletedTask);
 
             // Act
-            Func<Task> act = async () => await _applicationSetupService.InstallApplicationAsync(installationDto, CancellationToken.None);
+            Func<Task> act = async () => await _applicationSetupService.InstallApplicationAsync(installationDto);
             
             // Assert
             await act.ShouldThrowAsync<Exception>();

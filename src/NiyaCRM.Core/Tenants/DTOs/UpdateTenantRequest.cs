@@ -27,6 +27,11 @@ public class UpdateTenantRequest
     public string? Email { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the user identifier.
+    /// </summary>
+    public Guid UserId { get; set; }
+
+    /// <summary>
     /// Gets or sets the tenant time zone.
     /// </summary>
     [StringLength(100, MinimumLength = 1)]

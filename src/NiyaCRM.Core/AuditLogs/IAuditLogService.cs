@@ -1,4 +1,5 @@
 using NiyaCRM.Core.Common;
+using NiyaCRM.Core.AuditLogs.DTOs;
 
 namespace NiyaCRM.Core.AuditLogs;
 
@@ -31,23 +32,11 @@ public interface IAuditLogService
     /// <summary>
     /// Gets audit logs by optional filters. All filters are optional and can be combined.
     /// </summary>
-    /// <param name="objectKey">The object key/entity type (optional).</param>
-    /// <param name="objectItemId">The object item ID (optional).</param>
-    /// <param name="createdBy">The user who performed the action (optional).</param>
-    /// <param name="startDate">The start date for filtering (optional).</param>
-    /// <param name="endDate">The end date for filtering (optional).</param>
-    /// <param name="pageNumber">The page number (1-based).</param>
-    /// <param name="pageSize">The page size.</param>
+    /// <param name="query">The query parameters for filtering audit logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of audit logs matching the filters.</returns>
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-        string? objectKey = null,
-        string? objectItemId = null,
-        Guid? createdBy = null,
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-        int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+        AuditLogQueryDto query,
         CancellationToken cancellationToken = default
     );
 

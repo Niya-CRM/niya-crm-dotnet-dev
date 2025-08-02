@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NiyaCRM.Core.ChangeHistory.DTOs;
 using Moq;
 using NiyaCRM.Application.ChangeHistory;
 using NiyaCRM.Core.ChangeHistory;
@@ -132,15 +133,18 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
                 .ReturnsAsync(expectedLogs);
 
             // Act
-            var result = await _service.GetChangeHistoryLogsAsync(
-                objectKey,
-                objectItemId,
-                fieldName,
-                createdBy,
-                startDate,
-                endDate,
-                pageNumber,
-                pageSize);
+            var query = new ChangeHistoryLogQueryDto
+            {
+                ObjectKey = objectKey,
+                ObjectItemId = objectItemId,
+                FieldName = fieldName,
+                CreatedBy = createdBy,
+                StartDate = startDate,
+                EndDate = endDate,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            var result = await _service.GetChangeHistoryLogsAsync(query);
 
             // Assert
             result.ShouldNotBeNull();

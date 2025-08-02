@@ -31,6 +31,24 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "change_history_logs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    object_item_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    field_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    old_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    new_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_change_history_logs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "countries",
                 columns: table => new
                 {
@@ -297,6 +315,21 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: new[] { "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_created_at",
+                table: "change_history_logs",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_object_key_object_item_id_created_at",
+                table: "change_history_logs",
+                columns: new[] { "object_key", "object_item_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_object_key_object_item_id_field_name_cr~",
+                table: "change_history_logs",
+                columns: new[] { "object_key", "object_item_id", "field_name", "created_at" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_dynamic_objects_object_key",
                 table: "dynamic_objects",
                 column: "object_key",
@@ -372,6 +405,9 @@ namespace NiyaCRM.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "audit_logs");
+
+            migrationBuilder.DropTable(
+                name: "change_history_logs");
 
             migrationBuilder.DropTable(
                 name: "countries");

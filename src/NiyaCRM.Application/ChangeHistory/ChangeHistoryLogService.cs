@@ -1,4 +1,5 @@
 using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.ChangeHistory.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -53,25 +54,18 @@ namespace NiyaCRM.Application.ChangeHistory
 
         /// <inheritdoc/>
         public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
-            string? objectKey = null,
-            Guid? objectItemId = null,
-            string? fieldName = null,
-            Guid? createdBy = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            int pageNumber = Core.Common.CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = Core.Common.CommonConstant.PAGE_SIZE_DEFAULT,
+            ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
             return await _repository.GetChangeHistoryLogsAsync(
-                objectKey,
-                objectItemId,
-                fieldName,
-                createdBy,
-                startDate,
-                endDate,
-                pageNumber,
-                pageSize,
+                query.ObjectKey,
+                query.ObjectItemId,
+                query.FieldName,
+                query.CreatedBy,
+                query.StartDate,
+                query.EndDate,
+                query.PageNumber,
+                query.PageSize,
                 cancellationToken);
         }
 

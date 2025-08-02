@@ -10,12 +10,10 @@ namespace NiyaCRM.Api.Middleware
     public class JwtCookieAuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IConfiguration _configuration;
 
-        public JwtCookieAuthenticationMiddleware(RequestDelegate next, IConfiguration configuration)
+        public JwtCookieAuthenticationMiddleware(RequestDelegate next)
         {
             _next = next;
-            _configuration = configuration;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -42,7 +40,7 @@ namespace NiyaCRM.Api.Middleware
                     };
 
                     // Validate the token and extract claims
-                    var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                    var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
                     
                     // Set the claims principal on the HttpContext
                     context.User = principal;

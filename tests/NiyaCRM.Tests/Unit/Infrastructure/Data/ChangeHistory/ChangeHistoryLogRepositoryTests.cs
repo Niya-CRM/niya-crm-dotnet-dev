@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory;
 using NiyaCRM.Core.ChangeHistory;
 using NiyaCRM.Infrastructure.Data;
 using NiyaCRM.Infrastructure.Data.ChangeHistory;
 using Shouldly;
-using Xunit;
 
 namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory
 {

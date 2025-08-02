@@ -1,9 +1,9 @@
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Common;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NiyaCRM.Core.AuditLogs.DTOs;
 
 namespace NiyaCRM.Application.AuditLogs
 {
@@ -16,6 +16,7 @@ namespace NiyaCRM.Application.AuditLogs
             _repository = repository;
         }
 
+        /// <inheritdoc/>
         public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, string objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default)
         {
             var auditLog = new AuditLog(
@@ -30,24 +31,29 @@ namespace NiyaCRM.Application.AuditLogs
             return await _repository.AddAsync(auditLog, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<AuditLog?> GetAuditLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _repository.GetByIdAsync(id, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-            string? objectKey = null,
-            string? objectItemId = null,
-            Guid? createdBy = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+            AuditLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
-            return await _repository.GetAuditLogsAsync(objectKey, objectItemId, createdBy, startDate, endDate, pageNumber, pageSize, cancellationToken);
+            return await _repository.GetAuditLogsAsync(
+                query.ObjectKey,
+                query.ObjectItemId,
+                query.CreatedBy,
+                query.StartDate,
+                query.EndDate,
+                query.PageNumber,
+                query.PageSize,
+                cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<AuditLog>> GetAllAuditLogsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
         {
             return await _repository.GetAllAsync(pageNumber, pageSize, cancellationToken);

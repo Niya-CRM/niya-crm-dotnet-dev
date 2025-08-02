@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250802113548_InitialMigration")]
+    [Migration("20250802151851_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -209,6 +209,62 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasDatabaseName("ix_audit_logs_object_key_object_item_id_created_at");
 
                     b.ToTable("audit_logs");
+                });
+
+            modelBuilder.Entity("NiyaCRM.Core.ChangeHistory.ChangeHistoryLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("field_name");
+
+                    b.Property<string>("NewValue")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("new_value");
+
+                    b.Property<Guid>("ObjectItemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_item_id");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("object_key");
+
+                    b.Property<string>("OldValue")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("old_value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_change_history_logs");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_change_history_logs_created_at");
+
+                    b.HasIndex("ObjectKey", "ObjectItemId", "CreatedAt")
+                        .HasDatabaseName("ix_change_history_logs_object_key_object_item_id_created_at");
+
+                    b.HasIndex("ObjectKey", "ObjectItemId", "FieldName", "CreatedAt")
+                        .HasDatabaseName("ix_change_history_logs_object_key_object_item_id_field_name_cr~");
+
+                    b.ToTable("change_history_logs");
                 });
 
             modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.DynamicObject", b =>

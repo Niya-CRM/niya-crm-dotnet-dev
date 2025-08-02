@@ -32,13 +32,7 @@ namespace NiyaCRM.Api.Controllers.AuditLogs
         return BadRequest(ModelState);
     }
     var logs = await _auditLogService.GetAuditLogsAsync(
-        query.ObjectKey,
-        query.ObjectItemId,
-        query.CreatedBy,
-        query.StartDate,
-        query.EndDate,
-        query.PageNumber,
-        query.PageSize,
+        query,
         cancellationToken);
     return Ok(logs);
 }

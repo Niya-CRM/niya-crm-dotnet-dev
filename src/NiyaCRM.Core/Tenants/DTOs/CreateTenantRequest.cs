@@ -25,7 +25,15 @@ public class CreateTenantRequest
     /// Gets or sets the user identifier.
     /// </summary>
     [Required]
-    public string UserId { get; set; } = string.Empty;
+    public Guid UserId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the tenant email.
+    /// </summary>
+    [Required]
+    [EmailAddress]
+    [StringLength(100, MinimumLength = 1)]
+    public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the tenant time zone.
