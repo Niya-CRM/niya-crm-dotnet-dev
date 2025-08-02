@@ -8,7 +8,7 @@ namespace NiyaCRM.Core.Auth.DTOs
         /// <summary>
         /// JWT token string
         /// </summary>
-        public string Token { get; set; }
+        public required string Token { get; set; }
 
         /// <summary>
         /// Token expiration time in seconds
@@ -18,6 +18,6 @@ namespace NiyaCRM.Core.Auth.DTOs
         /// <summary>
         /// Type of token (e.g. "Bearer")
         /// </summary>
-        public string TokenType { get; set; }
+        public required string TokenType { get; set; }
     }
 }
