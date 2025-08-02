@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -22,6 +24,22 @@ namespace NiyaCRM.Api.Helpers
             _userManager = userManager;
             _configuration = configuration;
         }
+        
+        /// <summary>
+        /// Gets the JWT signing key from environment variables or falls back to configuration
+        /// </summary>
+        /// <returns>JWT signing key as byte array</returns>
+        public static byte[] GetJwtSigningKey()
+        {
+            string? jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            
+            if (string.IsNullOrEmpty(jwtSecret))
+            {
+                throw new InvalidOperationException("JWT_SECRET environment variable not found");
+            }
+            
+            return Encoding.UTF8.GetBytes(jwtSecret);
+        }
 
         public async Task<string> GenerateJwtToken(ApplicationUser user)
         {
@@ -39,8 +57,7 @@ namespace NiyaCRM.Api.Helpers
                 claims.Add(new Claim("role", role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _configuration[AuthConstants.Jwt.SecretConfigKey] ?? throw new InvalidOperationException("JWT Signing Key not found")));
+            var key = new SymmetricSecurityKey(GetJwtSigningKey());
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.UtcNow.AddHours(AuthConstants.Jwt.TokenExpiryHours);
 

@@ -108,7 +108,7 @@ builder.Services.AddAuthentication(options => {
         ValidateIssuerSigningKey = true,
         ValidIssuer = AuthConstants.Jwt.Issuer,
         ValidAudience = AuthConstants.Jwt.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration[AuthConstants.Jwt.SecretConfigKey] ?? throw new InvalidOperationException("JWT Secret not found")))
+        IssuerSigningKey = new SymmetricSecurityKey(JwtHelper.GetJwtSigningKey())
     };
 });
 
