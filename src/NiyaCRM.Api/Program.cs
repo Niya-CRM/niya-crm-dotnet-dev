@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using NiyaCRM.Core.Identity;
@@ -113,8 +114,13 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-// Add Authorization policies
-builder.Services.AddAuthorization();
+// Add Authorization policies with global fallback policy using AuthorizationBuilder
+var authBuilder = builder.Services.AddAuthorizationBuilder();
+
+// This makes all endpoints require authentication by default
+authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .Build());
 
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();

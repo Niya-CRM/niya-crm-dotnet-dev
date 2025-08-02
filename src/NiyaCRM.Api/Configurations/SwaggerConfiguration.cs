@@ -95,6 +95,9 @@ namespace NiyaCRM.Api.Configurations
                     return _otherTagName;
                 });
                 
+                // Order actions alphabetically in Swagger UI
+                options.OrderActionsBy(apiDesc => apiDesc.RelativePath);
+                
                 // Include XML comments if available
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
