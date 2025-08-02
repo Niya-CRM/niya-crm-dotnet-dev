@@ -205,11 +205,11 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
         
         [Fact]
-        public async Task ActivateTenantAsync_ShouldActivateTenant_AndLogAudit()
+        public async Task ChangeTenantActivationStatus_Activate_ShouldActivateTenant_AndLogAudit()
         {
             // Arrange
             var tenantId = Guid.NewGuid();
-            var reason = "Test activation reason";
+            var reason = "Test activation";
             var tenant = new Tenant
             {
                 Id = tenantId,
@@ -232,7 +232,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _tenantService.ActivateTenantAsync(tenantId, reason, CancellationToken.None);
+            var result = await _tenantService.ChangeTenantActivationStatusAsync(tenantId, TenantConstant.ActivationAction.Activate, reason, CancellationToken.None);
 
             // Assert
             result.ShouldNotBeNull();
@@ -265,10 +265,11 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
 
         [Fact]
-        public async Task DeactivateTenantAsync_ShouldDeactivateTenant_AndLogAudit()
+        public async Task ChangeTenantActivationStatus_Deactivate_ShouldDeactivateTenant_AndLogAudit()
         {
             // Arrange
             var tenantId = Guid.NewGuid();
+            var reason = "Test deactivation";
             var tenant = new Tenant
             {
                 Id = tenantId,
@@ -291,7 +292,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 .ReturnsAsync(1);
 
             // Act
-            var result = await _tenantService.DeactivateTenantAsync(tenantId, "Test deactivation");
+            var result = await _tenantService.ChangeTenantActivationStatusAsync(tenantId, TenantConstant.ActivationAction.Deactivate, reason);
 
             // Assert
             result.ShouldNotBeNull();

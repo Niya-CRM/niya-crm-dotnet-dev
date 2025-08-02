@@ -1,0 +1,87 @@
+using NiyaCRM.Core.ChangeHistory;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace NiyaCRM.Application.ChangeHistory
+{
+    /// <summary>
+    /// Implementation of the change history log service.
+    /// </summary>
+    public class ChangeHistoryLogService : IChangeHistoryLogService
+    {
+        private readonly IChangeHistoryLogRepository _repository;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeHistoryLogService"/> class.
+        /// </summary>
+        /// <param name="repository">The change history log repository.</param>
+        public ChangeHistoryLogService(IChangeHistoryLogRepository repository)
+        {
+            _repository = repository;
+        }
+
+        /// <inheritdoc/>
+        public async Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
+            string objectKey,
+            Guid objectItemId,
+            string fieldName,
+            string? oldValue,
+            string? newValue,
+            Guid createdBy,
+            CancellationToken cancellationToken = default)
+        {
+            var changeHistoryLog = new ChangeHistoryLog(
+                Guid.NewGuid(),
+                objectKey,
+                objectItemId,
+                fieldName,
+                oldValue,
+                newValue,
+                createdBy
+            );
+
+            return await _repository.AddAsync(changeHistoryLog, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _repository.GetByIdAsync(id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
+            string? objectKey = null,
+            Guid? objectItemId = null,
+            string? fieldName = null,
+            Guid? createdBy = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int pageNumber = Core.Common.CommonConstant.PAGE_NUMBER_DEFAULT,
+            int pageSize = Core.Common.CommonConstant.PAGE_SIZE_DEFAULT,
+            CancellationToken cancellationToken = default)
+        {
+            return await _repository.GetChangeHistoryLogsAsync(
+                objectKey,
+                objectItemId,
+                fieldName,
+                createdBy,
+                startDate,
+                endDate,
+                pageNumber,
+                pageSize,
+                cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<ChangeHistoryLog>> GetAllChangeHistoryLogsAsync(
+            int pageNumber = Core.Common.CommonConstant.PAGE_NUMBER_DEFAULT,
+            int pageSize = Core.Common.CommonConstant.PAGE_SIZE_DEFAULT,
+            CancellationToken cancellationToken = default)
+        {
+            return await _repository.GetAllAsync(pageNumber, pageSize, cancellationToken);
+        }
+    }
+}

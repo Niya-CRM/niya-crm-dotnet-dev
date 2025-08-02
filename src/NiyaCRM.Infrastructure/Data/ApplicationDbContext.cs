@@ -9,6 +9,7 @@ using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Referentials;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Core.ValueLists;
+using NiyaCRM.Core.ChangeHistory;
 
 namespace NiyaCRM.Infrastructure.Data
 {
@@ -35,6 +36,7 @@ namespace NiyaCRM.Infrastructure.Data
         public DbSet<DynamicObject> DynamicObjects { get; set; } = null!;
         public DbSet<ValueList> ValueLists { get; set; } = null!;
         public DbSet<ValueListItem> ValueListItems { get; set; } = null!;
+        public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.
