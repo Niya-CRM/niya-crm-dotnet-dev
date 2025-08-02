@@ -4,6 +4,7 @@ using NiyaCRM.Core.Common;
 using NiyaCRM.Core;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Core.Tenants.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Http;
 using NiyaCRM.Application.Cache;
@@ -60,13 +61,13 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         // Validation
         if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(request.Name));
+            throw new ValidationException("Tenant name cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Host))
-            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(request.Host));
+            throw new ValidationException("Tenant host cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Email))
-            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(request.Email));
+            throw new ValidationException("Tenant email cannot be null or empty.");
 
         // Normalize inputs
         var normalizedName = request.Name.Trim();
@@ -168,13 +169,13 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         // Validation
         if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ArgumentException("Tenant name cannot be null or empty.", nameof(request.Name));
+            throw new ValidationException("Tenant name cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Host))
-            throw new ArgumentException("Tenant host cannot be null or empty.", nameof(request.Host));
+            throw new ValidationException("Tenant host cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Email))
-            throw new ArgumentException("Tenant email cannot be null or empty.", nameof(request.Email));
+            throw new ValidationException("Tenant email cannot be null or empty.");
 
         // Get existing tenant
         var tenant = await _unitOfWork.GetRepository<ITenantRepository>().GetByIdAsync(id, cancellationToken);

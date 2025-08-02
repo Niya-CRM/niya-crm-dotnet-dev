@@ -92,10 +92,9 @@ namespace NiyaCRM.Api.Helpers
                 // Try to map Windows time zone to IANA using mapping from NodaTime
                 var mappings = TzdbDateTimeZoneSource.Default.WindowsMapping.MapZones;
                 
-                // Find matching Windows ID using LINQ Where
+                // Find matching Windows ID directly with FirstOrDefault
                 var matchingMapping = mappings
-                    .Where(mapping => string.Equals(mapping.WindowsId, timeZoneId, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault();
+                    .FirstOrDefault(mapping => string.Equals(mapping.WindowsId, timeZoneId, StringComparison.OrdinalIgnoreCase));
                 
                 if (matchingMapping != null)
                 {

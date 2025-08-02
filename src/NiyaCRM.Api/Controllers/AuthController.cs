@@ -34,15 +34,18 @@ namespace NiyaCRM.Api.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+
+            // If we have a token cookie, the middleware will have validated it and set User.Identity.IsAuthenticated
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                // Redirect to / if already logged in
+                return Redirect("/");
+            }
+
             // Check if the user is already authenticated by looking for the access_token cookie
             if (Request.Cookies.ContainsKey("access_token") && !string.IsNullOrEmpty(Request.Cookies["access_token"]))
             {
-                // If we have a token cookie, the middleware will have validated it and set User.Identity.IsAuthenticated
-                if (User.Identity != null && User.Identity.IsAuthenticated)
-                {
-                    // Redirect to / if already logged in
-                    return Redirect("/");
-                }
+                // TO DO: RENEW THE TOKEN IF SESSION IS STILL VALID
             }
             
             return View();

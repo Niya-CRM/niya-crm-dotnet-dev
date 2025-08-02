@@ -78,9 +78,9 @@ public class ApplicationSetupService : IApplicationSetupService
             _logger.LogInformation("Application installation completed successfully");
             return tenant;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, "Error during application installation");
+            _logger.LogError("Error during application installation");
             await _unitOfWork.RollbackTransactionAsync(cancellationToken);
             throw;
         }

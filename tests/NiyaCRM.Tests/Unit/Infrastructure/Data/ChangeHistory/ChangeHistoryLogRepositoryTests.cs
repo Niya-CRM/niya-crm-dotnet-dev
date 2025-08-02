@@ -124,6 +124,7 @@ namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory
         public void Dispose()
         {
             _dbContext.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

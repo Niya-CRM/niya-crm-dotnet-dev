@@ -26,16 +26,13 @@ namespace NiyaCRM.Api.Conventions
                 return;
             }
 
-            // Add 'api' prefix to all other controllers
+            // Add 'api' prefix to all other controllers using LINQ
             foreach (var selector in controller.Selectors)
             {
-                if (selector.AttributeRouteModel != null)
+                var model = selector.AttributeRouteModel;
+                if (model != null && !string.IsNullOrEmpty(model.Template) && !model.Template.StartsWith("api/"))
                 {
-                    var template = selector.AttributeRouteModel.Template;
-                    if (!string.IsNullOrEmpty(template) && !template.StartsWith("api/"))
-                    {
-                        selector.AttributeRouteModel.Template = $"api/{template}";
-                    }
+                    model.Template = $"api/{model.Template}";
                 }
             }
         }
