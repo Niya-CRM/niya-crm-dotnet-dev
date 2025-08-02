@@ -1,3 +1,4 @@
+@using NiyaCRM.Api.Helpers;
 @model NiyaCRM.Core.ApplicationSetup.DTOs.AppInstallationDto
 @{
     ViewData["Title"] = "Application Setup";
@@ -115,9 +116,14 @@
                 <div class="mb-3">
                     <label asp-for="TimeZone" class="form-label">Time Zone</label>
                     <select asp-for="TimeZone" class="form-select" aria-describedby="tzHelp">
-                        @foreach (var tz in TimeZoneInfo.GetSystemTimeZones())
+                        @{
+                            var ianaTimeZones = TimeZoneHelper.GetAllIanaTimeZones();
+                            var currentTimeZone = TimeZoneHelper.ConvertWindowsToIana(Model.TimeZone);
+                        }
+                        
+                        @foreach (var tz in ianaTimeZones)
                         {
-                            <option value="@tz.Id" selected="@((tz.Id == Model.TimeZone))">@tz.DisplayName</option>
+                            <option value="@tz.Key" selected="@(tz.Key == currentTimeZone)">@tz.Value</option>
                         }
                     </select>
                     <div id="tzHelp" class="form-text">Select time zone of your profile & organization.</div>
