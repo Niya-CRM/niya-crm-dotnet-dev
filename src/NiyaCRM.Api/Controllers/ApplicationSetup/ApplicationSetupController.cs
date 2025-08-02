@@ -76,8 +76,8 @@ public class ApplicationSetupController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Setup failed");
-            ModelState.AddModelError(string.Empty, ex.Message);
+            _logger.LogError(ex, "Application installation failed");
+            ModelState.AddModelError(string.Empty, CommonConstant.MESSAGE_INTERNAL_SERVER_ERROR);
             return View(model);
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace NiyaCRM.Api.Configurations
 {
@@ -11,6 +12,11 @@ namespace NiyaCRM.Api.Configurations
     /// </summary>
     public static class SwaggerConfiguration
     {
+        // Static readonly fields for arrays that are used repeatedly
+        private static readonly string[] _emptyStringArray = Array.Empty<string>();
+        private static readonly string[] _authTagName = new[] { "Auth" };
+        private static readonly string[] _otherTagName = new[] { "Other" };
+        
         /// <summary>
         /// Adds and configures Swagger services to the service collection
         /// </summary>
@@ -52,7 +58,7 @@ namespace NiyaCRM.Api.Configurations
                                 Id = "Bearer"
                             }
                         },
-                        Array.Empty<string>()
+                        _emptyStringArray
                     }
                 });
                 
@@ -79,13 +85,14 @@ namespace NiyaCRM.Api.Configurations
                         // Rename ApiAuth controller to Auth in Swagger UI
                         if (controllerActionDescriptor.ControllerName == "ApiAuth")
                         {
-                            return new[] { "Auth" };
+                            return _authTagName;
                         }
                         
+                        // Create a controller-specific tag array
                         return new[] { controllerActionDescriptor.ControllerName };
                     }
                     
-                    return new[] { "Other" };
+                    return _otherTagName;
                 });
                 
                 // Include XML comments if available

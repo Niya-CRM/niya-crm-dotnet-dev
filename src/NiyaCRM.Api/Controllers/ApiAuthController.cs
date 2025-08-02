@@ -50,7 +50,7 @@ namespace NiyaCRM.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login([FromBody] LoginDto model)
+        public async Task<IActionResult> Login([FromBody] ApiLoginDto model)
         {
             if (!ModelState.IsValid)
             {

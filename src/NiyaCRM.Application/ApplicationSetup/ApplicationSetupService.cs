@@ -80,7 +80,6 @@ public class ApplicationSetupService : IApplicationSetupService
         }
         catch (Exception)
         {
-            _logger.LogError("Error during application installation");
             await _unitOfWork.RollbackTransactionAsync(cancellationToken);
             throw;
         }

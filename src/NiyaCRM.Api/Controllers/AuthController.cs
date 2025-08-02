@@ -1,10 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using NiyaCRM.Api.Helpers;
 using NiyaCRM.Core.Auth.Constants;
 using NiyaCRM.Core.Identity;
@@ -12,26 +12,27 @@ using NiyaCRM.Core.Auth.DTOs;
 
 namespace NiyaCRM.Api.Controllers
 {
+    /// <summary>
+    /// Controller for handling authentication operations.
+    /// </summary>
+    [Route("auth")]
     public class AuthController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _configuration;
         private readonly JwtHelper _jwtHelper;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
             JwtHelper jwtHelper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
             _jwtHelper = jwtHelper;
         }
 
-        [HttpGet]
+        [HttpGet("login")]
         public IActionResult Login()
         {
 
@@ -51,7 +52,7 @@ namespace NiyaCRM.Api.Controllers
             return View();
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDto model)
         {
@@ -80,6 +81,7 @@ namespace NiyaCRM.Api.Controllers
                 return View(model);
             }
 
+            // Generate JWT token
             var token = await _jwtHelper.GenerateJwtToken(user);
             
             // Store token in cookie
@@ -91,14 +93,26 @@ namespace NiyaCRM.Api.Controllers
                 Expires = DateTime.UtcNow.AddHours(AuthConstants.Cookie.ExpiryHours)
             });
             
+            // Sign in with ASP.NET Identity session
+            await _signInManager.SignInAsync(user, new AuthenticationProperties
+            {
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(AuthConstants.Session.ExpiryHours)
+            });
+            
             // Redirect to home page or dashboard
             return Redirect("/");
         }
 
-        [HttpPost("auth/logout")]
-        public IActionResult Logout()
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
         {
+            // Delete JWT token cookie
             Response.Cookies.Delete(AuthConstants.Cookie.AccessTokenName);
+            
+            // Sign out from ASP.NET Identity session
+            await _signInManager.SignOutAsync();
+            
             return Ok();
         }
 

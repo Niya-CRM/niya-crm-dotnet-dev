@@ -17,8 +17,14 @@ namespace NiyaCRM.Core.Auth.Constants
         public static class Cookie
         {
             public const string AccessTokenName = "access_token";
-            public const int ExpiryHours = 9;
+            public const int ExpiryHours = 8;
             public const string SameSiteMode = "Strict";
+        }
+        
+        // Session Settings
+        public static class Session
+        {
+            public const int ExpiryHours = 8;
         }
     }
 }
