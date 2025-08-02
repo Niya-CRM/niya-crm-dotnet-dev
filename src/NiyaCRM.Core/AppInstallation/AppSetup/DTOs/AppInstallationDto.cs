@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace NiyaCRM.Core.ApplicationSetup.DTOs;
+namespace NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 
 /// <summary>
 /// Data Transfer Object for the initial application installation/setup.

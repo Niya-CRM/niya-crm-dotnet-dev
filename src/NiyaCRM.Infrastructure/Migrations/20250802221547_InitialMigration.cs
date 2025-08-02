@@ -13,6 +13,21 @@ namespace NiyaCRM.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "app_installation_status",
+                columns: table => new
+                {
+                    version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    pipeline = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    step = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    completed = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_app_installation_status", x => x.version);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "audit_logs",
                 columns: table => new
                 {
@@ -403,6 +418,9 @@ namespace NiyaCRM.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "app_installation_status");
+
             migrationBuilder.DropTable(
                 name: "audit_logs");
 

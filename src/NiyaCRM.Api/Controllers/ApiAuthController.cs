@@ -20,21 +20,25 @@ namespace NiyaCRM.Api.Controllers
     /// </remarks>
     [Route("auth")]
     [ApiController]
+    [AllowAnonymous]
     [Produces("application/json")]
     public class ApiAuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JwtHelper _jwtHelper;
+        private readonly ILogger<ApiAuthController> _logger;
 
         public ApiAuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            JwtHelper jwtHelper)
+            JwtHelper jwtHelper,
+            ILogger<ApiAuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtHelper = jwtHelper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -46,12 +50,13 @@ namespace NiyaCRM.Api.Controllers
         /// <response code="400">If the model is invalid</response>
         /// <response code="401">If authentication fails or account is deactivated</response>
         [HttpPost("token")]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] ApiLoginDto model)
         {
+            _logger.LogInformation("Authenticating user with email: {Email}", model.Email);
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -60,19 +65,24 @@ namespace NiyaCRM.Api.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
+                _logger.LogWarning("User not found: {Email}", model.Email);
                 return Unauthorized(new { Message = "Invalid email or password" });
             }
 
             if (user.IsActive != "Y")
             {
+                _logger.LogWarning("User account is deactivated: {Email}", model.Email);
                 return Unauthorized(new { Message = "Account is deactivated. Please contact Support." });
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
             {
+                _logger.LogWarning("Invalid password for user: {Email}", model.Email);
                 return Unauthorized(new { Message = "Invalid email or password" });
             }
+
+            _logger.LogInformation("User authenticated successfully: {Email}", model.Email);
 
             var token = await _jwtHelper.GenerateJwtToken(user);
             

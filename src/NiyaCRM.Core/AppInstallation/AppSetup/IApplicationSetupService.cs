@@ -1,7 +1,7 @@
-using NiyaCRM.Core.ApplicationSetup.DTOs;
+using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 using NiyaCRM.Core.Tenants;
 
-namespace NiyaCRM.Core.ApplicationSetup;
+namespace NiyaCRM.Core.AppInstallation.AppSetup;
 
 /// <summary>
 /// Service interface for application setup and installation operations.

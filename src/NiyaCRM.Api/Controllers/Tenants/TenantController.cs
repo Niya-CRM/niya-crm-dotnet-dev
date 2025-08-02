@@ -4,6 +4,7 @@ using NiyaCRM.Core.Tenants.DTOs;
 using NiyaCRM.Core.Common;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using NiyaCRM.Api.Validators.Tenants;
 
 namespace NiyaCRM.Api.Controllers.Tenants;
 
@@ -17,6 +18,7 @@ public class TenantController : ControllerBase
     private readonly ITenantService _tenantService;
     private readonly ILogger<TenantController> _logger;
     private readonly IValidator<ActivateDeactivateTenantRequest> _activateDeactivateTenantRequestValidator;
+    private readonly IValidator<CreateTenantRequest> _createTenantRequestValidator;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TenantController"/> class.
@@ -24,11 +26,17 @@ public class TenantController : ControllerBase
     /// <param name="tenantService">The tenant service.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="activateDeactivateTenantRequestValidator">The validator for activate/deactivate tenant requests.</param>
-    public TenantController(ITenantService tenantService, ILogger<TenantController> logger, IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator)
+    /// <param name="createTenantRequestValidator">The validator for create tenant requests.</param>
+    public TenantController(
+        ITenantService tenantService, 
+        ILogger<TenantController> logger, 
+        IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator,
+        IValidator<CreateTenantRequest> createTenantRequestValidator)
     {
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _activateDeactivateTenantRequestValidator = activateDeactivateTenantRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateTenantRequestValidator));
+        _createTenantRequestValidator = createTenantRequestValidator ?? throw new ArgumentNullException(nameof(createTenantRequestValidator));
     }
 
     // <summary>
@@ -37,51 +45,60 @@ public class TenantController : ControllerBase
     // <param name="request">The tenant creation request.</param>
     // <param name="cancellationToken">The cancellation token.</param>
     // <returns>The created tenant.</returns>
-    // [HttpPost]
-    // [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
-    // [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    // public async Task<ActionResult<Tenant>> CreateTenant([FromBody] CreateTenantRequest request, CancellationToken cancellationToken = default)
-    // {
-    //     if (!ModelState.IsValid)
-    //     {
-    //         return BadRequest(ModelState);
-    //     }
-    //     try
-    //     {
-    //         _logger.LogInformation("Creating tenant with name: {Name}", request.Name);
-            
-    //         var tenant = await _tenantService.CreateTenantAsync(
-    //             name: request.Name,
-    //             host: request.Host,
-    //             email: request.Email,
-    //             databaseName: request.DatabaseName,
-    //             cancellationToken: cancellationToken);
+    [HttpPost]
+    [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<Tenant>> CreateTenant([FromBody] CreateTenantRequest request, CancellationToken cancellationToken = default)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-    //         _logger.LogInformation("Successfully created tenant with ID: {TenantId}", tenant.Id);
-    //         return CreatedAtAction(nameof(GetTenantById), new { id = tenant.Id }, tenant);
-    //     }
-    //     catch (ArgumentException ex)
-    //     {
-    //         _logger.LogWarning(ex, "Invalid tenant creation request: {Message}", ex.Message);
-    //         return BadRequest(new ProblemDetails
-    //         {
-    //             Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-    //             Detail = ex.Message,
-    //             Status = StatusCodes.Status400BadRequest
-    //         });
-    //     }
-    //     catch (InvalidOperationException ex)
-    //     {
-    //         _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
-    //         return Conflict(new ProblemDetails
-    //         {
-    //             Title = CommonConstant.MESSAGE_CONFLICT,
-    //             Detail = ex.Message,
-    //             Status = StatusCodes.Status409Conflict
-    //         });
-    //     }
-    // }
+        // Use FluentValidation to validate the request
+        var validationResult = await _createTenantRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            foreach (var error in validationResult.Errors)
+            {
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            }
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            _logger.LogInformation("Creating tenant with name: {Name}", request.Name);
+            
+            var tenant = await _tenantService.CreateTenantAsync(
+                request: request,
+                cancellationToken: cancellationToken);
+
+            _logger.LogInformation("Successfully created tenant with ID: {TenantId}", tenant.Id);
+            return CreatedAtAction(nameof(GetTenantById), new { id = tenant.Id }, tenant);
+        }
+        catch (System.ComponentModel.DataAnnotations.ValidationException ex)
+        {
+            _logger.LogWarning(ex, "Validation error in tenant creation request: {Message}", ex.Message);
+            return BadRequest(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
+                Detail = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
+            return Conflict(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_CONFLICT,
+                Detail = ex.Message,
+                Status = StatusCodes.Status409Conflict
+            });
+        }
+    }
 
     /// <summary>
     /// Gets a tenant by its identifier.

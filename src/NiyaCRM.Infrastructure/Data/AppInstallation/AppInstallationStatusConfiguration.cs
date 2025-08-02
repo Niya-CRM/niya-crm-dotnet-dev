@@ -1,0 +1,20 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NiyaCRM.Core.AppInstallation;
+
+namespace NiyaCRM.Infrastructure.Data.AppInstallation;
+
+/// <summary>
+/// Entity configuration for AppInstallationStatus.
+/// </summary>
+public class AppInstallationStatusConfiguration : IEntityTypeConfiguration<AppInstallationStatus>
+{
+    /// <summary>
+    /// Configures the entity.
+    /// </summary>
+    /// <param name="builder">The entity type builder.</param>
+    public void Configure(EntityTypeBuilder<AppInstallationStatus> builder)
+    {
+        builder.HasKey(e => e.Version);
+    }
+}

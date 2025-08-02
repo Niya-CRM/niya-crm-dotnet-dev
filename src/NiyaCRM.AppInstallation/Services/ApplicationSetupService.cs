@@ -1,15 +1,14 @@
 using Microsoft.Extensions.Logging;
 using NiyaCRM.Core;
 using NiyaCRM.Core.Common;
-using NiyaCRM.Core.ApplicationSetup;
-using NiyaCRM.Core.ApplicationSetup.DTOs;
 using NiyaCRM.Core.Tenants;
-using NiyaCRM.Application.Tenants;
 using Microsoft.AspNetCore.Identity;
 using NiyaCRM.Core.Identity;
 using System.Text.Json;
+using NiyaCRM.Core.AppInstallation.AppSetup;
+using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 
-namespace NiyaCRM.Application.ApplicationSetup;
+namespace NiyaCRM.AppInstallation.Services;
 
 /// <summary>
 /// Service implementation for application setup and installation operations.

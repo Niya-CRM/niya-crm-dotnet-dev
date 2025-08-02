@@ -11,6 +11,7 @@ using NiyaCRM.Core.Tenants;
 using NiyaCRM.Application.Tenants;
 using FluentValidation;
 using NiyaCRM.Application.Tenants.Validators;
+using NiyaCRM.Api.Validators.Tenants;
 using NiyaCRM.Infrastructure.Data.Tenants;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
@@ -29,6 +30,7 @@ using NiyaCRM.Api.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using NiyaCRM.AppInstallation;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -130,11 +132,11 @@ builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
-// Register ApplicationSetup Services
-builder.Services.AddScoped<NiyaCRM.Core.ApplicationSetup.IApplicationSetupService, NiyaCRM.Application.ApplicationSetup.ApplicationSetupService>();
-
 // Register Cache Services
 builder.Services.AddMemoryCache();
+
+// Register FluentValidation
+builder.Services.AddScoped<IValidator<CreateTenantRequest>, CreateTenantRequestValidator>();
 builder.Services.AddScoped<NiyaCRM.Core.Cache.ICacheRepository, NiyaCRM.Infrastructure.Cache.CacheRepository>();
 builder.Services.AddScoped<NiyaCRM.Core.Cache.ICacheService, NiyaCRM.Application.Cache.CacheService>();
 
@@ -143,6 +145,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register JwtHelper
 builder.Services.AddScoped<JwtHelper>();
+
+// Register AppInstallation Services
+builder.Services.AddAppInstallation();
 
 // Register Swagger/OpenAPI
 builder.Services.AddSwaggerServices(builder.Configuration);

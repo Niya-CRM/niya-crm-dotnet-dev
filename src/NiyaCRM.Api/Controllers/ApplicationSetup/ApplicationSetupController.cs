@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using NiyaCRM.Core.Common;
-using NiyaCRM.Core.ApplicationSetup;
-using NiyaCRM.Core.ApplicationSetup.DTOs;
+using NiyaCRM.Core.AppInstallation.AppSetup;
+using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 using NiyaCRM.Core.Tenants;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NiyaCRM.Api.Controllers.ApplicationSetup;
 
@@ -11,6 +12,7 @@ namespace NiyaCRM.Api.Controllers.ApplicationSetup;
 /// This controller provides both API endpoints and MVC views for the initial setup wizard.
 /// </summary>
 [Route("setup")]
+[AllowAnonymous]
 public class ApplicationSetupController : Controller
 {
     private readonly ILogger<ApplicationSetupController> _logger;

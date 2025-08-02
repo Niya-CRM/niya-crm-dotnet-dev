@@ -152,6 +152,41 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.ToTable("user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("NiyaCRM.Core.AppInstallation.AppInstallationStatus", b =>
+                {
+                    b.Property<string>("Version")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("version");
+
+                    b.Property<string>("Completed")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("completed");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Pipeline")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("pipeline");
+
+                    b.Property<string>("Step")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("step");
+
+                    b.HasKey("Version")
+                        .HasName("pk_app_installation_status");
+
+                    b.ToTable("app_installation_status");
+                });
+
             modelBuilder.Entity("NiyaCRM.Core.AuditLogs.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")

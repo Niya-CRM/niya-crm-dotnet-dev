@@ -16,6 +16,7 @@ namespace NiyaCRM.Api.Controllers
     /// Controller for handling authentication operations.
     /// </summary>
     [Route("auth")]
+    [AllowAnonymous]
     public class AuthController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

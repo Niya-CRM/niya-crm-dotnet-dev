@@ -38,6 +38,7 @@
     <ProjectReference Include="..\..\src\NiyaCRM.Core\NiyaCRM.Core.csproj" />
     <ProjectReference Include="..\..\src\NiyaCRM.Application\NiyaCRM.Application.csproj" />
     <ProjectReference Include="..\..\src\NiyaCRM.Infrastructure\NiyaCRM.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\NiyaCRM.AppInstallation\NiyaCRM.AppInstallation.csproj" />
   </ItemGroup>
 
 </Project>

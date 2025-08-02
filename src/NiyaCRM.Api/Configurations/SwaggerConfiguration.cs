@@ -95,8 +95,12 @@ namespace NiyaCRM.Api.Configurations
                     return _otherTagName;
                 });
                 
-                // Order actions alphabetically in Swagger UI
-                options.OrderActionsBy(apiDesc => apiDesc.RelativePath);
+                // Order actions by tag name (with Auth first, then AuditLog) and then alphabetically by path
+                options.OrderActionsBy(apiDesc => {
+                    var tag = apiDesc.GroupName ?? apiDesc.ActionDescriptor.RouteValues["controller"];
+                    
+                    return $"{tag}_{apiDesc.RelativePath}";
+                });
                 
                 // Include XML comments if available
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
