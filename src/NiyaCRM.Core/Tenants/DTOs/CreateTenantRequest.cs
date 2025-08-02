@@ -11,14 +11,12 @@ public class CreateTenantRequest
     /// Gets or sets the tenant name.
     /// </summary>
     [Required]
-    [StringLength(100, MinimumLength = 1)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the tenant host.
     /// </summary>
     [Required]
-    [StringLength(100, MinimumLength = 1)]
     public string Host { get; set; } = string.Empty;
 
     /// <summary>
@@ -32,17 +30,17 @@ public class CreateTenantRequest
     /// </summary>
     [Required]
     [EmailAddress]
-    [StringLength(100, MinimumLength = 1)]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the tenant time zone.
     /// </summary>
-    [StringLength(100, MinimumLength = 1)]
+    [Required]
     public string? TimeZone { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the database name (optional).
     /// </summary>
-    public string? DatabaseName { get; set; }
+    [Required]
+    public string DatabaseName { get; set; } = string.Empty;
 }
