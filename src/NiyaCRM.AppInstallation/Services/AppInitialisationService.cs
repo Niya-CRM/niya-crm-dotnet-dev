@@ -162,7 +162,9 @@ namespace NiyaCRM.AppInstallation.Services
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    CreatedBy = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
                 };
                 
                 // Generate a strong random password

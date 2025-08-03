@@ -30,8 +30,8 @@ namespace NiyaCRM.Application.Cache
         {
             var sanitizedKey = SanitizeKey(key);
 
-            absoluteExpiration = absoluteExpiration ?? CacheConstant.DEFAULT_CACHE_EXPIRATION;
-            slidingExpiration = slidingExpiration ?? CacheConstant.DEFAULT_CACHE_SLIDING_EXPIRATION;
+            absoluteExpiration ??= CacheConstant.DEFAULT_CACHE_EXPIRATION;
+            slidingExpiration ??= CacheConstant.DEFAULT_CACHE_SLIDING_EXPIRATION;
 
             _logger.LogDebug("Setting cache entry for key: {Key} (sanitized: {SanitizedKey}), Expiration: {AbsoluteExpiration}, Sliding: {SlidingExpiration}", key, sanitizedKey, absoluteExpiration, slidingExpiration);
 

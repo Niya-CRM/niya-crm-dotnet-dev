@@ -1,0 +1,146 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NiyaCRM.Core.Common;
+using NiyaCRM.Core.Identity;
+using NiyaCRM.Core.Identity.DTOs;
+using System.ComponentModel.DataAnnotations;
+
+namespace NiyaCRM.Api.Controllers.Identity;
+
+/// <summary>
+/// Controller for managing user operations.
+/// </summary>
+[ApiController]
+[Route("users")]
+[Authorize]
+public class UserController : ControllerBase
+{
+    private readonly IUserService _userService;
+    private readonly ILogger<UserController> _logger;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UserController"/> class.
+    /// </summary>
+    /// <param name="userService">The user service.</param>
+    /// <param name="logger">The logger.</param>
+    public UserController(
+        IUserService userService,
+        ILogger<UserController> logger)
+    {
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Creates a new user.
+    /// </summary>
+    /// <param name="request">The user creation request.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The created user.</returns>
+    [HttpPost]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            _logger.LogInformation("Creating user with email: {Email}", request.Email);
+            
+            // Get the current user ID from the claims
+            var currentUserId = User.FindFirst("sub")?.Value;
+            Guid? createdBy = currentUserId != null ? Guid.Parse(currentUserId) : null;
+            
+            var user = await _userService.CreateUserAsync(
+                request: request,
+                createdBy: createdBy,
+                cancellationToken: cancellationToken);
+
+            _logger.LogInformation("Successfully created user with ID: {UserId}", user.Id);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning(ex, "Validation error in user creation request: {Message}", ex.Message);
+            return BadRequest(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
+                Detail = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "User creation conflict: {Message}", ex.Message);
+            return Conflict(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_CONFLICT,
+                Detail = ex.Message,
+                Status = StatusCodes.Status409Conflict
+            });
+        }
+    }
+    
+    /// <summary>
+    /// Gets a user by their identifier with display values.
+    /// </summary>
+    /// <param name="id">The user identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The user with display values if found, otherwise 404.</returns>
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(UserResponseWithDisplay), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting user by ID with display values: {UserId}", id);
+        
+        var user = await _userService.GetUserByIdWithDisplayAsync(id, cancellationToken);
+        if (user == null)
+        {
+            _logger.LogWarning("User not found: {UserId}", id);
+            return NotFound(new ProblemDetails
+            {
+                Title = "User Not Found",
+                Detail = $"User with ID '{id}' was not found.",
+                Status = StatusCodes.Status404NotFound
+            });
+        }
+
+        return Ok(user);
+    }
+    
+    /// <summary>
+    /// Gets all users with pagination and display values.
+    /// </summary>
+    /// <param name="pageNumber">The page number.</param>
+    /// <param name="pageSize">The page size.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A paginated collection of users with display values.</returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<UserResponseWithDisplay>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAllUsers([FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _logger.LogDebug("Getting all users with display values - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
+            var users = await _userService.GetAllUsersWithDisplayAsync(pageNumber, pageSize, cancellationToken);
+            return Ok(users);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
+            return BadRequest(new ProblemDetails
+            {
+                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
+                Detail = ex.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+    }
+}
