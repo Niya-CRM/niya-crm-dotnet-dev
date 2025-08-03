@@ -16,16 +16,16 @@ namespace NiyaCRM.Infrastructure.Migrations
                 name: "app_installation_status",
                 columns: table => new
                 {
-                    version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     pipeline = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
                     step = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     completed = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_app_installation_status", x => x.version);
+                    table.PrimaryKey("pk_app_installation_status", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,10 +100,31 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "permissions",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    normalized_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_permissions", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     concurrency_stamp = table.Column<string>(type: "text", nullable: true)
@@ -321,6 +342,11 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "ix_app_installation_status_version",
+                table: "app_installation_status",
+                column: "version");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_audit_logs_object_key_created_at",
                 table: "audit_logs",
                 columns: new[] { "object_key", "created_at" });
@@ -349,6 +375,12 @@ namespace NiyaCRM.Infrastructure.Migrations
                 name: "ix_dynamic_objects_object_key",
                 table: "dynamic_objects",
                 column: "object_key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_permissions_normalized_name",
+                table: "permissions",
+                column: "normalized_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -433,6 +465,9 @@ namespace NiyaCRM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "dynamic_objects");
+
+            migrationBuilder.DropTable(
+                name: "permissions");
 
             migrationBuilder.DropTable(
                 name: "role_claims");

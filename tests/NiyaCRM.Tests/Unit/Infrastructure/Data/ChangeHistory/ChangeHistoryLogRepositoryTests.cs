@@ -18,7 +18,7 @@ namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Create in-memory database for testing
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: $"ChangeHistoryLogDb_{Guid.NewGuid()}")
+                .UseInMemoryDatabase(databaseName: $"ChangeHistoryLogDb_{Guid.CreateVersion7()}")
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
@@ -27,22 +27,22 @@ namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
                 new ChangeHistoryLog(
-                    Guid.NewGuid(),
+                    Guid.CreateVersion7(),
                     "User",
-                    Guid.NewGuid(),
+                    Guid.CreateVersion7(),
                     "Email",
                     "old@example.com",
                     "new@example.com",
-                    Guid.NewGuid()
+                    Guid.CreateVersion7()
                 ),
                 new ChangeHistoryLog(
-                    Guid.NewGuid(),
+                    Guid.CreateVersion7(),
                     "Contact",
-                    Guid.NewGuid(),
+                    Guid.CreateVersion7(),
                     "Phone",
                     "123456789",
                     "987654321",
-                    Guid.NewGuid()
+                    Guid.CreateVersion7()
                 )
             };
 
@@ -100,13 +100,13 @@ namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Arrange
             var newLog = new ChangeHistoryLog(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Product",
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Price",
                 "100",
                 "150",
-                Guid.NewGuid()
+                Guid.CreateVersion7()
             );
 
             // Act

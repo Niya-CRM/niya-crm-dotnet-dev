@@ -116,6 +116,9 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+builder.Services.AddScoped<NiyaCRM.Core.Identity.IPermissionRepository, NiyaCRM.Infrastructure.Repositories.PermissionRepository>();
+builder.Services.AddScoped<NiyaCRM.Core.Identity.IPermissionService, NiyaCRM.Application.Identity.PermissionService>();
+
 // Add Authorization policies with global fallback policy using AuthorizationBuilder
 var authBuilder = builder.Services.AddAuthorizationBuilder();
 
@@ -190,5 +193,12 @@ app.UseSerilogRequestLogging();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Initialise application (seed roles, etc.)
+using (var scope = app.Services.CreateScope())
+{
+    var initialiser = scope.ServiceProvider.GetRequiredService<NiyaCRM.Core.AppInstallation.AppInitialisation.IAppInitialisationService>();
+    await initialiser.InitialiseAppAsync();
+}
 
 await app.RunAsync();

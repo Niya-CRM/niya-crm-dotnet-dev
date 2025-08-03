@@ -28,11 +28,11 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.NewGuid();
+            var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
-            var createdBy = Guid.NewGuid();
+            var createdBy = Guid.CreateVersion7();
             
             ChangeHistoryLog? capturedLog = null;
             
@@ -67,17 +67,17 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
         public async Task GetChangeHistoryLogByIdAsync_ShouldReturnLogFromRepository()
         {
             // Arrange
-            var logId = Guid.NewGuid();
+            var logId = Guid.CreateVersion7();
             var expectedLog = new ChangeHistoryLog
             {
                 Id = logId,
                 ObjectKey = "User",
-                ObjectItemId = Guid.NewGuid(),
+                ObjectItemId = Guid.CreateVersion7(),
                 FieldName = "Email",
                 OldValue = "old@example.com",
                 NewValue = "new@example.com",
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.NewGuid()
+                CreatedBy = Guid.CreateVersion7()
             };
 
             _mockRepository
@@ -98,9 +98,9 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.NewGuid();
+            var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
-            var createdBy = Guid.NewGuid();
+            var createdBy = Guid.CreateVersion7();
             var startDate = DateTime.UtcNow.AddDays(-7);
             var endDate = DateTime.UtcNow;
             var pageNumber = 2;
@@ -110,7 +110,7 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
             {
                 new ChangeHistoryLog
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.CreateVersion7(),
                     ObjectKey = objectKey,
                     ObjectItemId = objectItemId,
                     FieldName = fieldName,
@@ -170,8 +170,8 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
             var pageSize = 20;
             var expectedLogs = new List<ChangeHistoryLog>
             {
-                new ChangeHistoryLog { Id = Guid.NewGuid() },
-                new ChangeHistoryLog { Id = Guid.NewGuid() }
+                new ChangeHistoryLog { Id = Guid.CreateVersion7() },
+                new ChangeHistoryLog { Id = Guid.CreateVersion7() }
             };
 
             _mockRepository

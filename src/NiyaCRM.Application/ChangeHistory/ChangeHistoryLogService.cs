@@ -34,7 +34,7 @@ namespace NiyaCRM.Application.ChangeHistory
             CancellationToken cancellationToken = default)
         {
             var changeHistoryLog = new ChangeHistoryLog(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 objectKey,
                 objectItemId,
                 fieldName,

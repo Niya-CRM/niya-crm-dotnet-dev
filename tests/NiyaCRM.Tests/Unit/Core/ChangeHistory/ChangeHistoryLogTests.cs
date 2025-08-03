@@ -28,13 +28,13 @@ namespace NiyaCRM.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_ShouldInitializeProperties()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var id = Guid.CreateVersion7();
             var objectKey = "User";
-            var objectItemId = Guid.NewGuid();
+            var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
-            var createdBy = Guid.NewGuid();
+            var createdBy = Guid.CreateVersion7();
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -63,13 +63,13 @@ namespace NiyaCRM.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_WithNullValues_ShouldInitializeProperties()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var id = Guid.CreateVersion7();
             var objectKey = "User";
-            var objectItemId = Guid.NewGuid();
+            var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
             string? oldValue = null;
             string? newValue = null;
-            var createdBy = Guid.NewGuid();
+            var createdBy = Guid.CreateVersion7();
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -100,13 +100,13 @@ namespace NiyaCRM.Tests.Unit.Core.ChangeHistory
             
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "User",
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 "Email",
                 "old@example.com",
                 "new@example.com",
-                Guid.NewGuid());
+                Guid.CreateVersion7());
             
             var afterCreation = DateTime.UtcNow;
             

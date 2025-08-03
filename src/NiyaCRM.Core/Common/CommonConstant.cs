@@ -2,7 +2,7 @@ namespace NiyaCRM.Core.Common;
 
 public static class CommonConstant
 {
-    public static readonly Guid DEFAULT_USER = Guid.Parse("00000000-0000-0000-0000-000000000000");
+    public static readonly Guid DEFAULT_TECHNICAL_USER = Guid.Parse("01986f5e-bce5-7835-be32-7ddc3ecbff4f");
 
     // Message Constants
     public const string MESSAGE_INVALID_REQUEST = "Invalid Request";
@@ -26,6 +26,56 @@ public static class CommonConstant
     public const string AUDIT_LOG_EVENT_DELETE = "Delete";
 
     public const string AUDIT_LOG_MODULE_TENANT = "Tenant";
+
+    public static class PermissionNames
+    {
+        public const string SysSetupRead = "syssetup:read";
+        public const string SysSetupWrite = "syssetup:write";
+        public const string UserRead = "user:read";
+        public const string UserWrite = "user:write";
+        public const string TicketRead = "ticket:read";
+        public const string TicketWrite = "ticket:write";
+        public const string ContactRead = "contact:read";
+        public const string ContactWrite = "contact:write";
+        public const string AccountsRead = "accounts:read";
+        public const string AccountsWrite = "accounts:write";
+        public const string TemplatesRead = "templates:read";
+        public const string TemplatesWrite = "templates:write";
+
+        public static readonly string[] All =
+        {
+            SysSetupRead,
+            SysSetupWrite,
+            UserRead,
+            UserWrite,
+            TicketRead,
+            TicketWrite,
+            ContactRead,
+            ContactWrite,
+            AccountsRead,
+            AccountsWrite,
+            TemplatesRead,
+            TemplatesWrite
+        };
+    }
+
+    public static class RoleNames
+    {
+        public const string Administrator = "Administrator";
+        public const string PowerUser = "Power User";
+        public const string SupportAgent = "Support Agent";
+        public const string LightAgent = "Light Agent";
+        public const string ExternalUser = "External User";
+
+        public static readonly string[] All =
+        {
+            Administrator,
+            PowerUser,
+            SupportAgent,
+            LightAgent,
+            ExternalUser
+        };
+    }
 
     /// <summary>
     /// Constants related to health checks

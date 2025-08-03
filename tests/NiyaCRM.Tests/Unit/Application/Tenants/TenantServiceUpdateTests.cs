@@ -74,13 +74,13 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenNameIsEmpty()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -95,13 +95,13 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenHostIsEmpty()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -116,13 +116,13 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenEmailIsEmpty()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -137,13 +137,13 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenTenantNotFound()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -167,15 +167,15 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenHostExistsOnDifferentTenant()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
-            var existingTenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
+            var existingTenantId = Guid.CreateVersion7();
             var host = "new.domain.com";
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
                 Host = host,
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -226,8 +226,8 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenEmailExistsOnDifferentTenant()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
-            var existingTenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
+            var existingTenantId = Guid.CreateVersion7();
             var host = "test.domain.com";
             var email = "new@example.com";
             var updateRequest = new UpdateTenantRequest
@@ -235,7 +235,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = host,
                 Email = email,
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -286,12 +286,12 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldUpdateTenant_AndInvalidateCache_AndLogAudit()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var name = "Updated Tenant";
             var host = "updated.domain.com";
             var email = "updated@example.com";
             var databaseName = "updated_db";
-            var userId = Guid.NewGuid();
+            var userId = Guid.CreateVersion7();
             var modifiedBy = Guid.Parse("00000000-0000-0000-0000-000000000001");
             
             var updateRequest = new UpdateTenantRequest
@@ -406,12 +406,12 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldNotCheckUniqueness_WhenHostAndEmailUnchanged()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var name = "Updated Tenant";
             var host = "original.domain.com";
             var email = "original@example.com";
             var databaseName = "updated_db";
-            var userId = Guid.NewGuid();
+            var userId = Guid.CreateVersion7();
             
             var updateRequest = new UpdateTenantRequest
             {
@@ -445,7 +445,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 CreatedAt = existingTenant.CreatedAt,
                 CreatedBy = existingTenant.CreatedBy,
                 LastModifiedAt = DateTime.UtcNow,
-                LastModifiedBy = CommonConstant.DEFAULT_USER
+                LastModifiedBy = CommonConstant.DEFAULT_TECHNICAL_USER
             };
 
             _mockTenantRepository

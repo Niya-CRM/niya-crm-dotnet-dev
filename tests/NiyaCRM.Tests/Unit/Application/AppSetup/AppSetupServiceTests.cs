@@ -101,7 +101,7 @@ namespace NiyaCRM.Tests.Unit.Application.AppSetup
 
             var tenant = new Tenant
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Name = "Test Organization",
                 Host = "support.organization.com",
                 Email = "admin@test.com",

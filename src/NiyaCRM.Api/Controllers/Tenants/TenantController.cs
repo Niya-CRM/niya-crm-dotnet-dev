@@ -253,7 +253,7 @@ public class TenantController : ControllerBase
             var updatedTenant = await _tenantService.UpdateTenantAsync(
                 id, 
                 updateRequest, 
-                CommonConstant.DEFAULT_USER, 
+                CommonConstant.DEFAULT_TECHNICAL_USER, 
                 cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);

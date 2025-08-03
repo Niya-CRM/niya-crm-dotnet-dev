@@ -72,7 +72,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task GetTenantByIdAsync_ShouldReturnTenant_WhenTenantExists()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var tenant = new Tenant
             {
                 Id = tenantId,
@@ -107,7 +107,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task GetTenantByIdAsync_ShouldReturnNull_WhenTenantNotFound()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
 
             _mockTenantRepository
                 .Setup(repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))

@@ -81,7 +81,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -101,7 +101,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -121,7 +121,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
 
@@ -142,13 +142,13 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = tenantHost,
                 Email = "test@example.com",
-                UserId = Guid.NewGuid(),
+                UserId = Guid.CreateVersion7(),
                 TimeZone = "UTC"
             };
             
             var existingTenant = new Tenant
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Name = "Existing Tenant",
                 Host = tenantHost,
                 Email = "existing@example.com",
@@ -183,7 +183,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             // Arrange
             var tenants = new List<Tenant>
             {
-                new() { Id = Guid.NewGuid(), Name = "Tenant 1" }
+                new() { Id = Guid.CreateVersion7(), Name = "Tenant 1" }
             };
 
             _mockTenantRepository
@@ -228,7 +228,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task ChangeTenantActivationStatus_Activate_ShouldActivateTenant_AndLogAudit()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var reason = "Test activation";
             var tenant = new Tenant
             {
@@ -288,7 +288,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         public async Task ChangeTenantActivationStatus_Deactivate_ShouldDeactivateTenant_AndLogAudit()
         {
             // Arrange
-            var tenantId = Guid.NewGuid();
+            var tenantId = Guid.CreateVersion7();
             var reason = "Test deactivation";
             var tenant = new Tenant
             {
@@ -351,7 +351,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             var tenantName = "Test Tenant";
             var tenantHost = "test.domain.com";
             var tenantEmail = "test@example.com";
-            var userId = Guid.NewGuid();
+            var userId = Guid.CreateVersion7();
             var createRequest = new CreateTenantRequest
             {
                 Name = tenantName,
@@ -426,7 +426,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             var cacheKey = $"tenant:{normalizedHost}";
             var cachedTenant = new Tenant
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Name = "Test Tenant",
                 Host = normalizedHost,
                 Email = "test@example.com",
@@ -460,7 +460,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             var cacheKey = $"tenant:{normalizedHost}";
             var tenant = new Tenant
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.CreateVersion7(),
                 Name = "Test Tenant",
                 Host = normalizedHost,
                 Email = "test@example.com",

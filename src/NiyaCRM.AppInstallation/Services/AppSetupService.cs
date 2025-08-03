@@ -87,7 +87,7 @@ public class AppSetupService : IAppSetupService
     /// <inheritdoc/>
     private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid technicalUserId)
     {
-        var userId = Guid.NewGuid();
+        var userId = Guid.CreateVersion7();
 
         var user = new ApplicationUser
         {
@@ -121,7 +121,7 @@ public class AppSetupService : IAppSetupService
     /// <inheritdoc/>
     private async Task<ApplicationUser> CreateTechnicalUserAsync()
     {
-        var techUserId = Guid.NewGuid();
+        var techUserId = Guid.CreateVersion7();
         
         var technicalUser = new ApplicationUser
         {
@@ -137,7 +137,7 @@ public class AppSetupService : IAppSetupService
         };
 
         // Use a dummy password for the technical user
-        var dummyPassword = Guid.NewGuid().ToString() + "!Aa1";
+        var dummyPassword = Guid.CreateVersion7().ToString() + "!Aa1";
         var createResult = await _userManager.CreateAsync(technicalUser, dummyPassword);
         
         if (!createResult.Succeeded)

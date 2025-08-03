@@ -15,6 +15,7 @@ public class AppInstallationStatusConfiguration : IEntityTypeConfiguration<AppIn
     /// <param name="builder">The entity type builder.</param>
     public void Configure(EntityTypeBuilder<AppInstallationStatus> builder)
     {
-        builder.HasKey(e => e.Version);
+        builder.HasKey(e => e.Id);
+        builder.HasIndex(e => e.Version);
     }
 }

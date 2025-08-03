@@ -20,7 +20,7 @@ public class Tenant
     {
         return new Tenant
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             Name = name,
             Identifier = identifier,
             Host = host,

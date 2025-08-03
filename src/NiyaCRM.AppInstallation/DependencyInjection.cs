@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NiyaCRM.AppInstallation.DataSeeding;
+using NiyaCRM.Core.AppInstallation.AppInitialisation;
 using NiyaCRM.Core.AppInstallation.AppSetup;
 using NiyaCRM.AppInstallation.Services;
 using NiyaCRM.AppInstallation.UpgradeScripts;
@@ -20,10 +21,10 @@ namespace NiyaCRM.AppInstallation
         {
             // Register services
             //services.AddScoped<IAppInstallationService, AppInstallationService>();
+            services.AddScoped<IAppInitialisationService, AppInitialisationService>();
             services.AddScoped<IAppSetupService, AppSetupService>();
             //services.AddScoped<DataSeeder>();
             //services.AddScoped<VersionManager>();
-
             return services;
         }
     }

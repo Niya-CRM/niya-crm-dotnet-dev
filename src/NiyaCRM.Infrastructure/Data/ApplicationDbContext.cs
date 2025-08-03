@@ -39,6 +39,7 @@ namespace NiyaCRM.Infrastructure.Data
         public DbSet<ValueListItem> ValueListItems { get; set; } = null!;
         public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
         public DbSet<AppInstallationStatus> AppInstallationStatus { get; set; } = null!;
+        public DbSet<Permission> Permissions { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

@@ -101,7 +101,7 @@ namespace NiyaCRM.Api.Helpers
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString())
             };
 
             // Add role claims

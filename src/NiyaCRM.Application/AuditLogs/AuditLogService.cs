@@ -20,7 +20,7 @@ namespace NiyaCRM.Application.AuditLogs
         public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, string objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default)
         {
             var auditLog = new AuditLog(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 objectKey,
                 @event,
                 objectItemId,

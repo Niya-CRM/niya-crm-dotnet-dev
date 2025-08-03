@@ -24,7 +24,7 @@ namespace NiyaCRM.Api.Middleware
             if (string.IsNullOrEmpty(correlationId))
             {
                 // Generate new CorrelationId if not present
-                correlationId = Guid.NewGuid().ToString();
+                correlationId = Guid.CreateVersion7().ToString();
             }
 
             // Store in HttpContext for downstream usage
