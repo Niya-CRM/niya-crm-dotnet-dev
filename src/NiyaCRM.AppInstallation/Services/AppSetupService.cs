@@ -61,15 +61,12 @@ public class AppSetupService : IAppSetupService
         {
             // Begin transaction
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
-
-            // Create the technical user (inactive)
-            var technicalUser = await CreateTechnicalUserAsync();
             
             // Create the initial admin user
-            await CreateInitialAdminUserAsync(setupDto, technicalUser.Id);
+            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_TECHNICAL_USER);
 
             // Create the tenant
-            var tenant = await CreateInitialTenantAsync(setupDto, technicalUser.Id, cancellationToken);
+            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_TECHNICAL_USER, cancellationToken);
 
             // Commit the transaction
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -116,38 +113,6 @@ public class AppSetupService : IAppSetupService
         }
 
         _logger.LogInformation("Created initial admin user with email: {Email}", setupDto.AdminEmail);
-    }
-    
-    /// <inheritdoc/>
-    private async Task<ApplicationUser> CreateTechnicalUserAsync()
-    {
-        var techUserId = Guid.CreateVersion7();
-        
-        var technicalUser = new ApplicationUser
-        {
-            Id = techUserId,
-            UserName = "NiyaCRM@system.local",
-            Email = "NiyaCRM@system.local",
-            FirstName = "Technical",
-            LastName = "Interface",
-            TimeZone = "UTC",
-            IsActive = "N", // Inactive user
-            CreatedBy = techUserId,
-            UpdatedBy = techUserId
-        };
-
-        // Use a dummy password for the technical user
-        var dummyPassword = Guid.CreateVersion7().ToString() + "!Aa1";
-        var createResult = await _userManager.CreateAsync(technicalUser, dummyPassword);
-        
-        if (!createResult.Succeeded)
-        {
-            _logger.LogError("Failed to create technical user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
-            throw new InvalidOperationException("Failed to create technical user");
-        }
-
-        _logger.LogInformation("Created technical user with ID: {UserId}", technicalUser.Id);
-        return technicalUser;
     }
 
     /// <inheritdoc/>

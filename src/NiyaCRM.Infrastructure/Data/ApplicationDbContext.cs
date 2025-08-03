@@ -17,7 +17,7 @@ namespace NiyaCRM.Infrastructure.Data
     /// <summary>
     /// Application database context.
     /// </summary>
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, IdentityUserClaim<Guid>, ApplicationUserRole, IdentityUserLogin<Guid>, ApplicationRoleClaim, IdentityUserToken<Guid>>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.

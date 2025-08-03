@@ -37,10 +37,10 @@ public static class CommonConstant
         public const string TicketWrite = "ticket:write";
         public const string ContactRead = "contact:read";
         public const string ContactWrite = "contact:write";
-        public const string AccountsRead = "accounts:read";
-        public const string AccountsWrite = "accounts:write";
-        public const string TemplatesRead = "templates:read";
-        public const string TemplatesWrite = "templates:write";
+        public const string AccountRead = "account:read";
+        public const string AccountWrite = "account:write";
+        public const string TemplateRead = "template:read";
+        public const string TemplateWrite = "template:write";
 
         public static readonly string[] All =
         {
@@ -52,10 +52,10 @@ public static class CommonConstant
             TicketWrite,
             ContactRead,
             ContactWrite,
-            AccountsRead,
-            AccountsWrite,
-            TemplatesRead,
-            TemplatesWrite
+            AccountRead,
+            AccountWrite,
+            TemplateRead,
+            TemplateWrite
         };
     }
 
@@ -66,14 +66,16 @@ public static class CommonConstant
         public const string SupportAgent = "Support Agent";
         public const string LightAgent = "Light Agent";
         public const string ExternalUser = "External User";
-
-        public static readonly string[] All =
+        public const string Technical = "Technical";
+        
+        public static readonly string[] All = 
         {
             Administrator,
             PowerUser,
             SupportAgent,
             LightAgent,
-            ExternalUser
+            ExternalUser,
+            Technical
         };
     }
 
