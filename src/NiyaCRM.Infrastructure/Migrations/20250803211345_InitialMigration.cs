@@ -164,6 +164,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     first_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     last_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    country_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
                     time_zone = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),

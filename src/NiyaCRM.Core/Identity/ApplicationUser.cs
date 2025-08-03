@@ -22,6 +22,12 @@ namespace NiyaCRM.Core.Identity
         public string? LastName { get; set; }
 
         /// <summary>
+        /// Gets or sets the country code of the user.
+        /// </summary>
+        [MaxLength(2)]
+        public string? CountryCode { get; set; }
+
+        /// <summary>
         /// Gets or sets the default time zone identifier for this user.
         /// </summary>
         public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;

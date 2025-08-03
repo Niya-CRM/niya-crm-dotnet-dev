@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NiyaCRM.Core.Common;
 using NiyaCRM.Core.AppInstallation.AppSetup;
 using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
+using NiyaCRM.Core.Referentials;
 using NiyaCRM.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
 
@@ -17,16 +18,19 @@ public class AppSetupController : Controller
 {
     private readonly ILogger<AppSetupController> _logger;
     private readonly IAppSetupService _AppSetupService;
+    private readonly IReferenceDataService _referenceDataService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupController"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="AppSetupService">The application setup service.</param>
-    public AppSetupController(ILogger<AppSetupController> logger, IAppSetupService AppSetupService)
+    /// <param name="referenceDataService">The reference data service.</param>
+    public AppSetupController(ILogger<AppSetupController> logger, IAppSetupService AppSetupService, IReferenceDataService referenceDataService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _AppSetupService = AppSetupService ?? throw new ArgumentNullException(nameof(AppSetupService));
+        _referenceDataService = referenceDataService ?? throw new ArgumentNullException(nameof(referenceDataService));
     }
     
     /// <summary>
@@ -41,6 +45,15 @@ public class AppSetupController : Controller
         // If system already installed, redirect to login
         if (await _AppSetupService.IsApplicationInstalledAsync(cancellationToken))
             return RedirectToAction("Login", "Auth");
+
+        // Get active countries for dropdown
+        var countries = (await _referenceDataService.GetAllCountriesAsync(cancellationToken))
+            .Where(c => c.IsActive == "Y")
+            .OrderBy(c => c.CountryName)
+            .ToList();
+
+        // Pass countries to ViewBag for dropdown
+        ViewBag.Countries = countries;
 
         return View(new AppSetupDto());
     }

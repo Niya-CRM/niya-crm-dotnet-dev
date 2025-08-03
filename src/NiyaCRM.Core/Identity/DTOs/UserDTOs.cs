@@ -46,6 +46,12 @@ public class CreateUserRequest
     /// </summary>
     [StringLength(50)]
     public string? TimeZone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the country code of the user.
+    /// </summary>
+    [StringLength(2)]
+    public string? CountryCode { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.
@@ -89,6 +95,11 @@ public class UserResponse
     /// Gets or sets the time zone of the user.
     /// </summary>
     public string TimeZone { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the country code of the user.
+    /// </summary>
+    public string? CountryCode { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.

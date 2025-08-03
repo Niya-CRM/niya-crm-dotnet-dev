@@ -62,4 +62,10 @@ public class AppSetupDto
     /// </summary>
     [Required(ErrorMessage = "Time zone is required")]
     public string TimeZone { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets the country code.
+    /// </summary>
+    [StringLength(2, ErrorMessage = "Country code must be 2 characters")]
+    public string? CountryCode { get; set; }
 }

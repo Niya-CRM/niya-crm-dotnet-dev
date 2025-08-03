@@ -94,6 +94,7 @@ public class AppSetupService : IAppSetupService
             FirstName = setupDto.FirstName,
             LastName = setupDto.LastName,
             TimeZone = setupDto.TimeZone,
+            CountryCode = setupDto.CountryCode,
             IsActive = "Y",
             CreatedBy = technicalUserId,
             UpdatedBy = technicalUserId

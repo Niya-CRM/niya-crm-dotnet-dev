@@ -161,6 +161,7 @@ namespace NiyaCRM.AppInstallation.Services
                     Email = technicalUserEmail,
                     FirstName = "Technical",
                     LastName = "Interface",
+                    CountryCode = "IN",
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,

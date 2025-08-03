@@ -36,6 +36,11 @@ public class UserResponseWithDisplay
     /// Gets or sets the time zone of the user.
     /// </summary>
     public ValueDisplayPair<string> TimeZone { get; set; } = new();
+    
+    /// <summary>
+    /// Gets or sets the country code of the user.
+    /// </summary>
+    public ValueDisplayPair<string> CountryCode { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the phone number of the user.

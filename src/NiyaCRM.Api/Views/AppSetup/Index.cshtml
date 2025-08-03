@@ -129,6 +129,20 @@
                     <div id="tzHelp" class="form-text">Select time zone of your profile & organization.</div>
                     <span asp-validation-for="TimeZone" class="text-danger"></span>
                 </div>
+                
+                <!-- Country -->
+                <div class="mb-3">
+                    <label asp-for="CountryCode" class="form-label">Country</label>
+                    <select asp-for="CountryCode" class="form-select" aria-describedby="countryCodeHelp">
+                        <option value="">-- Select Country --</option>
+                        @foreach (var country in ViewBag.Countries)
+                        {
+                            <option value="@country.CountryCode">@country.CountryName (@country.CountryCode)</option>
+                        }
+                    </select>
+                    <div id="countryCodeHelp" class="form-text">Select your country from the dropdown list.</div>
+                    <span asp-validation-for="CountryCode" class="text-danger"></span>
+                </div>
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label">Password</label>
                     <input asp-for="Password" class="form-control" type="password" aria-describedby="passwordHelp" />
