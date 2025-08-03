@@ -69,7 +69,7 @@ namespace NiyaCRM.Api.Configurations
                     {
                         // Exclude AuthController and SetupController from Swagger documentation
                         if (controllerActionDescriptor.ControllerName == "Auth" || 
-                            controllerActionDescriptor.ControllerName == "ApplicationSetup")
+                            controllerActionDescriptor.ControllerName == "AppSetup")
                         {
                             return false;
                         }

@@ -16,6 +16,9 @@ using NiyaCRM.Infrastructure.Data.Tenants;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
 using NiyaCRM.Infrastructure.Data.AuditLogs;
+using NiyaCRM.Core.DynamicObjects;
+using NiyaCRM.Application.DynamicObjects;
+using NiyaCRM.Infrastructure.Data.DynamicObjects;
 using NiyaCRM.Core;
 using Serilog;
 using System.Reflection;
@@ -134,6 +137,10 @@ builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 // Register AuditLog Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+// Register DynamicObject Services
+builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
+builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
 
 // Register Cache Services
 builder.Services.AddMemoryCache();
