@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Infrastructure.Data;
 
-namespace NiyaCRM.Infrastructure.Repositories;
+namespace NiyaCRM.Infrastructure.Data.Identity;
 
 /// <summary>
 /// Repository implementation for Permission entity operations

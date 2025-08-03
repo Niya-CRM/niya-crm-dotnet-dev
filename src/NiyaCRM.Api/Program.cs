@@ -121,7 +121,7 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-builder.Services.AddScoped<NiyaCRM.Core.Identity.IPermissionRepository, NiyaCRM.Infrastructure.Repositories.PermissionRepository>();
+builder.Services.AddScoped<NiyaCRM.Core.Identity.IPermissionRepository, NiyaCRM.Infrastructure.Data.Identity.PermissionRepository>();
 builder.Services.AddScoped<NiyaCRM.Core.Identity.IPermissionService, NiyaCRM.Application.Identity.PermissionService>();
 
 // Add Authorization policies with global fallback policy using AuthorizationBuilder
@@ -147,6 +147,10 @@ builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
 // Register User Services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+// Register ReferenceData Services
+builder.Services.AddScoped<NiyaCRM.Core.Referentials.ICountryRepository, NiyaCRM.Infrastructure.Data.ReferenceData.CountryRepository>();
+builder.Services.AddScoped<NiyaCRM.Core.Referentials.IReferenceDataService, NiyaCRM.Application.Referentials.ReferenceDataService>();
 
 // Register Cache Services
 builder.Services.AddMemoryCache();

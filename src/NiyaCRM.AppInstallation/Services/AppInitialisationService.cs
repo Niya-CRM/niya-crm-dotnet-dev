@@ -41,6 +41,9 @@ namespace NiyaCRM.AppInstallation.Services
             ("Initial", "0.0.1", 5, "Define Dynamic Objects", async () => {
                 await DefineDynamicObjectsAsync();
             }),
+            ("Initial", "0.0.1", 6, "Initialize Countries", async () => {
+                await InitializeCountriesAsync();
+            }),
         ];
 
         public AppInitialisationService(ApplicationDbContext dbContext, 
@@ -305,6 +308,94 @@ namespace NiyaCRM.AppInstallation.Services
             {
                 _logger.LogCritical("Failed to define dynamic objects: {Error}", ex.Message);
             }
+        }
+        
+        private async Task InitializeCountriesAsync()
+        {
+            _logger.LogInformation("Starting to initialize countries from JSON file");
+            
+            try
+            {
+                // Read countries from JSON file
+                string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "countries.json");
+                
+                // If the file is not found in the output directory, try to find it in the project directory
+                if (!File.Exists(jsonFilePath))
+                {
+                    string projectDir = AppDomain.CurrentDomain.BaseDirectory;
+                    // Navigate up to find the project directory
+                    var parentDir = Directory.GetParent(projectDir);
+                    while (parentDir != null && !Directory.Exists(Path.Combine(projectDir, "Data")))
+                    {
+                        projectDir = parentDir.FullName;
+                        parentDir = Directory.GetParent(projectDir);
+                    }
+                    
+                    jsonFilePath = Path.Combine(projectDir, "Data", "countries.json");
+                }
+                
+                _logger.LogInformation("Reading countries from: {FilePath}", jsonFilePath);
+                
+                if (!File.Exists(jsonFilePath))
+                {
+                    _logger.LogCritical("Countries JSON file not found at: {FilePath}", jsonFilePath);
+                    return;
+                }
+                
+                string jsonContent = await File.ReadAllTextAsync(jsonFilePath);
+                
+                // Deserialize JSON to country objects
+                var jsonCountries = System.Text.Json.JsonSerializer.Deserialize<List<CountryJsonModel>>(jsonContent);
+                
+                if (jsonCountries == null || !jsonCountries.Any())
+                {
+                    _logger.LogError("No countries found in JSON file or deserialization failed");
+                    return;
+                }
+                
+                _logger.LogInformation("Found {Count} countries in JSON file", jsonCountries.Count);
+                
+                // Convert JSON model to Country entities
+                var countries = jsonCountries.Select(c => new NiyaCRM.Core.Referentials.Country(
+                    c.Country_Name?.Trim() ?? string.Empty,
+                    c.Country_Code?.Trim() ?? string.Empty,
+                    c.Country_Code_Alpha_3?.Trim() ?? string.Empty,
+                    c.Active?.Trim() ?? "Y"
+                )).ToList();
+                
+                // Check if countries already exist
+                var existingCountryCodes = await _dbContext.Set<NiyaCRM.Core.Referentials.Country>()
+                    .Select(c => c.CountryCode)
+                    .ToListAsync();
+                
+                // Filter out countries that already exist
+                var newCountries = countries.Where(c => !existingCountryCodes.Contains(c.CountryCode)).ToList();
+                
+                if (newCountries.Any())
+                {
+                    // Add new countries
+                    await _dbContext.Set<NiyaCRM.Core.Referentials.Country>().AddRangeAsync(newCountries);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} new countries", newCountries.Count);
+                }
+                else
+                {
+                    _logger.LogInformation("No new countries to add");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical("Failed to initialize countries: {Error}", ex.Message);
+            }
+        }
+        
+        // Model class for deserializing the JSON country data
+        private class CountryJsonModel
+        {
+            public string? Country_Name { get; set; }
+            public string? Country_Code { get; set; }
+            public string? Country_Code_Alpha_3 { get; set; }
+            public string? Active { get; set; }
         }
         
         private async Task AssignPermissionsToRolesAsync()
