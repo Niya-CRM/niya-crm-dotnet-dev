@@ -10,6 +10,7 @@ using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Tenants.DTOs;
 using Shouldly;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
 
         [Fact]
-        public async Task UpdateTenantAsync_ShouldThrowArgumentException_WhenNameIsEmpty()
+        public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenNameIsEmpty()
         {
             // Arrange
             var tenantId = Guid.NewGuid();
@@ -84,15 +85,14 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.UpdateTenantAsync(tenantId, updateRequest));
 
             exception.Message.ShouldContain("Name");
-            exception.ParamName.ShouldBe("request.Name");
         }
 
         [Fact]
-        public async Task UpdateTenantAsync_ShouldThrowArgumentException_WhenHostIsEmpty()
+        public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenHostIsEmpty()
         {
             // Arrange
             var tenantId = Guid.NewGuid();
@@ -106,15 +106,14 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.UpdateTenantAsync(tenantId, updateRequest));
 
             exception.Message.ShouldContain("Host");
-            exception.ParamName.ShouldBe("request.Host");
         }
 
         [Fact]
-        public async Task UpdateTenantAsync_ShouldThrowArgumentException_WhenEmailIsEmpty()
+        public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenEmailIsEmpty()
         {
             // Arrange
             var tenantId = Guid.NewGuid();
@@ -128,11 +127,10 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.UpdateTenantAsync(tenantId, updateRequest));
 
             exception.Message.ShouldContain("Email");
-            exception.ParamName.ShouldBe("request.Email");
         }
 
         [Fact]

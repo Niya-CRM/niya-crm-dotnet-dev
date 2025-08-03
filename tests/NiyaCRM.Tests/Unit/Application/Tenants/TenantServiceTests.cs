@@ -11,6 +11,7 @@ using NiyaCRM.Core.Tenants.DTOs;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -72,7 +73,7 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
         }
 
         [Fact]
-        public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenNameIsEmpty()
+        public async Task CreateTenantAsync_ShouldThrowValidationException_WhenNameIsEmpty()
         {
             // Arrange
             var createRequest = new CreateTenantRequest
@@ -85,15 +86,14 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.CreateTenantAsync(createRequest));
 
             exception.Message.ShouldContain("Name");
-            exception.ParamName.ShouldBe("request.Name");
         }
 
         [Fact]
-        public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenHostIsEmpty()
+        public async Task CreateTenantAsync_ShouldThrowValidationException_WhenHostIsEmpty()
         {
             // Arrange
             var createRequest = new CreateTenantRequest
@@ -106,15 +106,14 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.CreateTenantAsync(createRequest));
 
             exception.Message.ShouldContain("Host");
-            exception.ParamName.ShouldBe("request.Host");
         }
 
         [Fact]
-        public async Task CreateTenantAsync_ShouldThrowArgumentException_WhenEmailIsEmpty()
+        public async Task CreateTenantAsync_ShouldThrowValidationException_WhenEmailIsEmpty()
         {
             // Arrange
             var createRequest = new CreateTenantRequest
@@ -127,11 +126,10 @@ namespace NiyaCRM.Tests.Unit.Application.Tenants
             };
 
             // Act & Assert
-            var exception = await Should.ThrowAsync<ArgumentException>(
+            var exception = await Should.ThrowAsync<ValidationException>(
                 async () => await _tenantService.CreateTenantAsync(createRequest));
 
             exception.Message.ShouldContain("Email");
-            exception.ParamName.ShouldBe("request.Email");
         }
 
         [Fact]

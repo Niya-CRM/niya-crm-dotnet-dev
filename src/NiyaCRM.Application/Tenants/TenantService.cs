@@ -61,13 +61,13 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
 
         // Validation
         if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ValidationException("Tenant name cannot be null or empty.");
+            throw new ValidationException("Tenant Name cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Host))
-            throw new ValidationException("Tenant host cannot be null or empty.");
+            throw new ValidationException("Tenant Host cannot be null or empty.");
 
         if (string.IsNullOrWhiteSpace(request.Email))
-            throw new ValidationException("Tenant email cannot be null or empty.");
+            throw new ValidationException("Tenant Email cannot be null or empty.");
 
         // Normalize inputs
         var normalizedName = request.Name.Trim();
