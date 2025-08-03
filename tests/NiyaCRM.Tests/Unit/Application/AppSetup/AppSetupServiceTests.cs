@@ -18,26 +18,26 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Reflection;
 
-namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
+namespace NiyaCRM.Tests.Unit.Application.AppSetup
 {
-    public class ApplicationSetupServiceTests
+    public class AppSetupServiceTests
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ITenantService> _mockTenantService;
-        private readonly Mock<ILogger<ApplicationSetupService>> _mockLogger;
+        private readonly Mock<ILogger<AppSetupService>> _mockLogger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly ApplicationSetupService _applicationSetupService;
+        private readonly AppSetupService _AppSetupService;
 
-        public ApplicationSetupServiceTests()
+        public AppSetupServiceTests()
         {
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockTenantService = new Mock<ITenantService>();
-            _mockLogger = new Mock<ILogger<ApplicationSetupService>>();
+            _mockLogger = new Mock<ILogger<AppSetupService>>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
-            _applicationSetupService = new ApplicationSetupService(
+            _AppSetupService = new AppSetupService(
                 _mockUnitOfWork.Object,
                 _mockTenantService.Object,
                 _userManager,
@@ -54,7 +54,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 .ReturnsAsync(true);
 
             // Act
-            var result = await _applicationSetupService.IsApplicationInstalledAsync();
+            var result = await _AppSetupService.IsApplicationInstalledAsync();
 
             // Assert
             result.ShouldBeTrue();
@@ -74,7 +74,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 .ReturnsAsync(false);
 
             // Act
-            var result = await _applicationSetupService.IsApplicationInstalledAsync();
+            var result = await _AppSetupService.IsApplicationInstalledAsync();
 
             // Assert
             result.ShouldBeFalse();
@@ -89,7 +89,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
         public async Task InstallApplicationAsync_ShouldCreateTenant_UsingTenantService()
         {
             // Arrange
-            var installationDto = new AppInstallationDto
+            var setupDto = new AppSetupDto
             {
                 TenantName = "Test Organization",
                 Host = "support.organization.com",
@@ -112,9 +112,9 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
                     It.Is<CreateTenantRequest>(req => 
-                        req.Name == installationDto.TenantName && 
-                        req.Host == installationDto.Host && 
-                        req.Email == installationDto.AdminEmail),
+                        req.Name == setupDto.TenantName && 
+                        req.Host == setupDto.Host && 
+                        req.Email == setupDto.AdminEmail),
                     It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tenant);
@@ -128,7 +128,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 .Returns(Task.CompletedTask);
 
             // Act
-            var result = await _applicationSetupService.InstallApplicationAsync(installationDto);
+            var result = await _AppSetupService.InstallApplicationAsync(setupDto);
 
             // Assert
             result.ShouldNotBeNull();
@@ -156,7 +156,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
         public async Task InstallApplicationAsync_ShouldRollbackTransaction_WhenExceptionOccurs()
         {
             // Arrange
-            var installationDto = new AppInstallationDto
+            var setupDto = new AppSetupDto
             {
                 TenantName = "Test Organization",
                 Host = "test-organization",
@@ -182,7 +182,7 @@ namespace NiyaCRM.Tests.Unit.Application.ApplicationSetup
                 .Returns(Task.CompletedTask);
 
             // Act
-            Func<Task> act = async () => await _applicationSetupService.InstallApplicationAsync(installationDto);
+            Func<Task> act = async () => await _AppSetupService.InstallApplicationAsync(setupDto);
             
             // Assert
             await act.ShouldThrowAsync<Exception>();

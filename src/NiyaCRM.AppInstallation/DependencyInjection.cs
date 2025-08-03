@@ -20,7 +20,7 @@ namespace NiyaCRM.AppInstallation
         {
             // Register services
             //services.AddScoped<IAppInstallationService, AppInstallationService>();
-            services.AddScoped<IApplicationSetupService, ApplicationSetupService>();
+            services.AddScoped<IAppSetupService, AppSetupService>();
             //services.AddScoped<DataSeeder>();
             //services.AddScoped<VersionManager>();
 

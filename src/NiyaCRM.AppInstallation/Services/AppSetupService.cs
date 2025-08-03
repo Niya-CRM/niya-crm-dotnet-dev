@@ -13,28 +13,28 @@ namespace NiyaCRM.AppInstallation.Services;
 /// <summary>
 /// Service implementation for application setup and installation operations.
 /// </summary>
-public class ApplicationSetupService : IApplicationSetupService
+public class AppSetupService : IAppSetupService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantService _tenantService;
-    private readonly ILogger<ApplicationSetupService> _logger;
+    private readonly ILogger<AppSetupService> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ApplicationSetupService"/> class.
+    /// Initializes a new instance of the <see cref="AppSetupService"/> class.
     /// </summary>
     /// <param name="unitOfWork">The unit of work.</param>
     /// <param name="tenantService">The tenant service.</param>
     /// <param name="userManager">The user manager.</param>
     /// <param name="roleManager">The role manager.</param>
     /// <param name="logger">The logger.</param>
-    public ApplicationSetupService(
+    public AppSetupService(
         IUnitOfWork unitOfWork,
         ITenantService tenantService,
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
-        ILogger<ApplicationSetupService> logger)
+        ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
@@ -44,11 +44,11 @@ public class ApplicationSetupService : IApplicationSetupService
     }
 
     /// <inheritdoc/>
-    public async Task<Tenant> InstallApplicationAsync(AppInstallationDto installationDto, CancellationToken cancellationToken = default)
+    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(installationDto);
+        ArgumentNullException.ThrowIfNull(setupDto);
 
-        _logger.LogInformation("Starting application installation process for tenant: {TenantName}", installationDto.TenantName);
+        _logger.LogInformation("Starting application installation process for tenant: {TenantName}", setupDto.TenantName);
 
         // Check if application is already installed
         if (await IsApplicationInstalledAsync(cancellationToken))
@@ -66,10 +66,10 @@ public class ApplicationSetupService : IApplicationSetupService
             var technicalUser = await CreateTechnicalUserAsync();
             
             // Create the initial admin user
-            await CreateInitialAdminUserAsync(installationDto, technicalUser.Id);
+            await CreateInitialAdminUserAsync(setupDto, technicalUser.Id);
 
             // Create the tenant
-            var tenant = await CreateInitialTenantAsync(installationDto, technicalUser.Id, cancellationToken);
+            var tenant = await CreateInitialTenantAsync(setupDto, technicalUser.Id, cancellationToken);
 
             // Commit the transaction
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -85,24 +85,24 @@ public class ApplicationSetupService : IApplicationSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppInstallationDto installationDto, Guid technicalUserId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid technicalUserId)
     {
         var userId = Guid.NewGuid();
 
         var user = new ApplicationUser
         {
             Id = userId,
-            UserName = installationDto.AdminEmail,
-            Email = installationDto.AdminEmail,
-            FirstName = installationDto.FirstName,
-            LastName = installationDto.LastName,
-            TimeZone = installationDto.TimeZone,
+            UserName = setupDto.AdminEmail,
+            Email = setupDto.AdminEmail,
+            FirstName = setupDto.FirstName,
+            LastName = setupDto.LastName,
+            TimeZone = setupDto.TimeZone,
             IsActive = "Y",
             CreatedBy = technicalUserId,
             UpdatedBy = technicalUserId
         };
 
-        var createResult = await _userManager.CreateAsync(user, installationDto.Password);
+        var createResult = await _userManager.CreateAsync(user, setupDto.Password);
         if (!createResult.Succeeded)
         {
             _logger.LogError("Failed to create initial admin user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
@@ -115,7 +115,7 @@ public class ApplicationSetupService : IApplicationSetupService
             await _userManager.AddToRoleAsync(user, "Administrator");
         }
 
-        _logger.LogInformation("Created initial admin user with email: {Email}", installationDto.AdminEmail);
+        _logger.LogInformation("Created initial admin user with email: {Email}", setupDto.AdminEmail);
     }
     
     /// <inheritdoc/>
@@ -151,15 +151,15 @@ public class ApplicationSetupService : IApplicationSetupService
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppInstallationDto installationDto, Guid technicalUserId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid technicalUserId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new NiyaCRM.Core.Tenants.DTOs.CreateTenantRequest
         {
-            Name = installationDto.TenantName,
-            Host = installationDto.Host,
-            Email = installationDto.AdminEmail,
+            Name = setupDto.TenantName,
+            Host = setupDto.Host,
+            Email = setupDto.AdminEmail,
             UserId = technicalUserId,
-            TimeZone = installationDto.TimeZone
+            TimeZone = setupDto.TimeZone
         };
 
         var tenant = await _tenantService.CreateTenantAsync(

@@ -6,7 +6,7 @@ namespace NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 /// Data Transfer Object for the initial application installation/setup.
 /// Contains information needed to create the first tenant and administrative user.
 /// </summary>
-public class AppInstallationDto
+public class AppSetupDto
 {
     /// <summary>
     /// Gets or sets the tenant name.

@@ -5,7 +5,7 @@ using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 using NiyaCRM.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
 
-namespace NiyaCRM.Api.Controllers.ApplicationSetup;
+namespace NiyaCRM.Api.Controllers.AppSetup;
 
 /// <summary>
 /// Controller for handling application setup and installation operations.
@@ -13,20 +13,20 @@ namespace NiyaCRM.Api.Controllers.ApplicationSetup;
 /// </summary>
 [Route("setup")]
 [AllowAnonymous]
-public class ApplicationSetupController : Controller
+public class AppSetupController : Controller
 {
-    private readonly ILogger<ApplicationSetupController> _logger;
-    private readonly IApplicationSetupService _applicationSetupService;
+    private readonly ILogger<AppSetupController> _logger;
+    private readonly IAppSetupService _AppSetupService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ApplicationSetupController"/> class.
+    /// Initializes a new instance of the <see cref="AppSetupController"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
-    /// <param name="applicationSetupService">The application setup service.</param>
-    public ApplicationSetupController(ILogger<ApplicationSetupController> logger, IApplicationSetupService applicationSetupService)
+    /// <param name="AppSetupService">The application setup service.</param>
+    public AppSetupController(ILogger<AppSetupController> logger, IAppSetupService AppSetupService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _applicationSetupService = applicationSetupService ?? throw new ArgumentNullException(nameof(applicationSetupService));
+        _AppSetupService = AppSetupService ?? throw new ArgumentNullException(nameof(AppSetupService));
     }
     
     /// <summary>
@@ -39,10 +39,10 @@ public class ApplicationSetupController : Controller
     public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
         // If system already installed, redirect to login
-        if (await _applicationSetupService.IsApplicationInstalledAsync(cancellationToken))
+        if (await _AppSetupService.IsApplicationInstalledAsync(cancellationToken))
             return RedirectToAction("Login", "Auth");
 
-        return View(new AppInstallationDto());
+        return View(new AppSetupDto());
     }
 
     /// <summary>
@@ -53,9 +53,9 @@ public class ApplicationSetupController : Controller
     /// <returns>Redirect to success page or show errors.</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(AppInstallationDto model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(AppSetupDto model, CancellationToken cancellationToken)
     {
-        if (await _applicationSetupService.IsApplicationInstalledAsync(cancellationToken))
+        if (await _AppSetupService.IsApplicationInstalledAsync(cancellationToken))
             return RedirectToAction("Login", "Auth");
 
         if (!ModelState.IsValid)
@@ -67,12 +67,12 @@ public class ApplicationSetupController : Controller
             return View(model);
         }
         
-        // Use the model directly as it's already an AppInstallationDto
-        var installationDto = model;
+        // Use the model directly as it's already an AppSetupDto
+        var setupDto = model;
 
         try
         {
-            Tenant tenant = await _applicationSetupService.InstallApplicationAsync(installationDto, cancellationToken);
+            Tenant tenant = await _AppSetupService.InstallApplicationAsync(setupDto, cancellationToken);
             _logger.LogInformation("Application installed for tenant {TenantId}", tenant.Id);
             return RedirectToAction(nameof(Success));
         }
