@@ -19,6 +19,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                     version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     pipeline = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
                     step = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     completed = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false)
                 },

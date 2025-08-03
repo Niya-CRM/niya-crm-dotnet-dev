@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250803063436_InitialMigration")]
+    [Migration("20250803073418_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -171,6 +171,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
 
                     b.Property<string>("Pipeline")
                         .IsRequired()

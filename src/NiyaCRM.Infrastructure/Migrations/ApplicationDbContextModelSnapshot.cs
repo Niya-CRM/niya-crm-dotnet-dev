@@ -169,6 +169,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
                     b.Property<string>("Pipeline")
                         .IsRequired()
                         .HasMaxLength(15)
