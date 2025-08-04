@@ -94,4 +94,27 @@ public static class CommonConstant
         /// </summary>
         public static readonly string[] DatabaseTags = { "database" };
     }
+    
+    /// <summary>
+    /// Constants related to application installation
+    /// </summary>
+    public static class AppInstallation
+    {
+        /// <summary>
+        /// Pipeline types for application installation
+        /// </summary>
+        public static class Pipeline
+        {
+            public const string Initial = "Initial";
+            public const string Upgrade = "Upgrade";
+            
+            public static readonly string[] All = 
+            {
+                Initial,
+                Upgrade
+            };
+        }
+
+        public const string INITIAL_VERSION = "0.0.1";
+    }
 }

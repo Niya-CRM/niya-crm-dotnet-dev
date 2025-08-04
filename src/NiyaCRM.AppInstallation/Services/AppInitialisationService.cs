@@ -11,6 +11,7 @@ using NiyaCRM.Core.AppInstallation.AppInitialisation;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Infrastructure.Data;
+using NiyaCRM.Core.Common;
 
 namespace NiyaCRM.AppInstallation.Services
 {
@@ -26,22 +27,22 @@ namespace NiyaCRM.AppInstallation.Services
         // Key: (pipeline, version, order), Value: (step name, step action)
         private List<(string Pipeline, string Version, int Order, string Step, Func<Task> Action)> Steps =>
         [
-            ("Initial", "0.0.1", 1, "Seed Default Roles", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 1, "Seed Default Roles", async () => {
                 await SeedDefaultRolesAsync();
             }),
-            ("Initial", "0.0.1", 2, "Seed Default Permissions", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 2, "Seed Default Permissions", async () => {
                 await SeedDefaultPermissionsAsync();
             }),
-            ("Initial", "0.0.1", 3, "Create Technical User", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 3, "Create Technical User", async () => {
                 await CreateTechnicalUserAsync();
             }),
-            ("Initial", "0.0.1", 4, "Assign Permissions To Roles", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 4, "Assign Permissions To Roles", async () => {
                 await AssignPermissionsToRolesAsync();
             }),
-            ("Initial", "0.0.1", 5, "Define Dynamic Objects", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 5, "Define Dynamic Objects", async () => {
                 await DefineDynamicObjectsAsync();
             }),
-            ("Initial", "0.0.1", 6, "Initialize Countries", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 6, "Initialize Countries", async () => {
                 await InitializeCountriesAsync();
             }),
         ];
@@ -213,7 +214,7 @@ namespace NiyaCRM.AppInstallation.Services
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogCritical("Failed to add technical user to Technical role: {Error}", ex.Message);
+                        _logger.LogCritical(ex, "Failed to add technical user to Technical role");
                     }
                 }
                 else
@@ -307,7 +308,7 @@ namespace NiyaCRM.AppInstallation.Services
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("Failed to define dynamic objects: {Error}", ex.Message);
+                _logger.LogCritical(ex,"Failed to define dynamic objects");
             }
         }
         
@@ -348,7 +349,7 @@ namespace NiyaCRM.AppInstallation.Services
                 // Deserialize JSON to country objects
                 var jsonCountries = System.Text.Json.JsonSerializer.Deserialize<List<CountryJsonModel>>(jsonContent);
                 
-                if (jsonCountries == null || !jsonCountries.Any())
+                if (jsonCountries == null || jsonCountries.Count == 0)
                 {
                     _logger.LogError("No countries found in JSON file or deserialization failed");
                     return;
@@ -372,7 +373,7 @@ namespace NiyaCRM.AppInstallation.Services
                 // Filter out countries that already exist
                 var newCountries = countries.Where(c => !existingCountryCodes.Contains(c.CountryCode)).ToList();
                 
-                if (newCountries.Any())
+                if (newCountries.Count > 0)
                 {
                     // Add new countries
                     await _dbContext.Set<NiyaCRM.Core.Referentials.Country>().AddRangeAsync(newCountries);
@@ -386,17 +387,17 @@ namespace NiyaCRM.AppInstallation.Services
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("Failed to initialize countries: {Error}", ex.Message);
+                _logger.LogCritical(ex,"Failed to initialize countries");
             }
         }
         
         // Model class for deserializing the JSON country data
-        private class CountryJsonModel
+        private sealed class CountryJsonModel
         {
-            public string? Country_Name { get; set; }
-            public string? Country_Code { get; set; }
-            public string? Country_Code_Alpha_3 { get; set; }
-            public string? Active { get; set; }
+            public string? Country_Name { get; init; }
+            public string? Country_Code { get; init; }
+            public string? Country_Code_Alpha_3 { get; init; }
+            public string? Active { get; init; }
         }
         
         private async Task AssignPermissionsToRolesAsync()
@@ -544,8 +545,8 @@ namespace NiyaCRM.AppInstallation.Services
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogCritical("Failed to add permission {Permission} to role {Role}: {Error}", 
-                                permissionName, roleName, ex.Message);
+                            _logger.LogCritical(ex,"Failed to add permission {Permission} to role {Role}", 
+                                permissionName, roleName);
                         }
                     }
                 }

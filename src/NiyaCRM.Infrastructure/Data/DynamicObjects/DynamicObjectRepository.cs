@@ -92,7 +92,7 @@ public class DynamicObjectRepository : IDynamicObjectRepository
         _logger.LogDebug("Checking if object name exists: {ObjectName}, excluding ID: {ExcludeId}", objectName, excludeId);
         
         var normalizedObjectName = objectName.Trim().ToLowerInvariant();
-        var query = _dbSet.Where(o => o.ObjectName.ToLower() == normalizedObjectName);
+        var query = _dbSet.Where(o => string.Equals(o.ObjectName.ToLower(), normalizedObjectName, StringComparison.OrdinalIgnoreCase));
         
         if (excludeId.HasValue)
         {

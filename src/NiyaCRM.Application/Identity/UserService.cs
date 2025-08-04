@@ -22,7 +22,6 @@ public class UserService : IUserService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuditLogService _auditLogService;
     private readonly IUserRepository _userRepository;
-    private readonly IMemoryCache _memoryCache;
     private readonly ICacheService _cacheService;
     
     // Cache key prefix for users
@@ -36,7 +35,6 @@ public class UserService : IUserService
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
     /// <param name="auditLogService">The audit log service.</param>
     /// <param name="userRepository">The user repository.</param>
-    /// <param name="memoryCache">The memory cache.</param>
     /// <param name="cacheService">The cache service.</param>
     public UserService(
         UserManager<ApplicationUser> userManager,
@@ -44,7 +42,6 @@ public class UserService : IUserService
         IHttpContextAccessor httpContextAccessor,
         IAuditLogService auditLogService,
         IUserRepository userRepository,
-        IMemoryCache memoryCache,
         ICacheService cacheService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

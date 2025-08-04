@@ -20,11 +20,8 @@ namespace NiyaCRM.AppInstallation
         public static IServiceCollection AddAppInstallation(this IServiceCollection services)
         {
             // Register services
-            //services.AddScoped<IAppInstallationService, AppInstallationService>();
             services.AddScoped<IAppInitialisationService, AppInitialisationService>();
             services.AddScoped<IAppSetupService, AppSetupService>();
-            //services.AddScoped<DataSeeder>();
-            //services.AddScoped<VersionManager>();
             return services;
         }
     }

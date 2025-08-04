@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NiyaCRM.Core.DynamicObjects;
 
-namespace NiyaCRM.Infrastructure.Data.DyanamicObjects
+namespace NiyaCRM.Infrastructure.Data.DynamicObjects
 {
     /// <summary>
     /// Configuration for the DynamicObject entity.
