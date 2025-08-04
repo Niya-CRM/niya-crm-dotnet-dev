@@ -5,6 +5,7 @@ using NiyaCRM.Core.Common;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using NiyaCRM.Api.Validators.Tenants;
+using NiyaCRM.Api.Common;
 
 namespace NiyaCRM.Api.Controllers.Tenants;
 
@@ -81,22 +82,12 @@ public class TenantController : ControllerBase
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error in tenant creation request: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
-            return Conflict(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_CONFLICT,
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
+            return this.CreateConflictProblem(ex.Message);
         }
     }
 
@@ -117,12 +108,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found: {TenantId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = $"Tenant with ID '{id}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"Tenant with ID '{id}' was not found.");
         }
 
         return Ok(tenant);
@@ -145,12 +131,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for host: {Host}", host);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = $"Tenant with host '{host}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"Tenant with host '{host}' was not found.");
         }
 
         return Ok(tenant);
@@ -196,12 +177,7 @@ public class TenantController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
     }
 
@@ -228,12 +204,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found: {TenantId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = $"Tenant with ID '{id}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"Tenant with ID '{id}' was not found.");
         }
 
         try
@@ -262,32 +233,17 @@ public class TenantController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid tenant update request: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
             _logger.LogWarning(ex, "Tenant not found for update: {TenantId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = ex.Message,
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Tenant update conflict: {Message}", ex.Message);
-            return Conflict(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_CONFLICT,
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
+            return this.CreateConflictProblem(ex.Message);
         }
     }
 
@@ -336,12 +292,7 @@ public class TenantController : ControllerBase
         var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)),
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
         try
@@ -360,12 +311,7 @@ public class TenantController : ControllerBase
         {
             string action = activate ? "activation" : "deactivation";
             _logger.LogWarning(ex, "Tenant not found for {Action}: {TenantId}", action, id);
-            return NotFound(new ProblemDetails
-            {
-                Title = TenantConstant.MESSAGE_TENANT_NOT_FOUND,
-                Detail = ex.Message,
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem(ex.Message);
         }
     }
 }

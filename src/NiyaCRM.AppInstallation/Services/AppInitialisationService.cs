@@ -60,10 +60,10 @@ namespace NiyaCRM.AppInstallation.Services
             _logger = logger;
         }
 
-        public async Task InitialiseAppAsync()
+        public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
         {
             // Check if any status records exist
-            if (!await _dbContext.AppInstallationStatus.AnyAsync())
+            if (!await _dbContext.AppInstallationStatus.AnyAsync(cancellationToken))
             {
                 // Seed steps
                 foreach (var step in Steps)
@@ -77,11 +77,11 @@ namespace NiyaCRM.AppInstallation.Services
                         Completed = "N"
                     });
                 }
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
 
             // Run each step that is not completed
-            var statuses = _dbContext.AppInstallationStatus.Where(s => s.Completed != "Y").ToList();
+            var statuses = await _dbContext.AppInstallationStatus.Where(s => s.Completed != "Y").ToListAsync(cancellationToken);
             foreach (var status in statuses)
             {
                 var step = Steps.FirstOrDefault(x => x.Pipeline == status.Pipeline && x.Version == status.Version && x.Order == status.Order && x.Step == status.Step);
@@ -91,7 +91,7 @@ namespace NiyaCRM.AppInstallation.Services
                     status.Completed = "Y";
                 }
             }
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         private async Task SeedDefaultRolesAsync()

@@ -3,6 +3,8 @@ using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Core.DynamicObjects.DTOs;
 using NiyaCRM.Core.Common;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using NiyaCRM.Api.Common;
 
 namespace NiyaCRM.Api.Controllers.DynamicObjects;
 
@@ -28,6 +30,8 @@ public class DynamicObjectController : ControllerBase
         _dynamicObjectService = dynamicObjectService ?? throw new ArgumentNullException(nameof(dynamicObjectService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+    
+    // Helper methods moved to ControllerExtensions class
 
     /// <summary>
     /// Creates a new dynamic object.
@@ -61,22 +65,12 @@ public class DynamicObjectController : ControllerBase
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error in dynamic object creation request: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Dynamic object creation conflict: {Message}", ex.Message);
-            return Conflict(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_CONFLICT,
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
+            return this.CreateConflictProblem(ex.Message);
         }
     }
 
@@ -97,12 +91,7 @@ public class DynamicObjectController : ControllerBase
         if (dynamicObject == null)
         {
             _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = "Dynamic Object Not Found",
-                Detail = $"Dynamic object with ID '{id}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"Dynamic object with ID '{id}' not found.");
         }
 
         return Ok(dynamicObject);
@@ -133,12 +122,7 @@ public class DynamicObjectController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
     }
 
@@ -165,12 +149,7 @@ public class DynamicObjectController : ControllerBase
         if (dynamicObject == null)
         {
             _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = "Dynamic Object Not Found",
-                Detail = $"Dynamic object with ID '{id}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"Dynamic object with ID '{id}' not found.");
         }
 
         try
@@ -189,12 +168,7 @@ public class DynamicObjectController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid dynamic object update request: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
@@ -209,12 +183,7 @@ public class DynamicObjectController : ControllerBase
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Dynamic object update conflict: {Message}", ex.Message);
-            return Conflict(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_CONFLICT,
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
+            return this.CreateConflictProblem(ex.Message);
         }
     }
 }

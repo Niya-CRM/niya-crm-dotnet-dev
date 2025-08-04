@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NiyaCRM.Core.AuditLogs.DTOs;
+using NiyaCRM.Api.Common;
 
 namespace NiyaCRM.Api.Controllers.AuditLogs
 {
@@ -47,11 +48,11 @@ namespace NiyaCRM.Api.Controllers.AuditLogs
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return this.CreateBadRequestProblem("Invalid model state");
             }
             var log = await _auditLogService.GetAuditLogByIdAsync(id, cancellationToken);
             if (log == null)
-                return NotFound();
+                return this.CreateNotFoundProblem($"Audit log with ID '{id}' was not found.");
             return Ok(log);
         }
     }

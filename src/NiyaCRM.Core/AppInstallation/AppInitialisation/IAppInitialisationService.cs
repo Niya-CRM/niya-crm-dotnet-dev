@@ -4,6 +4,6 @@ namespace NiyaCRM.Core.AppInstallation.AppInitialisation;
 
 public interface IAppInitialisationService
 {
-    Task InitialiseAppAsync();
+    Task InitialiseAppAsync(CancellationToken cancellationToken = default);
 }
 

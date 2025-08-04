@@ -4,6 +4,7 @@ using NiyaCRM.Core.Common;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.Identity.DTOs;
 using System.ComponentModel.DataAnnotations;
+using NiyaCRM.Api.Common;
 
 namespace NiyaCRM.Api.Controllers.Identity;
 
@@ -67,22 +68,12 @@ public class UserController : ControllerBase
         catch (ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error in user creation request: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "User creation conflict: {Message}", ex.Message);
-            return Conflict(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_CONFLICT,
-                Detail = ex.Message,
-                Status = StatusCodes.Status409Conflict
-            });
+            return this.CreateConflictProblem(ex.Message);
         }
     }
     
@@ -103,12 +94,7 @@ public class UserController : ControllerBase
         if (user == null)
         {
             _logger.LogWarning("User not found: {UserId}", id);
-            return NotFound(new ProblemDetails
-            {
-                Title = "User Not Found",
-                Detail = $"User with ID '{id}' was not found.",
-                Status = StatusCodes.Status404NotFound
-            });
+            return this.CreateNotFoundProblem($"User with ID '{id}' was not found.");
         }
 
         return Ok(user);
@@ -135,12 +121,7 @@ public class UserController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
-            return BadRequest(new ProblemDetails
-            {
-                Title = CommonConstant.MESSAGE_INVALID_REQUEST,
-                Detail = ex.Message,
-                Status = StatusCodes.Status400BadRequest
-            });
+            return this.CreateBadRequestProblem(ex.Message);
         }
     }
 }
