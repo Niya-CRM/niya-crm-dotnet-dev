@@ -8,13 +8,13 @@ namespace NiyaCRM.Core.Identity;
 public interface IUserRepository
 {
     /// <summary>
-    /// Gets all users with pagination.
+    /// Gets all users with optional pagination.
     /// </summary>
-    /// <param name="pageNumber">The page number.</param>
-    /// <param name="pageSize">The page size.</param>
+    /// <param name="pageNumber">The page number. If null or less than 1, returns all users without pagination.</param>
+    /// <param name="pageSize">The page size. If null or less than 1, returns all users without pagination.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A paginated collection of user responses.</returns>
-    Task<IEnumerable<UserResponse>> GetAllUsersAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default);
+    /// <returns>A collection of user responses, paginated if pageNumber and pageSize are provided.</returns>
+    Task<IEnumerable<UserResponse>> GetAllUsersAsync(int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Gets a user by their identifier.
@@ -23,11 +23,4 @@ public interface IUserRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user response if found, otherwise null.</returns>
     Task<UserResponse?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Gets all users without pagination.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>All user responses.</returns>
-    Task<IEnumerable<UserResponse>> GetAllUsersWithoutPaginationAsync(CancellationToken cancellationToken = default);
 }

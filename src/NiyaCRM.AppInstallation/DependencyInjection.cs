@@ -1,9 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
-using NiyaCRM.AppInstallation.DataSeeding;
 using NiyaCRM.Core.AppInstallation.AppInitialisation;
 using NiyaCRM.Core.AppInstallation.AppSetup;
 using NiyaCRM.AppInstallation.Services;
-using NiyaCRM.AppInstallation.UpgradeScripts;
 
 namespace NiyaCRM.AppInstallation
 {

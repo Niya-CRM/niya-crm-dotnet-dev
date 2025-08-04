@@ -72,7 +72,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> CreateDynamicObjectAsync(CreateDynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating dynamic object with name: {ObjectName}", request.ObjectName);
 
@@ -86,15 +86,17 @@ public class DynamicObjectService : IDynamicObjectService
         if (string.IsNullOrWhiteSpace(request.PluralName))
             throw new ValidationException("Plural Name cannot be null or empty.");
 
-        if (string.IsNullOrWhiteSpace(request.ObjectKey))
-            throw new ValidationException("Object Key cannot be null or empty.");
-
         // Normalize inputs
         var normalizedObjectName = request.ObjectName.Trim();
         var normalizedSingularName = request.SingularName.Trim();
         var normalizedPluralName = request.PluralName.Trim();
-        var normalizedObjectKey = request.ObjectKey.Trim();
         var normalizedDescription = request.Description?.Trim() ?? string.Empty;
+        
+        // Generate object key from object name (only letters with __c suffix)
+        var normalizedObjectKey = new string(normalizedObjectName
+            .ToLowerInvariant()
+            .Where(c => char.IsLetter(c))
+            .ToArray()) + "__c";
 
         // Check if object name is already taken
         var exists = await _unitOfWork.GetRepository<IDynamicObjectRepository>().ExistsByNameAsync(normalizedObjectName, null, cancellationToken);
@@ -156,7 +158,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, UpdateDynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating dynamic object {DynamicObjectId} with name: {ObjectName}", id, request.ObjectName);
 
@@ -170,9 +172,6 @@ public class DynamicObjectService : IDynamicObjectService
         if (string.IsNullOrWhiteSpace(request.PluralName))
             throw new ValidationException("Plural name cannot be null or empty.");
 
-        if (string.IsNullOrWhiteSpace(request.ObjectKey))
-            throw new ValidationException("Object key cannot be null or empty.");
-
         // Get existing dynamic object
         var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByIdAsync(id, cancellationToken);
         if (dynamicObject == null)
@@ -185,7 +184,6 @@ public class DynamicObjectService : IDynamicObjectService
         var normalizedObjectName = request.ObjectName.Trim();
         var normalizedSingularName = request.SingularName.Trim();
         var normalizedPluralName = request.PluralName.Trim();
-        var normalizedObjectKey = request.ObjectKey.Trim();
         var normalizedDescription = request.Description?.Trim() ?? string.Empty;
 
         // Check if new object name conflicts with existing dynamic object (excluding current object)
@@ -206,7 +204,6 @@ public class DynamicObjectService : IDynamicObjectService
         dynamicObject.ObjectName = normalizedObjectName;
         dynamicObject.SingularName = normalizedSingularName;
         dynamicObject.PluralName = normalizedPluralName;
-        dynamicObject.ObjectKey = normalizedObjectKey;
         dynamicObject.Description = normalizedDescription;
         dynamicObject.UpdatedAt = DateTime.UtcNow;
         dynamicObject.UpdatedBy = modifiedBy;

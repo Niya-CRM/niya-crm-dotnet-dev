@@ -39,7 +39,7 @@ public class DynamicObjectController : ControllerBase
     [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObject>> CreateDynamicObject([FromBody] CreateDynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<DynamicObject>> CreateDynamicObject([FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -154,7 +154,7 @@ public class DynamicObjectController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObject>> UpdateDynamicObject(Guid id, [FromBody] UpdateDynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<DynamicObject>> UpdateDynamicObject(Guid id, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {

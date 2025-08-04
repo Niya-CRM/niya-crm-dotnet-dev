@@ -15,7 +15,7 @@ public interface IDynamicObjectService
     /// <param name="createdBy">The user creating the dynamic object.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created dynamic object.</returns>
-    Task<DynamicObject> CreateDynamicObjectAsync(CreateDynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default);
+    Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a dynamic object by its identifier.
@@ -33,7 +33,7 @@ public interface IDynamicObjectService
     /// <param name="modifiedBy">The user updating the dynamic object.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated dynamic object.</returns>
-    Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, UpdateDynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default);
+    Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all dynamic objects with pagination.

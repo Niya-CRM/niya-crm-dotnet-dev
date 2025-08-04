@@ -49,7 +49,6 @@ public class UserService : IUserService
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     }
 
@@ -265,7 +264,7 @@ public class UserService : IUserService
         _logger.LogDebug("Caching all users individually");
             
         // Get all users from repository without pagination
-        var users = await _userRepository.GetAllUsersWithoutPaginationAsync(cancellationToken);
+        var users = await _userRepository.GetAllUsersAsync(cancellationToken: cancellationToken);
         
         // First, cache all raw user data
         foreach (var user in users)
