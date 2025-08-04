@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NiyaCRM.Core.ChangeHistory.DTOs;
+using NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs;
 using Moq;
-using NiyaCRM.Application.ChangeHistory;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Application.AuditLogs.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using Shouldly;
 using Xunit;
 

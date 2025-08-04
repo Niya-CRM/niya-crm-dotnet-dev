@@ -1,6 +1,6 @@
 using NiyaCRM.Core.Common;
 
-namespace NiyaCRM.Core.ChangeHistory.DTOs
+namespace NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs
 {
     /// <summary>
     /// DTO for change history log query parameters.

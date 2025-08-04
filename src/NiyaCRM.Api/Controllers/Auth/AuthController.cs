@@ -10,7 +10,7 @@ using NiyaCRM.Core.Auth.Constants;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.Auth.DTOs;
 
-namespace NiyaCRM.Api.Controllers
+namespace NiyaCRM.Api.Controllers.Auth
 {
     /// <summary>
     /// Controller for handling authentication operations.

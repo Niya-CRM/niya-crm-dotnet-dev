@@ -5,11 +5,11 @@ using NiyaCRM.Core.Identity;
 using Microsoft.EntityFrameworkCore;
 using NiyaCRM.Core.Helpers.Naming;
 using NiyaCRM.Core.AuditLogs;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Referentials;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Core.ValueLists;
-using NiyaCRM.Core.ChangeHistory;
 using NiyaCRM.Core.AppInstallation;
 
 namespace NiyaCRM.Infrastructure.Data

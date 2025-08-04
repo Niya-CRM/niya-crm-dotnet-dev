@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 
-namespace NiyaCRM.Infrastructure.Data.ChangeHistory
+namespace NiyaCRM.Infrastructure.Data.AuditLogs.ChangeHistory
 {
     /// <summary>
     /// Entity Framework configuration for the ChangeHistoryLog entity.

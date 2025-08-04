@@ -1,11 +1,11 @@
-using NiyaCRM.Core.ChangeHistory;
-using NiyaCRM.Core.ChangeHistory.DTOs;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NiyaCRM.Application.ChangeHistory
+namespace NiyaCRM.Application.AuditLogs.ChangeHistory
 {
     /// <summary>
     /// Implementation of the change history log service.

@@ -1,7 +1,7 @@
 using NiyaCRM.Core.Common;
-using NiyaCRM.Core.ChangeHistory.DTOs;
+using NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs;
 
-namespace NiyaCRM.Core.ChangeHistory;
+namespace NiyaCRM.Core.AuditLogs.ChangeHistory;
 
 /// <summary>
 /// Service interface for change history log business operations.

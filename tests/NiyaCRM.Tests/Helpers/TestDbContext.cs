@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NiyaCRM.Core.AuditLogs;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.Referentials;

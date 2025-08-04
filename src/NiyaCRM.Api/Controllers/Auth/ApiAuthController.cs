@@ -10,7 +10,7 @@ using NiyaCRM.Core.Auth.Constants;
 using NiyaCRM.Core.Auth.DTOs;
 using NiyaCRM.Core.Identity;
 
-namespace NiyaCRM.Api.Controllers
+namespace NiyaCRM.Api.Controllers.Auth
 {
     /// <summary>
     /// API Authentication controller for external clients

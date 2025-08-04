@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.Common;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NiyaCRM.Infrastructure.Data.ChangeHistory
+namespace NiyaCRM.Infrastructure.Data.AuditLogs.ChangeHistory
 {
     public class ChangeHistoryLogRepository : IChangeHistoryLogRepository
     {

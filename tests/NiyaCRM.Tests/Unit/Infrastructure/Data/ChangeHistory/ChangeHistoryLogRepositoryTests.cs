@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Infrastructure.Data;
-using NiyaCRM.Infrastructure.Data.ChangeHistory;
+using NiyaCRM.Infrastructure.Data.AuditLogs.ChangeHistory;
 using Shouldly;
 
 namespace NiyaCRM.Tests.Unit.Infrastructure.Data.ChangeHistory

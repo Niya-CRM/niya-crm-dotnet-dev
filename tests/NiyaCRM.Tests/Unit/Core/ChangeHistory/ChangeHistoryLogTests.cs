@@ -1,5 +1,5 @@
 using System;
-using NiyaCRM.Core.ChangeHistory;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using Shouldly;
 using Xunit;
 

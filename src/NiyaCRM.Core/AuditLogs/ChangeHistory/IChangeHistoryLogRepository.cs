@@ -1,6 +1,6 @@
 using NiyaCRM.Core.Common;
 
-namespace NiyaCRM.Core.ChangeHistory;
+namespace NiyaCRM.Core.AuditLogs.ChangeHistory;
 
 /// <summary>
 /// Repository interface for change history log data access operations.

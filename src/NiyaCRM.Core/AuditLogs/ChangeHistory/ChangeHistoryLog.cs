@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace NiyaCRM.Core.ChangeHistory;
+namespace NiyaCRM.Core.AuditLogs.ChangeHistory;
 
 /// <summary>
 /// Represents a change history log entry in the CRM system.
