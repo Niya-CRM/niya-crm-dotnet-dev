@@ -41,8 +41,8 @@ public interface IChangeHistoryLogService
     /// </summary>
     /// <param name="query">The query parameters for filtering change history logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of change history logs matching the filters.</returns>
-    Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
+    /// <returns>A collection of change history logs with display values matching the filters.</returns>
+    Task<IEnumerable<ChangeHistoryLogResponseWithDisplay>> GetChangeHistoryLogsAsync(
         ChangeHistoryLogQueryDto query,
         CancellationToken cancellationToken = default);
 

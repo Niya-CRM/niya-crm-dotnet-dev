@@ -10,10 +10,10 @@
       "Microsoft": "Information",
       "Microsoft.AspNetCore": "Information",
       "Microsoft.Hosting.Lifetime": "Information",
-      "Microsoft.AspNetCore.Authentication": "Information",
-      "Microsoft.AspNetCore.Mvc.Infrastructure": "Information",
-      "Microsoft.EntityFrameworkCore": "Information",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Warning"
+      "Microsoft.AspNetCore.Authentication": "Debug",
+      "Microsoft.AspNetCore.Mvc.Infrastructure": "Debug",
+      "Microsoft.EntityFrameworkCore": "Debug",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Debug"
     }
   }
 }

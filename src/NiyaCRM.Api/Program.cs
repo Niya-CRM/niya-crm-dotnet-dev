@@ -16,6 +16,9 @@ using NiyaCRM.Infrastructure.Data.Tenants;
 using NiyaCRM.Core.AuditLogs;
 using NiyaCRM.Application.AuditLogs;
 using NiyaCRM.Infrastructure.Data.AuditLogs;
+using NiyaCRM.Core.AuditLogs.ChangeHistory;
+using NiyaCRM.Application.AuditLogs.ChangeHistory;
+using NiyaCRM.Infrastructure.Data.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Application.DynamicObjects;
 using NiyaCRM.Infrastructure.Data.DynamicObjects;
@@ -80,7 +83,7 @@ builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, Activate
 builder.Services.AddHttpContextAccessor();
 
 // Register ApplicationDbContext with PostgreSQL
-builder.Services.AddPostgreSqlDbContext(builder.Configuration);
+builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
 
 // Configure Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
@@ -139,6 +142,10 @@ builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 // Register AuditLog Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+// Register ChangeHistoryLog Services
+builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
+builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
 
 // Register DynamicObject Services
 builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();

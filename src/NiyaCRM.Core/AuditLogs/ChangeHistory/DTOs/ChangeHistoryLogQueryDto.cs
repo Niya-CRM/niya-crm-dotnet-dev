@@ -7,8 +7,8 @@ namespace NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs
     /// </summary>
     public class ChangeHistoryLogQueryDto
     {
-        public string? ObjectKey { get; set; }
-        public Guid? ObjectItemId { get; set; }
+        public required string ObjectKey { get; set; }
+        public required Guid ObjectItemId { get; set; }
         public string? FieldName { get; set; }
         public Guid? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
