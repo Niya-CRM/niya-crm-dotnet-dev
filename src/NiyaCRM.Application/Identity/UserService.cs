@@ -28,6 +28,22 @@ public class UserService : IUserService
     private const string USER_CACHE_KEY_PREFIX = "user_";
 
     /// <summary>
+    /// Gets the current user's unique identifier from claims.
+    /// </summary>
+    /// <returns>The current user's Guid.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
+    public Guid GetCurrentUserId()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdStr))
+            throw new InvalidOperationException("User id claim not found in current context.");
+        if (!Guid.TryParse(userIdStr, out var userId))
+            throw new InvalidOperationException("User id claim is not a valid Guid.");
+        return userId;
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="UserService"/> class.
     /// </summary>
     /// <param name="userManager">The user manager.</param>

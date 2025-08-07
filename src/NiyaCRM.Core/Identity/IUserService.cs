@@ -72,4 +72,10 @@ public interface IUserService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user's full name if found in cache, otherwise null.</returns>
     Task<string> GetUserFullNameFromCacheAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Gets the current user's unique identifier from claims.
+    /// </summary>
+    /// <returns>The current user's Guid.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
+    Guid GetCurrentUserId();
 }

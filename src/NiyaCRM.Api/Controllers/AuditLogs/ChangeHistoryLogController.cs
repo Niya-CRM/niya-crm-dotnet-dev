@@ -7,12 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace NiyaCRM.Api.Controllers.AuditLogs
 {
     /// <summary>
     /// Controller for managing change history logs.
     /// </summary>
+    [Authorize]
     [ApiController]
     [Route("audit-logs/change-history-logs")]
     public class ChangeHistoryLogController : ControllerBase
