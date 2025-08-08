@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NiyaCRM.Api.Common;
 using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs;
+using NiyaCRM.Core.Common.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -45,7 +46,7 @@ namespace NiyaCRM.Api.Controllers.AuditLogs
         /// <response code="200">Returns the list of change history logs.</response>
         /// <response code="400">If the query parameters are invalid.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ChangeHistoryLogResponseWithDisplay>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<EntityDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetChangeHistoryLogs(
             [FromQuery] ChangeHistoryLogQueryDto query,

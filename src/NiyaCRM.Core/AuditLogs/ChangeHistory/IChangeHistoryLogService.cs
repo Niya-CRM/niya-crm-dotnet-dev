@@ -1,5 +1,6 @@
 using NiyaCRM.Core.Common;
 using NiyaCRM.Core.AuditLogs.ChangeHistory.DTOs;
+using NiyaCRM.Core.Common.Response;
 
 namespace NiyaCRM.Core.AuditLogs.ChangeHistory;
 
@@ -42,7 +43,7 @@ public interface IChangeHistoryLogService
     /// <param name="query">The query parameters for filtering change history logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of change history logs with display values matching the filters.</returns>
-    Task<IEnumerable<ChangeHistoryLogResponseWithDisplay>> GetChangeHistoryLogsAsync(
+    Task<IEnumerable<EntityDto>> GetChangeHistoryLogsAsync(
         ChangeHistoryLogQueryDto query,
         CancellationToken cancellationToken = default);
 

@@ -9,18 +9,25 @@ using NiyaCRM.Application.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using Shouldly;
 using Xunit;
+using NiyaCRM.Core.Identity;
+using NiyaCRM.Core.Common.Response;
 
 namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
 {
     public class ChangeHistoryLogServiceTests
     {
         private readonly Mock<IChangeHistoryLogRepository> _mockRepository;
+        private readonly Mock<IUserService> _mockUserService;
         private readonly ChangeHistoryLogService _service;
 
         public ChangeHistoryLogServiceTests()
         {
             _mockRepository = new Mock<IChangeHistoryLogRepository>();
-            _service = new ChangeHistoryLogService(_mockRepository.Object);
+            _mockUserService = new Mock<IUserService>();
+            _mockUserService
+                .Setup(s => s.GetUserFullNameFromCacheAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("Test User");
+            _service = new ChangeHistoryLogService(_mockRepository.Object, _mockUserService.Object);
         }
 
         [Fact]
@@ -148,7 +155,12 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(expectedLogs);
+            result.Count().ShouldBe(expectedLogs.Count);
+            var entity = result.First();
+            entity.Fields["ObjectKey"].FieldValue.ShouldBe(objectKey);
+            entity.Fields["ObjectItemId"].FieldValue.ShouldBe(objectItemId.ToString());
+            entity.Fields["FieldName"].FieldValue.ShouldBe(fieldName);
+            entity.Fields["CreatedBy"].DisplayValue.ShouldBe("Test User");
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 objectKey,
