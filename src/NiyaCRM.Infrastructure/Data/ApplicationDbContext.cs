@@ -9,6 +9,7 @@ using NiyaCRM.Core.AuditLogs.ChangeHistory;
 using NiyaCRM.Core.Tenants;
 using NiyaCRM.Core.Referentials;
 using NiyaCRM.Core.DynamicObjects;
+using NiyaCRM.Core.DynamicObjects.Fields;
 using NiyaCRM.Core.ValueLists;
 using NiyaCRM.Core.AppInstallation;
 
@@ -40,6 +41,8 @@ namespace NiyaCRM.Infrastructure.Data
         public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
         public DbSet<AppInstallationStatus> AppInstallationStatus { get; set; } = null!;
         public DbSet<Permission> Permissions { get; set; } = null!;
+        public DbSet<DynamicObjectField> DynamicObjectFields { get; set; } = null!;
+        public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

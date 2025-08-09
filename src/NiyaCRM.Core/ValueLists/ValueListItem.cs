@@ -20,16 +20,16 @@ public class ValueListItem
     /// Gets or sets the name of the value list item.
     /// </summary>
     [Required]
-    [StringLength(50)]
-    [Column(TypeName = "varchar(50)")]
+    [StringLength(255)]
+    [Column(TypeName = "varchar(255)")]
     public string ItemName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the key of the value list item.
     /// </summary>
     [Required]
-    [StringLength(60)]
-    [Column(TypeName = "varchar(60)")]
+    [StringLength(255)]
+    [Column(TypeName = "varchar(255)")]
     public string ItemValue { get; set; } = string.Empty;
 
     /// <summary>
@@ -48,8 +48,7 @@ public class ValueListItem
     /// Gets or sets a value indicating whether the value list item is active.
     /// </summary>
     [Required]
-    [Column(TypeName = "varchar(1)")]
-    public string IsActive { get; set; } = "Y";
+    public bool IsActive { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the date and time when the value list item was created.
@@ -90,7 +89,7 @@ public class ValueListItem
         string itemName,
         string itemValue,
         Guid valueListId,
-        string isActive,
+        bool isActive,
         Guid createdBy)
     {
         Id = id;

@@ -68,6 +68,11 @@ public class DynamicObject
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
+    /// Gets or sets the date and time when the dynamic object was deleted.
+    /// </summary>
+    public DateTime? DeletedAt { get; set; }
+
+    /// <summary>
     /// Gets or sets the date and time when the dynamic object was last updated.
     /// </summary>
     public DateTime UpdatedAt { get; set; }

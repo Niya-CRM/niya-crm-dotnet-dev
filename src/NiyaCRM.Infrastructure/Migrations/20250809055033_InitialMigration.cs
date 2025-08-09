@@ -90,6 +90,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                     description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     object_type = table.Column<string>(type: "varchar(10)", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false)
@@ -200,7 +201,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                     name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     value_list_type = table.Column<string>(type: "varchar(10)", nullable: false),
-                    is_active = table.Column<string>(type: "varchar(1)", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    allow_modify = table.Column<bool>(type: "boolean", nullable: false),
+                    allow_new_item = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -326,14 +329,94 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "dynamic_object_field_types",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    field_type_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    min_length = table.Column<int>(type: "integer", nullable: true),
+                    max_length = table.Column<int>(type: "integer", nullable: true),
+                    decimals = table.Column<int>(type: "integer", nullable: true),
+                    max_file_size = table.Column<int>(type: "integer", nullable: true),
+                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    min_file_count = table.Column<int>(type: "integer", nullable: true),
+                    max_file_count = table.Column<int>(type: "integer", nullable: true),
+                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_dynamic_object_field_types", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_dynamic_object_field_types_value_lists_value_list_id",
+                        column: x => x.value_list_id,
+                        principalTable: "value_lists",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "dynamic_object_fields",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    object_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    field_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    label = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    field_type = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    indexed = table.Column<bool>(type: "boolean", nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    help_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    placeholder = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: true),
+                    required = table.Column<bool>(type: "boolean", nullable: false),
+                    unique = table.Column<bool>(type: "boolean", nullable: false),
+                    min_length = table.Column<int>(type: "integer", nullable: true),
+                    max_length = table.Column<int>(type: "integer", nullable: true),
+                    decimals = table.Column<int>(type: "integer", nullable: true),
+                    max_file_size = table.Column<int>(type: "integer", nullable: true),
+                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    min_file_count = table.Column<int>(type: "integer", nullable: true),
+                    max_file_count = table.Column<int>(type: "integer", nullable: true),
+                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    editable_after_submission = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_create = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_edit = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_view = table.Column<bool>(type: "boolean", nullable: false),
+                    audit_changes = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_dynamic_object_fields", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_dynamic_object_fields_value_lists_value_list_id",
+                        column: x => x.value_list_id,
+                        principalTable: "value_lists",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "value_list_items",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    item_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    item_value = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    item_name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    item_value = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     value_list_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    is_active = table.Column<string>(type: "varchar(1)", nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -379,6 +462,21 @@ namespace NiyaCRM.Infrastructure.Migrations
                 name: "ix_change_history_logs_object_key_object_item_id_field_name_cr~",
                 table: "change_history_logs",
                 columns: new[] { "object_key", "object_item_id", "field_name", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_dynamic_object_field_types_value_list_id",
+                table: "dynamic_object_field_types",
+                column: "value_list_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_dynamic_object_fields_object_key",
+                table: "dynamic_object_fields",
+                column: "object_key");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_dynamic_object_fields_value_list_id",
+                table: "dynamic_object_fields",
+                column: "value_list_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_objects_object_key",
@@ -471,6 +569,12 @@ namespace NiyaCRM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "countries");
+
+            migrationBuilder.DropTable(
+                name: "dynamic_object_field_types");
+
+            migrationBuilder.DropTable(
+                name: "dynamic_object_fields");
 
             migrationBuilder.DropTable(
                 name: "dynamic_objects");

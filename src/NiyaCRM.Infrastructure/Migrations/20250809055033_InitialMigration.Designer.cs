@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250803211345_InitialMigration")]
+    [Migration("20250809055033_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -206,7 +206,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.ToTable("audit_logs");
                 });
 
-            modelBuilder.Entity("NiyaCRM.Core.ChangeHistory.ChangeHistoryLog", b =>
+            modelBuilder.Entity("NiyaCRM.Core.AuditLogs.ChangeHistory.ChangeHistoryLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -277,6 +277,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -328,6 +332,252 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasDatabaseName("ix_dynamic_objects_object_key");
 
                     b.ToTable("dynamic_objects");
+                });
+
+            modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.Fields.DynamicObjectField", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AllowedFileTypes")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("allowed_file_types");
+
+                    b.Property<bool>("AuditChanges")
+                        .HasColumnType("boolean")
+                        .HasColumnName("audit_changes");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int?>("Decimals")
+                        .HasColumnType("integer")
+                        .HasColumnName("decimals");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("EditableAfterSubmission")
+                        .HasColumnType("boolean")
+                        .HasColumnName("editable_after_submission");
+
+                    b.Property<string>("FieldKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("field_key");
+
+                    b.Property<string>("FieldType")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("field_type");
+
+                    b.Property<string>("HelpText")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("help_text");
+
+                    b.Property<bool>("Indexed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("indexed");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("label");
+
+                    b.Property<int?>("MaxFileCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_file_count");
+
+                    b.Property<int?>("MaxFileSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_file_size");
+
+                    b.Property<int?>("MaxLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_length");
+
+                    b.Property<int?>("MaxSelectedItems")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_selected_items");
+
+                    b.Property<int?>("MinFileCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_file_count");
+
+                    b.Property<int?>("MinLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_length");
+
+                    b.Property<int?>("MinSelectedItems")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_selected_items");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("object_key");
+
+                    b.Property<string>("Placeholder")
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("placeholder");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("boolean")
+                        .HasColumnName("required");
+
+                    b.Property<bool>("Unique")
+                        .HasColumnType("boolean")
+                        .HasColumnName("unique");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid?>("ValueListId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("value_list_id");
+
+                    b.Property<bool>("VisibleOnCreate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_on_create");
+
+                    b.Property<bool>("VisibleOnEdit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_on_edit");
+
+                    b.Property<bool>("VisibleOnView")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_on_view");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dynamic_object_fields");
+
+                    b.HasIndex("ObjectKey")
+                        .HasDatabaseName("ix_dynamic_object_fields_object_key");
+
+                    b.HasIndex("ValueListId")
+                        .HasDatabaseName("ix_dynamic_object_fields_value_list_id");
+
+                    b.ToTable("dynamic_object_fields", (string)null);
+                });
+
+            modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.Fields.DynamicObjectFieldType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AllowedFileTypes")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("allowed_file_types");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int?>("Decimals")
+                        .HasColumnType("integer")
+                        .HasColumnName("decimals");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("FieldTypeKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("field_type_key");
+
+                    b.Property<int?>("MaxFileCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_file_count");
+
+                    b.Property<int?>("MaxFileSize")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_file_size");
+
+                    b.Property<int?>("MaxLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_length");
+
+                    b.Property<int?>("MaxSelectedItems")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_selected_items");
+
+                    b.Property<int?>("MinFileCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_file_count");
+
+                    b.Property<int?>("MinLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_length");
+
+                    b.Property<int?>("MinSelectedItems")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_selected_items");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid?>("ValueListId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("value_list_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dynamic_object_field_types");
+
+                    b.HasIndex("ValueListId")
+                        .HasDatabaseName("ix_dynamic_object_field_types_value_list_id");
+
+                    b.ToTable("dynamic_object_field_types");
                 });
 
             modelBuilder.Entity("NiyaCRM.Core.Identity.ApplicationRole", b =>
@@ -758,6 +1008,14 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<bool>("AllowModify")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_modify");
+
+                    b.Property<bool>("AllowNewItem")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_new_item");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -772,9 +1030,8 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("description");
 
-                    b.Property<string>("IsActive")
-                        .IsRequired()
-                        .HasColumnType("varchar(1)")
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
                     b.Property<string>("Name")
@@ -817,21 +1074,20 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<string>("IsActive")
-                        .IsRequired()
-                        .HasColumnType("varchar(1)")
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
                     b.Property<string>("ItemName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("item_name");
 
                     b.Property<string>("ItemValue")
                         .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("item_value");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -884,6 +1140,24 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.Fields.DynamicObjectField", b =>
+                {
+                    b.HasOne("NiyaCRM.Core.ValueLists.ValueList", "ValueList")
+                        .WithMany()
+                        .HasForeignKey("ValueListId");
+
+                    b.Navigation("ValueList");
+                });
+
+            modelBuilder.Entity("NiyaCRM.Core.DynamicObjects.Fields.DynamicObjectFieldType", b =>
+                {
+                    b.HasOne("NiyaCRM.Core.ValueLists.ValueList", "ValueList")
+                        .WithMany()
+                        .HasForeignKey("ValueListId");
+
+                    b.Navigation("ValueList");
                 });
 
             modelBuilder.Entity("NiyaCRM.Core.Identity.ApplicationRoleClaim", b =>

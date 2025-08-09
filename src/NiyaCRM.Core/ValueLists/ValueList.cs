@@ -33,7 +33,7 @@ public class ValueList
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the value list type.
+    /// Gets or sets the value list type - Standard or Custom
     /// </summary>
     [Required]
     [Column(TypeName = "varchar(10)")]
@@ -43,8 +43,19 @@ public class ValueList
     /// Gets or sets a value indicating whether the value list is active.
     /// </summary>
     [Required]
-    [Column(TypeName = "varchar(1)")]
-    public string IsActive { get; set; } = "Y";
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether allowed to modify.
+    /// </summary>
+    [Required]
+    public bool AllowModify { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether allowed to add new item.
+    /// </summary>
+    [Required]
+    public bool AllowNewItem { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the date and time when the value list was created.
@@ -85,7 +96,9 @@ public class ValueList
         string name,
         string description,
         string valueListTypeId,
-        string isActive,
+        bool isActive,
+        bool allowModify,
+        bool allowNewItem,
         Guid createdBy)
     {
         Id = id;
@@ -93,6 +106,8 @@ public class ValueList
         Description = description;
         ValueListType = valueListTypeId;
         IsActive = isActive;
+        AllowModify = allowModify;
+        AllowNewItem = allowNewItem;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
