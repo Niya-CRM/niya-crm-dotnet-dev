@@ -151,6 +151,10 @@ builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogReposito
 builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
 builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
 
+// Register DynamicObject Field Type Services
+builder.Services.AddScoped<NiyaCRM.Core.DynamicObjects.Fields.IDynamicObjectFieldRepository, NiyaCRM.Infrastructure.Data.DynamicObjects.Fields.DynamicObjectFieldRepository>();
+builder.Services.AddScoped<NiyaCRM.Core.DynamicObjects.Fields.IDynamicObjectFieldService, NiyaCRM.Application.DynamicObjects.Fields.DynamicObjectFieldService>();
+
 // Register User Services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
