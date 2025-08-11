@@ -10,6 +10,7 @@ using NiyaCRM.Core.AppInstallation;
 using NiyaCRM.Core.AppInstallation.AppInitialisation;
 using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.DynamicObjects;
+using NiyaCRM.Core.DynamicObjects.Fields;
 using NiyaCRM.Infrastructure.Data;
 using NiyaCRM.Core.Common;
 using NiyaCRM.Core.ValueLists;
@@ -45,6 +46,12 @@ namespace NiyaCRM.AppInstallation.Services
             }),
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 6, "Initialize Countries", async () => {
                 await InitializeCountriesAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 7, "Initialize Currencies", async () => {
+                await InitializeCurrenciesAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Field Types", async () => {
+                await InitializeFieldTypesAsync();
             }),
         ];
 
@@ -421,6 +428,317 @@ namespace NiyaCRM.AppInstallation.Services
             }
         }
         
+        private async Task InitializeCurrenciesAsync()
+        {
+            _logger.LogInformation("Starting to initialize currencies from JSON file");
+            
+            try
+            {
+                // Read currencies from JSON file
+                string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "currencies.json");
+                
+                // If the file is not found in the output directory, try to find it in the project directory
+                if (!File.Exists(jsonFilePath))
+                {
+                    string projectDir = AppDomain.CurrentDomain.BaseDirectory;
+                    // Navigate up to find the project directory
+                    var parentDir = Directory.GetParent(projectDir);
+                    while (parentDir != null && !Directory.Exists(Path.Combine(projectDir, "Data")))
+                    {
+                        projectDir = parentDir.FullName;
+                        parentDir = Directory.GetParent(projectDir);
+                    }
+                    
+                    jsonFilePath = Path.Combine(projectDir, "Data", "currencies.json");
+                }
+                
+                _logger.LogInformation("Reading currencies from: {FilePath}", jsonFilePath);
+                
+                if (!File.Exists(jsonFilePath))
+                {
+                    _logger.LogCritical("Currencies JSON file not found at: {FilePath}", jsonFilePath);
+                    return;
+                }
+                
+                string jsonContent = await File.ReadAllTextAsync(jsonFilePath);
+                
+                // Deserialize JSON to currency objects
+                var jsonCurrencies = System.Text.Json.JsonSerializer.Deserialize<List<CurrencyJsonModel>>(jsonContent);
+                
+                if (jsonCurrencies == null || jsonCurrencies.Count == 0)
+                {
+                    _logger.LogError("No currencies found in JSON file or deserialization failed");
+                    return;
+                }
+                
+                _logger.LogInformation("Found {Count} currencies in JSON file", jsonCurrencies.Count);
+                
+                // Normalize and order
+                var currencies = jsonCurrencies
+                    .Select(c => new {
+                        Code = c.code?.Trim() ?? string.Empty,
+                        Name = c.name?.Trim() ?? string.Empty
+                    })
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Code) && !string.IsNullOrWhiteSpace(c.Name))
+                    .OrderBy(c => c.Name)
+                    .ToList();
+                
+                // Create or get ValueList 'Currencies' and add items (Code, Name)
+                var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                
+                var currenciesList = await _dbContext.ValueLists
+                    .FirstOrDefaultAsync(v => v.Name == "Currencies");
+                
+                if (currenciesList == null)
+                {
+                    currenciesList = new ValueList(
+                        Guid.CreateVersion7(),
+                        name: "Currencies",
+                        description: "List of currencies",
+                        valueListTypeId: ValueListConstants.ValueListTypes.Standard,
+                        isActive: true,
+                        allowModify: true,
+                        allowNewItem: true,
+                        createdBy: defaultUser
+                    );
+                    _dbContext.ValueLists.Add(currenciesList);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Created ValueList 'Currencies' with ID: {Id}", currenciesList.Id);
+                }
+                
+                // Existing item values (currency codes) for this list
+                var existingItemValues = await _dbContext.ValueListItems
+                    .Where(i => i.ValueListId == currenciesList.Id)
+                    .Select(i => i.ItemValue)
+                    .ToListAsync();
+                
+                var newValueListItems = currencies
+                    .Where(c => !existingItemValues.Contains(c.Code))
+                    .Select(c => new ValueListItem(
+                        Guid.CreateVersion7(),
+                        itemName: c.Name,
+                        itemValue: c.Code,
+                        valueListId: currenciesList.Id,
+                        isActive: true,
+                        createdBy: defaultUser
+                    ))
+                    .ToList();
+                
+                if (newValueListItems.Count > 0)
+                {
+                    await _dbContext.ValueListItems.AddRangeAsync(newValueListItems);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} currencies to ValueList 'Currencies' as items", newValueListItems.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to initialize currencies");
+            }
+        }
+        
+        private async Task InitializeFieldTypesAsync()
+        {
+            _logger.LogInformation("Starting to initialize dynamic object field types");
+            
+            try
+            {
+                var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                var now = DateTime.UtcNow;
+                
+                // Define desired field types with recommended configs
+                var desired = new List<DynamicObjectFieldType>
+                {
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Auto Number", FieldTypeKey = "auto-number",
+                        Description = "Automatically incrementing number",
+                        Decimals = 0,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Text (Single Line)", FieldTypeKey = "text",
+                        Description = "Single-line text",
+                        MaxLength = 255,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Text Area (Multi-line)", FieldTypeKey = "textarea",
+                        Description = "Multi-line text",
+                        MaxLength = 2000,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Text Area (Large)", FieldTypeKey = "textarea-large",
+                        Description = "Large multi-line text",
+                        MaxLength = 32768,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Text Area (Rich/Html)", FieldTypeKey = "textarea-rich",
+                        Description = "Rich text / HTML",
+                        MaxLength = 65536,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Number (integer)", FieldTypeKey = "number-int",
+                        Description = "Integer number",
+                        Decimals = 0,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Number Decimal", FieldTypeKey = "number-decimal",
+                        Description = "Decimal number",
+                        Decimals = 2,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Currency", FieldTypeKey = "currency",
+                        Description = "Currency with code",
+                        Decimals = 2,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Percent", FieldTypeKey = "percent",
+                        Description = "Percentage value",
+                        Decimals = 2,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Date", FieldTypeKey = "date",
+                        Description = "Date picker",
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Date & Time", FieldTypeKey = "date-time",
+                        Description = "Date and time picker",
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Email", FieldTypeKey = "email",
+                        Description = "Email address",
+                        MaxLength = 255,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Phone", FieldTypeKey = "phone",
+                        Description = "Phone number",
+                        MaxLength = 30,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Link", FieldTypeKey = "link",
+                        Description = "URL / hyperlink",
+                        MaxLength = 2048,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Credit Card Number", FieldTypeKey = "credit-card",
+                        Description = "Credit card number",
+                        MaxLength = 19,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "File", FieldTypeKey = "file",
+                        Description = "File upload",
+                        MaxFileSize = 25,
+                        AllowedFileTypes = "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,zip,jpg,jpeg,png",
+                        MinFileCount = 0,
+                        MaxFileCount = 1,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Image", FieldTypeKey = "image",
+                        Description = "Image upload",
+                        MaxFileSize = 10,
+                        AllowedFileTypes = "jpg,jpeg,png",
+                        MinFileCount = 0,
+                        MaxFileCount = 1,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Dropdown (single select)", FieldTypeKey = "dropdown-single",
+                        Description = "Dropdown with single selection",
+                        MinSelectedItems = 0, MaxSelectedItems = 1,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Dropdown (multi select)", FieldTypeKey = "dropdown-multi",
+                        Description = "Dropdown with multiple selection",
+                        MinSelectedItems = 0,
+                        MaxSelectedItems = 50,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Checkbox (multi)", FieldTypeKey = "checkbox-multi",
+                        Description = "Multiple checkboxes",
+                        MinSelectedItems = 0,
+                        MaxSelectedItems = 50,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Checkbox (Boolean)", FieldTypeKey = "checkbox-boolean",
+                        Description = "Single checkbox (true/false)",
+                        MinSelectedItems = 0,
+                        MaxSelectedItems = 1,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                    new()
+                    {
+                        Id = Guid.CreateVersion7(), Name = "Radio / varchar(255)", FieldTypeKey = "radio",
+                        Description = "Radio button (single choice)",
+                        MinSelectedItems = 0,
+                        MaxSelectedItems = 1,
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                    },
+                };
+                
+                var existingKeys = await _dbContext.DynamicObjectFieldTypes
+                    .AsNoTracking()
+                    .Select(x => x.FieldTypeKey)
+                    .ToListAsync();
+                
+                var toInsert = desired
+                    .Where(d => !existingKeys.Contains(d.FieldTypeKey))
+                    .ToList();
+                
+                if (toInsert.Count > 0)
+                {
+                    await _dbContext.DynamicObjectFieldTypes.AddRangeAsync(toInsert);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} dynamic object field types", toInsert.Count);
+                }
+                else
+                {
+                    _logger.LogInformation("No new dynamic object field types to add");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to initialize dynamic object field types");
+            }
+        }
+        
         // Model class for deserializing the JSON country data
         private sealed class CountryJsonModel
         {
@@ -428,6 +746,13 @@ namespace NiyaCRM.AppInstallation.Services
             public string? Country_Code { get; init; }
             public string? Country_Code_Alpha_3 { get; init; }
             public string? Active { get; init; }
+        }
+        
+        // Model class for deserializing the JSON currency data
+        private sealed class CurrencyJsonModel
+        {
+            public string? code { get; init; }
+            public string? name { get; init; }
         }
         
         private async Task AssignPermissionsToRolesAsync()
