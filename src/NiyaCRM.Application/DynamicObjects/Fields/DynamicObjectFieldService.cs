@@ -36,47 +36,54 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectKeyAsync(string objectKey, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(objectKey))
-            throw new ArgumentException("Object key cannot be null or empty.", nameof(objectKey));
+        if (objectId == Guid.Empty)
+            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
-        var normalizedKey = objectKey.Trim();
-        _logger.LogDebug("Fetching DynamicObjectFields for ObjectKey: {ObjectKey}", normalizedKey);
-        return await _repository.GetFieldsByObjectKeyAsync(normalizedKey, cancellationToken);
+        _logger.LogDebug("Fetching DynamicObjectFields for ObjectId: {ObjectId}", objectId);
+        return await _repository.GetFieldsByObjectIdAsync(objectId, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField?> GetFieldByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Fetching DynamicObjectField by ID: {Id}", id);
-        return await _repository.GetFieldByIdAsync(id, cancellationToken);
+        if (objectId == Guid.Empty)
+            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+
+        _logger.LogDebug("Fetching DynamicObjectField by ID: {Id} for ObjectId: {ObjectId}", id, objectId);
+        return await _repository.GetFieldByIdAsync(objectId, id, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField> AddFieldAsync(DynamicObjectField field, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField> AddFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(field);
-        _logger.LogDebug("Adding DynamicObjectField for ObjectKey: {ObjectKey}, FieldKey: {FieldKey}", field.ObjectKey, field.FieldKey);
-        return await _repository.AddFieldAsync(field, cancellationToken);
+        if (objectId == Guid.Empty)
+            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+
+        _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId}, FieldKey: {FieldKey}", objectId, field.FieldKey);
+        return await _repository.AddFieldAsync(objectId, field, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField> UpdateFieldAsync(DynamicObjectField field, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(field);
-        _logger.LogDebug("Updating DynamicObjectField ID: {Id}", field.Id);
-        return await _repository.UpdateFieldAsync(field, cancellationToken);
+        if (objectId == Guid.Empty)
+            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+
+        _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", field.Id, objectId);
+        return await _repository.UpdateFieldAsync(objectId, field, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteFieldAsync(string objectKey, Guid fieldId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(objectKey))
-            throw new ArgumentException("Object key cannot be null or empty.", nameof(objectKey));
+        if (objectId == Guid.Empty)
+            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
-        var normalizedKey = objectKey.Trim();
-        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectKey: {ObjectKey}", fieldId, normalizedKey);
-        return await _repository.DeleteFieldAsync(normalizedKey, fieldId, cancellationToken);
+        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", fieldId, objectId);
+        return await _repository.DeleteFieldAsync(objectId, fieldId, cancellationToken);
     }
 }

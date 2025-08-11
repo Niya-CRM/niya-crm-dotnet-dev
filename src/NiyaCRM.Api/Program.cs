@@ -25,6 +25,9 @@ using NiyaCRM.Infrastructure.Data.DynamicObjects;
 using NiyaCRM.Application.Identity;
 using NiyaCRM.Infrastructure.Data.Identity;
 using NiyaCRM.Core;
+using NiyaCRM.Core.ValueLists;
+using NiyaCRM.Application.ValueLists;
+using NiyaCRM.Infrastructure.Data.ValueLists;
 using Serilog;
 using System.Reflection;
 using System.Text;
@@ -162,6 +165,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Register ReferenceData Services
 builder.Services.AddScoped<NiyaCRM.Core.Referentials.ICountryRepository, NiyaCRM.Infrastructure.Data.ReferenceData.CountryRepository>();
 builder.Services.AddScoped<NiyaCRM.Core.Referentials.IReferenceDataService, NiyaCRM.Application.Referentials.ReferenceDataService>();
+
+// Register ValueList Services
+builder.Services.AddScoped<IValueListRepository, ValueListRepository>();
+builder.Services.AddScoped<IValueListService, ValueListService>();
+builder.Services.AddScoped<IValueListItemRepository, ValueListItemRepository>();
+builder.Services.AddScoped<IValueListItemService, ValueListItemService>();
 
 // Register Cache Services
 builder.Services.AddMemoryCache();

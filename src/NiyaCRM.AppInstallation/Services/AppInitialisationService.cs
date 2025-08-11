@@ -12,6 +12,7 @@ using NiyaCRM.Core.Identity;
 using NiyaCRM.Core.DynamicObjects;
 using NiyaCRM.Infrastructure.Data;
 using NiyaCRM.Core.Common;
+using NiyaCRM.Core.ValueLists;
 
 namespace NiyaCRM.AppInstallation.Services
 {
@@ -358,31 +359,60 @@ namespace NiyaCRM.AppInstallation.Services
                 _logger.LogInformation("Found {Count} countries in JSON file", jsonCountries.Count);
                 
                 // Convert JSON model to Country entities
-                var countries = jsonCountries.Select(c => new NiyaCRM.Core.Referentials.Country(
-                    c.Country_Name?.Trim() ?? string.Empty,
-                    c.Country_Code?.Trim() ?? string.Empty,
-                    c.Country_Code_Alpha_3?.Trim() ?? string.Empty,
-                    c.Active?.Trim() ?? "Y"
-                )).ToList();
-                
-                // Check if countries already exist
-                var existingCountryCodes = await _dbContext.Set<NiyaCRM.Core.Referentials.Country>()
-                    .Select(c => c.CountryCode)
-                    .ToListAsync();
-                
-                // Filter out countries that already exist
-                var newCountries = countries.Where(c => !existingCountryCodes.Contains(c.CountryCode)).ToList();
-                
-                if (newCountries.Count > 0)
+                var countries = jsonCountries.Select(c => new {
+                    CountryName = c.Country_Name?.Trim() ?? string.Empty,
+                    CountryCode = c.Country_Code?.Trim() ?? string.Empty,
+                    CountryCodeAlpha3 = c.Country_Code_Alpha_3?.Trim() ?? string.Empty,
+                    IsActive = c.Active?.Trim() ?? "Y"
+                }).OrderBy(c => c.CountryName).ToList();
+
+                // Create or get ValueList 'Countries' and add items (Country Code, Country Name)
+                var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+
+                var countriesList = await _dbContext.ValueLists
+                    .FirstOrDefaultAsync(v => v.Name == "Countries");
+
+                if (countriesList == null)
                 {
-                    // Add new countries
-                    await _dbContext.Set<NiyaCRM.Core.Referentials.Country>().AddRangeAsync(newCountries);
+                    countriesList = new ValueList(
+                        Guid.CreateVersion7(),
+                        name: "Countries",
+                        description: "List of countries",
+                        valueListTypeId: ValueListConstants.ValueListTypes.Standard,
+                        isActive: true,
+                        allowModify: true,
+                        allowNewItem: true,
+                        createdBy: defaultUser
+                    );
+                    _dbContext.ValueLists.Add(countriesList);
                     await _dbContext.SaveChangesAsync();
-                    _logger.LogInformation("Added {Count} new countries", newCountries.Count);
+                    _logger.LogInformation("Created ValueList 'Countries' with ID: {Id}", countriesList.Id);
                 }
-                else
+
+                // Existing item values (country codes) for this list
+                var existingItemValues = await _dbContext.ValueListItems
+                    .Where(i => i.ValueListId == countriesList.Id)
+                    .Select(i => i.ItemValue)
+                    .ToListAsync();
+
+                var newValueListItems = countries
+                    .Where(c => !string.IsNullOrWhiteSpace(c.CountryCode))
+                    .Where(c => !existingItemValues.Contains(c.CountryCode))
+                    .Select(c => new ValueListItem(
+                        Guid.CreateVersion7(),
+                        itemName: c.CountryName,
+                        itemValue: c.CountryCode,
+                        valueListId: countriesList.Id,
+                        isActive: string.Equals(c.IsActive, "Y", StringComparison.OrdinalIgnoreCase),
+                        createdBy: defaultUser
+                    ))
+                    .ToList();
+
+                if (newValueListItems.Count > 0)
                 {
-                    _logger.LogInformation("No new countries to add");
+                    await _dbContext.ValueListItems.AddRangeAsync(newValueListItems);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} countries to ValueList 'Countries' as items", newValueListItems.Count);
                 }
             }
             catch (Exception ex)

@@ -77,21 +77,21 @@ public class DynamicObjectController : ControllerBase
     /// <summary>
     /// Gets a dynamic object by its identifier.
     /// </summary>
-    /// <param name="id">The dynamic object identifier.</param>
+    /// <param name="objectId">The dynamic object identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found.</returns>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{objectId:guid}")]
     [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DynamicObject>> GetDynamicObjectById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<DynamicObject>> GetDynamicObjectById(Guid objectId, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", id);
+        _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", objectId);
         
-        var dynamicObject = await _dynamicObjectService.GetDynamicObjectByIdAsync(id, cancellationToken);
+        var dynamicObject = await _dynamicObjectService.GetDynamicObjectByIdAsync(objectId, cancellationToken);
         if (dynamicObject == null)
         {
-            _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", id);
-            return this.CreateNotFoundProblem($"Dynamic object with ID '{id}' not found.");
+            _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", objectId);
+            return this.CreateNotFoundProblem($"Dynamic object with ID '{objectId}' not found.");
         }
 
         return Ok(dynamicObject);
@@ -129,40 +129,40 @@ public class DynamicObjectController : ControllerBase
     /// <summary>
     /// Updates an existing dynamic object.
     /// </summary>
-    /// <param name="id">The dynamic object identifier.</param>
+    /// <param name="objectId">The dynamic object identifier.</param>
     /// <param name="request">The dynamic object update request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated dynamic object.</returns>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{objectId:guid}")]
     [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObject>> UpdateDynamicObject(Guid id, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<DynamicObject>> UpdateDynamicObject(Guid objectId, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
 
-        var dynamicObject = await _dynamicObjectService.GetDynamicObjectByIdAsync(id, cancellationToken);
+        var dynamicObject = await _dynamicObjectService.GetDynamicObjectByIdAsync(objectId, cancellationToken);
         if (dynamicObject == null)
         {
-            _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", id);
-            return this.CreateNotFoundProblem($"Dynamic object with ID '{id}' not found.");
+            _logger.LogWarning("Dynamic object not found: {DynamicObjectId}", objectId);
+            return this.CreateNotFoundProblem($"Dynamic object with ID '{objectId}' not found.");
         }
 
         try
         {
-            _logger.LogInformation("Updating dynamic object: {DynamicObjectId}", id);
+            _logger.LogInformation("Updating dynamic object: {DynamicObjectId}", objectId);
             
             var updatedDynamicObject = await _dynamicObjectService.UpdateDynamicObjectAsync(
-                id, 
+                objectId, 
                 request, 
                 CommonConstant.DEFAULT_TECHNICAL_USER, 
                 cancellationToken);
 
-            _logger.LogInformation("Successfully updated dynamic object: {DynamicObjectId}", id);
+            _logger.LogInformation("Successfully updated dynamic object: {DynamicObjectId}", objectId);
             return Ok(updatedDynamicObject);
         }
         catch (ArgumentException ex)
@@ -172,7 +172,7 @@ public class DynamicObjectController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
-            _logger.LogWarning(ex, "Dynamic object not found for update: {DynamicObjectId}", id);
+            _logger.LogWarning(ex, "Dynamic object not found for update: {DynamicObjectId}", objectId);
             return NotFound(new ProblemDetails
             {
                 Title = "Dynamic Object Not Found",

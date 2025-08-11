@@ -23,43 +23,46 @@ public interface IDynamicObjectFieldService
     Task<IEnumerable<DynamicObjectFieldType>> GetAllFieldTypesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all fields for a given object key.
+    /// Gets all fields for a given dynamic object ID.
     /// </summary>
-    /// <param name="objectKey">The dynamic object key.</param>
+    /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of fields for the object.</returns>
-    Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectKeyAsync(string objectKey, CancellationToken cancellationToken = default);
+    Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a field by its unique identifier.
+    /// Gets a field by its dynamic object ID and unique identifier.
     /// </summary>
+    /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="id">The field identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The field if found; otherwise, null.</returns>
-    Task<DynamicObjectField?> GetFieldByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Adds a new field.
+    /// Adds a new field for a given dynamic object ID.
     /// </summary>
+    /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="field">The field to add.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created field entity.</returns>
-    Task<DynamicObjectField> AddFieldAsync(DynamicObjectField field, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField> AddFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Updates an existing field.
+    /// Updates an existing field for a given dynamic object ID.
     /// </summary>
+    /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="field">The field to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated field entity.</returns>
-    Task<DynamicObjectField> UpdateFieldAsync(DynamicObjectField field, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Deletes a field by object key and field ID.
+    /// Deletes a field by dynamic object ID and field ID.
     /// </summary>
-    /// <param name="objectKey">The dynamic object key.</param>
+    /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="fieldId">The field identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a field was deleted; otherwise, false.</returns>
-    Task<bool> DeleteFieldAsync(string objectKey, Guid fieldId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default);
 }
