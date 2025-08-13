@@ -5,12 +5,19 @@ namespace NiyaCRM.Core.Auth.Constants
         // JWT Settings
         public static class Jwt
         {
-            public const int TokenExpiryHours = 1;
+            public const double TokenExpiryHours = 0.1;
             public const string SecretConfigKey = "JWT:Secret";
             public const string Issuer = "NiyaCRM";
             public const string Audience = "NiyaCRMClient";
             public const string SecurityAlgorithm = "HmacSha256";
             public const string TokenType = "Bearer";
+        }
+
+        // Refresh Token Settings
+        public static class Refresh
+        {
+            // Time-to-live for refresh tokens in hours
+            public const double RefreshTokenExpiryHours = 4.0;
         }
 
         // Cookie Settings

@@ -1,4 +1,5 @@
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,6 @@ namespace NiyaCRM.Api.Controllers.Auth
     /// </remarks>
     [Route("auth")]
     [ApiController]
-    [AllowAnonymous]
     [Produces("application/json")]
     public class ApiAuthController : ControllerBase
     {
@@ -28,17 +28,20 @@ namespace NiyaCRM.Api.Controllers.Auth
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JwtHelper _jwtHelper;
         private readonly ILogger<ApiAuthController> _logger;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public ApiAuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             JwtHelper jwtHelper,
-            ILogger<ApiAuthController> logger)
+            ILogger<ApiAuthController> logger,
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtHelper = jwtHelper;
             _logger = logger;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         /// <summary>
@@ -50,6 +53,7 @@ namespace NiyaCRM.Api.Controllers.Auth
         /// <response code="400">If the model is invalid</response>
         /// <response code="401">If authentication fails or account is deactivated</response>
         [HttpPost("token")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -84,15 +88,65 @@ namespace NiyaCRM.Api.Controllers.Auth
 
             _logger.LogInformation("User authenticated successfully: {Email}", model.Email);
 
-            var token = await _jwtHelper.GenerateJwtToken(user);
-            
-            // Return token in JSON response using the TokenResponse model
-            return Ok(new TokenResponse
-            { 
-                Token = token,
-                ExpiresIn = AuthConstants.Jwt.TokenExpiryHours * 3600, // Convert hours to seconds
-                TokenType = AuthConstants.Jwt.TokenType
-            });
+            var tokenResponse = await _jwtHelper.BuildTokenResponse(user);
+
+            // Return token and user info in JSON response using the TokenResponse model
+            return Ok(tokenResponse);
+        }
+
+        /// <summary>
+        /// Refreshes the access token using a valid refresh token. Issues a new refresh token as well.
+        /// </summary>
+        /// <param name="request">The refresh token request.</param>
+        /// <returns>New access and refresh token pair.</returns>
+        /// <response code="200">Returns a new TokenResponse</response>
+        /// <response code="400">If the model is invalid</response>
+        /// <response code="401">If the refresh token is invalid</response>
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _logger.LogInformation("Refreshing token");
+
+            var response = await _jwtHelper.RefreshAsync(request.RefreshToken);
+            if (response == null)
+            {
+                return Unauthorized(new { Message = "Invalid refresh token" });
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Logs out the current user by revoking all their refresh tokens.
+        /// Requires a valid access token.
+        /// </summary>
+        /// <returns>No content on success.</returns>
+        /// <response code="204">All refresh tokens revoked</response>
+        /// <response code="401">If not authenticated</response>
+        [HttpPost("logout")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Logout()
+        {
+            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (string.IsNullOrWhiteSpace(sub) || !Guid.TryParse(sub, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            await _refreshTokenRepository.DeleteByUserIdAsync(userId);
+            await _signInManager.SignOutAsync();
+            return NoContent();
         }
     }
 }

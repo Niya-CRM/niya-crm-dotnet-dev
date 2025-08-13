@@ -240,6 +240,28 @@ namespace NiyaCRM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "refresh_tokens",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    hashed_token = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    device = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ip_address = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_refresh_tokens", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_refresh_tokens_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_claims",
                 columns: table => new
                 {
@@ -491,6 +513,11 @@ namespace NiyaCRM.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_refresh_tokens_user_id",
+                table: "refresh_tokens",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
                 table: "role_claims",
                 column: "role_id");
@@ -581,6 +608,9 @@ namespace NiyaCRM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "permissions");
+
+            migrationBuilder.DropTable(
+                name: "refresh_tokens");
 
             migrationBuilder.DropTable(
                 name: "role_claims");

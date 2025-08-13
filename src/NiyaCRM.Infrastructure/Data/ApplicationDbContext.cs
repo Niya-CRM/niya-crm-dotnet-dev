@@ -43,6 +43,7 @@ namespace NiyaCRM.Infrastructure.Data
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<DynamicObjectField> DynamicObjectFields { get; set; } = null!;
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

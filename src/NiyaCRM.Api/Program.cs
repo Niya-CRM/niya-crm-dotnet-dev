@@ -162,6 +162,9 @@ builder.Services.AddScoped<NiyaCRM.Core.DynamicObjects.Fields.IDynamicObjectFiel
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Register Refresh Token Repository
+builder.Services.AddScoped<NiyaCRM.Core.Identity.IRefreshTokenRepository, NiyaCRM.Infrastructure.Data.Identity.RefreshTokenRepository>();
+
 // Register ReferenceData Services
 builder.Services.AddScoped<NiyaCRM.Core.Referentials.ICountryRepository, NiyaCRM.Infrastructure.Data.ReferenceData.CountryRepository>();
 builder.Services.AddScoped<NiyaCRM.Core.Referentials.IReferenceDataService, NiyaCRM.Application.Referentials.ReferenceDataService>();
