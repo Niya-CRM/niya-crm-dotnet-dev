@@ -51,12 +51,11 @@ public class AppSetupController : Controller
             return RedirectToAction("Login", "Auth");
 
         // Get active countries for dropdown from ValueList "Country"
-        var countryList = await _valueListService.GetByNameAsync("Countries", cancellationToken);
+        var countryList = await _valueListService.GetCountriesAsync(cancellationToken);
         var countries = new List<ValueListItem>();
         if (countryList != null)
         {
-            var items = await _valueListItemService.GetByValueListIdAsync(countryList.Id, cancellationToken);
-            countries = items
+            countries = countryList
                 .Where(i => i.IsActive)
                 .OrderBy(i => i.ItemName)
                 .ToList();
@@ -114,18 +113,9 @@ public class AppSetupController : Controller
 
     private async Task LoadCountriesAsync(CancellationToken cancellationToken)
     {
-        var countryList = await _valueListService.GetByNameAsync("Countries", cancellationToken);
-        var countries = new List<ValueListItem>();
-        if (countryList != null)
-        {
-            var items = await _valueListItemService.GetByValueListIdAsync(countryList.Id, cancellationToken);
-            countries = items
-                .Where(i => i.IsActive)
-                .OrderBy(i => i.ItemName)
-                .ToList();
-        }
+        var countryList = await _valueListService.GetCountriesAsync(cancellationToken);
 
-        ViewBag.Countries = countries;
+        ViewBag.Countries = countryList;
     }
 
     /// <summary>

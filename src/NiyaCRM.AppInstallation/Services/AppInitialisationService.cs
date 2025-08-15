@@ -24,6 +24,7 @@ namespace NiyaCRM.AppInstallation.Services
         private readonly NiyaCRM.Core.Identity.IPermissionRepository _permissionRepository;
         private readonly UserManager<NiyaCRM.Core.Identity.ApplicationUser> _userManager;
         private readonly ILogger<AppInitialisationService> _logger;
+        private readonly IValueListService _valueListService;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -62,12 +63,14 @@ namespace NiyaCRM.AppInstallation.Services
             RoleManager<NiyaCRM.Core.Identity.ApplicationRole> roleManager, 
             NiyaCRM.Core.Identity.IPermissionRepository permissionRepository,
             UserManager<NiyaCRM.Core.Identity.ApplicationUser> userManager,
+            IValueListService valueListService,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
             _roleManager = roleManager;
             _permissionRepository = permissionRepository;
             _userManager = userManager;
+            _valueListService = valueListService;
             _logger = logger;
         }
 
@@ -174,18 +177,11 @@ namespace NiyaCRM.AppInstallation.Services
                 Guid? technicalProfileId = null;
                 try
                 {
-                    var profilesListId = await _dbContext.ValueLists
-                        .Where(v => v.Name == "User Profiles")
-                        .Select(v => (Guid?)v.Id)
-                        .FirstOrDefaultAsync();
-
-                    if (profilesListId.HasValue)
-                    {
-                        technicalProfileId = await _dbContext.ValueListItems
-                            .Where(i => i.ValueListId == profilesListId.Value && i.ItemValue == "Technical")
-                            .Select(i => (Guid?)i.Id)
-                            .FirstOrDefaultAsync();
-                    }
+                    var profileItems = await _valueListService.GetUserProfilesAsync();
+                    technicalProfileId = profileItems
+                        .Where(i => i.ItemValue == "Technical")
+                        .Select(i => (Guid?)i.Id)
+                        .FirstOrDefault();
 
                     if (!technicalProfileId.HasValue)
                     {

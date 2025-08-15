@@ -14,4 +14,9 @@ public interface IValueListService
     Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+
+    // Convenience helpers to retrieve common lists and their items
+    Task<IEnumerable<ValueListItem>> GetCountriesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItem>> GetCurrenciesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItem>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
 }

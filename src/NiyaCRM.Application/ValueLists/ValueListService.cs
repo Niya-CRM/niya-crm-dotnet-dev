@@ -9,9 +9,10 @@ namespace NiyaCRM.Application.ValueLists;
 /// <summary>
 /// Service implementation for ValueList business operations.
 /// </summary>
-public class ValueListService(IUnitOfWork unitOfWork, ILogger<ValueListService> logger) : IValueListService
+public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valueListItemService, ILogger<ValueListService> logger) : IValueListService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+    private readonly IValueListItemService _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
     private readonly ILogger<ValueListService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default)
@@ -110,5 +111,27 @@ public class ValueListService(IUnitOfWork unitOfWork, ILogger<ValueListService> 
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return entity;
+    }
+
+    public async Task<IEnumerable<ValueListItem>> GetCountriesAsync(CancellationToken cancellationToken = default)
+        => await GetItemsByListNameAsync("Countries", cancellationToken);
+
+    public async Task<IEnumerable<ValueListItem>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
+        => await GetItemsByListNameAsync("Currencies", cancellationToken);
+
+    public async Task<IEnumerable<ValueListItem>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
+        => await GetItemsByListNameAsync("User Profiles", cancellationToken);
+
+    private async Task<IEnumerable<ValueListItem>> GetItemsByListNameAsync(string listName, CancellationToken cancellationToken)
+    {
+        var list = await GetByNameAsync(listName, cancellationToken);
+        if (list == null)
+        {
+            _logger.LogWarning("ValueList not found: {Name}", listName);
+            return new List<ValueListItem>(capacity: 0);
+        }
+
+        var items = await _valueListItemService.GetByValueListIdAsync(list.Id, cancellationToken);
+        return items;
     }
 }
