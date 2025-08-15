@@ -165,7 +165,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     first_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     last_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    location = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false, defaultValue: ""),
                     country_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
+                    profile = table.Column<Guid>(type: "uuid", nullable: true),
                     time_zone = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -248,7 +250,8 @@ namespace NiyaCRM.Infrastructure.Migrations
                     hashed_token = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     device = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     ip_address = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

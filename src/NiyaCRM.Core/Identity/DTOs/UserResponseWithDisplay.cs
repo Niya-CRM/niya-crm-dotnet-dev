@@ -33,6 +33,11 @@ public class UserResponseWithDisplay
     public ValueDisplayPair<string> LastName { get; set; } = new();
 
     /// <summary>
+    /// Gets or sets the location of the user.
+    /// </summary>
+    public ValueDisplayPair<string> Location { get; set; } = new();
+
+    /// <summary>
     /// Gets or sets the time zone of the user.
     /// </summary>
     public ValueDisplayPair<string> TimeZone { get; set; } = new();
@@ -46,6 +51,11 @@ public class UserResponseWithDisplay
     /// Gets or sets the phone number of the user.
     /// </summary>
     public ValueDisplayPair<string> PhoneNumber { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the profile identifier associated with the user.
+    /// </summary>
+    public ValueDisplayPair<Guid> Profile { get; set; } = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether the user is active.

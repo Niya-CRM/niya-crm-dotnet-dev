@@ -5,6 +5,7 @@ using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
 using NiyaCRM.Core.Referentials;
 using NiyaCRM.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
+using NiyaCRM.Core.ValueLists;
 
 namespace NiyaCRM.Api.Controllers.AppSetup;
 
@@ -18,19 +19,22 @@ public class AppSetupController : Controller
 {
     private readonly ILogger<AppSetupController> _logger;
     private readonly IAppSetupService _AppSetupService;
-    private readonly IReferenceDataService _referenceDataService;
+    private readonly IValueListService _valueListService;
+    private readonly IValueListItemService _valueListItemService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupController"/> class.
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="AppSetupService">The application setup service.</param>
-    /// <param name="referenceDataService">The reference data service.</param>
-    public AppSetupController(ILogger<AppSetupController> logger, IAppSetupService AppSetupService, IReferenceDataService referenceDataService)
+    /// <param name="valueListService">The value list service.</param>
+    /// <param name="valueListItemService">The value list item service.</param>
+    public AppSetupController(ILogger<AppSetupController> logger, IAppSetupService AppSetupService, IValueListService valueListService, IValueListItemService valueListItemService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _AppSetupService = AppSetupService ?? throw new ArgumentNullException(nameof(AppSetupService));
-        _referenceDataService = referenceDataService ?? throw new ArgumentNullException(nameof(referenceDataService));
+        _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+        _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
     }
     
     /// <summary>
@@ -46,11 +50,17 @@ public class AppSetupController : Controller
         if (await _AppSetupService.IsApplicationInstalledAsync(cancellationToken))
             return RedirectToAction("Login", "Auth");
 
-        // Get active countries for dropdown
-        var countries = (await _referenceDataService.GetAllCountriesAsync(cancellationToken))
-            .Where(c => c.IsActive == "Y")
-            .OrderBy(c => c.CountryName)
-            .ToList();
+        // Get active countries for dropdown from ValueList "Country"
+        var countryList = await _valueListService.GetByNameAsync("Countries", cancellationToken);
+        var countries = new List<ValueListItem>();
+        if (countryList != null)
+        {
+            var items = await _valueListItemService.GetByValueListIdAsync(countryList.Id, cancellationToken);
+            countries = items
+                .Where(i => i.IsActive)
+                .OrderBy(i => i.ItemName)
+                .ToList();
+        }
 
         // Pass countries to ViewBag for dropdown
         ViewBag.Countries = countries;
@@ -72,11 +82,15 @@ public class AppSetupController : Controller
             return RedirectToAction("Login", "Auth");
 
         if (!ModelState.IsValid)
+        {
+            await LoadCountriesAsync(cancellationToken);
             return View(model);
+        }
 
         if (model.Password != model.ConfirmPassword)
         {
             ModelState.AddModelError("ConfirmPassword", "Passwords do not match");
+            await LoadCountriesAsync(cancellationToken);
             return View(model);
         }
         
@@ -93,8 +107,25 @@ public class AppSetupController : Controller
         {
             _logger.LogError(ex, "Application installation failed");
             ModelState.AddModelError(string.Empty, CommonConstant.MESSAGE_INTERNAL_SERVER_ERROR);
+            await LoadCountriesAsync(cancellationToken);
             return View(model);
         }
+    }
+
+    private async Task LoadCountriesAsync(CancellationToken cancellationToken)
+    {
+        var countryList = await _valueListService.GetByNameAsync("Countries", cancellationToken);
+        var countries = new List<ValueListItem>();
+        if (countryList != null)
+        {
+            var items = await _valueListItemService.GetByValueListIdAsync(countryList.Id, cancellationToken);
+            countries = items
+                .Where(i => i.IsActive)
+                .OrderBy(i => i.ItemName)
+                .ToList();
+        }
+
+        ViewBag.Countries = countries;
     }
 
     /// <summary>

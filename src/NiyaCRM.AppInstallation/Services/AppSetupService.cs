@@ -7,6 +7,8 @@ using NiyaCRM.Core.Identity;
 using System.Text.Json;
 using NiyaCRM.Core.AppInstallation.AppSetup;
 using NiyaCRM.Core.AppInstallation.AppSetup.DTOs;
+using NiyaCRM.Core.ValueLists;
+using System.Linq;
 
 namespace NiyaCRM.AppInstallation.Services;
 
@@ -20,6 +22,8 @@ public class AppSetupService : IAppSetupService
     private readonly ILogger<AppSetupService> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IValueListService _valueListService;
+    private readonly IValueListItemService _valueListItemService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -34,6 +38,8 @@ public class AppSetupService : IAppSetupService
         ITenantService tenantService,
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
+        IValueListService valueListService,
+        IValueListItemService valueListItemService,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -41,6 +47,8 @@ public class AppSetupService : IAppSetupService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+        _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
     }
 
     /// <inheritdoc/>
@@ -86,6 +94,32 @@ public class AppSetupService : IAppSetupService
     {
         var userId = Guid.CreateVersion7();
 
+        // Try to resolve 'Agent' profile from 'User Profiles' value list
+        Guid? agentProfileId = null;
+        try
+        {
+            var profilesList = await _valueListService.GetByNameAsync("User Profiles");
+            if (profilesList != null)
+            {
+                var items = await _valueListItemService.GetByValueListIdAsync(profilesList.Id);
+                agentProfileId = items
+                    .FirstOrDefault(i => i.IsActive && i.ItemValue == "Agent")?
+                    .Id;
+                if (!agentProfileId.HasValue)
+                {
+                    _logger.LogCritical("'Agent' profile not found in 'User Profiles'. Proceeding without setting Profile.");
+                }
+            }
+            else
+            {
+                _logger.LogCritical("ValueList 'User Profiles' not found. Proceeding without setting Profile.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to resolve 'Agent' profile from 'User Profiles'.");
+        }
+
         var user = new ApplicationUser
         {
             Id = userId,
@@ -94,6 +128,8 @@ public class AppSetupService : IAppSetupService
             FirstName = setupDto.FirstName,
             LastName = setupDto.LastName,
             TimeZone = setupDto.TimeZone,
+            Profile = agentProfileId,
+            Location = setupDto.Location,
             CountryCode = setupDto.CountryCode,
             IsActive = "Y",
             CreatedBy = technicalUserId,

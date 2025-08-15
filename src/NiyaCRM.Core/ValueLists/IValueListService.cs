@@ -11,6 +11,7 @@ public interface IValueListService
     Task<ValueList> UpdateAsync(ValueList valueList, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     Task<IEnumerable<ValueList>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default);
     Task<ValueList?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
 }

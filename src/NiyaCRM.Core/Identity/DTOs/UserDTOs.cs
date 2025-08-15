@@ -35,6 +35,13 @@ public class CreateUserRequest
     public string? LastName { get; set; }
 
     /// <summary>
+    /// Gets or sets the location of the user.
+    /// </summary>
+    [Required]
+    [StringLength(60)]
+    public string Location { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the password of the user.
     /// </summary>
     [Required]
@@ -52,6 +59,11 @@ public class CreateUserRequest
     /// </summary>
     [StringLength(2)]
     public string? CountryCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the profile identifier associated with the user.
+    /// </summary>
+    public Guid? Profile { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.
@@ -92,6 +104,11 @@ public class UserResponse
     public string? LastName { get; set; }
 
     /// <summary>
+    /// Gets or sets the location of the user.
+    /// </summary>
+    public string Location { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the time zone of the user.
     /// </summary>
     public string TimeZone { get; set; } = string.Empty;
@@ -100,6 +117,11 @@ public class UserResponse
     /// Gets or sets the country code of the user.
     /// </summary>
     public string? CountryCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the profile identifier associated with the user.
+    /// </summary>
+    public Guid? Profile { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250813210523_InitialMigration2")]
-    partial class InitialMigration2
+    [Migration("20250815165532_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -732,6 +732,14 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("last_name");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasDefaultValue("")
+                        .HasColumnName("location");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockout_enabled");
@@ -761,6 +769,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
+
+                    b.Property<Guid?>("Profile")
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")

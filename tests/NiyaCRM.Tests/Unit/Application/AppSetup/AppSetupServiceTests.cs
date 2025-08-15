@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using System.Reflection;
+using NiyaCRM.Core.ValueLists;
 
 namespace NiyaCRM.Tests.Unit.Application.AppSetup
 {
@@ -25,6 +26,8 @@ namespace NiyaCRM.Tests.Unit.Application.AppSetup
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ITenantService> _mockTenantService;
         private readonly Mock<ILogger<AppSetupService>> _mockLogger;
+        private readonly Mock<IValueListService> _mockValueListService;
+        private readonly Mock<IValueListItemService> _mockValueListItemService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppSetupService _AppSetupService;
@@ -34,6 +37,8 @@ namespace NiyaCRM.Tests.Unit.Application.AppSetup
             _mockUnitOfWork = new Mock<IUnitOfWork>();
             _mockTenantService = new Mock<ITenantService>();
             _mockLogger = new Mock<ILogger<AppSetupService>>();
+            _mockValueListService = new Mock<IValueListService>();
+            _mockValueListItemService = new Mock<IValueListItemService>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
@@ -42,6 +47,8 @@ namespace NiyaCRM.Tests.Unit.Application.AppSetup
                 _mockTenantService.Object,
                 _userManager,
                 _roleManager,
+                _mockValueListService.Object,
+                _mockValueListItemService.Object,
                 _mockLogger.Object);
         }
 

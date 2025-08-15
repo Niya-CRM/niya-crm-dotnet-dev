@@ -64,8 +64,16 @@ public class AppSetupDto
     public string TimeZone { get; set; } = string.Empty;
     
     /// <summary>
+    /// Gets or sets the location.
+    /// </summary>
+    [Required(ErrorMessage = "Location is required")]
+    [StringLength(60, ErrorMessage = "Location cannot exceed 60 characters")]
+    public string Location { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets the country code.
     /// </summary>
+    [Required(ErrorMessage = "Country is required")]
     [StringLength(2, ErrorMessage = "Country code must be 2 characters")]
     public string? CountryCode { get; set; }
 }

@@ -35,14 +35,14 @@ namespace NiyaCRM.AppInstallation.Services
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 2, "Seed Default Permissions", async () => {
                 await SeedDefaultPermissionsAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 3, "Create Technical User", async () => {
-                await CreateTechnicalUserAsync();
-            }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 4, "Assign Permissions To Roles", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 3, "Assign Permissions To Roles", async () => {
                 await AssignPermissionsToRolesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 5, "Define Dynamic Objects", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 4, "Define Dynamic Objects", async () => {
                 await DefineDynamicObjectsAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 5, "Initialize User Profiles", async () => {
+                await InitializeUserProfile();
             }),
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 6, "Initialize Countries", async () => {
                 await InitializeCountriesAsync();
@@ -52,6 +52,9 @@ namespace NiyaCRM.AppInstallation.Services
             }),
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Field Types", async () => {
                 await InitializeFieldTypesAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Create Technical User", async () => {
+                await CreateTechnicalUserAsync();
             }),
         ];
 
@@ -154,6 +157,11 @@ namespace NiyaCRM.AppInstallation.Services
             }
         }
 
+        /// <summary>
+        /// Create Technical User
+        /// </summary>
+        /// <returns></returns>
+
         private async Task CreateTechnicalUserAsync()
         {
             // Check if technical user already exists
@@ -162,6 +170,33 @@ namespace NiyaCRM.AppInstallation.Services
             
             if (existingUser == null)
             {
+                // Resolve profile GUID for "Technical" from ValueList "User Profiles"
+                Guid? technicalProfileId = null;
+                try
+                {
+                    var profilesListId = await _dbContext.ValueLists
+                        .Where(v => v.Name == "User Profiles")
+                        .Select(v => (Guid?)v.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (profilesListId.HasValue)
+                    {
+                        technicalProfileId = await _dbContext.ValueListItems
+                            .Where(i => i.ValueListId == profilesListId.Value && i.ItemValue == "Technical")
+                            .Select(i => (Guid?)i.Id)
+                            .FirstOrDefaultAsync();
+                    }
+
+                    if (!technicalProfileId.HasValue)
+                    {
+                        _logger.LogWarning("Technical profile not found in 'User Profiles'; creating technical user without profile.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to resolve 'Technical' profile from 'User Profiles'.");
+                }
+                
                 // Create the technical user
                 var technicalUser = new NiyaCRM.Core.Identity.ApplicationUser
                 {
@@ -170,6 +205,8 @@ namespace NiyaCRM.AppInstallation.Services
                     Email = technicalUserEmail,
                     FirstName = "Technical",
                     LastName = "Interface",
+                    Location = "Earth",
+                    Profile = technicalProfileId,
                     CountryCode = "IN",
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
@@ -534,6 +571,68 @@ namespace NiyaCRM.AppInstallation.Services
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Failed to initialize currencies");
+            }
+        }
+        
+        private async Task InitializeUserProfile()
+        {
+            _logger.LogInformation("Starting to initialize user profiles");
+            
+            try
+            {
+                var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                
+                // Create or get ValueList 'User Profiles'
+                var profilesList = await _dbContext.ValueLists
+                    .FirstOrDefaultAsync(v => v.Name == "User Profiles");
+                
+                if (profilesList == null)
+                {
+                    profilesList = new ValueList(
+                        Guid.CreateVersion7(),
+                        name: "User Profiles",
+                        description: "List of user profiles",
+                        valueListTypeId: ValueListConstants.ValueListTypes.Standard,
+                        isActive: true,
+                        allowModify: false,
+                        allowNewItem: false,
+                        createdBy: defaultUser
+                    );
+                    _dbContext.ValueLists.Add(profilesList);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Created ValueList 'User Profiles' with ID: {Id}", profilesList.Id);
+                }
+                
+                // Existing item values for this list
+                var existingItemValues = await _dbContext.ValueListItems
+                    .Where(i => i.ValueListId == profilesList.Id)
+                    .Select(i => i.ItemValue)
+                    .ToListAsync();
+                
+                var desiredProfiles = new[] { "Administrator", "Agent", "Light Agent", "External User", "Technical" };
+                
+                var newItems = desiredProfiles
+                    .Where(name => !existingItemValues.Contains(name))
+                    .Select(name => new ValueListItem(
+                        Guid.CreateVersion7(),
+                        itemName: name,
+                        itemValue: name,
+                        valueListId: profilesList.Id,
+                        isActive: true,
+                        createdBy: defaultUser
+                    ))
+                    .ToList();
+                
+                if (newItems.Count > 0)
+                {
+                    await _dbContext.ValueListItems.AddRangeAsync(newItems);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} user profiles to ValueList 'User Profiles' as items", newItems.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to initialize user profiles");
             }
         }
         

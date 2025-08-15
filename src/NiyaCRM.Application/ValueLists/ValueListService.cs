@@ -86,6 +86,16 @@ public class ValueListService(IUnitOfWork unitOfWork, ILogger<ValueListService> 
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(id, cancellationToken);
     }
 
+    public async Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ValidationException("ValueList Name cannot be null or empty.");
+
+        var trimmed = name.Trim();
+        _logger.LogDebug("Getting ValueList by Name: {Name}", trimmed);
+        return await _unitOfWork.GetRepository<IValueListRepository>().GetByNameAsync(trimmed, cancellationToken);
+    }
+
     public async Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);

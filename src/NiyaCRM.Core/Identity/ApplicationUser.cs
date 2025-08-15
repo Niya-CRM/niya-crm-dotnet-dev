@@ -22,10 +22,22 @@ namespace NiyaCRM.Core.Identity
         public string? LastName { get; set; }
 
         /// <summary>
+        /// Gets or sets the location of the user.
+        /// </summary>
+        [Required]
+        [MaxLength(60)]
+        public string Location { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the country code of the user.
         /// </summary>
         [MaxLength(2)]
         public string? CountryCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the profile identifier associated with the user.
+        /// </summary>
+        public Guid? Profile { get; set; }
 
         /// <summary>
         /// Gets or sets the default time zone identifier for this user.

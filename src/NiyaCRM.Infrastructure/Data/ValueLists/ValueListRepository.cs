@@ -29,6 +29,16 @@ public class ValueListRepository : IValueListRepository
         return await _dbSet.FindAsync([id], cancellationToken);
     }
 
+    public async Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("ValueList name cannot be null or empty.", nameof(name));
+
+        var trimmed = name.Trim();
+        _logger.LogDebug("Getting ValueList by Name: {Name}", trimmed);
+        return await _dbSet.FirstOrDefaultAsync(v => v.Name == trimmed, cancellationToken);
+    }
+
     public async Task<IEnumerable<ValueList>> GetAllAsync(
         int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
         int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
