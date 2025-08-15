@@ -101,21 +101,21 @@ public class UserController : ControllerBase
     }
     
     /// <summary>
-    /// Gets all users with pagination and display values.
+    /// Gets all users with pagination.
     /// </summary>
     /// <param name="pageNumber">The page number.</param>
     /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A paginated collection of users with display values.</returns>
+    /// <returns>A paginated collection of users.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<UserResponseWithDisplay>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<UserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllUsers([FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         try
         {
-            _logger.LogDebug("Getting all users with display values - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-            var users = await _userService.GetAllUsersWithDisplayAsync(pageNumber, pageSize, cancellationToken);
+            _logger.LogDebug("Getting all users - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
+            var users = await _userService.GetAllUsersAsync(pageNumber, pageSize, cancellationToken);
             return Ok(users);
         }
         catch (ArgumentException ex)
