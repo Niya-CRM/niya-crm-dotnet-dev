@@ -1,0 +1,75 @@
+using Microsoft.EntityFrameworkCore;
+using OXDesk.Core.AuditLogs;
+using OXDesk.Core.Common;
+using OXDesk.Infrastructure.Data.AuditLogs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace OXDesk.Infrastructure.Data.AuditLogs
+{
+    public class AuditLogRepository : IAuditLogRepository
+    {
+        private readonly ApplicationDbContext _dbContext;
+        private readonly DbSet<AuditLog> _dbSet;
+
+        public AuditLogRepository(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+            _dbSet = dbContext.Set<AuditLog>();
+        }
+
+        public async Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet.FindAsync([id], cancellationToken);
+        }
+
+        public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
+            string? objectKey = null,
+            string? objectItemId = null,
+            Guid? createdBy = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
+            int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _dbSet.AsQueryable();
+
+            if (!string.IsNullOrEmpty(objectKey))
+                query = query.Where(a => a.ObjectKey == objectKey);
+            if (!string.IsNullOrEmpty(objectItemId))
+                query = query.Where(a => a.ObjectItemId == objectItemId);
+            if (createdBy.HasValue)
+                query = query.Where(a => a.CreatedBy == createdBy.Value);
+            if (startDate.HasValue)
+                query = query.Where(a => a.CreatedAt >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(a => a.CreatedAt <= endDate.Value);
+
+            return await query
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<IEnumerable<AuditLog>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<AuditLog> AddAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
+        {
+            await _dbSet.AddAsync(auditLog, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return auditLog;
+        }
+    }
+}
