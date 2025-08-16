@@ -43,5 +43,37 @@ namespace NiyaCRM.Core.Helpers.Naming
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Converts the provided <paramref name="name"/> into a lowercase hyphen-separated key (kebab-case).
+        /// Replaces any sequence of non-alphanumeric characters (including spaces/underscores) with a single '-'.
+        /// Examples: "Users" -> "users", "User Profiles" -> "user-profile".
+        /// </summary>
+        /// <param name="name">The input text.</param>
+        /// <returns>kebab-case key.</returns>
+        public static string ToKey(this string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+
+            var sb = new StringBuilder(name.Length);
+            var lastWasHyphen = false;
+
+            foreach (var ch in name!)
+            {
+                if (char.IsLetterOrDigit(ch))
+                {
+                    sb.Append(char.ToLowerInvariant(ch));
+                    lastWasHyphen = false;
+                }
+                else if (!lastWasHyphen)
+                {
+                    sb.Append('-');
+                    lastWasHyphen = true;
+                }
+            }
+
+            // Trim any leading/trailing hyphens
+            return sb.ToString().Trim('-');
+        }
     }
 }

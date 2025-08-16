@@ -20,28 +20,30 @@ public class ValueListItem
     /// Gets or sets the name of the value list item.
     /// </summary>
     [Required]
-    [StringLength(255)]
-    [Column(TypeName = "varchar(255)")]
+    [StringLength(100)]
+    [Column(TypeName = "varchar(100)")]
     public string ItemName { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the key of the value list item.
     /// </summary>
     [Required]
-    [StringLength(255)]
-    [Column(TypeName = "varchar(255)")]
-    public string ItemValue { get; set; } = string.Empty;
+    [StringLength(100)]
+    [Column(TypeName = "varchar(100)")]
+    public string ItemKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the value list ID this item belongs to.
+    /// Gets or sets the list key this item belongs to.
     /// </summary>
     [Required]
-    public Guid ValueListId { get; set; }
+    [StringLength(60)]
+    [Column(TypeName = "varchar(60)")]
+    public string ListKey { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the value list this item belongs to.
     /// </summary>
-    [ForeignKey(nameof(ValueListId))]
+    [ForeignKey(nameof(ListKey))]
     public ValueList? ValueList { get; set; }
 
     /// <summary>
@@ -87,15 +89,15 @@ public class ValueListItem
     public ValueListItem(
         Guid id,
         string itemName,
-        string itemValue,
-        Guid valueListId,
+        string itemKey,
+        string listKey,
         bool isActive,
         Guid createdBy)
     {
         Id = id;
         ItemName = itemName;
-        ItemValue = itemValue;
-        ValueListId = valueListId;
+        ItemKey = itemKey;
+        ListKey = listKey;
         IsActive = isActive;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
@@ -103,3 +105,4 @@ public class ValueListItem
         UpdatedBy = createdBy;
     }
 }
+

@@ -24,9 +24,9 @@ namespace NiyaCRM.Tests.Unit.Application.ChangeHistory
         {
             _mockRepository = new Mock<IChangeHistoryLogRepository>();
             _mockUserService = new Mock<IUserService>();
-            _mockUserService
-                .Setup(s => s.GetUserFullNameFromCacheAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("Test User");
+            // _mockUserService
+            //     .Setup(s => s.GetUserFullNameFromCacheAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            //     .ReturnsAsync("Test User");
             _service = new ChangeHistoryLogService(_mockRepository.Object, _mockUserService.Object);
         }
 

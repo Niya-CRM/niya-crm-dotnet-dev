@@ -143,7 +143,7 @@
                         <option value="">-- Select Country --</option>
                         @foreach (var country in ViewBag.Countries)
                         {
-                            <option value="@country.ItemValue">@country.ItemName (@country.ItemValue)</option>
+                            <option value="@country.ItemKey">@country.ItemName (@country.ItemKey)</option>
                         }
                     </select>
                     <div id="countryCodeHelp" class="form-text">Select your country from the dropdown list.</div>

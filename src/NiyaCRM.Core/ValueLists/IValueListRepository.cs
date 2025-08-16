@@ -13,9 +13,14 @@ public interface IValueListRepository
     Task<ValueList?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a value list by its name.
+    /// Gets a value list by its display name.
     /// </summary>
     Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a value list by its unique list key.
+    /// </summary>
+    Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all value lists with pagination.

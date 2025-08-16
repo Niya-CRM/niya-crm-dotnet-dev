@@ -90,7 +90,7 @@ public class UserController : ControllerBase
     {
         _logger.LogDebug("Getting user by ID with display values: {UserId}", id);
         
-        var user = await _userService.GetUserByIdWithDisplayAsync(id, cancellationToken);
+        var user = await _userService.GetUserByIdAsync(id, cancellationToken);
         if (user == null)
         {
             _logger.LogWarning("User not found: {UserId}", id);
@@ -101,27 +101,16 @@ public class UserController : ControllerBase
     }
     
     /// <summary>
-    /// Gets all users with pagination.
+    /// Gets all users along with related reference data.
     /// </summary>
-    /// <param name="pageNumber">The page number.</param>
-    /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A paginated collection of users.</returns>
+    /// <returns>Users list wrapper containing data and related options.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<UserResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllUsers([FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
+    [ProducesResponseType(typeof(UsersListResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken = default)
     {
-        try
-        {
-            _logger.LogDebug("Getting all users - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-            var users = await _userService.GetAllUsersAsync(pageNumber, pageSize, cancellationToken);
-            return Ok(users);
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
-            return this.CreateBadRequestProblem(ex.Message);
-        }
+        _logger.LogDebug("Getting all users");
+        var response = await _userService.GetAllUsersAsync(cancellationToken);
+        return Ok(response);
     }
 }

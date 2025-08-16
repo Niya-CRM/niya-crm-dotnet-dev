@@ -80,6 +80,58 @@ public static class CommonConstant
     }
 
     /// <summary>
+    /// Centralized cache keys used across the application.
+    /// </summary>
+    public static class CacheKeys
+    {
+        /// <summary>
+        /// Cache key for the default paged user list (pageNumber=PAGE_NUMBER_DEFAULT, pageSize=PAGE_SIZE_DEFAULT).
+        /// </summary>
+        public const string UserList = "user:list";
+
+        /// <summary>
+        /// Cache keys for commonly used value lists.
+        /// </summary>
+        public static class ValueLists
+        {
+            public const string Countries = "valuelist:items:countries";
+            public const string Currencies = "valuelist:items:currencies";
+            public const string UserProfiles = "valuelist:items:user-profiles";
+        }
+    }
+
+    /// <summary>
+    /// Centralized names for commonly used value lists.
+    /// </summary>
+    public static class ValueListKeys
+    {
+        public const string Countries = "countries";
+        public const string Currencies = "currencies";
+        public const string UserProfiles = "user-profiles";
+    }
+    
+    /// <summary>
+    /// User Profile constants with display Name and kebab-case Key.
+    /// </summary>
+    public static class UserProfiles
+    {
+        public static class Administrator { public const string Name = "Administrator"; public const string Key = "administrator"; }
+        public static class Agent { public const string Name = "Agent"; public const string Key = "agent"; }
+        public static class LightAgent { public const string Name = "Light Agent"; public const string Key = "light-agent"; }
+        public static class ExternalUser { public const string Name = "External User"; public const string Key = "external-user"; }
+        public static class Technical { public const string Name = "Technical"; public const string Key = "technical"; }
+
+        public static readonly (string Name, string Key)[] All =
+        {
+            (Administrator.Name, Administrator.Key),
+            (Agent.Name, Agent.Key),
+            (LightAgent.Name, LightAgent.Key),
+            (ExternalUser.Name, ExternalUser.Key),
+            (Technical.Name, Technical.Key)
+        };
+    }
+
+    /// <summary>
     /// Constants related to health checks
     /// </summary>
     public static class HealthCheck

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NiyaCRM.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250815165532_InitialMigration")]
+    [Migration("20250816132119_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -770,8 +770,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
-                    b.Property<Guid?>("Profile")
-                        .HasColumnType("uuid")
+                    b.Property<string>("Profile")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("profile");
 
                     b.Property<string>("SecurityStamp")
@@ -1090,11 +1091,17 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("ListKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("list_key");
+
+                    b.Property<string>("ListName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("name");
+                        .HasColumnName("list_name");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1111,6 +1118,9 @@ namespace NiyaCRM.Infrastructure.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_value_lists");
+
+                    b.HasAlternateKey("ListKey")
+                        .HasName("ak_value_lists_list_key");
 
                     b.ToTable("value_lists");
                 });
@@ -1134,17 +1144,23 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<string>("ItemKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("item_key");
+
                     b.Property<string>("ItemName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
                         .HasColumnName("item_name");
 
-                    b.Property<string>("ItemValue")
+                    b.Property<string>("ListKey")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("item_value");
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("list_key");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1154,19 +1170,14 @@ namespace NiyaCRM.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.Property<Guid>("ValueListId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("value_list_id");
-
                     b.HasKey("Id")
                         .HasName("pk_value_list_items");
 
-                    b.HasIndex("ItemValue")
-                        .IsUnique()
-                        .HasDatabaseName("ix_value_list_items_item_value");
+                    b.HasIndex("ItemKey")
+                        .HasDatabaseName("ix_value_list_items_item_key");
 
-                    b.HasIndex("ValueListId")
-                        .HasDatabaseName("ix_value_list_items_value_list_id");
+                    b.HasIndex("ListKey")
+                        .HasDatabaseName("ix_value_list_items_list_key");
 
                     b.ToTable("value_list_items");
                 });
@@ -1255,7 +1266,8 @@ namespace NiyaCRM.Infrastructure.Migrations
                 {
                     b.HasOne("NiyaCRM.Core.ValueLists.ValueList", "ValueList")
                         .WithMany()
-                        .HasForeignKey("ValueListId")
+                        .HasForeignKey("ListKey")
+                        .HasPrincipalKey("ListKey")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

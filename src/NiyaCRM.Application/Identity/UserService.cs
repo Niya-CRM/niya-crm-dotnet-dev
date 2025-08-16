@@ -7,8 +7,11 @@ using NiyaCRM.Core.Identity.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using Microsoft.Extensions.Caching.Memory;
 using NiyaCRM.Core.Cache;
+using NiyaCRM.Core.ValueLists;
+using NiyaCRM.Core.ValueLists.DTOs;
 
 namespace NiyaCRM.Application.Identity;
 
@@ -23,25 +26,12 @@ public class UserService : IUserService
     private readonly IAuditLogService _auditLogService;
     private readonly IUserRepository _userRepository;
     private readonly ICacheService _cacheService;
+    private readonly IValueListService _valueListService;
     
     // Cache key prefix for users
     private const string USER_CACHE_KEY_PREFIX = "user_";
 
-    /// <summary>
-    /// Gets the current user's unique identifier from claims.
-    /// </summary>
-    /// <returns>The current user's Guid.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
-    public Guid GetCurrentUserId()
-    {
-        var user = _httpContextAccessor.HttpContext?.User;
-        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new InvalidOperationException("User id claim not found in current context.");
-        if (!Guid.TryParse(userIdStr, out var userId))
-            throw new InvalidOperationException("User id claim is not a valid Guid.");
-        return userId;
-    }
+    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserService"/> class.
@@ -58,7 +48,8 @@ public class UserService : IUserService
         IHttpContextAccessor httpContextAccessor,
         IAuditLogService auditLogService,
         IUserRepository userRepository,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        IValueListService valueListService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -66,6 +57,23 @@ public class UserService : IUserService
         _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+    }
+
+    /// <summary>
+    /// Gets the current user's unique identifier from claims.
+    /// </summary>
+    /// <returns>The current user's Guid.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
+    public Guid GetCurrentUserId()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdStr))
+            throw new InvalidOperationException("User id claim not found in current context.");
+        if (!Guid.TryParse(userIdStr, out var userId))
+            throw new InvalidOperationException("User id claim is not a valid Guid.");
+        return userId;
     }
 
     private string GetUserIp() =>
@@ -99,33 +107,6 @@ public class UserService : IUserService
     }
     
     /// <summary>
-    /// Converts a UserResponse to a UserResponseWithDisplay.
-    /// </summary>
-    /// <param name="user">The user response.</param>
-    /// <returns>The user response with display values.</returns>
-    private async Task<UserResponseWithDisplay> ConvertToUserResponseWithDisplay(UserResponse user, CancellationToken cancellationToken = default)
-    {
-        return new UserResponseWithDisplay
-        {
-            Id = new ValueDisplayPair<Guid> { Value = user.Id, DisplayValue = user.Id.ToString() },
-            Email = new ValueDisplayPair<string> { Value = user.Email, DisplayValue = user.Email },
-            UserName = new ValueDisplayPair<string> { Value = user.UserName, DisplayValue = user.UserName },
-            FirstName = new ValueDisplayPair<string> { Value = user.FirstName, DisplayValue = user.FirstName ?? string.Empty },
-            LastName = new ValueDisplayPair<string> { Value = user.LastName, DisplayValue = user.LastName ?? string.Empty },
-            Location = new ValueDisplayPair<string> { Value = user.Location, DisplayValue = user.Location },
-            CountryCode = new ValueDisplayPair<string> { Value = user.CountryCode, DisplayValue = user.CountryCode ?? string.Empty },
-            TimeZone = new ValueDisplayPair<string> { Value = user.TimeZone, DisplayValue = GetTimeZoneDisplayName(user.TimeZone) },
-            PhoneNumber = new ValueDisplayPair<string> { Value = user.PhoneNumber, DisplayValue = user.PhoneNumber ?? string.Empty },
-            Profile = new ValueDisplayPair<Guid> { Value = user.Profile ?? Guid.Empty, DisplayValue = (user.Profile ?? Guid.Empty).ToString() },
-            IsActive = new ValueDisplayPair<bool> { Value = user.IsActive, DisplayValue = user.IsActive ? "Active" : "Inactive" },
-            CreatedAt = new ValueDisplayPair<DateTime> { Value = user.CreatedAt, DisplayValue = user.CreatedAt.ToString("g", CultureInfo.InvariantCulture) },
-            UpdatedAt = new ValueDisplayPair<DateTime> { Value = user.UpdatedAt, DisplayValue = user.UpdatedAt.ToString("g", CultureInfo.InvariantCulture) },
-            CreatedBy = new ValueDisplayPair<Guid> { Value = user.CreatedBy, DisplayValue = await GetUserFullNameFromCacheAsync(user.CreatedBy, cancellationToken) },
-            UpdatedBy = new ValueDisplayPair<Guid> { Value = user.UpdatedBy, DisplayValue = await GetUserFullNameFromCacheAsync(user.UpdatedBy, cancellationToken) }
-        };
-    }
-    
-    /// <summary>
     /// Gets a display name for a time zone identifier.
     /// </summary>
     /// <param name="timeZoneId">The time zone identifier.</param>
@@ -142,6 +123,23 @@ public class UserService : IUserService
             return timeZoneId;
         }
     }
+
+    /// <inheritdoc />
+    public async Task<UserResponse?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting user by ID: {UserId}", id);
+        
+        // Use the repository for efficient query that excludes sensitive data
+        var userResponse = await _userRepository.GetUserByIdAsync(id, cancellationToken);
+        if (userResponse == null)
+        {
+            _logger.LogWarning("User not found: {UserId}", id);
+            return null;
+        }
+
+        return userResponse;
+    }
+    
 
     /// <inheritdoc />
     public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
@@ -217,172 +215,76 @@ public class UserService : IUserService
         );
 
         _logger.LogInformation("Successfully created user with ID: {UserId}", user.Id);
+        // Invalidate cached default user list
+        await _cacheService.RemoveAsync(CommonConstant.CacheKeys.UserList);
+        _logger.LogDebug("Invalidated cache key: {CacheKey}", CommonConstant.CacheKeys.UserList);
         return MapToUserResponse(user);
     }
 
     /// <inheritdoc />
-    public async Task<UserResponse?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<UsersListResponse> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting user by ID: {UserId}", id);
-        
-        // Use the repository for efficient query that excludes sensitive data
-        var userResponse = await _userRepository.GetUserByIdAsync(id, cancellationToken);
-        if (userResponse == null)
+        _logger.LogDebug("Getting all users");
+
+        // Try cache first
+        var cached = await _cacheService.GetAsync<UsersListResponse>(CommonConstant.CacheKeys.UserList);
+        if (cached != null)
         {
-            _logger.LogWarning("User not found: {UserId}", id);
-            return null;
+            return cached;
         }
 
-        return userResponse;
-    }
-    
-    /// <inheritdoc />
-    public async Task<UserResponseWithDisplay?> GetUserByIdWithDisplayAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Getting user by ID with display values: {UserId}", id);
-        
-        var userResponse = await GetUserByIdAsync(id, cancellationToken);
-        if (userResponse == null)
-        {
-            return null;
-        }
-        
-        // Transform the response to include display values
-        return await ConvertToUserResponseWithDisplay(userResponse, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
-    {
-        if (pageNumber < CommonConstant.PAGE_NUMBER_DEFAULT)
-            throw new ArgumentException($"Page number must be greater than {CommonConstant.PAGE_NUMBER_DEFAULT}.", nameof(pageNumber));
-        
-        if (pageSize < CommonConstant.PAGE_SIZE_MIN || pageSize > CommonConstant.PAGE_SIZE_MAX)
-            throw new ArgumentException($"Page size must be between {CommonConstant.PAGE_SIZE_MIN} and {CommonConstant.PAGE_SIZE_MAX}.", nameof(pageSize));
-
-        _logger.LogDebug("Getting all users - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-        
-        // Use the repository for efficient paginated query that excludes sensitive data
-        return await _userRepository.GetAllUsersAsync(pageNumber, pageSize, cancellationToken);
-    }
-    
-    /// <inheritdoc />
-    public async Task<IEnumerable<UserResponseWithDisplay>> GetAllUsersWithDisplayAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Getting all users with display values - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-
-        // Get users from repository
-        var users = await _userRepository.GetAllUsersAsync(pageNumber, pageSize, cancellationToken);
-        
-        // Transform each user to include display values
-        var tasks = users.Select(user => ConvertToUserResponseWithDisplay(user, cancellationToken));
-        var results = await Task.WhenAll(tasks);
-        return results.ToList();
-    }
-    
-    /// <inheritdoc />
-    public async Task CacheAllUsersAsync(CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Caching all users individually");
-            
-        // Get all users from repository without pagination
+        // Fetch all users without pagination
         var users = await _userRepository.GetAllUsersAsync(cancellationToken: cancellationToken);
-        
-        // First, cache all raw user data
-        foreach (var user in users)
-        {            
-            // Cache each user individually with key "user_{guid}"
-            string cacheKey = $"{USER_CACHE_KEY_PREFIX}{user.Id}";
-            await _cacheService.SetAsync(cacheKey, user);
-            
-            _logger.LogDebug("User cached with key: {CacheKey}", cacheKey);
-        }
-        
-        _logger.LogDebug("All users cached individually. Count: {Count}", users.Count().ToString());
-    }
-    
-    /// <inheritdoc />
-    public async Task<UserResponseWithDisplay?> GetUserFromCacheAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        string cacheKey = $"{USER_CACHE_KEY_PREFIX}{id}";
-        _logger.LogDebug("Getting user from cache with key: {CacheKey}", cacheKey);
 
-        int attempt = 1;
-        
-        // Get raw user data from cache
-        var cachedUser = await _cacheService.GetAsync<UserResponse>(cacheKey);
-        
-        while (cachedUser == null && attempt <= 3)
+        // Build related: profiles from value lists, statuses static
+        var profileItems = await _valueListService.GetUserProfilesAsync(cancellationToken);
+        var profiles = profileItems
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey })
+            .OrderBy(p => p.ItemName)
+            .ToArray();
+
+        // Dictionaries for text enrichment
+        var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
+        var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
+
+        // Enrich users with display texts
+        var usersList = users as IList<UserResponse> ?? users.ToList();
+        foreach (var u in usersList)
         {
-            _logger.LogDebug("User not found in cache with key: {CacheKey}", cacheKey);
-            await CacheAllUsersAsync(cancellationToken);
-            cachedUser = await _cacheService.GetAsync<UserResponse>(cacheKey);
-            attempt++;
-        }
-        
-        if (cachedUser == null)
-        {
-            _logger.LogDebug("User not found in cache with key: {CacheKey}", cacheKey);
-            return null;
-        }
-        
-        _logger.LogDebug("User retrieved from cache with key: {CacheKey}", cacheKey);
-        
-        // Convert raw user data to display format without async operations
-        var userWithDisplay = new UserResponseWithDisplay
-        {
-            Id = new ValueDisplayPair<Guid> { Value = cachedUser.Id, DisplayValue = cachedUser.Id.ToString() },
-            UserName = new ValueDisplayPair<string> { Value = cachedUser.UserName, DisplayValue = cachedUser.UserName ?? string.Empty },
-            Email = new ValueDisplayPair<string> { Value = cachedUser.Email, DisplayValue = cachedUser.Email ?? string.Empty },
-            FirstName = new ValueDisplayPair<string> { Value = cachedUser.FirstName, DisplayValue = cachedUser.FirstName ?? string.Empty },
-            LastName = new ValueDisplayPair<string> { Value = cachedUser.LastName, DisplayValue = cachedUser.LastName ?? string.Empty },
-            Location = new ValueDisplayPair<string> { Value = cachedUser.Location, DisplayValue = cachedUser.Location },
-            TimeZone = new ValueDisplayPair<string> { Value = cachedUser.TimeZone, DisplayValue = GetTimeZoneDisplayName(cachedUser.TimeZone) },
-            CountryCode = new ValueDisplayPair<string> { Value = cachedUser.CountryCode, DisplayValue = cachedUser.CountryCode ?? string.Empty },
-            PhoneNumber = new ValueDisplayPair<string> { Value = cachedUser.PhoneNumber, DisplayValue = cachedUser.PhoneNumber ?? string.Empty },
-            Profile = new ValueDisplayPair<Guid> { Value = cachedUser.Profile ?? Guid.Empty, DisplayValue = (cachedUser.Profile ?? Guid.Empty).ToString() },
-            IsActive = new ValueDisplayPair<bool> { Value = cachedUser.IsActive, DisplayValue = cachedUser.IsActive ? "Active" : "Inactive" },
-            CreatedAt = new ValueDisplayPair<DateTime> { Value = cachedUser.CreatedAt, DisplayValue = cachedUser.CreatedAt.ToString("g", CultureInfo.InvariantCulture) },
-            UpdatedAt = new ValueDisplayPair<DateTime> { Value = cachedUser.UpdatedAt, DisplayValue = cachedUser.UpdatedAt.ToString("g", CultureInfo.InvariantCulture) },
-            CreatedBy = new ValueDisplayPair<Guid> { Value = cachedUser.CreatedBy, DisplayValue = cachedUser.CreatedBy.ToString() },
-            UpdatedBy = new ValueDisplayPair<Guid> { Value = cachedUser.UpdatedBy, DisplayValue = cachedUser.UpdatedBy.ToString() }
-        };
-        
-        return userWithDisplay;
-    }
-    
-    /// <inheritdoc />
-    public async Task<string> GetUserFullNameFromCacheAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        _logger.LogDebug("Getting user full name from cache for user ID: {UserId}", id);
-        
-        // Get raw user data directly from cache
-        string cacheKey = $"{USER_CACHE_KEY_PREFIX}{id}";
-        var user = await _cacheService.GetAsync<UserResponse>(cacheKey);
-        
-        if (user == null)
-        {
-            _logger.LogDebug("User not found in cache for ID: {UserId}", id);
-            
-            // Try to cache all users if not found
-            await CacheAllUsersAsync(cancellationToken);
-            user = await _cacheService.GetAsync<UserResponse>(cacheKey);
-            
-            if (user == null)
+            if (!string.IsNullOrEmpty(u.CountryCode) && countriesLookup.TryGetValue(u.CountryCode, out var countryItem))
             {
-                return string.Empty;
+                u.CountryCodeText = countryItem.ItemName;
+            }
+            else
+            {
+                u.CountryCodeText = null;
+            }
+
+            if (!string.IsNullOrEmpty(u.Profile) && profilesLookup.TryGetValue(u.Profile, out var profileItem))
+            {
+                u.ProfileText = profileItem.ItemName;
+            }
+            else
+            {
+                u.ProfileText = null;
             }
         }
-        
-        // Get first name and last name values directly from the user response
-        string? firstName = user.FirstName;
-        string? lastName = user.LastName;
-        
-        // Concatenate first name and last name with a space in between
-        string fullName = string.Join(" ", new[] { firstName, lastName }.Where(n => !string.IsNullOrEmpty(n)));
-        
-        _logger.LogDebug("Retrieved full name '{FullName}' for user ID: {UserId}", fullName, id);
-        
-        return !string.IsNullOrWhiteSpace(fullName) ? fullName : string.Empty;
+
+        var statuses = _valueListService.GetStatuses().ToArray();
+
+        var response = new UsersListResponse
+        {
+            Data = usersList,
+            Related = new UsersListRelated
+            {
+                Profiles = profiles,
+                Statuses = statuses
+            }
+        };
+
+        // Cache the complete list
+        await _cacheService.SetAsync(CommonConstant.CacheKeys.UserList, response);
+
+        return response;
     }
 }

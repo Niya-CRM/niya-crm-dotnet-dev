@@ -14,21 +14,22 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly ILogger<ValueListItemService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task<IEnumerable<ValueListItem>> GetByValueListIdAsync(Guid valueListId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
     {
-        if (valueListId == Guid.Empty) throw new ValidationException("ValueListId is required.");
-        _logger.LogDebug("Getting ValueListItems for ValueListId: {ValueListId}", valueListId);
-        return await _unitOfWork.GetRepository<IValueListItemRepository>().GetByValueListIdAsync(valueListId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(listKey)) throw new ValidationException("ListKey is required.");
+        var trimmed = listKey.Trim();
+        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", trimmed);
+        return await _unitOfWork.GetRepository<IValueListItemRepository>().GetByListKeyAsync(trimmed, cancellationToken);
     }
 
     public async Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (item.ValueListId == Guid.Empty) throw new ValidationException("ValueListId is required.");
+        if (string.IsNullOrWhiteSpace(item.ListKey)) throw new ValidationException("ListKey is required.");
         if (string.IsNullOrWhiteSpace(item.ItemName)) throw new ValidationException("ItemName cannot be null or empty.");
-        if (string.IsNullOrWhiteSpace(item.ItemValue)) throw new ValidationException("ItemValue cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
 
-        _logger.LogInformation("Creating ValueListItem: {Name} for ValueList: {ValueListId}", item.ItemName, item.ValueListId);
+        _logger.LogInformation("Creating ValueListItem: {Name} for ValueList: {ListKey}", item.ItemName, item.ListKey);
 
         item.Id = item.Id == Guid.Empty ? Guid.CreateVersion7() : item.Id;
         item.CreatedAt = DateTime.UtcNow;
@@ -46,9 +47,9 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.Id == Guid.Empty) throw new ValidationException("Id is required for update.");
-        if (item.ValueListId == Guid.Empty) throw new ValidationException("ValueListId is required.");
+        if (string.IsNullOrWhiteSpace(item.ListKey)) throw new ValidationException("ListKey is required.");
         if (string.IsNullOrWhiteSpace(item.ItemName)) throw new ValidationException("ItemName cannot be null or empty.");
-        if (string.IsNullOrWhiteSpace(item.ItemValue)) throw new ValidationException("ItemValue cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
 
         _logger.LogInformation("Updating ValueListItem: {Id}", item.Id);
 
@@ -81,3 +82,4 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
         return entity;
     }
 }
+

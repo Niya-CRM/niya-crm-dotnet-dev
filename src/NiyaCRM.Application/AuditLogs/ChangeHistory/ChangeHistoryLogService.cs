@@ -77,70 +77,70 @@ namespace NiyaCRM.Application.AuditLogs.ChangeHistory
             // Convert to response with display values
             var result = new List<EntityDto>();
             
-            foreach (var log in logs)
-            {
-                var userFullName = await _userService.GetUserFullNameFromCacheAsync(log.CreatedBy, cancellationToken);
+            // foreach (var log in logs)
+            // {
+            //     var userFullName = await _userService.GetUserFullNameFromCacheAsync(log.CreatedBy, cancellationToken);
                 
-                var entity = new EntityDto();
-                entity.Fields["Id"] = new FieldDto
-                {
-                    FieldKey = "Id",
-                    FieldLabel = "Id",
-                    FieldValue = log.Id.ToString(),
-                    DisplayValue = log.Id.ToString()
-                };
-                entity.Fields["ObjectKey"] = new FieldDto
-                {
-                    FieldKey = "ObjectKey",
-                    FieldLabel = "Object Key",
-                    FieldValue = log.ObjectKey,
-                    DisplayValue = log.ObjectKey
-                };
-                entity.Fields["ObjectItemId"] = new FieldDto
-                {
-                    FieldKey = "ObjectItemId",
-                    FieldLabel = "Object Item Id",
-                    FieldValue = log.ObjectItemId.ToString(),
-                    DisplayValue = log.ObjectItemId.ToString()
-                };
-                entity.Fields["FieldName"] = new FieldDto
-                {
-                    FieldKey = "FieldName",
-                    FieldLabel = "Field Name",
-                    FieldValue = log.FieldName,
-                    DisplayValue = log.FieldName
-                };
-                entity.Fields["OldValue"] = new FieldDto
-                {
-                    FieldKey = "OldValue",
-                    FieldLabel = "Old Value",
-                    FieldValue = log.OldValue ?? string.Empty,
-                    DisplayValue = log.OldValue ?? string.Empty
-                };
-                entity.Fields["NewValue"] = new FieldDto
-                {
-                    FieldKey = "NewValue",
-                    FieldLabel = "New Value",
-                    FieldValue = log.NewValue ?? string.Empty,
-                    DisplayValue = log.NewValue ?? string.Empty
-                };
-                entity.Fields["CreatedAt"] = new FieldDto
-                {
-                    FieldKey = "CreatedAt",
-                    FieldLabel = "Created At",
-                    FieldValue = log.CreatedAt.ToString("o"),
-                    DisplayValue = log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
-                };
-                entity.Fields["CreatedBy"] = new FieldDto
-                {
-                    FieldKey = "CreatedBy",
-                    FieldLabel = "Created By",
-                    FieldValue = log.CreatedBy.ToString(),
-                    DisplayValue = userFullName
-                };
+            //     var entity = new EntityDto();
+            //     entity.Fields["Id"] = new FieldDto
+            //     {
+            //         FieldKey = "Id",
+            //         FieldLabel = "Id",
+            //         FieldValue = log.Id.ToString(),
+            //         DisplayValue = log.Id.ToString()
+            //     };
+            //     entity.Fields["ObjectKey"] = new FieldDto
+            //     {
+            //         FieldKey = "ObjectKey",
+            //         FieldLabel = "Object Key",
+            //         FieldValue = log.ObjectKey,
+            //         DisplayValue = log.ObjectKey
+            //     };
+            //     entity.Fields["ObjectItemId"] = new FieldDto
+            //     {
+            //         FieldKey = "ObjectItemId",
+            //         FieldLabel = "Object Item Id",
+            //         FieldValue = log.ObjectItemId.ToString(),
+            //         DisplayValue = log.ObjectItemId.ToString()
+            //     };
+            //     entity.Fields["FieldName"] = new FieldDto
+            //     {
+            //         FieldKey = "FieldName",
+            //         FieldLabel = "Field Name",
+            //         FieldValue = log.FieldName,
+            //         DisplayValue = log.FieldName
+            //     };
+            //     entity.Fields["OldValue"] = new FieldDto
+            //     {
+            //         FieldKey = "OldValue",
+            //         FieldLabel = "Old Value",
+            //         FieldValue = log.OldValue ?? string.Empty,
+            //         DisplayValue = log.OldValue ?? string.Empty
+            //     };
+            //     entity.Fields["NewValue"] = new FieldDto
+            //     {
+            //         FieldKey = "NewValue",
+            //         FieldLabel = "New Value",
+            //         FieldValue = log.NewValue ?? string.Empty,
+            //         DisplayValue = log.NewValue ?? string.Empty
+            //     };
+            //     entity.Fields["CreatedAt"] = new FieldDto
+            //     {
+            //         FieldKey = "CreatedAt",
+            //         FieldLabel = "Created At",
+            //         FieldValue = log.CreatedAt.ToString("o"),
+            //         DisplayValue = log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
+            //     };
+            //     entity.Fields["CreatedBy"] = new FieldDto
+            //     {
+            //         FieldKey = "CreatedBy",
+            //         FieldLabel = "Created By",
+            //         FieldValue = log.CreatedBy.ToString(),
+            //         DisplayValue = userFullName
+            //     };
 
-                result.Add(entity);
-            }
+            //     result.Add(entity);
+            // }
             
             return result;
         }

@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using NiyaCRM.Core.ValueLists.DTOs;
+using NiyaCRM.Core.Common.DTOs;
 
 namespace NiyaCRM.Core.Identity.DTOs;
 
@@ -27,7 +29,6 @@ public class CreateUserRequest
     /// </summary>
     [StringLength(30)]
     public string? FirstName { get; set; }
-
     /// <summary>
     /// Gets or sets the last name of the user.
     /// </summary>
@@ -61,9 +62,9 @@ public class CreateUserRequest
     public string? CountryCode { get; set; }
 
     /// <summary>
-    /// Gets or sets the profile identifier associated with the user.
+    /// Gets or sets the profile key (value list item key) associated with the user.
     /// </summary>
-    public Guid? Profile { get; set; }
+    public string? Profile { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.
@@ -119,9 +120,19 @@ public class UserResponse
     public string? CountryCode { get; set; }
 
     /// <summary>
-    /// Gets or sets the profile identifier associated with the user.
+    /// Gets or sets the display text for the country code, resolved from value list cache.
     /// </summary>
-    public Guid? Profile { get; set; }
+    public string? CountryCodeText { get; set; }
+
+    /// <summary>
+    /// Gets or sets the profile key (value list item key) associated with the user.
+    /// </summary>
+    public string? Profile { get; set; }
+
+    /// <summary>
+    /// Gets or sets the display text for the profile, resolved from value list cache.
+    /// </summary>
+    public string? ProfileText { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number of the user.
@@ -152,4 +163,36 @@ public class UserResponse
     /// Gets or sets the ID of the user who last updated the user.
     /// </summary>
     public Guid UpdatedBy { get; set; }
+}
+
+/// <summary>
+/// Wrapper response for users list with related reference data.
+/// </summary>
+public class UsersListResponse
+{
+    /// <summary>
+    /// The user items.
+    /// </summary>
+    public IEnumerable<UserResponse> Data { get; set; } = Array.Empty<UserResponse>();
+
+    /// <summary>
+    /// Related reference data used to render filters/dropdowns.
+    /// </summary>
+    public UsersListRelated Related { get; set; } = new();
+}
+
+/// <summary>
+/// Related reference data for the users list.
+/// </summary>
+public class UsersListRelated
+{
+    /// <summary>
+    /// All user profiles as options.
+    /// </summary>
+    public IEnumerable<ValueListItemOption> Profiles { get; set; } = Array.Empty<ValueListItemOption>();
+
+    /// <summary>
+    /// Status options: Active/true, Inactive/false.
+    /// </summary>
+    public IEnumerable<StatusOption> Statuses { get; set; } = Array.Empty<StatusOption>();
 }

@@ -15,9 +15,15 @@ namespace NiyaCRM.Infrastructure.Data.ValueLists
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<ValueListItem> builder)
         {
-            // Add index on Key property
-            builder.HasIndex(v => v.ItemValue)
-                .IsUnique();
+            // Non-unique index on ItemKey
+            builder.HasIndex(v => v.ItemKey);
+
+            // Map relationship by ListKey (FK) to ValueList.ListKey (principal key)
+            builder
+                .HasOne(vli => vli.ValueList)
+                .WithMany()
+                .HasForeignKey(vli => vli.ListKey)
+                .HasPrincipalKey(vl => vl.ListKey);
         }
     }
 }

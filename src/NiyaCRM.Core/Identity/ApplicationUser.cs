@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NiyaCRM.Core.Identity
 {
@@ -35,9 +36,11 @@ namespace NiyaCRM.Core.Identity
         public string? CountryCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the profile identifier associated with the user.
+        /// Gets or sets the profile key (value list item key) associated with the user.
         /// </summary>
-        public Guid? Profile { get; set; }
+        [MaxLength(100)]
+        [Column(TypeName = "varchar(100)")]
+        public string? Profile { get; set; }
 
         /// <summary>
         /// Gets or sets the default time zone identifier for this user.

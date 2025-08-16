@@ -167,7 +167,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                     last_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     location = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false, defaultValue: ""),
                     country_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
-                    profile = table.Column<Guid>(type: "uuid", nullable: true),
+                    profile = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     time_zone = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -200,7 +200,8 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    list_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    list_key = table.Column<string>(type: "varchar(50)", maxLength: 60, nullable: false),
                     description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     value_list_type = table.Column<string>(type: "varchar(10)", nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
@@ -214,6 +215,7 @@ namespace NiyaCRM.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_value_lists", x => x.id);
+                    table.UniqueConstraint("ak_value_lists_list_key", x => x.list_key);
                 });
 
             migrationBuilder.CreateTable(
@@ -438,9 +440,9 @@ namespace NiyaCRM.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    item_name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    item_value = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    value_list_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    item_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    item_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    list_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -451,10 +453,10 @@ namespace NiyaCRM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("pk_value_list_items", x => x.id);
                     table.ForeignKey(
-                        name: "FK_value_list_items_value_lists_value_list_id",
-                        column: x => x.value_list_id,
+                        name: "FK_value_list_items_value_lists_list_key",
+                        column: x => x.list_key,
                         principalTable: "value_lists",
-                        principalColumn: "id",
+                        principalColumn: "list_key",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -574,15 +576,14 @@ namespace NiyaCRM.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_value_list_items_item_value",
+                name: "ix_value_list_items_item_key",
                 table: "value_list_items",
-                column: "item_value",
-                unique: true);
+                column: "item_key");
 
             migrationBuilder.CreateIndex(
-                name: "ix_value_list_items_value_list_id",
+                name: "ix_value_list_items_list_key",
                 table: "value_list_items",
-                column: "value_list_id");
+                column: "list_key");
         }
 
         /// <inheritdoc />

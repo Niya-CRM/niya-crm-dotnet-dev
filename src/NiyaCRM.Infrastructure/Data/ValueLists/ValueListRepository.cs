@@ -36,7 +36,17 @@ public class ValueListRepository : IValueListRepository
 
         var trimmed = name.Trim();
         _logger.LogDebug("Getting ValueList by Name: {Name}", trimmed);
-        return await _dbSet.FirstOrDefaultAsync(v => v.Name == trimmed, cancellationToken);
+        return await _dbSet.FirstOrDefaultAsync(v => v.ListName == trimmed, cancellationToken);
+    }
+
+    public async Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new ArgumentException("ValueList key cannot be null or empty.", nameof(key));
+
+        var trimmed = key.Trim();
+        _logger.LogDebug("Getting ValueList by Key: {Key}", trimmed);
+        return await _dbSet.FirstOrDefaultAsync(v => v.ListKey == trimmed, cancellationToken);
     }
 
     public async Task<IEnumerable<ValueList>> GetAllAsync(
@@ -52,7 +62,7 @@ public class ValueListRepository : IValueListRepository
         _logger.LogDebug("Getting ValueLists - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
 
         return await _dbSet
-            .OrderBy(v => v.Name)
+            .OrderBy(v => v.ListName)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -62,7 +72,7 @@ public class ValueListRepository : IValueListRepository
     {
         ArgumentNullException.ThrowIfNull(valueList);
 
-        _logger.LogDebug("Adding ValueList: {Name}", valueList.Name);
+        _logger.LogDebug("Adding ValueList: {Name}", valueList.ListName);
         if (valueList.Id == Guid.Empty) valueList.Id = Guid.NewGuid();
         if (valueList.CreatedAt == default) valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;

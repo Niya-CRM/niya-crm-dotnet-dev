@@ -94,31 +94,8 @@ public class AppSetupService : IAppSetupService
     {
         var userId = Guid.CreateVersion7();
 
-        // Try to resolve 'Agent' profile from 'User Profiles' value list
-        Guid? agentProfileId = null;
-        try
-        {
-            var profilesList = await _valueListService.GetByNameAsync("User Profiles");
-            if (profilesList != null)
-            {
-                var items = await _valueListItemService.GetByValueListIdAsync(profilesList.Id);
-                agentProfileId = items
-                    .FirstOrDefault(i => i.IsActive && i.ItemValue == "Agent")?
-                    .Id;
-                if (!agentProfileId.HasValue)
-                {
-                    _logger.LogCritical("'Agent' profile not found in 'User Profiles'. Proceeding without setting Profile.");
-                }
-            }
-            else
-            {
-                _logger.LogCritical("ValueList 'User Profiles' not found. Proceeding without setting Profile.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to resolve 'Agent' profile from 'User Profiles'.");
-        }
+        // Use the 'agent' profile key directly
+        string? agentProfileKey = CommonConstant.UserProfiles.Agent.Key;
 
         var user = new ApplicationUser
         {
@@ -128,7 +105,7 @@ public class AppSetupService : IAppSetupService
             FirstName = setupDto.FirstName,
             LastName = setupDto.LastName,
             TimeZone = setupDto.TimeZone,
-            Profile = agentProfileId,
+            Profile = agentProfileKey,
             Location = setupDto.Location,
             CountryCode = setupDto.CountryCode,
             IsActive = "Y",

@@ -23,10 +23,10 @@ public class ValueListItemRepository : IValueListItemRepository
         _dbSet = dbContext.Set<ValueListItem>();
     }
 
-    public async Task<IEnumerable<ValueListItem>> GetByValueListIdAsync(Guid valueListId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting ValueListItems for ValueListId: {ValueListId}", valueListId);
-        return await _dbSet.Where(v => v.ValueListId == valueListId)
+        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", listKey);
+        return await _dbSet.Where(v => v.ListKey == listKey)
             .OrderBy(v => v.ItemName)
             .ToListAsync(cancellationToken);
     }
@@ -34,7 +34,7 @@ public class ValueListItemRepository : IValueListItemRepository
     public async Task<ValueListItem> AddAsync(ValueListItem item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        _logger.LogDebug("Adding ValueListItem: {Name} to ValueList: {ValueListId}", item.ItemName, item.ValueListId);
+        _logger.LogDebug("Adding ValueListItem: {Name} to ValueList: {ListKey}", item.ItemName, item.ListKey);
         if (item.Id == Guid.Empty) item.Id = Guid.NewGuid();
         if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
@@ -94,3 +94,4 @@ public class ValueListItemRepository : IValueListItemRepository
         return entity;
     }
 }
+

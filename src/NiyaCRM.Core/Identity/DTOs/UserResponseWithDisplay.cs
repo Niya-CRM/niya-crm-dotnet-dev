@@ -53,9 +53,9 @@ public class UserResponseWithDisplay
     public ValueDisplayPair<string> PhoneNumber { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the profile identifier associated with the user.
+    /// Gets or sets the profile key associated with the user.
     /// </summary>
-    public ValueDisplayPair<Guid> Profile { get; set; } = new();
+    public ValueDisplayPair<string> Profile { get; set; } = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether the user is active.

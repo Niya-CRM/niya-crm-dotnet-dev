@@ -173,25 +173,8 @@ namespace NiyaCRM.AppInstallation.Services
             
             if (existingUser == null)
             {
-                // Resolve profile GUID for "Technical" from ValueList "User Profiles"
-                Guid? technicalProfileId = null;
-                try
-                {
-                    var profileItems = await _valueListService.GetUserProfilesAsync();
-                    technicalProfileId = profileItems
-                        .Where(i => i.ItemValue == "Technical")
-                        .Select(i => (Guid?)i.Id)
-                        .FirstOrDefault();
-
-                    if (!technicalProfileId.HasValue)
-                    {
-                        _logger.LogWarning("Technical profile not found in 'User Profiles'; creating technical user without profile.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to resolve 'Technical' profile from 'User Profiles'.");
-                }
+                // Set profile key for Technical user directly using the value list item key
+                string? technicalProfileKey = CommonConstant.UserProfiles.Technical.Key;
                 
                 // Create the technical user
                 var technicalUser = new NiyaCRM.Core.Identity.ApplicationUser
@@ -202,7 +185,7 @@ namespace NiyaCRM.AppInstallation.Services
                     FirstName = "Technical",
                     LastName = "Interface",
                     Location = "Earth",
-                    Profile = technicalProfileId,
+                    Profile = technicalProfileKey,
                     CountryCode = "IN",
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
@@ -410,13 +393,14 @@ namespace NiyaCRM.AppInstallation.Services
                 var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
 
                 var countriesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.Name == "Countries");
+                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Countries);
 
                 if (countriesList == null)
                 {
                     countriesList = new ValueList(
                         Guid.CreateVersion7(),
-                        name: "Countries",
+                        listName: "Countries",
+                        listKey: CommonConstant.ValueListKeys.Countries,
                         description: "List of countries",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -429,20 +413,20 @@ namespace NiyaCRM.AppInstallation.Services
                     _logger.LogInformation("Created ValueList 'Countries' with ID: {Id}", countriesList.Id);
                 }
 
-                // Existing item values (country codes) for this list
-                var existingItemValues = await _dbContext.ValueListItems
-                    .Where(i => i.ValueListId == countriesList.Id)
-                    .Select(i => i.ItemValue)
+                // Existing item keys (country codes) for this list
+                var existingItemKeys = await _dbContext.ValueListItems
+                    .Where(i => i.ListKey == countriesList.ListKey)
+                    .Select(i => i.ItemKey)
                     .ToListAsync();
 
                 var newValueListItems = countries
                     .Where(c => !string.IsNullOrWhiteSpace(c.CountryCode))
-                    .Where(c => !existingItemValues.Contains(c.CountryCode))
+                    .Where(c => !existingItemKeys.Contains(c.CountryCode))
                     .Select(c => new ValueListItem(
                         Guid.CreateVersion7(),
                         itemName: c.CountryName,
-                        itemValue: c.CountryCode,
-                        valueListId: countriesList.Id,
+                        itemKey: c.CountryCode,
+                        listKey: countriesList.ListKey,
                         isActive: string.Equals(c.IsActive, "Y", StringComparison.OrdinalIgnoreCase),
                         createdBy: defaultUser
                     ))
@@ -520,13 +504,14 @@ namespace NiyaCRM.AppInstallation.Services
                 var defaultUser = NiyaCRM.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
                 
                 var currenciesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.Name == "Currencies");
+                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Currencies);
                 
                 if (currenciesList == null)
                 {
                     currenciesList = new ValueList(
                         Guid.CreateVersion7(),
-                        name: "Currencies",
+                        listName: "Currencies",
+                        listKey: CommonConstant.ValueListKeys.Currencies,
                         description: "List of currencies",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -539,19 +524,19 @@ namespace NiyaCRM.AppInstallation.Services
                     _logger.LogInformation("Created ValueList 'Currencies' with ID: {Id}", currenciesList.Id);
                 }
                 
-                // Existing item values (currency codes) for this list
-                var existingItemValues = await _dbContext.ValueListItems
-                    .Where(i => i.ValueListId == currenciesList.Id)
-                    .Select(i => i.ItemValue)
+                // Existing item keys (currency codes) for this list
+                var existingCurrencyKeys = await _dbContext.ValueListItems
+                    .Where(i => i.ListKey == currenciesList.ListKey)
+                    .Select(i => i.ItemKey)
                     .ToListAsync();
                 
                 var newValueListItems = currencies
-                    .Where(c => !existingItemValues.Contains(c.Code))
+                    .Where(c => !existingCurrencyKeys.Contains(c.Code))
                     .Select(c => new ValueListItem(
                         Guid.CreateVersion7(),
                         itemName: c.Name,
-                        itemValue: c.Code,
-                        valueListId: currenciesList.Id,
+                        itemKey: c.Code,
+                        listKey: currenciesList.ListKey,
                         isActive: true,
                         createdBy: defaultUser
                     ))
@@ -580,13 +565,14 @@ namespace NiyaCRM.AppInstallation.Services
                 
                 // Create or get ValueList 'User Profiles'
                 var profilesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.Name == "User Profiles");
+                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.UserProfiles);
                 
                 if (profilesList == null)
                 {
                     profilesList = new ValueList(
                         Guid.CreateVersion7(),
-                        name: "User Profiles",
+                        listName: "User Profiles",
+                        listKey: CommonConstant.ValueListKeys.UserProfiles,
                         description: "List of user profiles",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -600,20 +586,20 @@ namespace NiyaCRM.AppInstallation.Services
                 }
                 
                 // Existing item values for this list
-                var existingItemValues = await _dbContext.ValueListItems
-                    .Where(i => i.ValueListId == profilesList.Id)
-                    .Select(i => i.ItemValue)
+                var existingProfileKeys = await _dbContext.ValueListItems
+                    .Where(i => i.ListKey == profilesList.ListKey)
+                    .Select(i => i.ItemKey)
                     .ToListAsync();
                 
-                var desiredProfiles = new[] { "Administrator", "Agent", "Light Agent", "External User", "Technical" };
+                var desiredProfiles = CommonConstant.UserProfiles.All;
                 
                 var newItems = desiredProfiles
-                    .Where(name => !existingItemValues.Contains(name))
-                    .Select(name => new ValueListItem(
+                    .Where(p => !existingProfileKeys.Contains(p.Key))
+                    .Select(p => new ValueListItem(
                         Guid.CreateVersion7(),
-                        itemName: name,
-                        itemValue: name,
-                        valueListId: profilesList.Id,
+                        itemName: p.Name,
+                        itemKey: p.Key,
+                        listKey: profilesList.ListKey,
                         isActive: true,
                         createdBy: defaultUser
                     ))

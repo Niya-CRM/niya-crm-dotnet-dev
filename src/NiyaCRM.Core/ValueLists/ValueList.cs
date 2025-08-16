@@ -17,12 +17,20 @@ public class ValueList
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the name of the value list.
+    /// Gets or sets the display name of the value list.
     /// </summary>
     [Required]
     [StringLength(50)]
     [Column(TypeName = "varchar(50)")]
-    public string Name { get; set; } = string.Empty;
+    public string ListName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the unique key of the value list (e.g., "countries").
+    /// </summary>
+    [Required]
+    [StringLength(50)]
+    [Column(TypeName = "varchar(50)")]
+    public string ListKey { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the description of the value list.
@@ -93,7 +101,8 @@ public class ValueList
     /// </summary>
     public ValueList(
         Guid id,
-        string name,
+        string listName,
+        string listKey,
         string description,
         string valueListTypeId,
         bool isActive,
@@ -102,7 +111,8 @@ public class ValueList
         Guid createdBy)
     {
         Id = id;
-        Name = name;
+        ListName = listName;
+        ListKey = listKey;
         Description = description;
         ValueListType = valueListTypeId;
         IsActive = isActive;

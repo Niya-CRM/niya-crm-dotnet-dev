@@ -17,10 +17,6 @@ namespace NiyaCRM.Infrastructure.Data.Identity
                    .HasColumnType("varchar(60)")
                    .IsRequired()
                    .HasDefaultValue(string.Empty);
-
-            // Profile: optional
-            builder.Property(u => u.Profile)
-                   .IsRequired(false);
         }
     }
 }
