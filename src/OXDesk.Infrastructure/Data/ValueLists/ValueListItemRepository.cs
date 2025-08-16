@@ -38,7 +38,7 @@ public class ValueListItemRepository : IValueListItemRepository
         if (item.Id == Guid.Empty) item.Id = Guid.NewGuid();
         if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
-        if (item.CreatedBy == Guid.Empty) item.CreatedBy = CommonConstant.DEFAULT_TECHNICAL_USER;
+        if (item.CreatedBy == Guid.Empty) item.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
         if (item.UpdatedBy == Guid.Empty) item.UpdatedBy = item.CreatedBy;
 
         var entry = await _dbSet.AddAsync(item, cancellationToken);
@@ -71,7 +71,7 @@ public class ValueListItemRepository : IValueListItemRepository
 
         entity.IsActive = true;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_TECHNICAL_USER;
+        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Activated ValueListItem: {Id}", id);
         return entity;
@@ -88,7 +88,7 @@ public class ValueListItemRepository : IValueListItemRepository
 
         entity.IsActive = false;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_TECHNICAL_USER;
+        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Deactivated ValueListItem: {Id}", id);
         return entity;

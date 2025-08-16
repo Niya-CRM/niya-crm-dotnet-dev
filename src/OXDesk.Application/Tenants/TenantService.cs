@@ -94,7 +94,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             databaseName: normalizedDatabaseName,
             isActive: "Y",
             createdAt: DateTime.UtcNow,
-            createdBy: createdBy ?? CommonConstant.DEFAULT_TECHNICAL_USER
+            createdBy: createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER
         );
 
         // Save tenant
@@ -105,7 +105,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
             createdTenant.Id.ToString(),
             $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
-            createdBy ?? CommonConstant.DEFAULT_TECHNICAL_USER,
+            createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken
         );
 
@@ -225,7 +225,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         tenant.TimeZone = request.TimeZone ?? string.Empty;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_TECHNICAL_USER;
+        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         // Save changes
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
@@ -235,7 +235,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id.ToString(),
             $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
-            modifiedBy ?? CommonConstant.DEFAULT_TECHNICAL_USER,
+            modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken
         );
 
@@ -267,7 +267,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         // Set active status based on action
         tenant.IsActive = isActivating ? "Y" : "N";
         tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = CommonConstant.DEFAULT_TECHNICAL_USER;
+        tenant.LastModifiedBy = CommonConstant.DEFAULT_SYSTEM_USER;
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation/deactivation
@@ -276,7 +276,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id.ToString(),
             $"Tenant {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
-            CommonConstant.DEFAULT_TECHNICAL_USER,
+            CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken
         );
 

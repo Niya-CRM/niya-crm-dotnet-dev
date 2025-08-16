@@ -118,8 +118,8 @@ public class DynamicObjectFieldController : ControllerBase
         try
         {
             request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id; // Allow client to omit ID
-            request.CreatedBy = CommonConstant.DEFAULT_TECHNICAL_USER;
-            request.UpdatedBy = CommonConstant.DEFAULT_TECHNICAL_USER;
+            request.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+            request.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
 
             _logger.LogInformation("Creating field '{FieldKey}' for object ID '{ObjectId}'", request.FieldKey, objectId);
             var created = await _fieldService.AddFieldAsync(objectId, request, cancellationToken);
@@ -176,7 +176,7 @@ public class DynamicObjectFieldController : ControllerBase
             request.ObjectKey = existing.ObjectKey;
             request.CreatedBy = existing.CreatedBy; // preserve creator
             request.CreatedAt = existing.CreatedAt; // preserve created timestamp if used
-            request.UpdatedBy = CommonConstant.DEFAULT_TECHNICAL_USER;
+            request.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
 
             _logger.LogInformation("Updating field '{FieldId}' for object ID '{ObjectId}'", fieldId, objectId);
             var updated = await _fieldService.UpdateFieldAsync(objectId, request, cancellationToken);

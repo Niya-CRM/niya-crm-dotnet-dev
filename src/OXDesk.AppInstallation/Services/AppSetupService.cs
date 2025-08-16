@@ -71,10 +71,10 @@ public class AppSetupService : IAppSetupService
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             
             // Create the initial admin user
-            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_TECHNICAL_USER);
+            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER);
 
             // Create the tenant
-            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_TECHNICAL_USER, cancellationToken);
+            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, cancellationToken);
 
             // Commit the transaction
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -90,7 +90,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid technicalUserId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid systemUserId)
     {
         var userId = Guid.CreateVersion7();
 
@@ -109,8 +109,8 @@ public class AppSetupService : IAppSetupService
             Location = setupDto.Location,
             CountryCode = setupDto.CountryCode,
             IsActive = "Y",
-            CreatedBy = technicalUserId,
-            UpdatedBy = technicalUserId
+            CreatedBy = systemUserId,
+            UpdatedBy = systemUserId
         };
 
         var createResult = await _userManager.CreateAsync(user, setupDto.Password);
@@ -130,20 +130,20 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid technicalUserId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid systemUserId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new OXDesk.Core.Tenants.DTOs.CreateTenantRequest
         {
             Name = setupDto.TenantName,
             Host = setupDto.Host,
             Email = setupDto.AdminEmail,
-            UserId = technicalUserId,
+            UserId = systemUserId,
             TimeZone = setupDto.TimeZone
         };
 
         var tenant = await _tenantService.CreateTenantAsync(
             request: createTenantRequest,
-            createdBy: technicalUserId,
+            createdBy: systemUserId,
             cancellationToken: cancellationToken
         );
 

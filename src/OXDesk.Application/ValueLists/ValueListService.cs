@@ -38,7 +38,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         valueList.Id = valueList.Id == Guid.Empty ? Guid.CreateVersion7() : valueList.Id;
         valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
-        valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_TECHNICAL_USER : valueList.CreatedBy);
+        valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.CreatedBy);
         valueList.UpdatedBy = valueList.CreatedBy;
 
         var created = await _unitOfWork.GetRepository<IValueListRepository>().AddAsync(valueList, cancellationToken);
@@ -78,7 +78,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         existing.AllowModify = valueList.AllowModify;
         existing.AllowNewItem = valueList.AllowNewItem;
         existing.UpdatedAt = DateTime.UtcNow;
-        existing.UpdatedBy = modifiedBy ?? (valueList.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_TECHNICAL_USER : valueList.UpdatedBy);
+        existing.UpdatedBy = modifiedBy ?? (valueList.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.UpdatedBy);
 
         var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -445,7 +445,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 CreatedAt = existingTenant.CreatedAt,
                 CreatedBy = existingTenant.CreatedBy,
                 LastModifiedAt = DateTime.UtcNow,
-                LastModifiedBy = CommonConstant.DEFAULT_TECHNICAL_USER
+                LastModifiedBy = CommonConstant.DEFAULT_SYSTEM_USER
             };
 
             _mockTenantRepository

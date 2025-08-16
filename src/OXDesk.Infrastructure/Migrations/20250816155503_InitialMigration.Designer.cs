@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using OXDesk.Infrastructure.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using OXDesk.Infrastructure.Data;
 
 #nullable disable
 
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250816132119_InitialMigration")]
+    [Migration("20250816155503_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

@@ -54,8 +54,8 @@ namespace OXDesk.AppInstallation.Services
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Field Types", async () => {
                 await InitializeFieldTypesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Create Technical User", async () => {
-                await CreateTechnicalUserAsync();
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Create System User", async () => {
+                await CreateSystemUserAsync();
             }),
         ];
 
@@ -110,7 +110,7 @@ namespace OXDesk.AppInstallation.Services
 
         private async Task SeedDefaultRolesAsync()
         {
-            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
             var utcNow = DateTime.UtcNow;
             
             foreach (var role in OXDesk.Core.Common.CommonConstant.RoleNames.All)
@@ -132,7 +132,7 @@ namespace OXDesk.AppInstallation.Services
 
         private async Task SeedDefaultPermissionsAsync()
         {
-            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
             var utcNow = DateTime.UtcNow;
             
             foreach (var permissionName in OXDesk.Core.Common.CommonConstant.PermissionNames.All)
@@ -161,66 +161,66 @@ namespace OXDesk.AppInstallation.Services
         }
 
         /// <summary>
-        /// Create Technical User
+        /// Create System User
         /// </summary>
         /// <returns></returns>
 
-        private async Task CreateTechnicalUserAsync()
+        private async Task CreateSystemUserAsync()
         {
-            // Check if technical user already exists
-            var technicalUserEmail = "OXDesk@system.local";
-            var existingUser = await _userManager.FindByEmailAsync(technicalUserEmail);
+            // Check if system user already exists
+            var systemUserEmail = "OXDesk@system.local";
+            var existingUser = await _userManager.FindByEmailAsync(systemUserEmail);
             
             if (existingUser == null)
             {
-                // Set profile key for Technical user directly using the value list item key
-                string? technicalProfileKey = CommonConstant.UserProfiles.Technical.Key;
+                // Set profile key for System user directly using the value list item key
+                string? systemProfileKey = CommonConstant.UserProfiles.System.Key;
                 
-                // Create the technical user
-                var technicalUser = new OXDesk.Core.Identity.ApplicationUser
+                // Create the system user
+                var systemUser = new OXDesk.Core.Identity.ApplicationUser
                 {
-                    Id = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER,
-                    UserName = technicalUserEmail,
-                    Email = technicalUserEmail,
-                    FirstName = "Technical",
+                    Id = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
+                    UserName = systemUserEmail,
+                    Email = systemUserEmail,
+                    FirstName = "System",
                     LastName = "Interface",
                     Location = "Earth",
-                    Profile = technicalProfileKey,
+                    Profile = systemProfileKey,
                     CountryCode = "IN",
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,
                     CreatedAt = DateTime.UtcNow,
-                    CreatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER,
+                    CreatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
                     UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    UpdatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
                 };
                 
                 // Generate a strong random password
                 var password = Guid.CreateVersion7().ToString() + "!Aa1";
                 
                 // Create the user
-                var result = await _userManager.CreateAsync(technicalUser, password);
+                var result = await _userManager.CreateAsync(systemUser, password);
                 
                 if (result.Succeeded)
                 {
                     // Instead of using UserManager.AddToRoleAsync, we'll create the user role directly
                     // to set the audit fields
-                    var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                    var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                     var utcNow = DateTime.UtcNow;
                     
                     // Get the role ID
-                    var role = await _roleManager.FindByNameAsync(OXDesk.Core.Common.CommonConstant.RoleNames.Technical);
+                    var role = await _roleManager.FindByNameAsync(OXDesk.Core.Common.CommonConstant.RoleNames.System);
                     if (role == null)
                     {
-                        _logger.LogCritical("Could not find Technical role when assigning to technical user");
+                        _logger.LogCritical("Could not find System role when assigning to system user");
                         return;
                     }
                     
                     // Create a new ApplicationUserRole with audit fields
                     var userRole = new OXDesk.Core.Identity.ApplicationUserRole
                     {
-                        UserId = technicalUser.Id,
+                        UserId = systemUser.Id,
                         RoleId = role.Id,
                         CreatedBy = defaultUser,
                         CreatedAt = utcNow,
@@ -234,18 +234,18 @@ namespace OXDesk.AppInstallation.Services
                         _dbContext.UserRoles.Add(userRole);
                         await _dbContext.SaveChangesAsync();
                         
-                        _logger.LogInformation("Added technical user to Technical role with audit fields");
+                        _logger.LogInformation("Added system user to System role with audit fields");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogCritical(ex, "Failed to add technical user to Technical role");
+                        _logger.LogCritical(ex, "Failed to add system user to System role");
                     }
                 }
                 else
                 {
                     // Log the error
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    _logger.LogCritical("Failed to create technical user: {Errors}", errors);
+                    _logger.LogCritical("Failed to create system user: {Errors}", errors);
                 }
             }
         }
@@ -266,7 +266,7 @@ namespace OXDesk.AppInstallation.Services
                     "user",
                     "System user entity for authentication and authorization",
                     OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Account dynamic object
@@ -278,7 +278,7 @@ namespace OXDesk.AppInstallation.Services
                     "account",
                     "Business or organization account",
                     OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Contact dynamic object
@@ -290,7 +290,7 @@ namespace OXDesk.AppInstallation.Services
                     "contact",
                     "Individual contact associated with accounts",
                     OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Ticket dynamic object
@@ -302,7 +302,7 @@ namespace OXDesk.AppInstallation.Services
                     "ticket",
                     "Support or service ticket",
                     OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER
+                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
                 )
             };
             
@@ -390,7 +390,7 @@ namespace OXDesk.AppInstallation.Services
                 }).OrderBy(c => c.CountryName).ToList();
 
                 // Create or get ValueList 'Countries' and add items (Country Code, Country Name)
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
 
                 var countriesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Countries);
@@ -501,7 +501,7 @@ namespace OXDesk.AppInstallation.Services
                     .ToList();
                 
                 // Create or get ValueList 'Currencies' and add items (Code, Name)
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 
                 var currenciesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Currencies);
@@ -561,7 +561,7 @@ namespace OXDesk.AppInstallation.Services
             
             try
             {
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 
                 // Create or get ValueList 'User Profiles'
                 var profilesList = await _dbContext.ValueLists
@@ -624,7 +624,7 @@ namespace OXDesk.AppInstallation.Services
             
             try
             {
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 var now = DateTime.UtcNow;
                 
                 // Define desired field types with recommended configs
@@ -841,8 +841,8 @@ namespace OXDesk.AppInstallation.Services
             // Define role-based permissions
             var rolePermissions = new Dictionary<string, string[]>
             {
-                // Technical role has all permissions
-                [OXDesk.Core.Common.CommonConstant.RoleNames.Technical] = OXDesk.Core.Common.CommonConstant.PermissionNames.All,
+                // System role has all permissions
+                [OXDesk.Core.Common.CommonConstant.RoleNames.System] = OXDesk.Core.Common.CommonConstant.PermissionNames.All,
                 
                 // Administrator has all permissions
                 [OXDesk.Core.Common.CommonConstant.RoleNames.Administrator] = OXDesk.Core.Common.CommonConstant.PermissionNames.All,
@@ -927,7 +927,7 @@ namespace OXDesk.AppInstallation.Services
                         _logger.LogWarning("Permission {PermissionName} not found in dictionary when assigning to role {RoleName}, creating it now", permissionName, roleName);
                         
                         // Create the permission if it doesn't exist
-                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                         var utcNow = DateTime.UtcNow;
                         var normalizedName = permissionName.ToUpperInvariant();
                         
@@ -955,7 +955,7 @@ namespace OXDesk.AppInstallation.Services
                     if (!existingClaims.Any(c => c.Type == claimType && c.Value == claimValue))
                     {
                         // Create the claim directly with audit fields
-                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_TECHNICAL_USER;
+                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                         var utcNow = DateTime.UtcNow;
                         
                         // Create a new ApplicationRoleClaim with audit fields

@@ -34,7 +34,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
         item.Id = item.Id == Guid.Empty ? Guid.CreateVersion7() : item.Id;
         item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
-        item.CreatedBy = createdBy ?? (item.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_TECHNICAL_USER : item.CreatedBy);
+        item.CreatedBy = createdBy ?? (item.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.CreatedBy);
         item.UpdatedBy = item.CreatedBy;
 
         var created = await _unitOfWork.GetRepository<IValueListItemRepository>().AddAsync(item, cancellationToken);
@@ -56,7 +56,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
         var existingItemsRepo = _unitOfWork.GetRepository<IValueListItemRepository>();
         // We trust repository to track entity by key; simply set audit fields here
         item.UpdatedAt = DateTime.UtcNow;
-        item.UpdatedBy = modifiedBy ?? (item.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_TECHNICAL_USER : item.UpdatedBy);
+        item.UpdatedBy = modifiedBy ?? (item.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.UpdatedBy);
 
         var updated = await existingItemsRepo.UpdateAsync(item, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

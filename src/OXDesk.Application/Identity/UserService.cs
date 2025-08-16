@@ -173,7 +173,7 @@ public class UserService : IUserService
         }
 
         var userId = Guid.CreateVersion7();
-        var currentUserId = createdBy ?? CommonConstant.DEFAULT_TECHNICAL_USER;
+        var currentUserId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         // Create new user
         var user = new ApplicationUser

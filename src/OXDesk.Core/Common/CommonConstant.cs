@@ -2,7 +2,7 @@ namespace OXDesk.Core.Common;
 
 public static class CommonConstant
 {
-    public static readonly Guid DEFAULT_TECHNICAL_USER = Guid.Parse("01986f5e-bce5-7835-be32-7ddc3ecbff4f");
+    public static readonly Guid DEFAULT_SYSTEM_USER = Guid.Parse("01986f5e-bce5-7835-be32-7ddc3ecbff4f");
 
     // Message Constants
     public const string MESSAGE_INVALID_REQUEST = "Invalid Request";
@@ -66,7 +66,7 @@ public static class CommonConstant
         public const string SupportAgent = "Support Agent";
         public const string LightAgent = "Light Agent";
         public const string ExternalUser = "External User";
-        public const string Technical = "Technical";
+        public const string System = "System";
         
         public static readonly string[] All = 
         {
@@ -75,7 +75,7 @@ public static class CommonConstant
             SupportAgent,
             LightAgent,
             ExternalUser,
-            Technical
+            System
         };
     }
 
@@ -118,14 +118,14 @@ public static class CommonConstant
         public static class Agent { public const string Name = "Agent"; public const string Key = "agent"; }
         public static class LightAgent { public const string Name = "Light Agent"; public const string Key = "light-agent"; }
         public static class ExternalUser { public const string Name = "External User"; public const string Key = "external-user"; }
-        public static class Technical { public const string Name = "Technical"; public const string Key = "technical"; }
+        public static class System { public const string Name = "System"; public const string Key = "system"; }
 
         public static readonly (string Name, string Key)[] All =
         {
             (Agent.Name, Agent.Key),
             (LightAgent.Name, LightAgent.Key),
             (ExternalUser.Name, ExternalUser.Key),
-            (Technical.Name, Technical.Key)
+            (System.Name, System.Key)
         };
     }
 

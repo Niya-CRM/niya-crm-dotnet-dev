@@ -56,7 +56,7 @@ public class DynamicObjectController : ControllerBase
             
             var dynamicObject = await _dynamicObjectService.CreateDynamicObjectAsync(
                 request: request,
-                createdBy: CommonConstant.DEFAULT_TECHNICAL_USER,
+                createdBy: CommonConstant.DEFAULT_SYSTEM_USER,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created dynamic object with ID: {DynamicObjectId}", dynamicObject.Id);
@@ -159,7 +159,7 @@ public class DynamicObjectController : ControllerBase
             var updatedDynamicObject = await _dynamicObjectService.UpdateDynamicObjectAsync(
                 objectId, 
                 request, 
-                CommonConstant.DEFAULT_TECHNICAL_USER, 
+                CommonConstant.DEFAULT_SYSTEM_USER, 
                 cancellationToken);
 
             _logger.LogInformation("Successfully updated dynamic object: {DynamicObjectId}", objectId);
