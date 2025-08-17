@@ -46,6 +46,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Application.Identity.Validators;
 
+try
+{
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddConfigurations();
@@ -133,6 +135,9 @@ builder.Services.AddAuthentication(options => {
 
 builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionRepository, OXDesk.Infrastructure.Data.Identity.PermissionRepository>();
 builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionService, OXDesk.Application.Identity.PermissionService>();
+// Register Role Service
+builder.Services.AddScoped<OXDesk.Core.Identity.IRoleClaimRepository, OXDesk.Infrastructure.Data.Identity.RoleClaimRepository>();
+builder.Services.AddScoped<OXDesk.Core.Identity.IRoleService, OXDesk.Application.Identity.RoleService>();
 
 // Add Authorization policies with global fallback policy using AuthorizationBuilder
 var authBuilder = builder.Services.AddAuthorizationBuilder();
@@ -141,6 +146,12 @@ var authBuilder = builder.Services.AddAuthorizationBuilder();
 authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
     .RequireAuthenticatedUser()
     .Build());
+
+// Permission-based policies
+authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupRead, policy =>
+    policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupRead));
+authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupWrite, policy =>
+    policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupWrite));
 
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -184,6 +195,10 @@ builder.Services.AddMemoryCache();
 
 // Register FluentValidation
 builder.Services.AddScoped<IValidator<CreateTenantRequest>, CreateTenantRequestValidator>();
+builder.Services.AddScoped<IValidator<CreatePermissionRequest>, CreatePermissionRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdatePermissionRequest>, UpdatePermissionRequestValidator>();
+builder.Services.AddScoped<IValidator<CreateRoleRequest>, CreateRoleRequestValidator>();
+builder.Services.AddScoped<IValidator<UpdateRoleRequest>, UpdateRoleRequestValidator>();
 builder.Services.AddScoped<OXDesk.Core.Cache.ICacheRepository, OXDesk.Infrastructure.Cache.CacheRepository>();
 builder.Services.AddScoped<OXDesk.Core.Cache.ICacheService, OXDesk.Application.Cache.CacheService>();
 
@@ -199,7 +214,7 @@ builder.Services.AddAppInstallation();
 // Register Swagger/OpenAPI
 builder.Services.AddSwaggerServices(builder.Configuration);
 
-// Register Health Checks
+// Health Checks
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => HealthCheckResult.Healthy(), tags: CommonConstant.HealthCheck.ServiceTags)
     .AddCheck<DatabaseHealthCheck>("database_connection", tags: CommonConstant.HealthCheck.DatabaseTags);
@@ -209,6 +224,12 @@ builder.Services.AddScoped<DatabaseHealthCheck>();
 
 // Register Serilog using the extension method
 builder.Host.RegisterSerilog();
+
+builder.Host.UseDefaultServiceProvider(options =>
+{
+    options.ValidateScopes = true;
+    options.ValidateOnBuild = true;
+});
 
 var app = builder.Build();
 
@@ -246,3 +267,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 await app.RunAsync();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Startup error: " + ex);
+    throw;
+}

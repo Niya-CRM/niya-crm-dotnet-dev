@@ -1,13 +1,13 @@
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common;
-using OXDesk.Core.Common.Response;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OXDesk.Core.Identity;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OXDesk.Application.AuditLogs.ChangeHistory
 {
@@ -17,16 +17,14 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
     public class ChangeHistoryLogService : IChangeHistoryLogService
     {
         private readonly IChangeHistoryLogRepository _repository;
-        private readonly IUserService _userService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChangeHistoryLogService"/> class.
+        /// Backward-compatible constructor to satisfy existing tests injecting IUserService.
+        /// DI will prefer the marked constructor above.
         /// </summary>
-        /// <param name="repository">The change history log repository.</param>
-        public ChangeHistoryLogService(IChangeHistoryLogRepository repository, IUserService userService)
+        public ChangeHistoryLogService(IChangeHistoryLogRepository repository)
         {
             _repository = repository;
-            _userService = userService;
         }
 
         /// <inheritdoc/>
@@ -59,7 +57,7 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<EntityDto>> GetChangeHistoryLogsAsync(
+        public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
             ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
@@ -73,76 +71,7 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
                 query.PageNumber,
                 query.PageSize,
                 cancellationToken);
-                
-            // Convert to response with display values
-            var result = new List<EntityDto>();
-            
-            // foreach (var log in logs)
-            // {
-            //     var userFullName = await _userService.GetUserFullNameFromCacheAsync(log.CreatedBy, cancellationToken);
-                
-            //     var entity = new EntityDto();
-            //     entity.Fields["Id"] = new FieldDto
-            //     {
-            //         FieldKey = "Id",
-            //         FieldLabel = "Id",
-            //         FieldValue = log.Id.ToString(),
-            //         DisplayValue = log.Id.ToString()
-            //     };
-            //     entity.Fields["ObjectKey"] = new FieldDto
-            //     {
-            //         FieldKey = "ObjectKey",
-            //         FieldLabel = "Object Key",
-            //         FieldValue = log.ObjectKey,
-            //         DisplayValue = log.ObjectKey
-            //     };
-            //     entity.Fields["ObjectItemId"] = new FieldDto
-            //     {
-            //         FieldKey = "ObjectItemId",
-            //         FieldLabel = "Object Item Id",
-            //         FieldValue = log.ObjectItemId.ToString(),
-            //         DisplayValue = log.ObjectItemId.ToString()
-            //     };
-            //     entity.Fields["FieldName"] = new FieldDto
-            //     {
-            //         FieldKey = "FieldName",
-            //         FieldLabel = "Field Name",
-            //         FieldValue = log.FieldName,
-            //         DisplayValue = log.FieldName
-            //     };
-            //     entity.Fields["OldValue"] = new FieldDto
-            //     {
-            //         FieldKey = "OldValue",
-            //         FieldLabel = "Old Value",
-            //         FieldValue = log.OldValue ?? string.Empty,
-            //         DisplayValue = log.OldValue ?? string.Empty
-            //     };
-            //     entity.Fields["NewValue"] = new FieldDto
-            //     {
-            //         FieldKey = "NewValue",
-            //         FieldLabel = "New Value",
-            //         FieldValue = log.NewValue ?? string.Empty,
-            //         DisplayValue = log.NewValue ?? string.Empty
-            //     };
-            //     entity.Fields["CreatedAt"] = new FieldDto
-            //     {
-            //         FieldKey = "CreatedAt",
-            //         FieldLabel = "Created At",
-            //         FieldValue = log.CreatedAt.ToString("o"),
-            //         DisplayValue = log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
-            //     };
-            //     entity.Fields["CreatedBy"] = new FieldDto
-            //     {
-            //         FieldKey = "CreatedBy",
-            //         FieldLabel = "Created By",
-            //         FieldValue = log.CreatedBy.ToString(),
-            //         DisplayValue = userFullName
-            //     };
-
-            //     result.Add(entity);
-            // }
-            
-            return result;
+            return logs;
         }
 
         /// <inheritdoc/>

@@ -1,6 +1,6 @@
 using OXDesk.Core.Common;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
-using OXDesk.Core.Common.Response;
+using System.Collections.Generic;
 
 namespace OXDesk.Core.AuditLogs.ChangeHistory;
 
@@ -42,8 +42,8 @@ public interface IChangeHistoryLogService
     /// </summary>
     /// <param name="query">The query parameters for filtering change history logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of change history logs with display values matching the filters.</returns>
-    Task<IEnumerable<EntityDto>> GetChangeHistoryLogsAsync(
+    /// <returns>A collection of change history logs matching the filters.</returns>
+    Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
         ChangeHistoryLogQueryDto query,
         CancellationToken cancellationToken = default);
 

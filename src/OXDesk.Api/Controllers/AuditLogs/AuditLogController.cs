@@ -3,8 +3,10 @@ using OXDesk.Core.AuditLogs;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Api.Common;
+using OXDesk.Core.Common.DTOs;
 
 namespace OXDesk.Api.Controllers.AuditLogs
 {
@@ -23,20 +25,29 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// Gets all audit logs with optional filters and paging.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<AuditLog>), 200)]
-        public async Task<ActionResult<IEnumerable<AuditLog>>> GetAll(
-    [FromQuery] AuditLogQueryDto query,
-    CancellationToken cancellationToken = default)
-{
-    if (!ModelState.IsValid)
-    {
-        return BadRequest(ModelState);
-    }
-    var logs = await _auditLogService.GetAuditLogsAsync(
-        query,
-        cancellationToken);
-    return Ok(logs);
-}
+        [ProducesResponseType(typeof(PagedResponse<AuditLog>), 200)]
+        public async Task<ActionResult<PagedResponse<AuditLog>>> GetAll(
+            [FromQuery] AuditLogQueryDto query,
+            CancellationToken cancellationToken = default)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var logs = await _auditLogService.GetAuditLogsAsync(
+                query,
+                cancellationToken);
+
+            var list = logs as IList<AuditLog> ?? logs.ToList();
+
+            var response = new PagedResponse<AuditLog>
+            {
+                Data = list,
+                PageNumber = query.PageNumber,
+                RowCount = list.Count
+            };
+            return Ok(response);
+        }
 
         /// <summary>
         /// Gets a specific audit log by its ID.

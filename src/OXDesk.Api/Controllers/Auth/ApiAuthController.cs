@@ -10,6 +10,8 @@ using OXDesk.Api.Helpers;
 using OXDesk.Core.Auth.Constants;
 using OXDesk.Core.Auth.DTOs;
 using OXDesk.Core.Identity;
+using OXDesk.Core.AuditLogs;
+using OXDesk.Core.Common;
 
 namespace OXDesk.Api.Controllers.Auth
 {
@@ -29,17 +31,20 @@ namespace OXDesk.Api.Controllers.Auth
         private readonly JwtHelper _jwtHelper;
         private readonly ILogger<ApiAuthController> _logger;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IAuditLogService _auditLogService;
 
         public ApiAuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             JwtHelper jwtHelper,
+            IAuditLogService auditLogService,
             ILogger<ApiAuthController> logger,
             IRefreshTokenRepository refreshTokenRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtHelper = jwtHelper;
+            _auditLogService = auditLogService;
             _logger = logger;
             _refreshTokenRepository = refreshTokenRepository;
         }
@@ -76,6 +81,16 @@ namespace OXDesk.Api.Controllers.Auth
             if (user.IsActive != "Y")
             {
                 _logger.LogWarning("User account is deactivated: {Email}", model.Email);
+                // Audit: Login denied due to inactive account
+                await _auditLogService.CreateAuditLogAsync(
+                    objectKey: CommonConstant.MODULE_USER,
+                    @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                    objectItemId: user.Id.ToString(),
+                    ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
+                    data: "Login Denied - Account not Active",
+                    createdBy: user.Id,
+                    cancellationToken: default
+                );
                 return Unauthorized(new { Message = "Account is deactivated. Please contact Support." });
             }
 
@@ -83,11 +98,30 @@ namespace OXDesk.Api.Controllers.Auth
             if (!result.Succeeded)
             {
                 _logger.LogWarning("Invalid password for user: {Email}", model.Email);
+                // Audit: Invalid credential attempt
+                await _auditLogService.CreateAuditLogAsync(
+                    objectKey: CommonConstant.MODULE_USER,
+                    @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                    objectItemId: user.Id.ToString(),
+                    ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
+                    data: "Invalid Credential",
+                    createdBy: user.Id,
+                    cancellationToken: default
+                );
                 return Unauthorized(new { Message = "Invalid email or password" });
             }
 
             _logger.LogInformation("User authenticated successfully: {Email}", model.Email);
-
+            // Audit: Successful login
+            await _auditLogService.CreateAuditLogAsync(
+                objectKey: CommonConstant.MODULE_USER,
+                @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                objectItemId: user.Id.ToString(),
+                ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
+                data: "Login Successful",
+                createdBy: user.Id,
+                cancellationToken: default
+            );
             var tokenResponse = await _jwtHelper.BuildTokenResponse(user);
 
             // Return token and user info in JSON response using the TokenResponse model

@@ -127,7 +127,7 @@ public class UserController : ControllerBase
     /// <param name="request">The activation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user.</returns>
-    [HttpPost("{id:guid}/activate")]
+    [HttpPatch("{id:guid}/activate")]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -143,7 +143,7 @@ public class UserController : ControllerBase
     /// <param name="request">The deactivation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user.</returns>
-    [HttpPost("{id:guid}/deactivate")]
+    [HttpPatch("{id:guid}/deactivate")]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -163,6 +163,17 @@ public class UserController : ControllerBase
             return this.CreateBadRequestProblem(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
+        // Deny operation if targeting the default system user
+        if (id == CommonConstant.DEFAULT_SYSTEM_USER)
+        {
+            return this.CreateBadRequestProblem("Operation is not allowed on the system user.");
+        }
+
+        // Deny operation if targeting the current authenticated user
+        Guid currentUserId = _userService.GetCurrentUserId();
+        if (id == currentUserId)
+            return this.CreateBadRequestProblem("You cannot activate or deactivate your own account.");
+
         try
         {
             string action = activate ? UserConstant.ActivationAction.Activate : UserConstant.ActivationAction.Deactivate;
@@ -178,7 +189,7 @@ public class UserController : ControllerBase
         catch (InvalidOperationException ex)
         {
             string action = activate ? "activation" : "deactivation";
-            _logger.LogWarning(ex, "User not found for {Action}: {UserId}", action, id);
+            _logger.LogWarning(ex, "Error while performing {Action} on user: {UserId}", action, id);
             return this.CreateNotFoundProblem(ex.Message);
         }
     }

@@ -24,12 +24,28 @@ public static class CommonConstant
     public const string AUDIT_LOG_EVENT_CREATE = "Create";
     public const string AUDIT_LOG_EVENT_UPDATE = "Update";
     public const string AUDIT_LOG_EVENT_DELETE = "Delete";
+    public const string AUDIT_LOG_EVENT_LOGIN = "Login";
 
-    public const string AUDIT_LOG_MODULE_TENANT = "tenant";
-    public const string AUDIT_LOG_MODULE_USER = "user";
-    public const string AUDIT_LOG_MODULE_TICKET = "ticket";
-    public const string AUDIT_LOG_MODULE_CONTACT = "contact";
-    public const string AUDIT_LOG_MODULE_ACCOUNT = "account";
+    public const string MODULE_TENANT = "tenants";
+    public const string MODULE_USER = "users";
+    public const string MODULE_TICKET = "tickets";
+    public const string MODULE_CONTACT = "contacts";
+    public const string MODULE_ACCOUNT = "accounts";
+    public const string MODULE_ROLE = "roles";
+    public const string MODULE_PERMISSION = "permissions";
+    public const string MODULE_TEAM = "teams";
+    public const string MODULE_DEPARTMENT = "departments";
+    public const string MODULE_ORGANISATION = "organisations";
+    public const string MODULE_BRAND = "brands";
+    public const string MODULE_PRODUCT = "products";
+    public const string MODULE_TEMPLATE = "templates";
+
+    // Change History field constants
+    public static class ChangeHistoryFields
+    {
+        public const string Created = "created";
+        public const string Deleted = "deleted";
+    }
 
     public static class PermissionNames
     {
@@ -92,6 +108,16 @@ public static class CommonConstant
         /// Cache key for the default paged user list (pageNumber=PAGE_NUMBER_DEFAULT, pageSize=PAGE_SIZE_DEFAULT).
         /// </summary>
         public const string UserList = "user:list";
+
+        /// <summary>
+        /// Cache key for the roles list.
+        /// </summary>
+        public const string RolesList = "role:list";
+
+        /// <summary>
+        /// Cache key for the permissions list.
+        /// </summary>
+        public const string PermissionsList = "permission:list";
 
         /// <summary>
         /// Cache keys for commonly used value lists.

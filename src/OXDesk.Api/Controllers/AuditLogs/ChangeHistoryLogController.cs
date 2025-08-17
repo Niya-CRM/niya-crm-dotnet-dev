@@ -4,6 +4,7 @@ using OXDesk.Api.Common;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common.Response;
+using OXDesk.Core.Common.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -46,9 +47,9 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// <response code="200">Returns the list of change history logs.</response>
         /// <response code="400">If the query parameters are invalid.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<EntityDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResponse<ChangeHistoryLog>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetChangeHistoryLogs(
+        public async Task<ActionResult<PagedResponse<ChangeHistoryLog>>> GetChangeHistoryLogs(
             [FromQuery] ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken)
         {
@@ -72,8 +73,15 @@ namespace OXDesk.Api.Controllers.AuditLogs
                 var logs = await _changeHistoryLogService.GetChangeHistoryLogsAsync(
                     query,
                     cancellationToken);
-                
-                return Ok(logs);
+                var list = logs as IList<ChangeHistoryLog> ?? logs.ToList();
+
+                var response = new PagedResponse<ChangeHistoryLog>
+                {
+                    Data = list,
+                    PageNumber = query.PageNumber,
+                    RowCount = list.Count
+                };
+                return Ok(response);
             }
             catch (ArgumentException ex)
             {

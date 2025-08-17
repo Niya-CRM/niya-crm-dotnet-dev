@@ -14,7 +14,7 @@ using OXDesk.Core.DynamicObjects.Fields;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
-using OXDesk.Core.AuditLogs;
+using OXDesk.Core.AuditLogs.ChangeHistory;
 
 namespace OXDesk.AppInstallation.Services
 {
@@ -26,7 +26,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly UserManager<OXDesk.Core.Identity.ApplicationUser> _userManager;
         private readonly ILogger<AppInitialisationService> _logger;
         private readonly IValueListService _valueListService;
-        private readonly IAuditLogService _auditLogService;
+        private readonly IChangeHistoryLogService _changeHistoryLogService;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -66,7 +66,7 @@ namespace OXDesk.AppInstallation.Services
             OXDesk.Core.Identity.IPermissionRepository permissionRepository,
             UserManager<OXDesk.Core.Identity.ApplicationUser> userManager,
             IValueListService valueListService,
-            IAuditLogService auditLogService,
+            IChangeHistoryLogService changeHistoryLogService,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -74,7 +74,7 @@ namespace OXDesk.AppInstallation.Services
             _permissionRepository = permissionRepository;
             _userManager = userManager;
             _valueListService = valueListService;
-            _auditLogService = auditLogService;
+            _changeHistoryLogService = changeHistoryLogService;
             _logger = logger;
         }
 
@@ -213,13 +213,13 @@ namespace OXDesk.AppInstallation.Services
                     var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                     var utcNow = DateTime.UtcNow;
 
-                    // Add audit log
-                    await _auditLogService.CreateAuditLogAsync(
-                        objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
-                        @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-                        objectItemId: systemUser.Id.ToString(),
-                        data: $"User created: {systemUser.FirstName} {systemUser.LastName}",
-                        ip: "::1", // GetUserIp(),
+                    // Add change history log for creation (first change event)
+                    await _changeHistoryLogService.CreateChangeHistoryLogAsync(
+                        objectKey: CommonConstant.MODULE_USER,
+                        objectItemId: systemUser.Id,
+                        fieldName: CommonConstant.ChangeHistoryFields.Created,
+                        oldValue: null,
+                        newValue: null,
                         createdBy: OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
                         cancellationToken: default
                     );

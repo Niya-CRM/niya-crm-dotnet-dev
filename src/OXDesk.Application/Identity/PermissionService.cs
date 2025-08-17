@@ -29,6 +29,11 @@ public class PermissionService : IPermissionService
         return await _permissionRepository.GetByIdAsync(id);
     }
 
+    public async Task<Permission?> GetPermissionByNameAsync(string normalizedName)
+    {
+        return await _permissionRepository.GetByNameAsync(normalizedName);
+    }
+
     public async Task<Permission> UpdatePermissionAsync(Permission permission)
     {
         return await _permissionRepository.UpdateAsync(permission);
@@ -39,3 +44,4 @@ public class PermissionService : IPermissionService
         return await _permissionRepository.DeleteAsync(id);
     }
 }
+

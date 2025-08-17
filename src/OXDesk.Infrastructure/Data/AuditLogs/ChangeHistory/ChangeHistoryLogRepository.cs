@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.Common;
+using OXDesk.Core.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _dbSet.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrEmpty(objectKey))
                 query = query.Where(c => c.ObjectKey == objectKey);
@@ -51,11 +52,34 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             if (endDate.HasValue)
                 query = query.Where(c => c.CreatedAt <= endDate.Value);
 
-            return await query
-                .OrderByDescending(c => c.CreatedAt)
+            // Left join to users and project raw data; build display name after materialization for null-safety
+            var joined = from c in query
+                         join u in _dbContext.Users.AsNoTracking() on c.CreatedBy equals u.Id into gj
+                         from u in gj.DefaultIfEmpty()
+                         orderby c.CreatedAt descending
+                         select new { c, u };
+
+            var rows = await joined
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
+
+            return rows.Select(x => new ChangeHistoryLog
+            {
+                Id = x.c.Id,
+                ObjectKey = x.c.ObjectKey,
+                ObjectItemId = x.c.ObjectItemId,
+                FieldName = x.c.FieldName,
+                OldValue = x.c.OldValue,
+                NewValue = x.c.NewValue,
+                CreatedAt = x.c.CreatedAt,
+                CreatedBy = x.c.CreatedBy,
+                CreatedByText = x.u == null
+                    ? x.c.CreatedBy.ToString()
+                    : (string.Join(" ", new[] { x.u.FirstName, x.u.LastName }.Where(s => !string.IsNullOrWhiteSpace(s))) is string full && !string.IsNullOrWhiteSpace(full)
+                        ? full
+                        : (x.u.Email ?? x.u.UserName ?? x.c.CreatedBy.ToString()))
+            });
         }
 
         public async Task<IEnumerable<ChangeHistoryLog>> GetAllAsync(
@@ -64,6 +88,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             CancellationToken cancellationToken = default)
         {
             return await _dbSet
+                .AsNoTracking()
                 .OrderByDescending(c => c.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

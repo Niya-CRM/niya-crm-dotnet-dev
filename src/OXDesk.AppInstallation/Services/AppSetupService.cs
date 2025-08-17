@@ -5,7 +5,7 @@ using OXDesk.Core.Tenants;
 using Microsoft.AspNetCore.Identity;
 using OXDesk.Core.Identity;
 using System.Text.Json;
-using OXDesk.Core.AuditLogs;
+using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AppInstallation.AppSetup;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.ValueLists;
@@ -25,7 +25,7 @@ public class AppSetupService : IAppSetupService
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly IValueListService _valueListService;
     private readonly IValueListItemService _valueListItemService;
-    private readonly IAuditLogService _auditLogService;
+    private readonly IChangeHistoryLogService _changeHistoryLogService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -42,7 +42,7 @@ public class AppSetupService : IAppSetupService
         RoleManager<ApplicationRole> roleManager,
         IValueListService valueListService,
         IValueListItemService valueListItemService,
-        IAuditLogService auditLogService,
+        IChangeHistoryLogService changeHistoryLogService,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -52,7 +52,7 @@ public class AppSetupService : IAppSetupService
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
-        _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
+        _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
     }
 
     /// <inheritdoc/>
@@ -124,13 +124,13 @@ public class AppSetupService : IAppSetupService
             throw new InvalidOperationException("Failed to create initial admin user");
         }
 
-        // Add audit log
-        await _auditLogService.CreateAuditLogAsync(
-            objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
-            @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            objectItemId: user.Id.ToString(),
-            data: $"User created: {user.FirstName} {user.LastName}",
-            ip: "", // GetUserIp(),
+        // Add change history log (first creation event)
+        await _changeHistoryLogService.CreateChangeHistoryLogAsync(
+            objectKey: CommonConstant.MODULE_USER,
+            objectItemId: user.Id,
+            fieldName: CommonConstant.ChangeHistoryFields.Created,
+            oldValue: null,
+            newValue: null,
             createdBy: systemUserId,
             cancellationToken: default
         );

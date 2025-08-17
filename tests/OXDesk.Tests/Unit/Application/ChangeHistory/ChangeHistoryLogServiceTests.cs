@@ -9,7 +9,6 @@ using OXDesk.Application.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using Shouldly;
 using Xunit;
-using OXDesk.Core.Identity;
 using OXDesk.Core.Common.Response;
 
 namespace OXDesk.Tests.Unit.Application.ChangeHistory
@@ -17,17 +16,12 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
     public class ChangeHistoryLogServiceTests
     {
         private readonly Mock<IChangeHistoryLogRepository> _mockRepository;
-        private readonly Mock<IUserService> _mockUserService;
         private readonly ChangeHistoryLogService _service;
 
         public ChangeHistoryLogServiceTests()
         {
             _mockRepository = new Mock<IChangeHistoryLogRepository>();
-            _mockUserService = new Mock<IUserService>();
-            // _mockUserService
-            //     .Setup(s => s.GetUserFullNameFromCacheAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            //     .ReturnsAsync("Test User");
-            _service = new ChangeHistoryLogService(_mockRepository.Object, _mockUserService.Object);
+            _service = new ChangeHistoryLogService(_mockRepository.Object);
         }
 
         [Fact]
@@ -122,7 +116,9 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
                     ObjectItemId = objectItemId,
                     FieldName = fieldName,
                     CreatedBy = createdBy,
-                    CreatedAt = DateTime.UtcNow.AddDays(-3)
+                    CreatedAt = DateTime.UtcNow.AddDays(-3),
+                    // Simulate repository enrichment
+                    CreatedByText = "Test User"
                 }
             };
 
@@ -157,10 +153,11 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             result.ShouldNotBeNull();
             result.Count().ShouldBe(expectedLogs.Count);
             var entity = result.First();
-            entity.Fields["ObjectKey"].FieldValue.ShouldBe(objectKey);
-            entity.Fields["ObjectItemId"].FieldValue.ShouldBe(objectItemId.ToString());
-            entity.Fields["FieldName"].FieldValue.ShouldBe(fieldName);
-            entity.Fields["CreatedBy"].DisplayValue.ShouldBe("Test User");
+            entity.ObjectKey.ShouldBe(objectKey);
+            entity.ObjectItemId.ShouldBe(objectItemId);
+            entity.FieldName.ShouldBe(fieldName);
+            entity.CreatedBy.ShouldBe(createdBy);
+            entity.CreatedByText.ShouldBe("Test User");
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 objectKey,

@@ -15,6 +15,7 @@ using OXDesk.Core.ValueLists;
 using OXDesk.Core.ValueLists.DTOs;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Application.Common.Helpers;
+using OXDesk.Core.AuditLogs.ChangeHistory;
 
 namespace OXDesk.Application.Identity;
 
@@ -27,6 +28,7 @@ public class UserService : IUserService
     private readonly ILogger<UserService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuditLogService _auditLogService;
+    private readonly IChangeHistoryLogService _changeHistoryLogService;
     private readonly IUserRepository _userRepository;
     private readonly ICacheService _cacheService;
     private readonly IValueListService _valueListService;
@@ -51,6 +53,7 @@ public class UserService : IUserService
         ILogger<UserService> logger,
         IHttpContextAccessor httpContextAccessor,
         IAuditLogService auditLogService,
+        IChangeHistoryLogService changeHistoryLogService,
         IUserRepository userRepository,
         ICacheService cacheService,
         IValueListService valueListService)
@@ -59,6 +62,7 @@ public class UserService : IUserService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
+        _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
@@ -72,7 +76,9 @@ public class UserService : IUserService
     public Guid GetCurrentUserId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
-        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        // Prefer NameIdentifier but fallback to 'sub' commonly used by JWTs
+        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            ?? user?.FindFirst("sub")?.Value;
         if (string.IsNullOrEmpty(userIdStr))
             throw new InvalidOperationException("User id claim not found in current context.");
         if (!Guid.TryParse(userIdStr, out var userId))
@@ -335,7 +341,7 @@ public class UserService : IUserService
 
         // Add audit log
         await _auditLogService.CreateAuditLogAsync(
-            objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
+            objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
             objectItemId: user.Id.ToString(),
             data: $"User created: {user.FirstName} {user.LastName}",
@@ -437,10 +443,15 @@ public class UserService : IUserService
             throw new InvalidOperationException($"User with ID '{id}' not found.");
         }
 
+        // Determine actor: changedBy parameter or current user from context
+        var actorId = changedBy ?? GetCurrentUserId();
+
         // Update activation fields
-        user.IsActive = isActivating ? "Y" : "N";
+        var oldActive = user.IsActive;
+        var newActive = isActivating ? "Y" : "N";
+        user.IsActive = newActive;
         user.UpdatedAt = DateTime.UtcNow;
-        user.UpdatedBy = changedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        user.UpdatedBy = actorId;
 
         var result = await _userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -453,12 +464,23 @@ public class UserService : IUserService
         // Audit log
         string actionPastTense = isActivating ? "activated" : "deactivated";
         await _auditLogService.CreateAuditLogAsync(
-            objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
+            objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             objectItemId: user.Id.ToString(),
             data: $"User {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
             ip: GetUserIp(),
-            createdBy: changedBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
+            createdBy: actorId,
+            cancellationToken: cancellationToken
+        );
+
+        // Change history log for activation status change
+        await _changeHistoryLogService.CreateChangeHistoryLogAsync(
+            objectKey: CommonConstant.MODULE_USER,
+            objectItemId: user.Id,
+            fieldName: "isActive",
+            oldValue: oldActive,
+            newValue: newActive,
+            createdBy: actorId,
             cancellationToken: cancellationToken
         );
 

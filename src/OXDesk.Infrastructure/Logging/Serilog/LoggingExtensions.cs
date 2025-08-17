@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +26,20 @@ namespace OXDesk.Infrastructure.Logging.Serilog
 
                 services.AddHttpLogging(logging =>
                 {
+                    // Log headers, properties, and bodies
                     logging.LoggingFields = HttpLoggingFields.All;
+                    // Include request/response bodies (size limits to avoid excessive logging)
+                    logging.RequestBodyLogLimit = 1024 * 1024; // 1 MB
+                    logging.ResponseBodyLogLimit = 1024 * 1024; // 1 MB
+                    // Combine into a single log message per request where supported (net8+)
+                    logging.CombineLogs = true;
+                    // Allow text content-types for body logging
+                    logging.MediaTypeOptions.AddText("application/json");
+                    logging.MediaTypeOptions.AddText("text/json");
+                    logging.MediaTypeOptions.AddText("text/plain");
+                    logging.MediaTypeOptions.AddText("application/xml");
+                    logging.MediaTypeOptions.AddText("application/x-www-form-urlencoded");
+
                     logging.RequestHeaders.Add("x-correlation-id");
                     logging.RequestHeaders.Add("X-Forwarded-For");
                     logging.RequestHeaders.Add("X-Forwarded-Proto");
@@ -142,7 +155,9 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                      .MinimumLevel.Override("Microsoft.Hosting.Lifetime", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftHostingLifetime ?? CommonConstant.ERROR_LEVEL_INFORMATION))
                      .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreAuthentication ?? CommonConstant.ERROR_LEVEL_WARNING))
                      .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Infrastructure", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreMvcInfrastructure ?? CommonConstant.ERROR_LEVEL_WARNING))
-                     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? CommonConstant.ERROR_LEVEL_WARNING));
+                     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? CommonConstant.ERROR_LEVEL_WARNING))
+                     // Ensure HttpLogging middleware (which logs bodies) is not suppressed
+                     .MinimumLevel.Override("Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware", GetLoggingLevel(CommonConstant.ERROR_LEVEL_INFORMATION));
         }
 
         private static LoggingLevelSwitch GetLoggingLevel(string logLevel)

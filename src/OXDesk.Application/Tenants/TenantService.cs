@@ -44,7 +44,7 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
     {
         var auditLog = new AuditLog(
             id: Guid.CreateVersion7(),
-            objectKey: CommonConstant.AUDIT_LOG_MODULE_TENANT,
+            objectKey: CommonConstant.MODULE_TENANT,
             @event: @event,
             objectItemId: objectItemId,
             ip: GetUserIp(),
