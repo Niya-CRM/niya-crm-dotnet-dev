@@ -14,6 +14,7 @@ using OXDesk.Core.DynamicObjects.Fields;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
+using OXDesk.Core.AuditLogs;
 
 namespace OXDesk.AppInstallation.Services
 {
@@ -25,6 +26,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly UserManager<OXDesk.Core.Identity.ApplicationUser> _userManager;
         private readonly ILogger<AppInitialisationService> _logger;
         private readonly IValueListService _valueListService;
+        private readonly IAuditLogService _auditLogService;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -64,6 +66,7 @@ namespace OXDesk.AppInstallation.Services
             OXDesk.Core.Identity.IPermissionRepository permissionRepository,
             UserManager<OXDesk.Core.Identity.ApplicationUser> userManager,
             IValueListService valueListService,
+            IAuditLogService auditLogService,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -71,6 +74,7 @@ namespace OXDesk.AppInstallation.Services
             _permissionRepository = permissionRepository;
             _userManager = userManager;
             _valueListService = valueListService;
+            _auditLogService = auditLogService;
             _logger = logger;
         }
 
@@ -182,7 +186,7 @@ namespace OXDesk.AppInstallation.Services
                     Id = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
                     UserName = systemUserEmail,
                     Email = systemUserEmail,
-                    FirstName = "System",
+                    FirstName = "OX Desk",
                     LastName = "Interface",
                     Location = "Earth",
                     Profile = systemProfileKey,
@@ -208,6 +212,17 @@ namespace OXDesk.AppInstallation.Services
                     // to set the audit fields
                     var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                     var utcNow = DateTime.UtcNow;
+
+                    // Add audit log
+                    await _auditLogService.CreateAuditLogAsync(
+                        objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
+                        @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
+                        objectItemId: systemUser.Id.ToString(),
+                        data: $"User created: {systemUser.FirstName} {systemUser.LastName}",
+                        ip: "::1", // GetUserIp(),
+                        createdBy: OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
+                        cancellationToken: default
+                    );
                     
                     // Get the role ID
                     var role = await _roleManager.FindByNameAsync(OXDesk.Core.Common.CommonConstant.RoleNames.System);

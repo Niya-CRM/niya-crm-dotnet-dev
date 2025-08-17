@@ -25,7 +25,11 @@ public static class CommonConstant
     public const string AUDIT_LOG_EVENT_UPDATE = "Update";
     public const string AUDIT_LOG_EVENT_DELETE = "Delete";
 
-    public const string AUDIT_LOG_MODULE_TENANT = "Tenant";
+    public const string AUDIT_LOG_MODULE_TENANT = "tenant";
+    public const string AUDIT_LOG_MODULE_USER = "user";
+    public const string AUDIT_LOG_MODULE_TICKET = "ticket";
+    public const string AUDIT_LOG_MODULE_CONTACT = "contact";
+    public const string AUDIT_LOG_MODULE_ACCOUNT = "account";
 
     public static class PermissionNames
     {

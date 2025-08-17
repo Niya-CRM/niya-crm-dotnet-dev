@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Reflection;
 using OXDesk.Core.ValueLists;
+using OXDesk.Core.AuditLogs;
 
 namespace OXDesk.Tests.Unit.Application.AppSetup
 {
@@ -28,6 +29,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
         private readonly Mock<ILogger<AppSetupService>> _mockLogger;
         private readonly Mock<IValueListService> _mockValueListService;
         private readonly Mock<IValueListItemService> _mockValueListItemService;
+        private readonly Mock<IAuditLogService> _mockAuditLogService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppSetupService _AppSetupService;
@@ -39,6 +41,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockLogger = new Mock<ILogger<AppSetupService>>();
             _mockValueListService = new Mock<IValueListService>();
             _mockValueListItemService = new Mock<IValueListItemService>();
+            _mockAuditLogService = new Mock<IAuditLogService>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
@@ -49,6 +52,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 _roleManager,
                 _mockValueListService.Object,
                 _mockValueListItemService.Object,
+                _mockAuditLogService.Object,
                 _mockLogger.Object);
         }
 

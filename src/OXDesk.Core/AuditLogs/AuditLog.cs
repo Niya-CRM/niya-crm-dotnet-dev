@@ -71,6 +71,12 @@ public class AuditLog
     public Guid CreatedBy { get; set; }
 
     /// <summary>
+    /// Display text for the user who performed the action. Not persisted.
+    /// </summary>
+    [NotMapped]
+    public string? CreatedByText { get; set; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="AuditLog"/> class.
     /// Default constructor for Entity Framework and general use.
     /// </summary>

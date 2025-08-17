@@ -5,6 +5,8 @@ using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Api.Common;
+using FluentValidation;
+using System.Linq;
 
 namespace OXDesk.Api.Controllers.Identity;
 
@@ -18,18 +20,22 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly ILogger<UserController> _logger;
+    private readonly IValidator<ActivateDeactivateUserRequest> _activateDeactivateUserRequestValidator;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserController"/> class.
     /// </summary>
     /// <param name="userService">The user service.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="activateDeactivateUserRequestValidator">The validator for activate/deactivate user requests.</param>
     public UserController(
         IUserService userService,
-        ILogger<UserController> logger)
+        ILogger<UserController> logger,
+        IValidator<ActivateDeactivateUserRequest> activateDeactivateUserRequestValidator)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _activateDeactivateUserRequestValidator = activateDeactivateUserRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateUserRequestValidator));
     }
 
     /// <summary>
@@ -65,7 +71,7 @@ public class UserController : ControllerBase
             _logger.LogInformation("Successfully created user with ID: {UserId}", user.Id);
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
-        catch (ValidationException ex)
+        catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error in user creation request: {Message}", ex.Message);
             return this.CreateBadRequestProblem(ex.Message);
@@ -84,7 +90,7 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user with display values if found, otherwise 404.</returns>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(UserResponseWithDisplay), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken = default)
     {
@@ -112,5 +118,68 @@ public class UserController : ControllerBase
         _logger.LogDebug("Getting all users");
         var response = await _userService.GetAllUsersAsync(cancellationToken);
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Activates a user.
+    /// </summary>
+    /// <param name="id">The user identifier.</param>
+    /// <param name="request">The activation request containing the reason.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated user.</returns>
+    [HttpPost("{id:guid}/activate")]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserResponse>> ActivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        return await ChangeUserActivationStatus(id, request, true, cancellationToken);
+    }
+
+    /// <summary>
+    /// Deactivates a user.
+    /// </summary>
+    /// <param name="id">The user identifier.</param>
+    /// <param name="request">The deactivation request containing the reason.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The updated user.</returns>
+    [HttpPost("{id:guid}/deactivate")]
+    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserResponse>> DeactivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        return await ChangeUserActivationStatus(id, request, false, cancellationToken);
+    }
+
+    /// <summary>
+    /// Private helper to change user activation status with validation and logging.
+    /// </summary>
+    private async Task<ActionResult<UserResponse>> ChangeUserActivationStatus(Guid id, ActivateDeactivateUserRequest request, bool activate, CancellationToken cancellationToken = default)
+    {
+        var validationResult = await _activateDeactivateUserRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return this.CreateBadRequestProblem(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+        }
+
+        try
+        {
+            string action = activate ? UserConstant.ActivationAction.Activate : UserConstant.ActivationAction.Deactivate;
+            string actionVerb = activate ? "Activating" : "Deactivating";
+            _logger.LogInformation("{ActionVerb} user: {UserId}", actionVerb, id);
+
+            var user = await _userService.ChangeUserActivationStatusAsync(id, action, request.Reason, cancellationToken: cancellationToken);
+
+            string completedAction = activate ? "activated" : "deactivated";
+            _logger.LogInformation("Successfully {CompletedAction} user: {UserId}", completedAction, id);
+            return Ok(user);
+        }
+        catch (InvalidOperationException ex)
+        {
+            string action = activate ? "activation" : "deactivation";
+            _logger.LogWarning(ex, "User not found for {Action}: {UserId}", action, id);
+            return this.CreateNotFoundProblem(ex.Message);
+        }
     }
 }

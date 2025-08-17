@@ -43,6 +43,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using OXDesk.AppInstallation;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using OXDesk.Core.Identity.DTOs;
+using OXDesk.Application.Identity.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,8 @@ builder.Services.AddControllersWithViews(options =>
 
 // Register validator for ActivateDeactivateTenantRequest
 builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, ActivateDeactivateTenantRequestValidator>();
+// Register validator for ActivateDeactivateUserRequest
+builder.Services.AddScoped<IValidator<ActivateDeactivateUserRequest>, ActivateDeactivateUserRequestValidator>();
 
 
 // For http request context accessing

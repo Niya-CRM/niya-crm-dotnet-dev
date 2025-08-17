@@ -163,6 +163,16 @@ public class UserResponse
     /// Gets or sets the ID of the user who last updated the user.
     /// </summary>
     public Guid UpdatedBy { get; set; }
+
+    /// <summary>
+    /// Display text for the creator user, typically the user's full name.
+    /// </summary>
+    public string? CreatedByText { get; set; }
+
+    /// <summary>
+    /// Display text for the last updater user, typically the user's full name.
+    /// </summary>
+    public string? UpdatedByText { get; set; }
 }
 
 /// <summary>

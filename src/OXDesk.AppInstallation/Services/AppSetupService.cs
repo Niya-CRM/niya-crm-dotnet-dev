@@ -5,6 +5,7 @@ using OXDesk.Core.Tenants;
 using Microsoft.AspNetCore.Identity;
 using OXDesk.Core.Identity;
 using System.Text.Json;
+using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AppInstallation.AppSetup;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.ValueLists;
@@ -24,6 +25,7 @@ public class AppSetupService : IAppSetupService
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly IValueListService _valueListService;
     private readonly IValueListItemService _valueListItemService;
+    private readonly IAuditLogService _auditLogService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -40,6 +42,7 @@ public class AppSetupService : IAppSetupService
         RoleManager<ApplicationRole> roleManager,
         IValueListService valueListService,
         IValueListItemService valueListItemService,
+        IAuditLogService auditLogService,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -49,6 +52,7 @@ public class AppSetupService : IAppSetupService
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
+        _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
     }
 
     /// <inheritdoc/>
@@ -119,6 +123,17 @@ public class AppSetupService : IAppSetupService
             _logger.LogError("Failed to create initial admin user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
             throw new InvalidOperationException("Failed to create initial admin user");
         }
+
+        // Add audit log
+        await _auditLogService.CreateAuditLogAsync(
+            objectKey: CommonConstant.AUDIT_LOG_MODULE_USER,
+            @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
+            objectItemId: user.Id.ToString(),
+            data: $"User created: {user.FirstName} {user.LastName}",
+            ip: "", // GetUserIp(),
+            createdBy: systemUserId,
+            cancellationToken: default
+        );
 
         // Assign the Admin role if it exists
         if (await _roleManager.RoleExistsAsync("Administrator"))
