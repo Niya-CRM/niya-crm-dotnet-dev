@@ -1,5 +1,6 @@
 using OXDesk.Core.Common;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.ValueLists.DTOs;
 using System;
 using System.Collections.Generic;
 
@@ -19,10 +20,10 @@ public interface IValueListService
     Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
 
-    // Convenience helpers to retrieve common lists and their items
-    Task<IEnumerable<ValueListItem>> GetCountriesAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<ValueListItem>> GetCurrenciesAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<ValueListItem>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
+    // Convenience helpers to retrieve common lists as options (DTOs)
+    Task<IEnumerable<ValueListItemOption>> GetCountriesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItemOption>> GetCurrenciesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
 
     // Dictionary lookups (ItemKey -> ValueListItem) with caching
     Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default);

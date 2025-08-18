@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.ValueLists.DTOs;
 
 namespace OXDesk.Application.ValueLists;
 
@@ -177,14 +178,29 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetUserProfilesLookupAsync(CancellationToken cancellationToken = default)
         => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
 
-    public async Task<IEnumerable<ValueListItem>> GetCountriesAsync(CancellationToken cancellationToken = default)
-        => await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
+    public async Task<IEnumerable<ValueListItemOption>> GetCountriesAsync(CancellationToken cancellationToken = default)
+    {
+        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
+        return items
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
+            .OrderBy(o => o.ItemName);
+    }
 
-    public async Task<IEnumerable<ValueListItem>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
-        => await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
+    public async Task<IEnumerable<ValueListItemOption>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
+    {
+        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
+        return items
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
+            .OrderBy(o => o.ItemName);
+    }
 
-    public async Task<IEnumerable<ValueListItem>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
-        => await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
+    public async Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
+    {
+        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
+        return items
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
+            .OrderBy(o => o.ItemName);
+    }
 
     public async Task<IReadOnlyDictionary<TKey, ValueListItem>> GetLookupAsync<TKey>(
         string listKey,

@@ -19,6 +19,7 @@ namespace OXDesk.Api.Helpers
     public class JwtHelper
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         
@@ -28,10 +29,12 @@ namespace OXDesk.Api.Helpers
 
         public JwtHelper(
             UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
             IRefreshTokenRepository refreshTokenRepository,
             IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _refreshTokenRepository = refreshTokenRepository ?? throw new ArgumentNullException(nameof(refreshTokenRepository));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
@@ -167,6 +170,29 @@ namespace OXDesk.Api.Helpers
             foreach (var role in userRoles)
             {
                 claims.Add(new Claim("role", role));
+            }
+
+            // Add permission claims aggregated from role claims (claim type: "permission")
+            var permissionValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var roleName in userRoles)
+            {
+                var roleEntity = await _roleManager.FindByNameAsync(roleName);
+                if (roleEntity == null) continue;
+
+                var roleClaims = await _roleManager.GetClaimsAsync(roleEntity);
+                foreach (var rc in roleClaims)
+                {
+                    if (string.Equals(rc.Type, "permission", StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrWhiteSpace(rc.Value))
+                    {
+                        permissionValues.Add(rc.Value);
+                    }
+                }
+            }
+
+            foreach (var perm in permissionValues)
+            {
+                claims.Add(new Claim("permission", perm));
             }
 
             var key = new SymmetricSecurityKey(GetJwtSigningKey());

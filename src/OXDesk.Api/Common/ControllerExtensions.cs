@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OXDesk.Core.Common;
+using System;
+using System.Security.Claims;
 
 namespace OXDesk.Api.Common;
 
@@ -55,5 +57,33 @@ public static class ControllerExtensions
             Detail = message,
             Status = StatusCodes.Status404NotFound
         });
+    }
+
+    /// <summary>
+    /// Creates a 405 Method Not Allowed response with ProblemDetails.
+    /// </summary>
+    /// <param name="controller">The controller instance.</param>
+    /// <param name="message">The error message.</param>
+    /// <returns>An ObjectResult with 405 status and ProblemDetails.</returns>
+    public static ObjectResult CreateMethodNotAllowedProblem(this ControllerBase controller, string message)
+    {
+        return controller.StatusCode(StatusCodes.Status405MethodNotAllowed, new ProblemDetails
+        {
+            Title = "Method Not Allowed",
+            Detail = message,
+            Status = StatusCodes.Status405MethodNotAllowed
+        });
+    }
+
+    /// <summary>
+    /// Extracts the current user's ID (Guid) from common JWT claims.
+    /// Looks for "sub", "nameid", or ClaimTypes.NameIdentifier. Returns null if not a valid Guid.
+    /// </summary>
+    public static Guid? GetCurrentUserId(this ControllerBase controller)
+    {
+        var sub = controller.User.FindFirst("sub")?.Value
+                  ?? controller.User.FindFirst("nameid")?.Value
+                  ?? controller.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(sub, out var id) ? id : null;
     }
 }

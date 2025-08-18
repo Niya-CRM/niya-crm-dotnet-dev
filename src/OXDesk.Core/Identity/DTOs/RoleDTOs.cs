@@ -22,11 +22,19 @@ namespace OXDesk.Core.Identity.DTOs
         public DateTime CreatedAt { get; set; }
         public Guid UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
+        
+        // Display text for the last updater user, typically the user's full name.
+        public string? UpdatedByText { get; set; }
     }
 
     public sealed class RoleDetailsResponse
     {
         public RoleResponse Data { get; set; } = default!;
+        public RoleDetailsRelated Related { get; set; } = new();
+    }
+
+    public sealed class RoleDetailsRelated
+    {
         public string[] Permissions { get; set; } = Array.Empty<string>();
     }
 

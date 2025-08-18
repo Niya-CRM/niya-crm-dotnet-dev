@@ -19,6 +19,7 @@ using Xunit;
 using System.Reflection;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using Microsoft.EntityFrameworkCore;
 
 namespace OXDesk.Tests.Unit.Application.AppSetup
 {
@@ -45,9 +46,16 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
+            // In-memory ApplicationDbContext for constructor requirement
+            var dbOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var dbContext = new ApplicationDbContext(dbOptions);
+
             _AppSetupService = new AppSetupService(
                 _mockUnitOfWork.Object,
                 _mockTenantService.Object,
+                dbContext,
                 _userManager,
                 _roleManager,
                 _mockValueListService.Object,

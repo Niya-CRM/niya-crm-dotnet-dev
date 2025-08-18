@@ -6,6 +6,7 @@ using OXDesk.Core.Referentials;
 using OXDesk.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
 using OXDesk.Core.ValueLists;
+using OXDesk.Core.ValueLists.DTOs;
 
 namespace OXDesk.Api.Controllers.AppSetup;
 
@@ -52,7 +53,7 @@ public class AppSetupController : Controller
 
         // Get active countries for dropdown from ValueList "Country"
         var countryList = await _valueListService.GetCountriesAsync(cancellationToken);
-        var countries = new List<ValueListItem>();
+        var countries = new List<ValueListItemOption>();
         if (countryList != null)
         {
             countries = countryList

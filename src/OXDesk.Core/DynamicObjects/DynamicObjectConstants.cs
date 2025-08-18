@@ -28,17 +28,57 @@ public static class DynamicObjectConstants
 
     public static class DynamicObjectNames
     {
-        public const string User = "user";
-        public const string Account = "account";
-        public const string Contact = "contact";
-        public const string Ticket = "ticket";
+        public const string User = "Users";
+        public const string Account = "Accounts";
+        public const string Contact = "Contacts";
+        public const string Ticket = "Tickets";
+        public const string Tenant = "Tenants";
+        public const string Brand = "Brands";
+        public const string Organisation = "Organisations";
+        public const string Department = "Departments";
+        public const string Team = "Teams";
+        public const string Product = "Products";
         
         public static readonly string[] All = 
         {
             User,
             Account,
             Contact,
-            Ticket
+            Ticket,
+            Tenant,
+            Brand,
+            Organisation,
+            Department,
+            Team,
+            Product
+        };
+    }
+
+    public static class DynamicObjectKeys
+    {
+        public const string User = "users";
+        public const string Account = "accounts";
+        public const string Contact = "contacts";
+        public const string Ticket = "tickets";
+        public const string Tenant = "tenants";
+        public const string Brand = "brands";
+        public const string Organisation = "organisations";
+        public const string Department = "departments";
+        public const string Team = "teams";
+        public const string Product = "products";
+        
+        public static readonly string[] All = 
+        {
+            User,
+            Account,
+            Contact,
+            Ticket,
+            Tenant,
+            Brand,
+            Organisation,
+            Department,
+            Team,
+            Product
         };
     }
 }

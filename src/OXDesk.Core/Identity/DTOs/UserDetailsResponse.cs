@@ -4,22 +4,6 @@ using OXDesk.Core.ValueLists.DTOs;
 namespace OXDesk.Core.Identity.DTOs;
 
 /// <summary>
-/// Wrapper response for a single user with related reference data.
-/// </summary>
-public class UserDetailsResponse
-{
-    /// <summary>
-    /// The user item.
-    /// </summary>
-    public UserResponse Data { get; set; } = new();
-
-    /// <summary>
-    /// Related reference data used to render dropdowns.
-    /// </summary>
-    public UserDetailsRelated Related { get; set; } = new();
-}
-
-/// <summary>
 /// Related reference data for a single user view/edit.
 /// </summary>
 public class UserDetailsRelated

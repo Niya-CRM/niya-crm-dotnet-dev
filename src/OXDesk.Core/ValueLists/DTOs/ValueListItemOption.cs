@@ -10,4 +10,5 @@ public class ValueListItemOption
     public Guid Id { get; set; }
     public string ItemName { get; set; } = string.Empty;
     public string ItemKey { get; set; } = string.Empty;
+    public bool IsActive { get; set; }
 }

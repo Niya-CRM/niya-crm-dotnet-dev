@@ -10,6 +10,7 @@ using OXDesk.Core.AppInstallation.AppSetup;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.ValueLists;
 using System.Linq;
+using OXDesk.Infrastructure.Data;
 
 namespace OXDesk.AppInstallation.Services;
 
@@ -26,6 +27,7 @@ public class AppSetupService : IAppSetupService
     private readonly IValueListService _valueListService;
     private readonly IValueListItemService _valueListItemService;
     private readonly IChangeHistoryLogService _changeHistoryLogService;
+    private readonly ApplicationDbContext _dbContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -38,6 +40,7 @@ public class AppSetupService : IAppSetupService
     public AppSetupService(
         IUnitOfWork unitOfWork,
         ITenantService tenantService,
+        ApplicationDbContext dbContext,
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IValueListService valueListService,
@@ -48,6 +51,7 @@ public class AppSetupService : IAppSetupService
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
@@ -135,10 +139,35 @@ public class AppSetupService : IAppSetupService
             cancellationToken: default
         );
 
-        // Assign the Admin role if it exists
-        if (await _roleManager.RoleExistsAsync("Administrator"))
+        // Assign the Administrator role with audit fields (direct insert like in AppInitialisationService)
+        if (await _roleManager.RoleExistsAsync(CommonConstant.RoleNames.Administrator))
         {
-            await _userManager.AddToRoleAsync(user, "Administrator");
+            var role = await _roleManager.FindByNameAsync(CommonConstant.RoleNames.Administrator);
+            if (role != null)
+            {
+                var utcNow = DateTime.UtcNow;
+
+                var userRole = new ApplicationUserRole
+                {
+                    UserId = user.Id,
+                    RoleId = role.Id,
+                    CreatedBy = systemUserId,
+                    CreatedAt = utcNow,
+                    UpdatedBy = systemUserId,
+                    UpdatedAt = utcNow
+                };
+
+                try
+                {
+                    _dbContext.UserRoles.Add(userRole);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Assigned Administrator role to initial admin user with audit fields");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical(ex, "Failed to assign Administrator role to initial admin user");
+                }
+            }
         }
 
         _logger.LogInformation("Created initial admin user with email: {Email}", setupDto.AdminEmail);

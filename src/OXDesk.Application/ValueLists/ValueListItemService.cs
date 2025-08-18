@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using OXDesk.Core;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
 using System.ComponentModel.DataAnnotations;
@@ -9,9 +8,9 @@ namespace OXDesk.Application.ValueLists;
 /// <summary>
 /// Service implementation for ValueListItem business operations.
 /// </summary>
-public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemService> logger) : IValueListItemService
+public class ValueListItemService(IValueListItemRepository repository, ILogger<ValueListItemService> logger) : IValueListItemService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+    private readonly IValueListItemRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     private readonly ILogger<ValueListItemService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
@@ -19,7 +18,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
         if (string.IsNullOrWhiteSpace(listKey)) throw new ValidationException("ListKey is required.");
         var trimmed = listKey.Trim();
         _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", trimmed);
-        return await _unitOfWork.GetRepository<IValueListItemRepository>().GetByListKeyAsync(trimmed, cancellationToken);
+        return await _repository.GetByListKeyAsync(trimmed, cancellationToken);
     }
 
     public async Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default)
@@ -37,8 +36,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
         item.CreatedBy = createdBy ?? (item.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.CreatedBy);
         item.UpdatedBy = item.CreatedBy;
 
-        var created = await _unitOfWork.GetRepository<IValueListItemRepository>().AddAsync(item, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var created = await _repository.AddAsync(item, cancellationToken);
         _logger.LogInformation("Created ValueListItem with ID: {Id}", created.Id);
         return created;
     }
@@ -53,13 +51,11 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
 
         _logger.LogInformation("Updating ValueListItem: {Id}", item.Id);
 
-        var existingItemsRepo = _unitOfWork.GetRepository<IValueListItemRepository>();
         // We trust repository to track entity by key; simply set audit fields here
         item.UpdatedAt = DateTime.UtcNow;
         item.UpdatedBy = modifiedBy ?? (item.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.UpdatedBy);
 
-        var updated = await existingItemsRepo.UpdateAsync(item, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var updated = await _repository.UpdateAsync(item, cancellationToken);
         _logger.LogInformation("Updated ValueListItem: {Id}", updated.Id);
         return updated;
     }
@@ -68,8 +64,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
     {
         if (id == Guid.Empty) throw new ValidationException("Id is required.");
         _logger.LogInformation("Activating ValueListItem: {Id}", id);
-        var entity = await _unitOfWork.GetRepository<IValueListItemRepository>().ActivateAsync(id, modifiedBy, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var entity = await _repository.ActivateAsync(id, modifiedBy, cancellationToken);
         return entity;
     }
 
@@ -77,8 +72,7 @@ public class ValueListItemService(IUnitOfWork unitOfWork, ILogger<ValueListItemS
     {
         if (id == Guid.Empty) throw new ValidationException("Id is required.");
         _logger.LogInformation("Deactivating ValueListItem: {Id}", id);
-        var entity = await _unitOfWork.GetRepository<IValueListItemRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var entity = await _repository.DeactivateAsync(id, modifiedBy, cancellationToken);
         return entity;
     }
 }

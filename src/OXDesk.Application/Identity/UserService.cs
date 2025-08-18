@@ -25,6 +25,7 @@ namespace OXDesk.Application.Identity;
 public class UserService : IUserService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly ILogger<UserService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuditLogService _auditLogService;
@@ -50,6 +51,7 @@ public class UserService : IUserService
     /// <param name="cacheService">The cache service.</param>
     public UserService(
         UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager,
         ILogger<UserService> logger,
         IHttpContextAccessor httpContextAccessor,
         IAuditLogService auditLogService,
@@ -59,6 +61,7 @@ public class UserService : IUserService
         IValueListService valueListService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
@@ -89,33 +92,6 @@ public class UserService : IUserService
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
-    /// <summary>
-    /// Maps an ApplicationUser to a UserResponse.
-    /// </summary>
-    /// <param name="user">The application user.</param>
-    /// <returns>The user response.</returns>
-    private static UserResponse MapToUserResponse(ApplicationUser user)
-    {
-        return new UserResponse
-        {
-            Id = user.Id,
-            Email = user.Email ?? string.Empty,
-            UserName = user.UserName ?? string.Empty,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Location = user.Location,
-            TimeZone = user.TimeZone,
-            CountryCode = user.CountryCode,
-            PhoneNumber = user.PhoneNumber,
-            Profile = user.Profile,
-            IsActive = user.IsActive == "Y",
-            CreatedAt = user.CreatedAt,
-            UpdatedAt = user.UpdatedAt,
-            CreatedBy = user.CreatedBy,
-            UpdatedBy = user.UpdatedBy
-        };
-    }
-    
     /// <summary>
     /// Builds a display name for the given user (FirstName LastName fallback to Email/UserName/Id).
     /// </summary>
@@ -204,81 +180,21 @@ public class UserService : IUserService
     
 
     /// <inheritdoc />
-    public async Task<UserDetailsResponse?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID: {UserId}", id);
-        
-        // Use the repository for efficient query that excludes sensitive data
-        var userResponse = await _userRepository.GetUserByIdAsync(id, cancellationToken);
-        if (userResponse == null)
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null)
         {
             _logger.LogWarning("User not found: {UserId}", id);
             return null;
         }
-
-        // Enrich with display texts using cached lookups
-        var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
-        var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
-
-        if (!string.IsNullOrEmpty(userResponse.CountryCode) && countriesLookup.TryGetValue(userResponse.CountryCode, out var countryItem))
-        {
-            userResponse.CountryCodeText = countryItem.ItemName;
-        }
-        else
-        {
-            userResponse.CountryCodeText = null;
-        }
-
-        if (!string.IsNullOrEmpty(userResponse.Profile) && profilesLookup.TryGetValue(userResponse.Profile, out var profileItem))
-        {
-            userResponse.ProfileText = profileItem.ItemName;
-        }
-        else
-        {
-            userResponse.ProfileText = null;
-        }
-
-        // Created/Updated by display names via centralized cache/DB helper
-        userResponse.CreatedByText = await GetUserNameByIdAsync(userResponse.CreatedBy, cancellationToken);
-        userResponse.UpdatedByText = await GetUserNameByIdAsync(userResponse.UpdatedBy, cancellationToken);
-
-        // Build related lists
-        var countries = (await _valueListService.GetCountriesAsync(cancellationToken))
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey })
-            .OrderBy(c => c.ItemName)
-            .ToArray();
-
-        var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken))
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey })
-            .OrderBy(p => p.ItemName)
-            .ToArray();
-
-        // Time zones using IANA IDs and friendly display names via Application helper
-        var ianaTimeZones = TimeZoneHelper.GetAllIanaTimeZones();
-        var timeZones = ianaTimeZones
-            .Select(tz => new StringOption { Value = tz.Key, Name = tz.Value })
-            .ToArray();
-
-        var statuses = _valueListService.GetStatuses().ToArray();
-
-        var response = new UserDetailsResponse
-        {
-            Data = userResponse,
-            Related = new UserDetailsRelated
-            {
-                Countries = countries,
-                Profiles = profiles,
-                TimeZones = timeZones,
-                Statuses = statuses
-            }
-        };
-
-        return response;
+        return user;
     }
     
 
     /// <inheritdoc />
-    public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating user with email: {Email}", request.Email);
 
@@ -355,81 +271,21 @@ public class UserService : IUserService
         await _cacheService.RemoveAsync(CommonConstant.CacheKeys.UserList);
         await _cacheService.RemoveAsync(USER_ENTITIES_CACHE_KEY);
         _logger.LogDebug("Invalidated cache keys: {CacheKey1}, {CacheKey2}", CommonConstant.CacheKeys.UserList, USER_ENTITIES_CACHE_KEY);
-        return MapToUserResponse(user);
+        return user;
     }
 
     /// <inheritdoc />
-    public async Task<UsersListResponse> GetAllUsersAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationUser>> GetAllUsersAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all users");
 
-        // Load from cache or DB using the helper
+        // Load from cache or DB using the helper and return entities only
         var usersEntities = await GetUsersListCacheAsync(cancellationToken);
-
-        // Map to DTOs
-        var users = usersEntities.Select(MapToUserResponse).ToList();
-
-        // Build related: profiles from value lists, statuses static
-        var profileItems = await _valueListService.GetUserProfilesAsync(cancellationToken);
-        var profiles = profileItems
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey })
-            .OrderBy(p => p.ItemName)
-            .ToArray();
-
-        // Dictionaries for text enrichment
-        var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
-        var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
-
-        // Enrich users with display texts
-        var usersList = users as IList<UserResponse> ?? users.ToList();
-
-        // Batch resolve CreatedBy/UpdatedBy display names using a single lookup
-        var distinctUserIds = new HashSet<Guid>(usersList.SelectMany(u => new[] { u.CreatedBy, u.UpdatedBy }));
-        var userLookup = await GetUsersLookupByIdsAsync(distinctUserIds, cancellationToken);
-        var nameMap = userLookup.ToDictionary(kvp => kvp.Key, kvp => BuildUserDisplayName(kvp.Value));
-
-        foreach (var u in usersList)
-        {
-            if (!string.IsNullOrEmpty(u.CountryCode) && countriesLookup.TryGetValue(u.CountryCode, out var countryItem))
-            {
-                u.CountryCodeText = countryItem.ItemName;
-            }
-            else
-            {
-                u.CountryCodeText = null;
-            }
-
-            if (!string.IsNullOrEmpty(u.Profile) && profilesLookup.TryGetValue(u.Profile, out var profileItem))
-            {
-                u.ProfileText = profileItem.ItemName;
-            }
-            else
-            {
-                u.ProfileText = null;
-            }
-
-            // Created/Updated by display texts from name map
-            u.CreatedByText = nameMap.TryGetValue(u.CreatedBy, out var createdByName) ? createdByName : null;
-            u.UpdatedByText = nameMap.TryGetValue(u.UpdatedBy, out var updatedByName) ? updatedByName : null;
-        }
-
-        var statuses = _valueListService.GetStatuses().ToArray();
-
-        var response = new UsersListResponse
-        {
-            Data = usersList,
-            Related = new UsersListRelated
-            {
-                Profiles = profiles,
-                Statuses = statuses
-            }
-        };
-
-        return response;
+        return usersEntities;
     }
 
     /// <inheritdoc />
-    public async Task<UserResponse> ChangeUserActivationStatusAsync(Guid id, string action, string reason, Guid? changedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, Guid? changedBy = null, CancellationToken cancellationToken = default)
     {
         bool isActivating = action.Equals(UserConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
         string actionVerb = isActivating ? "Activating" : "Deactivating";
@@ -489,6 +345,114 @@ public class UserService : IUserService
         await _cacheService.RemoveAsync(USER_ENTITIES_CACHE_KEY);
 
         _logger.LogInformation("Successfully {ActionPastTense} user: {UserId}", actionPastTense, id);
-        return MapToUserResponse(user);
+        return user;
+    }
+
+    public async Task<IReadOnlyList<ApplicationRole>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found when getting roles: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found.");
+        }
+
+        var roleNames = await _userManager.GetRolesAsync(user);
+        var roles = _roleManager.Roles
+            .Where(r => roleNames.Contains(r.Name ?? string.Empty))
+            .OrderBy(r => r.Name)
+            .ToList();
+        return roles;
+    }
+
+    public async Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, Guid? assignedBy = null, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found when adding role: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found.");
+        }
+
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if (role == null)
+        {
+            _logger.LogWarning("Role not found when adding to user: {RoleId}", roleId);
+            throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
+        }
+
+        var roleName = role.Name ?? string.Empty;
+        if (!await _userManager.IsInRoleAsync(user, roleName))
+        {
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Failed to assign role to user {UserId}: {Errors}", userId, errors);
+                throw new InvalidOperationException($"Failed to assign role: {errors}");
+            }
+
+            var actorId = assignedBy ?? GetCurrentUserId();
+            await _auditLogService.CreateAuditLogAsync(
+                objectKey: CommonConstant.MODULE_USER,
+                @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+                objectItemId: user.Id.ToString(),
+                data: $"Role assigned to user: {role.Name}",
+                ip: GetUserIp(),
+                createdBy: actorId,
+                cancellationToken: cancellationToken
+            );
+
+            await _cacheService.RemoveAsync(CommonConstant.CacheKeys.UserList);
+            await _cacheService.RemoveAsync(USER_ENTITIES_CACHE_KEY);
+        }
+
+        return await GetUserRolesAsync(userId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, Guid? removedBy = null, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found when removing role: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found.");
+        }
+
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if (role == null)
+        {
+            _logger.LogWarning("Role not found when removing from user: {RoleId}", roleId);
+            throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
+        }
+
+        var roleName = role.Name ?? string.Empty;
+        if (await _userManager.IsInRoleAsync(user, roleName))
+        {
+            var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Failed to remove role from user {UserId}: {Errors}", userId, errors);
+                throw new InvalidOperationException($"Failed to remove role: {errors}");
+            }
+
+            var actorId = removedBy ?? GetCurrentUserId();
+            await _auditLogService.CreateAuditLogAsync(
+                objectKey: CommonConstant.MODULE_USER,
+                @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+                objectItemId: user.Id.ToString(),
+                data: $"Role removed from user: {role.Name}",
+                ip: GetUserIp(),
+                createdBy: actorId,
+                cancellationToken: cancellationToken
+            );
+
+            await _cacheService.RemoveAsync(CommonConstant.CacheKeys.UserList);
+            await _cacheService.RemoveAsync(USER_ENTITIES_CACHE_KEY);
+        }
+
+        return await GetUserRolesAsync(userId, cancellationToken);
     }
 }
+

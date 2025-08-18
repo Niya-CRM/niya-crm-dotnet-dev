@@ -39,6 +39,7 @@ public static class CommonConstant
     public const string MODULE_BRAND = "brands";
     public const string MODULE_PRODUCT = "products";
     public const string MODULE_TEMPLATE = "templates";
+    public const string MODULE_MESSAGE = "messages";
 
     // Change History field constants
     public static class ChangeHistoryFields

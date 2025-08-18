@@ -7,10 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OXDesk.Api.Common;
-using OXDesk.Core.AuditLogs;
-using OXDesk.Core.AuditLogs.ChangeHistory;
-using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
+using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 
@@ -22,32 +20,26 @@ namespace OXDesk.Api.Controllers.Identity
     public sealed class PermissionsController : ControllerBase
     {
         private readonly IPermissionService _permissionService;
-        private readonly IAuditLogService _auditLogService;
-        private readonly IChangeHistoryLogService _changeHistoryLogService;
-        private readonly ICacheService _cacheService;
         private readonly ILogger<PermissionsController> _logger;
         private readonly IValidator<CreatePermissionRequest> _createValidator;
         private readonly IValidator<UpdatePermissionRequest> _updateValidator;
+        private readonly IUserService _userService;
 
         public PermissionsController(
             IPermissionService permissionService,
-            IAuditLogService auditLogService,
-            IChangeHistoryLogService changeHistoryLogService,
-            ICacheService cacheService,
             ILogger<PermissionsController> logger,
             IValidator<CreatePermissionRequest> createValidator,
-            IValidator<UpdatePermissionRequest> updateValidator)
+            IValidator<UpdatePermissionRequest> updateValidator,
+            IUserService userService)
         {
             _permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
-            _auditLogService = auditLogService ?? throw new ArgumentNullException(nameof(auditLogService));
-            _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
-            _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _createValidator = createValidator ?? throw new ArgumentNullException(nameof(createValidator));
             _updateValidator = updateValidator ?? throw new ArgumentNullException(nameof(updateValidator));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
-        private static PermissionResponse MapToResponse(Permission p) => new PermissionResponse
+        private static PermissionResponse MapToPermissionResponse(Permission p) => new PermissionResponse
         {
             Id = p.Id,
             Name = p.Name,
@@ -58,38 +50,49 @@ namespace OXDesk.Api.Controllers.Identity
             UpdatedBy = p.UpdatedBy,
         };
 
-        private Guid? GetCurrentUserId()
+        private async Task EnrichPermissionAsync(PermissionResponse response, CancellationToken cancellationToken)
         {
-            var sub = User.FindFirst("sub")?.Value ?? User.FindFirst("nameid")?.Value;
-            return Guid.TryParse(sub, out var id) ? id : null;
+            response.UpdatedByText = await _userService.GetUserNameByIdAsync(response.UpdatedBy, cancellationToken);
         }
 
         [HttpGet]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
-        [ProducesResponseType(typeof(PermissionResponse[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedListWithRelatedResponse<PermissionResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken = default)
         {
-            var cacheKey = CommonConstant.CacheKeys.PermissionsList;
-            var cached = await _cacheService.GetAsync<PermissionResponse[]>(cacheKey);
-            if (cached != null)
+            var entities = await _permissionService.GetAllPermissionsAsync(cancellationToken);
+            var list = entities.Select(MapToPermissionResponse).ToList();
+            foreach (var item in list)
             {
-                return Ok(cached);
+                await EnrichPermissionAsync(item, cancellationToken);
             }
-
-            var items = (await _permissionService.GetAllPermissionsAsync()).Select(MapToResponse).OrderBy(x => x.Name).ToArray();
-            await _cacheService.SetAsync(cacheKey, items);
-            return Ok(items);
+            var response = new PagedListWithRelatedResponse<PermissionResponse>
+            {
+                Data = list,
+                PageNumber = 1,
+                RowCount = list.Count,
+                Related = Array.Empty<object>()
+            };
+            return Ok(response);
         }
 
         [HttpGet("{id:guid}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
-        [ProducesResponseType(typeof(PermissionResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<PermissionResponse, PermissionDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var entity = await _permissionService.GetPermissionByIdAsync(id);
+            var entity = await _permissionService.GetPermissionByIdAsync(id, cancellationToken);
             if (entity == null) return this.CreateNotFoundProblem($"Permission with ID '{id}' was not found.");
-            return Ok(MapToResponse(entity));
+            var dto = MapToPermissionResponse(entity);
+            await EnrichPermissionAsync(dto, cancellationToken);
+            var roles = await _permissionService.GetPermissionRolesAsync(id, cancellationToken);
+            var response = new EntityWithRelatedResponse<PermissionResponse, PermissionDetailsRelated>
+            {
+                Data = dto,
+                Related = new PermissionDetailsRelated { Roles = roles }
+            };
+            return Ok(response);
         }
 
         [HttpPost]
@@ -107,34 +110,10 @@ namespace OXDesk.Api.Controllers.Identity
 
             try
             {
-                var userId = GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
-                var now = DateTime.UtcNow;
-                var entity = new Permission
-                {
-                    Id = Guid.CreateVersion7(),
-                    Name = request.Name.Trim(),
-                    NormalizedName = request.Name.Trim().ToUpperInvariant(),
-                    CreatedAt = now,
-                    UpdatedAt = now,
-                    CreatedBy = userId,
-                    UpdatedBy = userId
-                };
-
-                entity = await _permissionService.AddPermissionAsync(entity);
-
-                await _auditLogService.CreateAuditLogAsync(
-                    objectKey: CommonConstant.MODULE_PERMISSION,
-                    @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-                    objectItemId: entity.Id.ToString(),
-                    data: $"Permission created: {entity.Name}",
-                    createdBy: userId,
-                    ip: HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty,
-                    cancellationToken: cancellationToken);
-
-                await _cacheService.RemoveAsync(CommonConstant.CacheKeys.PermissionsList);
-
-                var response = MapToResponse(entity);
-                return CreatedAtAction(nameof(GetByIdAsync), new { id = response.Id }, response);
+                var entity = await _permissionService.CreatePermissionAsync(request, createdBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var dto = MapToPermissionResponse(entity);
+                await EnrichPermissionAsync(dto, cancellationToken);
+                return CreatedAtAction(nameof(GetByIdAsync), new { id = dto.Id }, dto);
             }
             catch (InvalidOperationException ex)
             {
@@ -156,90 +135,28 @@ namespace OXDesk.Api.Controllers.Identity
             {
                 return this.CreateBadRequestProblem(string.Join("; ", validation.Errors.Select(e => e.ErrorMessage)));
             }
-
-            var entity = await _permissionService.GetPermissionByIdAsync(id);
-            if (entity == null) return this.CreateNotFoundProblem($"Permission with ID '{id}' was not found.");
-
-            var userId = GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
-            var now = DateTime.UtcNow;
-
-            var oldName = entity.Name;
-            var newName = request.Name.Trim();
-            var newNormalized = newName.ToUpperInvariant();
-
-            // uniqueness check
-            var dup = await _permissionService.GetPermissionByNameAsync(newNormalized);
-            if (dup != null && dup.Id != entity.Id)
+            try
             {
-                return this.CreateConflictProblem($"A permission with the same name already exists.");
+                var entity = await _permissionService.UpdatePermissionAsync(id, request, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var dto = MapToPermissionResponse(entity);
+                await EnrichPermissionAsync(dto, cancellationToken);
+                return Ok(dto);
             }
-
-            entity.Name = newName;
-            entity.NormalizedName = newNormalized;
-            entity.UpdatedAt = now;
-            entity.UpdatedBy = userId;
-
-            entity = await _permissionService.UpdatePermissionAsync(entity);
-
-            if (!string.Equals(oldName, entity.Name, StringComparison.Ordinal))
+            catch (InvalidOperationException ex)
             {
-                await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-                    objectKey: CommonConstant.MODULE_PERMISSION,
-                    objectItemId: entity.Id,
-                    fieldName: "name",
-                    oldValue: oldName,
-                    newValue: entity.Name,
-                    createdBy: userId,
-                    cancellationToken: cancellationToken);
+                if (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return this.CreateNotFoundProblem(ex.Message);
+                return this.CreateConflictProblem(ex.Message);
             }
-
-            await _auditLogService.CreateAuditLogAsync(
-                objectKey: CommonConstant.MODULE_PERMISSION,
-                @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-                objectItemId: entity.Id.ToString(),
-                data: $"Permission updated: {entity.Name}",
-                createdBy: userId,
-                ip: HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty,
-                cancellationToken: cancellationToken);
-
-            await _cacheService.RemoveAsync(CommonConstant.CacheKeys.PermissionsList);
-
-            return Ok(MapToResponse(entity));
         }
 
         [HttpDelete("{id:guid}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status405MethodNotAllowed)]
+        public IActionResult DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var userId = GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
-            var deleted = await _permissionService.DeletePermissionAsync(id);
-            if (!deleted)
-            {
-                return this.CreateNotFoundProblem($"Permission with ID '{id}' was not found.");
-            }
-
-            await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-                objectKey: CommonConstant.MODULE_PERMISSION,
-                objectItemId: id,
-                fieldName: CommonConstant.ChangeHistoryFields.Deleted,
-                oldValue: "N",
-                newValue: "Y",
-                createdBy: userId,
-                cancellationToken: cancellationToken);
-
-            await _auditLogService.CreateAuditLogAsync(
-                objectKey: CommonConstant.MODULE_PERMISSION,
-                @event: CommonConstant.AUDIT_LOG_EVENT_DELETE,
-                objectItemId: id.ToString(),
-                data: $"Permission deleted: {id}",
-                createdBy: userId,
-                ip: HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty,
-                cancellationToken: cancellationToken);
-
-            await _cacheService.RemoveAsync(CommonConstant.CacheKeys.PermissionsList);
-            return NoContent();
+            return this.CreateMethodNotAllowedProblem("Deleting permissions is not allowed.");
         }
     }
 }
+

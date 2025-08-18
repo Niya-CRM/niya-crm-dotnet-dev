@@ -275,49 +275,121 @@ namespace OXDesk.AppInstallation.Services
                 // User dynamic object
                 new(
                     Guid.CreateVersion7(),
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.DynamicObjectNames.User,
+                    DynamicObjectConstants.DynamicObjectNames.User,
                     "User",
                     "Users",
-                    "user",
+                    DynamicObjectConstants.DynamicObjectKeys.User,
                     "System user entity for authentication and authorization",
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Account dynamic object
                 new(
                     Guid.CreateVersion7(),
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.DynamicObjectNames.Account,
+                    DynamicObjectConstants.DynamicObjectNames.Account,
                     "Account",
                     "Accounts",
-                    "account",
+                    DynamicObjectConstants.DynamicObjectKeys.Account,
                     "Business or organization account",
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Contact dynamic object
                 new(
                     Guid.CreateVersion7(),
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.DynamicObjectNames.Contact,
+                    DynamicObjectConstants.DynamicObjectNames.Contact,
                     "Contact",
                     "Contacts",
-                    "contact",
+                    DynamicObjectConstants.DynamicObjectKeys.Contact,
                     "Individual contact associated with accounts",
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    CommonConstant.DEFAULT_SYSTEM_USER
                 ),
                 
                 // Ticket dynamic object
                 new(
                     Guid.CreateVersion7(),
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.DynamicObjectNames.Ticket,
+                    DynamicObjectConstants.DynamicObjectNames.Ticket,
                     "Ticket",
                     "Tickets",
-                    "ticket",
+                    DynamicObjectConstants.DynamicObjectKeys.Ticket,
                     "Support or service ticket",
-                    OXDesk.Core.DynamicObjects.DynamicObjectConstants.ObjectTypes.Dedicated,
-                    OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Tenant dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Tenant,
+                    "Tenant",
+                    "Tenants",
+                    DynamicObjectConstants.DynamicObjectKeys.Tenant,
+                    "Tenant entity representing a customer account",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Brand dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Brand,
+                    "Brand",
+                    "Brands",
+                    DynamicObjectConstants.DynamicObjectKeys.Brand,
+                    "Brand entity",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Organisation dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Organisation,
+                    "Organisation",
+                    "Organisations",
+                    DynamicObjectConstants.DynamicObjectKeys.Organisation,
+                    "Organisation entity",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Department dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Department,
+                    "Department",
+                    "Departments",
+                    DynamicObjectConstants.DynamicObjectKeys.Department,
+                    "Department entity",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Team dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Team,
+                    "Team",
+                    "Teams",
+                    DynamicObjectConstants.DynamicObjectKeys.Team,
+                    "Team entity",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
+                )
+                ,
+                // Product dynamic object
+                new(
+                    Guid.CreateVersion7(),
+                    DynamicObjectConstants.DynamicObjectNames.Product,
+                    "Product",
+                    "Products",
+                    DynamicObjectConstants.DynamicObjectKeys.Product,
+                    "Product entity",
+                    DynamicObjectConstants.ObjectTypes.Standard,
+                    CommonConstant.DEFAULT_SYSTEM_USER
                 )
             };
             
@@ -862,11 +934,11 @@ namespace OXDesk.AppInstallation.Services
                 // Administrator has all permissions
                 [OXDesk.Core.Common.CommonConstant.RoleNames.Administrator] = OXDesk.Core.Common.CommonConstant.PermissionNames.All,
                 
-                // Power User has most permissions except system setup
+                // Power User has most permissions except system update setup
                 [OXDesk.Core.Common.CommonConstant.RoleNames.PowerUser] = 
                 [
+                    OXDesk.Core.Common.CommonConstant.PermissionNames.SysSetupRead,
                     OXDesk.Core.Common.CommonConstant.PermissionNames.UserRead,
-                    OXDesk.Core.Common.CommonConstant.PermissionNames.UserWrite,
                     OXDesk.Core.Common.CommonConstant.PermissionNames.TicketRead,
                     OXDesk.Core.Common.CommonConstant.PermissionNames.TicketWrite,
                     OXDesk.Core.Common.CommonConstant.PermissionNames.ContactRead,
