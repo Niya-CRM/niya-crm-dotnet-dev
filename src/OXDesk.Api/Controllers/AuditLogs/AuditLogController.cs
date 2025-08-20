@@ -15,18 +15,20 @@ namespace OXDesk.Api.Controllers.AuditLogs
     public class AuditLogController : ControllerBase
     {
         private readonly IAuditLogService _auditLogService;
+        private readonly IAuditLogFactory _auditLogFactory;
 
-        public AuditLogController(IAuditLogService auditLogService)
+        public AuditLogController(IAuditLogService auditLogService, IAuditLogFactory auditLogFactory)
         {
             _auditLogService = auditLogService;
+            _auditLogFactory = auditLogFactory;
         }
 
         /// <summary>
         /// Gets all audit logs with optional filters and paging.
         /// </summary>
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResponse<AuditLog>), 200)]
-        public async Task<ActionResult<PagedResponse<AuditLog>>> GetAll(
+        [ProducesResponseType(typeof(PagedListWithRelatedResponse<AuditLogResponse>), 200)]
+        public async Task<ActionResult<PagedListWithRelatedResponse<AuditLogResponse>>> GetAll(
             [FromQuery] AuditLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
@@ -38,14 +40,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
                 query,
                 cancellationToken);
 
-            var list = logs as IList<AuditLog> ?? logs.ToList();
-
-            var response = new PagedResponse<AuditLog>
-            {
-                Data = list,
-                PageNumber = query.PageNumber,
-                RowCount = list.Count
-            };
+            var response = await _auditLogFactory.BuildListAsync(logs, cancellationToken);
             return Ok(response);
         }
 
@@ -53,9 +48,9 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// Gets a specific audit log by its ID.
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(AuditLog), 200)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<AuditLog>> GetById(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>>> GetById(Guid id, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
@@ -64,7 +59,8 @@ namespace OXDesk.Api.Controllers.AuditLogs
             var log = await _auditLogService.GetAuditLogByIdAsync(id, cancellationToken);
             if (log == null)
                 return this.CreateNotFoundProblem($"Audit log with ID '{id}' was not found.");
-            return Ok(log);
+            var response = await _auditLogFactory.BuildDetailsAsync(log, cancellationToken);
+            return Ok(response);
         }
     }
 }

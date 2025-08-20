@@ -5,6 +5,9 @@ using OXDesk.Core.Common;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using OXDesk.Api.Common;
+using OXDesk.Core.Common.DTOs;
+ 
+using Microsoft.AspNetCore.Authorization;
 
 namespace OXDesk.Api.Controllers.DynamicObjects;
 
@@ -16,6 +19,7 @@ namespace OXDesk.Api.Controllers.DynamicObjects;
 public class DynamicObjectController : ControllerBase
 {
     private readonly IDynamicObjectService _dynamicObjectService;
+    private readonly IDynamicObjectFactory _dynamicObjectFactory;
     private readonly ILogger<DynamicObjectController> _logger;
 
     /// <summary>
@@ -23,12 +27,15 @@ public class DynamicObjectController : ControllerBase
     /// </summary>
     /// <param name="dynamicObjectService">The dynamic object service.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="dynamicObjectFactory">The dynamic object factory.</param>
     public DynamicObjectController(
         IDynamicObjectService dynamicObjectService,
-        ILogger<DynamicObjectController> logger)
+        ILogger<DynamicObjectController> logger,
+        IDynamicObjectFactory dynamicObjectFactory)
     {
         _dynamicObjectService = dynamicObjectService ?? throw new ArgumentNullException(nameof(dynamicObjectService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dynamicObjectFactory = dynamicObjectFactory ?? throw new ArgumentNullException(nameof(dynamicObjectFactory));
     }
     
     // Helper methods moved to ControllerExtensions class
@@ -40,10 +47,11 @@ public class DynamicObjectController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created dynamic object.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status201Created)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObject>> CreateDynamicObject([FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> CreateDynamicObject([FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -56,11 +64,12 @@ public class DynamicObjectController : ControllerBase
             
             var dynamicObject = await _dynamicObjectService.CreateDynamicObjectAsync(
                 request: request,
-                createdBy: CommonConstant.DEFAULT_SYSTEM_USER,
+                createdBy: this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created dynamic object with ID: {DynamicObjectId}", dynamicObject.Id);
-            return CreatedAtAction(nameof(GetDynamicObjectById), new { id = dynamicObject.Id }, dynamicObject);
+            var response = await _dynamicObjectFactory.BuildDetailsAsync(dynamicObject, cancellationToken);
+            return CreatedAtAction(nameof(GetDynamicObjectById), new { objectId = dynamicObject.Id }, response);
         }
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
@@ -81,9 +90,10 @@ public class DynamicObjectController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found.</returns>
     [HttpGet("{objectId:guid}")]
-    [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DynamicObject>> GetDynamicObjectById(Guid objectId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> GetDynamicObjectById(Guid objectId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", objectId);
         
@@ -94,7 +104,8 @@ public class DynamicObjectController : ControllerBase
             return this.CreateNotFoundProblem($"Dynamic object with ID '{objectId}' not found.");
         }
 
-        return Ok(dynamicObject);
+        var response = await _dynamicObjectFactory.BuildDetailsAsync(dynamicObject, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
@@ -105,9 +116,10 @@ public class DynamicObjectController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A paginated collection of dynamic objects.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<DynamicObject>), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<DynamicObjectResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<DynamicObject>>> GetAllDynamicObjects(
+    public async Task<ActionResult<PagedListWithRelatedResponse<DynamicObjectResponse>>> GetAllDynamicObjects(
         [FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
         [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
         CancellationToken cancellationToken = default)
@@ -117,7 +129,8 @@ public class DynamicObjectController : ControllerBase
             _logger.LogDebug("Getting all dynamic objects - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
             
             var dynamicObjects = await _dynamicObjectService.GetAllDynamicObjectsAsync(pageNumber, pageSize, cancellationToken);
-            return Ok(dynamicObjects);
+            var response = await _dynamicObjectFactory.BuildListAsync(dynamicObjects, cancellationToken);
+            return Ok(response);
         }
         catch (ArgumentException ex)
         {
@@ -134,11 +147,12 @@ public class DynamicObjectController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated dynamic object.</returns>
     [HttpPut("{objectId:guid}")]
-    [ProducesResponseType(typeof(DynamicObject), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObject>> UpdateDynamicObject(Guid objectId, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> UpdateDynamicObject(Guid objectId, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -159,11 +173,12 @@ public class DynamicObjectController : ControllerBase
             var updatedDynamicObject = await _dynamicObjectService.UpdateDynamicObjectAsync(
                 objectId, 
                 request, 
-                CommonConstant.DEFAULT_SYSTEM_USER, 
+                this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER, 
                 cancellationToken);
 
             _logger.LogInformation("Successfully updated dynamic object: {DynamicObjectId}", objectId);
-            return Ok(updatedDynamicObject);
+            var response = await _dynamicObjectFactory.BuildDetailsAsync(updatedDynamicObject, cancellationToken);
+            return Ok(response);
         }
         catch (ArgumentException ex)
         {

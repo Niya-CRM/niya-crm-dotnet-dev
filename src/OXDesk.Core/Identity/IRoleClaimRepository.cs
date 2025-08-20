@@ -19,4 +19,13 @@ public interface IRoleClaimRepository
     /// Adds a batch of role claims.
     /// </summary>
     Task AddRoleClaimsAsync(IEnumerable<ApplicationRoleClaim> claims, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets role claims for a given role and claim type.
+    /// </summary>
+    /// <param name="roleId">The role identifier.</param>
+    /// <param name="claimType">The claim type to filter by.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>List of role claims with audit fields.</returns>
+    Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(Guid roleId, string claimType, CancellationToken cancellationToken = default);
 }

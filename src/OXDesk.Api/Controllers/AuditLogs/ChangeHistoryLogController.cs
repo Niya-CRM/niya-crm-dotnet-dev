@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using OXDesk.Api.Common;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
-using OXDesk.Core.Common.Response;
+using OXDesk.Core.Common;
 using OXDesk.Core.Common.DTOs;
 using System;
 using System.Collections.Generic;
@@ -23,6 +23,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
     public class ChangeHistoryLogController : ControllerBase
     {
         private readonly IChangeHistoryLogService _changeHistoryLogService;
+        private readonly IChangeHistoryLogFactory _changeHistoryLogFactory;
         private readonly ILogger<ChangeHistoryLogController> _logger;
 
         /// <summary>
@@ -30,12 +31,15 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// </summary>
         /// <param name="changeHistoryLogService">The change history log service.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="changeHistoryLogFactory">The change history log factory.</param>
         public ChangeHistoryLogController(
             IChangeHistoryLogService changeHistoryLogService,
-            ILogger<ChangeHistoryLogController> logger)
+            ILogger<ChangeHistoryLogController> logger,
+            IChangeHistoryLogFactory changeHistoryLogFactory)
         {
             _changeHistoryLogService = changeHistoryLogService;
             _logger = logger;
+            _changeHistoryLogFactory = changeHistoryLogFactory;
         }
 
         /// <summary>
@@ -47,9 +51,10 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// <response code="200">Returns the list of change history logs.</response>
         /// <response code="400">If the query parameters are invalid.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResponse<ChangeHistoryLog>), StatusCodes.Status200OK)]
+        [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+        [ProducesResponseType(typeof(PagedListWithRelatedResponse<ChangeHistoryLogResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PagedResponse<ChangeHistoryLog>>> GetChangeHistoryLogs(
+        public async Task<ActionResult<PagedListWithRelatedResponse<ChangeHistoryLogResponse>>> GetChangeHistoryLogs(
             [FromQuery] ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken)
         {
@@ -70,17 +75,8 @@ namespace OXDesk.Api.Controllers.AuditLogs
                 
                 _logger.LogDebug("Retrieving change history logs with filters: {Query}", query);
                 
-                var logs = await _changeHistoryLogService.GetChangeHistoryLogsAsync(
-                    query,
-                    cancellationToken);
-                var list = logs as IList<ChangeHistoryLog> ?? logs.ToList();
-
-                var response = new PagedResponse<ChangeHistoryLog>
-                {
-                    Data = list,
-                    PageNumber = query.PageNumber,
-                    RowCount = list.Count
-                };
+                var logs = await _changeHistoryLogService.GetChangeHistoryLogsAsync(query, cancellationToken);
+                var response = await _changeHistoryLogFactory.BuildListAsync(logs, cancellationToken);
                 return Ok(response);
             }
             catch (ArgumentException ex)

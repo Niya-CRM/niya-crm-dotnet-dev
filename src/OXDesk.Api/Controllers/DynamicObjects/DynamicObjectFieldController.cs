@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OXDesk.Api.Common;
 using OXDesk.Core.Common;
+using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.DynamicObjects.Fields;
+using OXDesk.Core.DynamicObjects.Fields.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 using System;
+using System.Linq;
 
 namespace OXDesk.Api.Controllers.DynamicObjects;
 
@@ -18,13 +22,16 @@ public class DynamicObjectFieldController : ControllerBase
 {
     private readonly IDynamicObjectFieldService _fieldService;
     private readonly ILogger<DynamicObjectFieldController> _logger;
+    private readonly IDynamicObjectFieldFactory _fieldFactory;
 
     public DynamicObjectFieldController(
         IDynamicObjectFieldService fieldService,
-        ILogger<DynamicObjectFieldController> logger)
+        ILogger<DynamicObjectFieldController> logger,
+        IDynamicObjectFieldFactory fieldFactory)
     {
         _fieldService = fieldService ?? throw new ArgumentNullException(nameof(fieldService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _fieldFactory = fieldFactory ?? throw new ArgumentNullException(nameof(fieldFactory));
     }
 
     // Field Types
@@ -33,21 +40,29 @@ public class DynamicObjectFieldController : ControllerBase
     /// Gets all available field types.
     /// </summary>
     [HttpGet("field-types")]
-    [ProducesResponseType(typeof(IEnumerable<DynamicObjectFieldType>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<DynamicObjectFieldType>>> GetAllFieldTypes(CancellationToken cancellationToken = default)
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<DynamicObjectFieldType>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedListWithRelatedResponse<DynamicObjectFieldType>>> GetAllFieldTypes(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all DynamicObject field types");
         var types = await _fieldService.GetAllFieldTypesAsync(cancellationToken);
-        return Ok(types);
+        return Ok(new PagedListWithRelatedResponse<DynamicObjectFieldType>
+        {
+            Data = types,
+            PageNumber = 1,
+            RowCount = types.Count(),
+            Related = Array.Empty<object>()
+        });
     }
 
     /// <summary>
     /// Gets a field type by its identifier.
     /// </summary>
     [HttpGet("field-types/{fieldTypeId:guid}")]
-    [ProducesResponseType(typeof(DynamicObjectFieldType), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectFieldType, object>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DynamicObjectFieldType>> GetFieldTypeById(Guid fieldTypeId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectFieldType, object>>> GetFieldTypeById(Guid fieldTypeId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting field type by ID: {FieldTypeId}", fieldTypeId);
         var type = await _fieldService.GetFieldTypeByIdAsync(fieldTypeId, cancellationToken);
@@ -55,7 +70,11 @@ public class DynamicObjectFieldController : ControllerBase
         {
             return this.CreateNotFoundProblem($"Field type with ID '{fieldTypeId}' not found.");
         }
-        return Ok(type);
+        return Ok(new EntityWithRelatedResponse<DynamicObjectFieldType, object>
+        {
+            Data = type,
+            Related = new object()
+        });
     }
 
     // Fields
@@ -64,15 +83,17 @@ public class DynamicObjectFieldController : ControllerBase
     /// Lists all fields for a given dynamic object ID.
     /// </summary>
     [HttpGet("{objectId:guid}/fields")]
-    [ProducesResponseType(typeof(IEnumerable<DynamicObjectField>), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<DynamicObjectFieldResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<DynamicObjectField>>> GetFieldsByObjectId(Guid objectId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<PagedListWithRelatedResponse<DynamicObjectFieldResponse>>> GetFieldsByObjectId(Guid objectId, CancellationToken cancellationToken = default)
     {
         try
         {
             _logger.LogDebug("Getting fields for object ID: {ObjectId}", objectId);
             var fields = await _fieldService.GetFieldsByObjectIdAsync(objectId, cancellationToken);
-            return Ok(fields);
+            var response = await _fieldFactory.BuildListAsync(fields, cancellationToken);
+            return Ok(response);
         }
         catch (ArgumentException ex)
         {
@@ -85,9 +106,10 @@ public class DynamicObjectFieldController : ControllerBase
     /// Gets a field by its identifier.
     /// </summary>
     [HttpGet("{objectId:guid}/fields/{fieldId:guid}")]
-    [ProducesResponseType(typeof(DynamicObjectField), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DynamicObjectField>> GetFieldById(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>>> GetFieldById(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting field by ID: {FieldId} for object ID: {ObjectId}", fieldId, objectId);
         var field = await _fieldService.GetFieldByIdAsync(objectId, fieldId, cancellationToken);
@@ -95,17 +117,19 @@ public class DynamicObjectFieldController : ControllerBase
         {
             return this.CreateNotFoundProblem($"Field with ID '{fieldId}' for object ID '{objectId}' not found.");
         }
-        return Ok(field);
+        var response = await _fieldFactory.BuildDetailsAsync(field, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
     /// Creates a new field definition for the given dynamic object ID.
     /// </summary>
     [HttpPost("{objectId:guid}/fields")]
-    [ProducesResponseType(typeof(DynamicObjectField), StatusCodes.Status201Created)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObjectField>> CreateField(
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>>> CreateField(
         Guid objectId,
         [FromBody] DynamicObjectField request,
         CancellationToken cancellationToken = default)
@@ -118,13 +142,14 @@ public class DynamicObjectFieldController : ControllerBase
         try
         {
             request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id; // Allow client to omit ID
-            request.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
-            request.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            request.CreatedBy = actor;
+            request.UpdatedBy = actor;
 
             _logger.LogInformation("Creating field '{FieldKey}' for object ID '{ObjectId}'", request.FieldKey, objectId);
             var created = await _fieldService.AddFieldAsync(objectId, request, cancellationToken);
-
-            return CreatedAtAction(nameof(GetFieldById), new { objectId = objectId, fieldId = created.Id }, created);
+            var response = await _fieldFactory.BuildDetailsAsync(created, cancellationToken);
+            return CreatedAtAction(nameof(GetFieldById), new { objectId = objectId, fieldId = created.Id }, response);
         }
         catch (ValidationException ex)
         {
@@ -147,11 +172,12 @@ public class DynamicObjectFieldController : ControllerBase
     /// Updates an existing field definition.
     /// </summary>
     [HttpPut("{objectId:guid}/fields/{fieldId:guid}")]
-    [ProducesResponseType(typeof(DynamicObjectField), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<DynamicObjectField>> UpdateField(
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectFieldResponse, DynamicObjectFieldDetailsRelated>>> UpdateField(
         Guid objectId,
         Guid fieldId,
         [FromBody] DynamicObjectField request,
@@ -176,11 +202,12 @@ public class DynamicObjectFieldController : ControllerBase
             request.ObjectKey = existing.ObjectKey;
             request.CreatedBy = existing.CreatedBy; // preserve creator
             request.CreatedAt = existing.CreatedAt; // preserve created timestamp if used
-            request.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+            request.UpdatedBy = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
             _logger.LogInformation("Updating field '{FieldId}' for object ID '{ObjectId}'", fieldId, objectId);
             var updated = await _fieldService.UpdateFieldAsync(objectId, request, cancellationToken);
-            return Ok(updated);
+            var response = await _fieldFactory.BuildDetailsAsync(updated, cancellationToken);
+            return Ok(response);
         }
         catch (ValidationException ex)
         {
@@ -213,6 +240,7 @@ public class DynamicObjectFieldController : ControllerBase
     /// Deletes a field definition by object ID and field ID.
     /// </summary>
     [HttpDelete("{objectId:guid}/fields/{fieldId:guid}")]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

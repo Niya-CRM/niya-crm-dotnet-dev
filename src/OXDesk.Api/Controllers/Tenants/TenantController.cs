@@ -6,6 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using OXDesk.Api.Validators.Tenants;
 using OXDesk.Api.Common;
+using OXDesk.Core.Common.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace OXDesk.Api.Controllers.Tenants;
 
@@ -20,6 +23,7 @@ public class TenantController : ControllerBase
     private readonly ILogger<TenantController> _logger;
     private readonly IValidator<ActivateDeactivateTenantRequest> _activateDeactivateTenantRequestValidator;
     private readonly IValidator<CreateTenantRequest> _createTenantRequestValidator;
+    private readonly ITenantFactory _tenantFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TenantController"/> class.
@@ -28,16 +32,19 @@ public class TenantController : ControllerBase
     /// <param name="logger">The logger.</param>
     /// <param name="activateDeactivateTenantRequestValidator">The validator for activate/deactivate tenant requests.</param>
     /// <param name="createTenantRequestValidator">The validator for create tenant requests.</param>
+    /// <param name="tenantFactory">The tenant factory for building response DTOs.</param>
     public TenantController(
         ITenantService tenantService, 
         ILogger<TenantController> logger, 
         IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator,
-        IValidator<CreateTenantRequest> createTenantRequestValidator)
+        IValidator<CreateTenantRequest> createTenantRequestValidator,
+        ITenantFactory tenantFactory)
     {
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _activateDeactivateTenantRequestValidator = activateDeactivateTenantRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateTenantRequestValidator));
         _createTenantRequestValidator = createTenantRequestValidator ?? throw new ArgumentNullException(nameof(createTenantRequestValidator));
+        _tenantFactory = tenantFactory ?? throw new ArgumentNullException(nameof(tenantFactory));
     }
 
     // <summary>
@@ -47,10 +54,11 @@ public class TenantController : ControllerBase
     // <param name="cancellationToken">The cancellation token.</param>
     // <returns>The created tenant.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Tenant>> CreateTenant([FromBody] CreateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> CreateTenant([FromBody] CreateTenantRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -72,12 +80,15 @@ public class TenantController : ControllerBase
         {
             _logger.LogInformation("Creating tenant with name: {Name}", request.Name);
             
+            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
             var tenant = await _tenantService.CreateTenantAsync(
                 request: request,
+                createdBy: actor,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created tenant with ID: {TenantId}", tenant.Id);
-            return CreatedAtAction(nameof(GetTenantById), new { id = tenant.Id }, tenant);
+            var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
+            return CreatedAtAction(nameof(GetTenantById), new { id = tenant.Id }, response);
         }
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
@@ -98,9 +109,10 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tenant if found.</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> GetTenantById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> GetTenantById(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         
@@ -110,8 +122,8 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found: {TenantId}", id);
             return this.CreateNotFoundProblem($"Tenant with ID '{id}' was not found.");
         }
-
-        return Ok(tenant);
+        var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
@@ -121,9 +133,10 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tenant if found.</returns>
     [HttpGet("host/{host}")]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> GetTenantByHost(string host, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> GetTenantByHost(string host, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by host: {Host}", host);
         
@@ -133,8 +146,8 @@ public class TenantController : ControllerBase
             _logger.LogWarning("Tenant not found for host: {Host}", host);
             return this.CreateNotFoundProblem($"Tenant with host '{host}' was not found.");
         }
-
-        return Ok(tenant);
+        var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
@@ -143,13 +156,15 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of active tenants.</returns>
     [HttpGet("active")]
-    [ProducesResponseType(typeof(IEnumerable<Tenant>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Tenant>>> GetActiveTenants(CancellationToken cancellationToken = default)
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<TenantResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedListWithRelatedResponse<TenantResponse>>> GetActiveTenants(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all active tenants");
         
         var tenants = await _tenantService.GetActiveTenantsAsync(cancellationToken);
-        return Ok(tenants);
+        var response = await _tenantFactory.BuildListAsync(tenants, 1, cancellationToken);
+        return Ok(response);
     }
 
     /// <summary>
@@ -160,9 +175,10 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A paginated collection of tenants.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Tenant>), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<TenantResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<Tenant>>> GetAllTenants(
+    public async Task<ActionResult<PagedListWithRelatedResponse<TenantResponse>>> GetAllTenants(
         [FromQuery] int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
         [FromQuery] int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
         CancellationToken cancellationToken = default)
@@ -172,7 +188,8 @@ public class TenantController : ControllerBase
             _logger.LogDebug("Getting all tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
             
             var tenants = await _tenantService.GetAllTenantsAsync(pageNumber, pageSize, cancellationToken);
-            return Ok(tenants);
+            var response = await _tenantFactory.BuildListAsync(tenants, pageNumber, cancellationToken);
+            return Ok(response);
         }
         catch (ArgumentException ex)
         {
@@ -189,11 +206,12 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Tenant>> UpdateTenant(Guid id, [FromBody] UpdateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> UpdateTenant(Guid id, [FromBody] UpdateTenantRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -221,14 +239,16 @@ public class TenantController : ControllerBase
                 DatabaseName = request.DatabaseName ?? tenant.DatabaseName
             };
             
+            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
             var updatedTenant = await _tenantService.UpdateTenantAsync(
                 id, 
                 updateRequest, 
-                CommonConstant.DEFAULT_SYSTEM_USER, 
+                actor, 
                 cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
-            return Ok(updatedTenant);
+            var response = await _tenantFactory.BuildDetailsAsync(updatedTenant, cancellationToken);
+            return Ok(response);
         }
         catch (ArgumentException ex)
         {
@@ -255,10 +275,11 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The activated tenant.</returns>
     [HttpPost("{id:guid}/activate")]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> ActivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ActivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeTenantActivationStatus(id, request, true, cancellationToken);
     }
@@ -271,10 +292,11 @@ public class TenantController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The deactivated tenant.</returns>
     [HttpPost("{id:guid}/deactivate")]
-    [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
+    [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tenant>> DeactivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> DeactivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeTenantActivationStatus(id, request, false, cancellationToken);
     }
@@ -287,7 +309,7 @@ public class TenantController : ControllerBase
     /// <param name="activate">True to activate, false to deactivate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>ActionResult with the updated tenant.</returns>
-    private async Task<ActionResult<Tenant>> ChangeTenantActivationStatus(Guid id, ActivateDeactivateTenantRequest request, bool activate, CancellationToken cancellationToken = default)
+    private async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ChangeTenantActivationStatus(Guid id, ActivateDeactivateTenantRequest request, bool activate, CancellationToken cancellationToken = default)
     {
         var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -305,7 +327,8 @@ public class TenantController : ControllerBase
             
             string completedAction = activate ? "activated" : "deactivated";
             _logger.LogInformation("Successfully {CompletedAction} tenant: {TenantId}", completedAction, id);
-            return Ok(tenant);
+            var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
+            return Ok(response);
         }
         catch (InvalidOperationException ex)
         {

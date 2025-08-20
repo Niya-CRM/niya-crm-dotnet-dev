@@ -20,6 +20,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Application.AuditLogs.ChangeHistory;
 using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
 using OXDesk.Core.DynamicObjects;
+using OXDesk.Core.DynamicObjects.Fields;
 using OXDesk.Application.DynamicObjects;
 using OXDesk.Infrastructure.Data.DynamicObjects;
 using OXDesk.Application.Identity;
@@ -45,6 +46,7 @@ using OXDesk.AppInstallation;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Application.Identity.Validators;
+using OXDesk.Api.Factories;
 
 try
 {
@@ -138,6 +140,9 @@ builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionService, OXDesk.Appli
 // Register Role Service
 builder.Services.AddScoped<OXDesk.Core.Identity.IRoleClaimRepository, OXDesk.Infrastructure.Data.Identity.RoleClaimRepository>();
 builder.Services.AddScoped<OXDesk.Core.Identity.IRoleService, OXDesk.Application.Identity.RoleService>();
+builder.Services.AddScoped<OXDesk.Core.Identity.IRoleFactory, RolesFactory>();
+builder.Services.AddScoped<OXDesk.Core.Identity.IUserFactory, UserFactory>();
+builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionFactory, PermissionsFactory>();
 
 // Add Authorization policies with global fallback policy using AuthorizationBuilder
 var authBuilder = builder.Services.AddAuthorizationBuilder();
@@ -156,22 +161,27 @@ authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupWrite, policy =>
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
 
 // Register AuditLog Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<OXDesk.Core.AuditLogs.IAuditLogFactory, AuditLogFactory>();
 
 // Register ChangeHistoryLog Services
 builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
 builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
+builder.Services.AddScoped<OXDesk.Core.AuditLogs.ChangeHistory.IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
 
 // Register DynamicObject Services
 builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
 builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
+builder.Services.AddScoped<IDynamicObjectFactory, DynamicObjectFactory>();
 
 // Register DynamicObject Field Type Services
 builder.Services.AddScoped<OXDesk.Core.DynamicObjects.Fields.IDynamicObjectFieldRepository, OXDesk.Infrastructure.Data.DynamicObjects.Fields.DynamicObjectFieldRepository>();
 builder.Services.AddScoped<OXDesk.Core.DynamicObjects.Fields.IDynamicObjectFieldService, OXDesk.Application.DynamicObjects.Fields.DynamicObjectFieldService>();
+builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
 
 // Register User Services
 builder.Services.AddScoped<IUserRepository, UserRepository>();

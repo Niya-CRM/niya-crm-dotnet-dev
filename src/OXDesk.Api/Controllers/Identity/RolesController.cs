@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,42 +21,35 @@ namespace OXDesk.Api.Controllers.Identity
     public sealed class RolesController : ControllerBase
     {
         private readonly IRoleService _roleService;
+        private readonly IPermissionService _permissionService;
+        private readonly IUserService _userService;
+        private readonly IUserFactory _userFactory;
         private readonly ILogger<RolesController> _logger;
         private readonly IValidator<CreateRoleRequest> _createValidator;
         private readonly IValidator<UpdateRoleRequest> _updateValidator;
-        private readonly IUserService _userService;
+        private readonly IRoleFactory _roleFactory;
 
         public RolesController(
             IRoleService roleService,
+            IPermissionService permissionService,
+            IUserService userService,
+            IUserFactory userFactory,
             ILogger<RolesController> logger,
             IValidator<CreateRoleRequest> createValidator,
             IValidator<UpdateRoleRequest> updateValidator,
-            IUserService userService)
+            IRoleFactory roleFactory)
         {
             _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
+            _permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userFactory = userFactory ?? throw new ArgumentNullException(nameof(userFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _createValidator = createValidator ?? throw new ArgumentNullException(nameof(createValidator));
             _updateValidator = updateValidator ?? throw new ArgumentNullException(nameof(updateValidator));
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _roleFactory = roleFactory ?? throw new ArgumentNullException(nameof(roleFactory));
         }
 
         
-
-        private static RoleResponse MapToRoleResponse(ApplicationRole role) => new RoleResponse
-        {
-            Id = role.Id,
-            Name = role.Name ?? string.Empty,
-            NormalizedName = role.NormalizedName ?? string.Empty,
-            CreatedAt = role.CreatedAt,
-            UpdatedAt = role.UpdatedAt,
-            CreatedBy = role.CreatedBy,
-            UpdatedBy = role.UpdatedBy
-        };
-
-        private async Task EnrichRoleAsync(RoleResponse role, CancellationToken cancellationToken)
-        {
-            role.UpdatedByText = await _userService.GetUserNameByIdAsync(role.UpdatedBy, cancellationToken);
-        }
 
         [HttpGet]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
@@ -63,18 +57,7 @@ namespace OXDesk.Api.Controllers.Identity
         public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken = default)
         {
             var roles = await _roleService.GetAllRolesAsync(cancellationToken);
-            var list = roles.Select(MapToRoleResponse).ToList();
-            foreach (var r in list)
-            {
-                await EnrichRoleAsync(r, cancellationToken);
-            }
-            var response = new PagedListWithRelatedResponse<RoleResponse>
-            {
-                Data = list,
-                PageNumber = 1,
-                RowCount = list.Count,
-                Related = Array.Empty<object>()
-            };
+            var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }
 
@@ -86,20 +69,13 @@ namespace OXDesk.Api.Controllers.Identity
         {
             var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
             if (role == null) return this.CreateNotFoundProblem($"Role with ID '{id}' was not found.");
-            var dto = MapToRoleResponse(role);
-            await EnrichRoleAsync(dto, cancellationToken);
-            var perms = await _roleService.GetRolePermissionsAsync(id, cancellationToken);
-            var response = new EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>
-            {
-                Data = dto,
-                Related = new RoleDetailsRelated { Permissions = perms }
-            };
+            var response = await _roleFactory.BuildDetailsAsync(role, cancellationToken);
             return Ok(response);
         }
 
         [HttpPost]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
-        [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> CreateAsync([FromBody] CreateRoleRequest request, CancellationToken cancellationToken = default)
@@ -113,9 +89,8 @@ namespace OXDesk.Api.Controllers.Identity
             try
             {
                 var entity = await _roleService.CreateRoleAsync(request, createdBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
-                var dto = MapToRoleResponse(entity);
-                await EnrichRoleAsync(dto, cancellationToken);
-                return CreatedAtAction(nameof(GetByIdAsync), new { id = dto.Id }, dto);
+                var response = await _roleFactory.BuildDetailsAsync(entity, cancellationToken);
+                return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, response);
             }
             catch (InvalidOperationException ex)
             {
@@ -126,7 +101,7 @@ namespace OXDesk.Api.Controllers.Identity
 
         [HttpPatch("{id:guid}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
-        [ProducesResponseType(typeof(RoleResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
@@ -141,9 +116,8 @@ namespace OXDesk.Api.Controllers.Identity
             try
             {
                 var entity = await _roleService.UpdateRoleAsync(id, request, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
-                var dto = MapToRoleResponse(entity);
-                await EnrichRoleAsync(dto, cancellationToken);
-                return Ok(dto);
+                var response = await _roleFactory.BuildDetailsAsync(entity, cancellationToken);
+                return Ok(response);
             }
             catch (InvalidOperationException ex)
             {
@@ -164,14 +138,16 @@ namespace OXDesk.Api.Controllers.Identity
 
         [HttpGet("{id:guid}/permissions")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
-        [ProducesResponseType(typeof(string[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedListWithRelatedResponse<RolePermissionResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                var perms = await _roleService.GetRolePermissionsAsync(id, cancellationToken);
-                return Ok(perms);
+                // Fetch claims with audit fields
+                var claims = await _roleService.GetRolePermissionClaimsAsync(id, cancellationToken);
+                var response = await _roleFactory.BuildPermissionsListAsync(claims, cancellationToken);
+                return Ok(response);
             }
             catch (InvalidOperationException ex)
             {
@@ -179,14 +155,83 @@ namespace OXDesk.Api.Controllers.Identity
             }
         }
 
+        [HttpDelete("{id:guid}/permissions/{permissionId:guid}")]
+        [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeletePermissionAsync(Guid id, Guid permissionId, CancellationToken cancellationToken = default)
+        {
+            // Ensure role exists
+            var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
+            if (role is null)
+            {
+                return this.CreateNotFoundProblem($"Role with ID '{id}' was not found.");
+            }
+
+            // Resolve permission by Id
+            var permission = await _permissionService.GetPermissionByIdAsync(permissionId, cancellationToken);
+            if (permission is null)
+            {
+                return this.CreateNotFoundProblem($"Permission with ID '{permissionId}' was not found.");
+            }
+
+            // Remove permission by name if present
+            var current = await _roleService.GetRolePermissionsAsync(id, cancellationToken);
+            var updated = current.Where(p => !string.Equals(p, permission.Name, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+            // Only call service if change is needed
+            if (updated.Length != current.Length)
+            {
+                await _roleService.SetRolePermissionsAsync(id, updated, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+            }
+
+            // Return updated role details with related permissions via factory
+            var response = await _roleFactory.BuildDetailsAsync(role, cancellationToken);
+            return Ok(response);
+        }
+
         [HttpPut("{id:guid}/permissions")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
-        [ProducesResponseType(typeof(string[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SetPermissionsAsync(Guid id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken = default)
         {
-            var updated = await _roleService.SetRolePermissionsAsync(id, request.Permissions, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
-            return Ok(updated);
+            try
+            {
+                await _roleService.SetRolePermissionsAsync(id, request.Permissions, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+
+                var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
+                if (role is null)
+                {
+                    return this.CreateNotFoundProblem($"Role with ID '{id}' was not found.");
+                }
+
+                var response = await _roleFactory.BuildDetailsAsync(role, cancellationToken);
+                return Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return this.CreateNotFoundProblem(ex.Message);
+            }
+        }
+
+        [HttpGet("{id:guid}/users")]
+        [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
+        [ProducesResponseType(typeof(PagedListWithRelatedResponse<UserResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetRoleUsersAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var users = await _userService.GetUsersByRoleIdAsync(id, cancellationToken);
+                var response = await _userFactory.BuildListAsync(users, cancellationToken);
+                return Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Role not found
+                return this.CreateNotFoundProblem(ex.Message);
+            }
         }
     }
 }

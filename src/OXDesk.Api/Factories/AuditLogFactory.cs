@@ -1,0 +1,71 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using OXDesk.Core.AuditLogs;
+using OXDesk.Core.AuditLogs.DTOs;
+using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.Identity;
+
+namespace OXDesk.Api.Factories
+{
+    /// <summary>
+    /// Builds AuditLog response DTOs and wraps them with related data.
+    /// </summary>
+    public sealed class AuditLogFactory : IAuditLogFactory
+    {
+        private readonly IUserService _userService;
+
+        public AuditLogFactory(IUserService userService)
+        {
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        }
+
+        private static AuditLogResponse Map(AuditLog log) => new AuditLogResponse
+        {
+            Id = log.Id,
+            ObjectKey = log.ObjectKey,
+            Event = log.Event,
+            ObjectItemId = log.ObjectItemId,
+            IP = log.IP,
+            Data = log.Data,
+            CreatedAt = log.CreatedAt,
+            CreatedBy = log.CreatedBy
+        };
+
+        private async Task EnrichAsync(AuditLogResponse dto, CancellationToken cancellationToken)
+        {
+            dto.CreatedByText = await _userService.GetUserNameByIdAsync(dto.CreatedBy, cancellationToken);
+        }
+
+        public async Task<PagedListWithRelatedResponse<AuditLogResponse>> BuildListAsync(IEnumerable<AuditLog> logs, CancellationToken cancellationToken = default)
+        {
+            var list = logs.Select(Map).ToList();
+            foreach (var item in list)
+            {
+                await EnrichAsync(item, cancellationToken);
+            }
+
+            return new PagedListWithRelatedResponse<AuditLogResponse>
+            {
+                Data = list,
+                PageNumber = 1,
+                RowCount = list.Count,
+                Related = Array.Empty<object>()
+            };
+        }
+
+        public async Task<EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>> BuildDetailsAsync(AuditLog log, CancellationToken cancellationToken = default)
+        {
+            var dto = Map(log);
+            await EnrichAsync(dto, cancellationToken);
+
+            return new EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>
+            {
+                Data = dto,
+                Related = new AuditLogDetailsRelated()
+            };
+        }
+    }
+}

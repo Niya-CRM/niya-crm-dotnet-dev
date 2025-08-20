@@ -44,4 +44,13 @@ public class RoleClaimRepository : IRoleClaimRepository
         await _dbContext.RoleClaims.AddRangeAsync(list, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(Guid roleId, string claimType, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.RoleClaims
+            .Where(rc => rc.RoleId == roleId && rc.ClaimType == claimType)
+            .OrderBy(rc => rc.ClaimValue);
+        var list = await query.ToListAsync(cancellationToken);
+        return list;
+    }
 }

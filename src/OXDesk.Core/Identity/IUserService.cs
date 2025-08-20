@@ -82,5 +82,14 @@ public interface IUserService
     /// Removes the specified role from the user. Returns the updated set of roles. No-ops if not assigned.
     /// </summary>
     Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, Guid? removedBy = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all users that are assigned to the specified role.
+    /// </summary>
+    /// <param name="roleId">The role identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>List of user entities in the role.</returns>
+    Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default);
 }
+
 

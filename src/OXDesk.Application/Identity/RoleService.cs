@@ -173,5 +173,12 @@ namespace OXDesk.Application.Identity
             }
             return await GetRolePermissionsAsync(roleId, cancellationToken);
         }
+
+        public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(Guid roleId, CancellationToken cancellationToken = default)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId.ToString()) ?? throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
+            var claims = await _roleClaimRepository.GetRoleClaimsAsync(role.Id, PermissionClaimType, cancellationToken);
+            return claims;
+        }
     }
 }

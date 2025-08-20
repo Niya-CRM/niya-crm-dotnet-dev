@@ -454,5 +454,20 @@ public class UserService : IUserService
 
         return await GetUserRolesAsync(userId, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default)
+    {
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if (role == null)
+        {
+            _logger.LogWarning("Role not found when fetching users: {RoleId}", roleId);
+            throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
+        }
+
+        var roleName = role.Name ?? string.Empty;
+        var users = await _userManager.GetUsersInRoleAsync(roleName);
+        var ordered = users.OrderBy(u => u.UserName).ToList();
+        return ordered;
+    }
 }
 

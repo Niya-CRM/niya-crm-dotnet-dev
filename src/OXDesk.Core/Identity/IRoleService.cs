@@ -16,5 +16,10 @@ namespace OXDesk.Core.Identity
 
         Task<string[]> GetRolePermissionsAsync(Guid roleId, CancellationToken cancellationToken = default);
         Task<string[]> SetRolePermissionsAsync(Guid roleId, IEnumerable<string> permissionNames, Guid? updatedBy = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns the underlying permission claims for the role including audit fields.
+        /// </summary>
+        Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(Guid roleId, CancellationToken cancellationToken = default);
     }
 }

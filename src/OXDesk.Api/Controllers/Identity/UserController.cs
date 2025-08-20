@@ -8,9 +8,6 @@ using System.ComponentModel.DataAnnotations;
 using OXDesk.Api.Common;
 using FluentValidation;
 using System.Linq;
-using OXDesk.Core.ValueLists;
-using OXDesk.Core.ValueLists.DTOs;
-using OXDesk.Application.Common.Helpers;
 
 namespace OXDesk.Api.Controllers.Identity;
 
@@ -25,7 +22,8 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly ILogger<UserController> _logger;
     private readonly IValidator<ActivateDeactivateUserRequest> _activateDeactivateUserRequestValidator;
-    private readonly IValueListService _valueListService;
+    private readonly IUserFactory _userFactory;
+    private readonly IRoleFactory _roleFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserController"/> class.
@@ -33,60 +31,33 @@ public class UserController : ControllerBase
     /// <param name="userService">The user service.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="activateDeactivateUserRequestValidator">The validator for activate/deactivate user requests.</param>
-    /// <param name="valueListService">The value list service for lookups.</param>
+    /// <param name="userFactory">Factory for building user DTOs.</param>
+    /// <param name="roleFactory">Factory for building role DTOs.</param>
     public UserController(
         IUserService userService,
         ILogger<UserController> logger,
         IValidator<ActivateDeactivateUserRequest> activateDeactivateUserRequestValidator,
-        IValueListService valueListService)
+        IUserFactory userFactory,
+        IRoleFactory roleFactory)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _activateDeactivateUserRequestValidator = activateDeactivateUserRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateUserRequestValidator));
-        _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+        _userFactory = userFactory ?? throw new ArgumentNullException(nameof(userFactory));
+        _roleFactory = roleFactory ?? throw new ArgumentNullException(nameof(roleFactory));
     }
-
-    private static UserResponse MapToUserResponse(ApplicationUser user) => new UserResponse
-    {
-        Id = user.Id,
-        Email = user.Email ?? string.Empty,
-        UserName = user.UserName ?? string.Empty,
-        FirstName = user.FirstName,
-        LastName = user.LastName,
-        Location = user.Location,
-        TimeZone = user.TimeZone,
-        CountryCode = user.CountryCode,
-        PhoneNumber = user.PhoneNumber,
-        Profile = user.Profile,
-        IsActive = user.IsActive == "Y",
-        CreatedAt = user.CreatedAt,
-        UpdatedAt = user.UpdatedAt,
-        CreatedBy = user.CreatedBy,
-        UpdatedBy = user.UpdatedBy
-    };
-
-    private static RoleResponse MapToRoleResponse(ApplicationRole role) => new RoleResponse
-    {
-        Id = role.Id,
-        Name = role.Name ?? string.Empty,
-        NormalizedName = role.NormalizedName ?? string.Empty,
-        CreatedAt = role.CreatedAt,
-        UpdatedAt = role.UpdatedAt,
-        CreatedBy = role.CreatedBy,
-        UpdatedBy = role.UpdatedBy
-    };
 
     /// <summary>
     /// Creates a new user.
     /// </summary>
     /// <param name="request">The user creation request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The created user.</returns>
+    /// <returns>The created user with related reference data.</returns>
     [HttpPost]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -106,11 +77,10 @@ public class UserController : ControllerBase
                 createdBy: createdBy,
                 cancellationToken: cancellationToken);
 
-            var dto = MapToUserResponse(entity);
-            dto.UpdatedByText = await _userService.GetUserNameByIdAsync(dto.UpdatedBy, cancellationToken);
+            var response = await _userFactory.BuildDetailsAsync(entity, cancellationToken);
 
-            _logger.LogInformation("Successfully created user with ID: {UserId}", dto.Id);
-            return CreatedAtAction(nameof(GetUserById), new { id = dto.Id }, dto);
+            _logger.LogInformation("Successfully created user with ID: {UserId}", response.Data.Id);
+            return CreatedAtAction(nameof(GetUserById), new { id = response.Data.Id }, response);
         }
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
@@ -144,46 +114,7 @@ public class UserController : ControllerBase
             return this.CreateNotFoundProblem($"User with ID '{id}' was not found.");
         }
 
-        var dto = MapToUserResponse(entity);
-
-        // Enrich with display texts using lookups
-        var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
-        var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
-
-        dto.CountryCodeText = !string.IsNullOrEmpty(dto.CountryCode) && countriesLookup.TryGetValue(dto.CountryCode, out var countryItem)
-            ? countryItem.ItemName
-            : null;
-        dto.ProfileText = !string.IsNullOrEmpty(dto.Profile) && profilesLookup.TryGetValue(dto.Profile, out var profileItem)
-            ? profileItem.ItemName
-            : null;
-
-        dto.CreatedByText = await _userService.GetUserNameByIdAsync(dto.CreatedBy, cancellationToken);
-        dto.UpdatedByText = await _userService.GetUserNameByIdAsync(dto.UpdatedBy, cancellationToken);
-
-        // Build related lists
-        var countries = (await _valueListService.GetCountriesAsync(cancellationToken))
-            .OrderBy(c => c.ItemName)
-            .ToArray();
-        var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken))
-            .OrderBy(p => p.ItemName)
-            .ToArray();
-        var timeZones = TimeZoneHelper.GetAllIanaTimeZones()
-            .Select(tz => new StringOption { Value = tz.Key, Name = tz.Value })
-            .ToArray();
-        var statuses = _valueListService.GetStatuses().ToArray();
-
-        var response = new EntityWithRelatedResponse<UserResponse, UserDetailsRelated>
-        {
-            Data = dto,
-            Related = new UserDetailsRelated
-            {
-                Countries = countries,
-                Profiles = profiles,
-                TimeZones = timeZones,
-                Statuses = statuses
-            }
-        };
-
+        var response = await _userFactory.BuildDetailsAsync(entity, cancellationToken);
         return Ok(response);
     }
     
@@ -193,48 +124,12 @@ public class UserController : ControllerBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Users list wrapper containing data and related options.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(UsersListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedListWithRelatedResponse<UserResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all users");
         var entities = await _userService.GetAllUsersAsync(cancellationToken);
-
-        // Lookups for enrichment
-        var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
-        var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
-
-        var list = entities.Select(MapToUserResponse).ToList();
-
-        // Enrich display texts and CreatedBy/UpdatedBy names
-        foreach (var u in list)
-        {
-            u.CountryCodeText = !string.IsNullOrEmpty(u.CountryCode) && countriesLookup.TryGetValue(u.CountryCode, out var countryItem)
-                ? countryItem.ItemName
-                : null;
-            u.ProfileText = !string.IsNullOrEmpty(u.Profile) && profilesLookup.TryGetValue(u.Profile, out var profileItem)
-                ? profileItem.ItemName
-                : null;
-
-            u.CreatedByText = await _userService.GetUserNameByIdAsync(u.CreatedBy, cancellationToken);
-            u.UpdatedByText = await _userService.GetUserNameByIdAsync(u.UpdatedBy, cancellationToken);
-        }
-
-        var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken))
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
-            .OrderBy(p => p.ItemName)
-            .ToArray();
-        var statuses = _valueListService.GetStatuses().ToArray();
-
-        var response = new UsersListResponse
-        {
-            Data = list,
-            Related = new UsersListRelated
-            {
-                Profiles = profiles,
-                Statuses = statuses
-            }
-        };
-
+        var response = await _userFactory.BuildListAsync(entities, cancellationToken);
         return Ok(response);
     }
 
@@ -244,12 +139,12 @@ public class UserController : ControllerBase
     /// <param name="id">The user identifier.</param>
     /// <param name="request">The activation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The updated user.</returns>
+    /// <returns>The updated user with related reference data.</returns>
     [HttpPatch("{id:guid}/activate")]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserResponse>> ActivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ActivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeUserActivationStatus(id, request, true, cancellationToken);
     }
@@ -260,12 +155,12 @@ public class UserController : ControllerBase
     /// <param name="id">The user identifier.</param>
     /// <param name="request">The deactivation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The updated user.</returns>
+    /// <returns>The updated user with related reference data.</returns>
     [HttpPatch("{id:guid}/deactivate")]
-    [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserResponse>> DeactivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> DeactivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeUserActivationStatus(id, request, false, cancellationToken);
     }
@@ -273,7 +168,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Private helper to change user activation status with validation and logging.
     /// </summary>
-    private async Task<ActionResult<UserResponse>> ChangeUserActivationStatus(Guid id, ActivateDeactivateUserRequest request, bool activate, CancellationToken cancellationToken = default)
+    private async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ChangeUserActivationStatus(Guid id, ActivateDeactivateUserRequest request, bool activate, CancellationToken cancellationToken = default)
     {
         var validationResult = await _activateDeactivateUserRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -299,12 +194,11 @@ public class UserController : ControllerBase
             _logger.LogInformation("{ActionVerb} user: {UserId}", actionVerb, id);
 
             var entity = await _userService.ChangeUserActivationStatusAsync(id, action, request.Reason, cancellationToken: cancellationToken);
-            var dto = MapToUserResponse(entity);
-            dto.UpdatedByText = await _userService.GetUserNameByIdAsync(dto.UpdatedBy, cancellationToken);
+            var response = await _userFactory.BuildDetailsAsync(entity, cancellationToken);
 
             string completedAction = activate ? "activated" : "deactivated";
             _logger.LogInformation("Successfully {CompletedAction} user: {UserId}", completedAction, id);
-            return Ok(dto);
+            return Ok(response);
         }
         catch (InvalidOperationException ex)
         {
@@ -326,18 +220,7 @@ public class UserController : ControllerBase
         try
         {
             var roles = await _userService.GetUserRolesAsync(id, cancellationToken);
-            var list = roles.Select(MapToRoleResponse).ToList();
-            foreach (var r in list)
-            {
-                r.UpdatedByText = await _userService.GetUserNameByIdAsync(r.UpdatedBy, cancellationToken);
-            }
-            var response = new PagedListWithRelatedResponse<RoleResponse>
-            {
-                Data = list,
-                PageNumber = 1,
-                RowCount = list.Count,
-                Related = Array.Empty<object>()
-            };
+            var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }
         catch (InvalidOperationException ex)
@@ -364,18 +247,7 @@ public class UserController : ControllerBase
         try
         {
             var roles = await _userService.AddRoleToUserAsync(id, request.RoleId, cancellationToken: cancellationToken);
-            var list = roles.Select(MapToRoleResponse).ToList();
-            foreach (var r in list)
-            {
-                r.UpdatedByText = await _userService.GetUserNameByIdAsync(r.UpdatedBy, cancellationToken);
-            }
-            var response = new PagedListWithRelatedResponse<RoleResponse>
-            {
-                Data = list,
-                PageNumber = 1,
-                RowCount = list.Count,
-                Related = Array.Empty<object>()
-            };
+            var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }
         catch (InvalidOperationException ex)
@@ -399,18 +271,7 @@ public class UserController : ControllerBase
         try
         {
             var roles = await _userService.RemoveRoleFromUserAsync(id, roleId, cancellationToken: cancellationToken);
-            var list = roles.Select(MapToRoleResponse).ToList();
-            foreach (var r in list)
-            {
-                r.UpdatedByText = await _userService.GetUserNameByIdAsync(r.UpdatedBy, cancellationToken);
-            }
-            var response = new PagedListWithRelatedResponse<RoleResponse>
-            {
-                Data = list,
-                PageNumber = 1,
-                RowCount = list.Count,
-                Related = Array.Empty<object>()
-            };
+            var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }
         catch (InvalidOperationException ex)
