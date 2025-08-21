@@ -4,7 +4,7 @@ using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using System.Linq;
 
-namespace OXDesk.Api.Factories;
+namespace OXDesk.Api.Factories.Tenants;
 
 public class TenantFactory : ITenantFactory
 {

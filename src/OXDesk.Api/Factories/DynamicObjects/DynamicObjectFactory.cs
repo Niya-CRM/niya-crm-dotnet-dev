@@ -8,7 +8,7 @@ using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.DTOs;
 using OXDesk.Core.Identity;
 
-namespace OXDesk.Api.Factories
+namespace OXDesk.Api.Factories.DynamicObjects
 {
     /// <summary>
     /// Builds DynamicObject response DTOs and wraps them with related data.

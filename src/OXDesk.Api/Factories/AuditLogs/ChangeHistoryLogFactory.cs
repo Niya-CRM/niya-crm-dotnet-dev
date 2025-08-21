@@ -8,7 +8,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
 
-namespace OXDesk.Api.Factories
+namespace OXDesk.Api.Factories.AuditLogs
 {
     /// <summary>
     /// Builds ChangeHistoryLog response DTOs and wraps them with related data.

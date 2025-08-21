@@ -12,6 +12,7 @@ using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.Fields;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AppInstallation;
+using OXDesk.Core.Tickets;
 
 namespace OXDesk.Infrastructure.Data
 {
@@ -44,6 +45,12 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<DynamicObjectField> DynamicObjectFields { get; set; } = null!;
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<Ticket> Tickets { get; set; } = null!;
+        public DbSet<TicketStatus> TicketStatuses { get; set; } = null!;
+        public DbSet<Channel> Channels { get; set; } = null!;
+        public DbSet<Brand> Brands { get; set; } = null!;
+        public DbSet<Priority> Priorities { get; set; } = null!;
+        public DbSet<RequestType> RequestTypes { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

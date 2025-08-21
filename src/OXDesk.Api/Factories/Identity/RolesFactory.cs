@@ -9,7 +9,7 @@ using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.ValueLists.DTOs;
 
-namespace OXDesk.Api.Factories
+namespace OXDesk.Api.Factories.Identity
 {
     /// <summary>
     /// Builds Role response DTOs and wraps them with related data.

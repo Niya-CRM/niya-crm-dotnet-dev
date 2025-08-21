@@ -46,7 +46,10 @@ using OXDesk.AppInstallation;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Application.Identity.Validators;
-using OXDesk.Api.Factories;
+using OXDesk.Api.Factories.Identity;
+using OXDesk.Api.Factories.Tenants;
+using OXDesk.Api.Factories.AuditLogs;
+using OXDesk.Api.Factories.DynamicObjects;
 
 try
 {

@@ -7,7 +7,7 @@ using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 
-namespace OXDesk.Api.Factories
+namespace OXDesk.Api.Factories.Identity
 {
     /// <summary>
     /// Builds Permission response DTOs and wraps them with related data.

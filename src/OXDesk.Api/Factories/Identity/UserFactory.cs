@@ -10,7 +10,7 @@ using OXDesk.Core.ValueLists;
 using OXDesk.Core.ValueLists.DTOs;
 using OXDesk.Application.Common.Helpers;
 
-namespace OXDesk.Api.Factories
+namespace OXDesk.Api.Factories.Identity
 {
     /// <summary>
     /// Builds user response payloads with enrichment, avoiding N+1 lookups.
