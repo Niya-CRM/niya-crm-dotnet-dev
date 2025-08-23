@@ -50,7 +50,6 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<Channel> Channels { get; set; } = null!;
         public DbSet<Brand> Brands { get; set; } = null!;
         public DbSet<Priority> Priorities { get; set; } = null!;
-        public DbSet<RequestType> RequestTypes { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.

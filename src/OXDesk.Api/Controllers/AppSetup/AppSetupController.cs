@@ -58,7 +58,9 @@ public class AppSetupController : Controller
         {
             countries = countryList
                 .Where(i => i.IsActive)
-                .OrderBy(i => i.ItemName)
+                .OrderBy(i => i.Order == null)
+                .ThenBy(i => i.Order)
+                .ThenBy(i => i.ItemName)
                 .ToList();
         }
 
@@ -115,8 +117,12 @@ public class AppSetupController : Controller
     private async Task LoadCountriesAsync(CancellationToken cancellationToken)
     {
         var countryList = await _valueListService.GetCountriesAsync(cancellationToken);
-
-        ViewBag.Countries = countryList;
+        ViewBag.Countries = countryList
+            .Where(i => i.IsActive)
+            .OrderBy(i => i.Order == null)
+            .ThenBy(i => i.Order)
+            .ThenBy(i => i.ItemName)
+            .ToList();
     }
 
     /// <summary>

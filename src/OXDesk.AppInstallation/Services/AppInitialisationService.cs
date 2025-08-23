@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core.AppInstallation;
 using OXDesk.Core.AppInstallation.AppInitialisation;
+using OXDesk.Core.AppInstallation.AppSetup;
+using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.Fields;
@@ -27,6 +29,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly ILogger<AppInitialisationService> _logger;
         private readonly IValueListService _valueListService;
         private readonly IChangeHistoryLogService _changeHistoryLogService;
+        private readonly IAppSetupService _appSetupService;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -56,8 +59,14 @@ namespace OXDesk.AppInstallation.Services
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Field Types", async () => {
                 await InitializeFieldTypesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Create System User", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Initialize Request Types", async () => {
+                await InitializeRequestTypesAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 10, "Create System User", async () => {
                 await CreateSystemUserAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 999, "Setup Tenant and Admin User", async () => {
+                await SetupTenantAndAdminAsync();
             }),
         ];
 
@@ -67,6 +76,7 @@ namespace OXDesk.AppInstallation.Services
             UserManager<OXDesk.Core.Identity.ApplicationUser> userManager,
             IValueListService valueListService,
             IChangeHistoryLogService changeHistoryLogService,
+            IAppSetupService appSetupService,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -75,6 +85,7 @@ namespace OXDesk.AppInstallation.Services
             _userManager = userManager;
             _valueListService = valueListService;
             _changeHistoryLogService = changeHistoryLogService;
+            _appSetupService = appSetupService;
             _logger = logger;
         }
 
@@ -265,6 +276,45 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Setup initial tenant and admin user account using AppSetupService.
+        /// </summary>
+        private async Task SetupTenantAndAdminAsync()
+        {
+            try
+            {
+                // Skip if already installed
+                if (await _appSetupService.IsApplicationInstalledAsync())
+                {
+                    _logger.LogInformation("Application already installed. Skipping 'Setup Tenant and Admin User' step.");
+                    return;
+                }
+
+                var setupDto = new AppSetupDto
+                {
+                    TenantName = "NP Photography",
+                    Host = "localhost",
+                    FirstName = "Nithin",
+                    LastName = "Prathapan",
+                    AdminEmail = "nithinp89@gmail.com",
+                    Password = "Admin@123$",
+                    ConfirmPassword = "Admin@123$",
+                    TimeZone = "UTC",
+                    Location = "Kerala",
+                    CountryCode = "IN"
+                };
+
+                _logger.LogInformation("Installing application for tenant '{TenantName}' on host '{Host}'", setupDto.TenantName, setupDto.Host);
+                var tenant = await _appSetupService.InstallApplicationAsync(setupDto);
+                _logger.LogInformation("Application installed for tenant {TenantId} - {TenantName}", tenant.Id, setupDto.TenantName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed during 'Setup Tenant and Admin User' step");
+                throw;
+            }
+        }
+
         private async Task DefineDynamicObjectsAsync()
         {
             _logger.LogInformation("Starting to define dynamic objects");
@@ -904,6 +954,75 @@ namespace OXDesk.AppInstallation.Services
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Failed to initialize dynamic object field types");
+            }
+        }
+        
+        private async Task InitializeRequestTypesAsync()
+        {
+            _logger.LogInformation("Starting to initialize request types");
+            
+            try
+            {
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
+                
+                // Create or get ValueList 'Request Types'
+                var requestTypesList = await _dbContext.ValueLists
+                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.RequestTypes);
+                
+                if (requestTypesList == null)
+                {
+                    requestTypesList = new ValueList(
+                        Guid.CreateVersion7(),
+                        listName: "Request Types",
+                        listKey: CommonConstant.ValueListKeys.RequestTypes,
+                        description: "List of request types",
+                        valueListTypeId: ValueListConstants.ValueListTypes.Standard,
+                        isActive: true,
+                        allowModify: true,
+                        allowNewItem: true,
+                        createdBy: defaultUser
+                    );
+                    _dbContext.ValueLists.Add(requestTypesList);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Created ValueList 'Request Types' with ID: {Id}", requestTypesList.Id);
+                }
+                
+                // Existing item keys for this list
+                var existingKeys = await _dbContext.ValueListItems
+                    .Where(i => i.ListKey == requestTypesList.ListKey)
+                    .Select(i => i.ItemKey)
+                    .ToListAsync();
+                
+                var desired = new (string Name, string Key)[]
+                {
+                    ("Feature", "feature"),
+                    ("Problem", "problem"),
+                    ("Question", "question"),
+                    ("Others", "others")
+                };
+                
+                var newItems = desired
+                    .Where(d => !existingKeys.Contains(d.Key))
+                    .Select(d => new ValueListItem(
+                        Guid.CreateVersion7(),
+                        itemName: d.Name,
+                        itemKey: d.Key,
+                        listKey: requestTypesList.ListKey,
+                        isActive: true,
+                        createdBy: defaultUser
+                    ))
+                    .ToList();
+                
+                if (newItems.Count > 0)
+                {
+                    await _dbContext.ValueListItems.AddRangeAsync(newItems);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Added {Count} request types to ValueList 'Request Types'", newItems.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to initialize request types");
             }
         }
         

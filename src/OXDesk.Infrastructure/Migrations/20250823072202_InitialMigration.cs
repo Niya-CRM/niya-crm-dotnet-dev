@@ -47,6 +47,28 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "brands",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    brand_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    brand_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    logo = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
+                    logo_dark = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
+                    brand_color = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
+                    website = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_brands", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "change_history_logs",
                 columns: table => new
                 {
@@ -62,6 +84,24 @@ namespace OXDesk.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_change_history_logs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "channels",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    channel_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    channel_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_channels", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -118,6 +158,25 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "priorities",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    priority_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    increment_score = table.Column<int>(type: "integer", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_priorities", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -156,6 +215,119 @@ namespace OXDesk.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_tenants", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ticket_statuses",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_ticket_statuses", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tickets",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ticket_number = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    type = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    channel = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    language = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
+                    brand = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    brand_text = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    product = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    product_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    subject = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    priority = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    priority_score = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    work_flow_status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    work_flow_status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    is_escalated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_spam = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_archived = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_auto_closed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    has_scheduled_reply = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_response_overdue = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_overdue = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_reopened = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    sub_topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    request_type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    skills = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    layout_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    contact = table.Column<Guid>(type: "uuid", nullable: true),
+                    contact_email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    contact_phone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    contact_mobile = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    contact_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    supplied_email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    supplied_company = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    supplied_phone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    account = table.Column<Guid>(type: "uuid", nullable: true),
+                    account_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    sla_id = table.Column<long>(type: "bigint", nullable: true),
+                    milestone_status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    owner = table.Column<Guid>(type: "uuid", nullable: true),
+                    owner_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    team = table.Column<Guid>(type: "uuid", nullable: true),
+                    team_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    department = table.Column<Guid>(type: "uuid", nullable: true),
+                    department_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    organisation = table.Column<Guid>(type: "uuid", nullable: true),
+                    organisation_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    ai_sentiment = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    ai_tone = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    ai_summary = table.Column<string>(type: "text", nullable: true),
+                    ai_topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    ai_subtopic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    ai_language = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    opened_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    assigned_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    first_resolution_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    first_resolution_due_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    closed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    sla_start_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    sla_paused_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    sla_breach_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    due_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    response_due_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    customer_responded_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    on_hold_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    parent = table.Column<int>(type: "integer", nullable: true),
+                    attachment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    comment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    task_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    thread_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_tickets", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -444,6 +616,7 @@ namespace OXDesk.Infrastructure.Migrations
                     item_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     list_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -476,6 +649,11 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: new[] { "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_brands_brand_key",
+                table: "brands",
+                column: "brand_key");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_change_history_logs_created_at",
                 table: "change_history_logs",
                 column: "created_at");
@@ -489,6 +667,11 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "ix_change_history_logs_object_key_object_item_id_field_name_cr~",
                 table: "change_history_logs",
                 columns: new[] { "object_key", "object_item_id", "field_name", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_channels_channel_key",
+                table: "channels",
+                column: "channel_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_object_field_types_value_list_id",
@@ -516,6 +699,11 @@ namespace OXDesk.Infrastructure.Migrations
                 table: "permissions",
                 column: "normalized_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_priorities_priority_key",
+                table: "priorities",
+                column: "priority_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_refresh_tokens_user_id",
@@ -548,6 +736,57 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "ix_tenants_name",
                 table: "tenants",
                 column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_ticket_statuses_status_key",
+                table: "ticket_statuses",
+                column: "status_key");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_brand",
+                table: "tickets",
+                column: "brand");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_created_at",
+                table: "tickets",
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_deleted_at",
+                table: "tickets",
+                column: "deleted_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_organisation",
+                table: "tickets",
+                column: "organisation");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_owner",
+                table: "tickets",
+                column: "owner");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_status",
+                table: "tickets",
+                column: "status");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_status_created_at_due_at_deleted_at",
+                table: "tickets",
+                columns: new[] { "status", "created_at", "due_at", "deleted_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_team",
+                table: "tickets",
+                column: "team");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_ticket_number",
+                table: "tickets",
+                column: "ticket_number",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_claims_user_id",
@@ -596,7 +835,13 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "audit_logs");
 
             migrationBuilder.DropTable(
+                name: "brands");
+
+            migrationBuilder.DropTable(
                 name: "change_history_logs");
+
+            migrationBuilder.DropTable(
+                name: "channels");
 
             migrationBuilder.DropTable(
                 name: "countries");
@@ -614,6 +859,9 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "permissions");
 
             migrationBuilder.DropTable(
+                name: "priorities");
+
+            migrationBuilder.DropTable(
                 name: "refresh_tokens");
 
             migrationBuilder.DropTable(
@@ -621,6 +869,12 @@ namespace OXDesk.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "tenants");
+
+            migrationBuilder.DropTable(
+                name: "ticket_statuses");
+
+            migrationBuilder.DropTable(
+                name: "tickets");
 
             migrationBuilder.DropTable(
                 name: "user_claims");

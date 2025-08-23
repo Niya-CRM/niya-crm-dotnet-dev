@@ -43,6 +43,11 @@ namespace OXDesk.Core.Identity
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
+        /// Last update timestamp (UTC).
+        /// </summary>
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
         /// Expiration timestamp (UTC). After this time the refresh token is invalid.
         /// </summary>
         public DateTime ExpiresAt { get; set; }

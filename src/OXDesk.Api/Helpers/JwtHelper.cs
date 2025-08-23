@@ -232,6 +232,7 @@ namespace OXDesk.Api.Helpers
                 Device = GetClientDevice(),
                 IpAddress = GetClientIp(),
                 CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.Refresh.RefreshTokenExpiryHours)
             };
             await _refreshTokenRepository.AddAsync(refreshEntity);

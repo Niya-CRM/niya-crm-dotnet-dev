@@ -18,6 +18,9 @@ namespace OXDesk.Infrastructure.Data.ValueLists
             // Non-unique index on ItemKey
             builder.HasIndex(v => v.ItemKey);
 
+            // Index on ListKey
+            builder.HasIndex(v => v.ListKey);
+
             // Map relationship by ListKey (FK) to ValueList.ListKey (principal key)
             builder
                 .HasOne(vli => vli.ValueList)

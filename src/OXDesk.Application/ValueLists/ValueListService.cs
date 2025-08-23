@@ -137,9 +137,8 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
 
     private async Task<IEnumerable<ValueListItem>> GetItemsByListKeyAsync(string listKey, CancellationToken cancellationToken)
     {
-        // Use the dictionary cache as the single source of truth to avoid double storing.
-        var lookup = await GetLookupByListKeyAsync(listKey, cancellationToken);
-        return lookup.Values;
+        // Fetch directly from repository via service to preserve DB ordering.
+        return await _valueListItemService.GetByListKeyAsync(listKey, cancellationToken);
     }
 
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
@@ -182,24 +181,21 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
         return items
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
-            .OrderBy(o => o.ItemName);
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
     public async Task<IEnumerable<ValueListItemOption>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
         return items
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
-            .OrderBy(o => o.ItemName);
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
     public async Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
         return items
-            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
-            .OrderBy(o => o.ItemName);
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
     public async Task<IReadOnlyDictionary<TKey, ValueListItem>> GetLookupAsync<TKey>(

@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250817193014_InitialMigration")]
+    [Migration("20250823072202_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1058,6 +1058,673 @@ namespace OXDesk.Infrastructure.Migrations
                     b.ToTable("tenants", (string)null);
                 });
 
+            modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BrandColor")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("brand_color");
+
+                    b.Property<string>("BrandKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("brand_key");
+
+                    b.Property<string>("BrandName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("brand_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Logo")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("logo");
+
+                    b.Property<string>("LogoDark")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("logo_dark");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brands");
+
+                    b.HasIndex("BrandKey")
+                        .HasDatabaseName("ix_brands_brand_key");
+
+                    b.ToTable("brands", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Channel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChannelKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("channel_key");
+
+                    b.Property<string>("ChannelName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("channel_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_channels");
+
+                    b.HasIndex("ChannelKey")
+                        .HasDatabaseName("ix_channels_channel_key");
+
+                    b.ToTable("channels", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Priority", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("IncrementScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("increment_score");
+
+                    b.Property<string>("PriorityKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("priority_key");
+
+                    b.Property<string>("PriorityName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("priority_name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_priorities");
+
+                    b.HasIndex("PriorityKey")
+                        .HasDatabaseName("ix_priorities_priority_key");
+
+                    b.ToTable("priorities", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Ticket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("Account")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account");
+
+                    b.Property<string>("AccountName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("account_name");
+
+                    b.Property<string>("AiLanguage")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("ai_language");
+
+                    b.Property<string>("AiSentiment")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("ai_sentiment");
+
+                    b.Property<string>("AiSubtopic")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("ai_subtopic");
+
+                    b.Property<string>("AiSummary")
+                        .HasColumnType("text")
+                        .HasColumnName("ai_summary");
+
+                    b.Property<string>("AiTone")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("ai_tone");
+
+                    b.Property<string>("AiTopic")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("ai_topic");
+
+                    b.Property<DateTime?>("AssignedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
+
+                    b.Property<int>("AttachmentCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("attachment_count");
+
+                    b.Property<string>("Brand")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("brand");
+
+                    b.Property<string>("BrandText")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("brand_text");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<int>("CommentCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("comment_count");
+
+                    b.Property<Guid?>("Contact")
+                        .HasColumnType("uuid")
+                        .HasColumnName("contact");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("contact_email");
+
+                    b.Property<string>("ContactMobile")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("contact_mobile");
+
+                    b.Property<string>("ContactName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("contact_name");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("contact_phone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("CustomerRespondedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("customer_responded_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("Department")
+                        .HasColumnType("uuid")
+                        .HasColumnName("department");
+
+                    b.Property<string>("DepartmentText")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("department_text");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("DueAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_at");
+
+                    b.Property<DateTime?>("FirstResolutionAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_resolution_at");
+
+                    b.Property<DateTime?>("FirstResolutionDueAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_resolution_due_at");
+
+                    b.Property<bool>("HasScheduledReply")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("has_scheduled_reply");
+
+                    b.Property<bool>("IsArchived")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_archived");
+
+                    b.Property<bool>("IsAutoClosed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_auto_closed");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsEscalated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_escalated");
+
+                    b.Property<bool>("IsOverdue")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_overdue");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_read");
+
+                    b.Property<bool>("IsReopened")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_reopened");
+
+                    b.Property<bool>("IsResponseOverdue")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_response_overdue");
+
+                    b.Property<bool>("IsSpam")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_spam");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("language");
+
+                    b.Property<Guid>("LayoutId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("layout_id");
+
+                    b.Property<string>("MilestoneStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("milestone_status");
+
+                    b.Property<DateTime?>("OnHoldAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("on_hold_at");
+
+                    b.Property<DateTime>("OpenedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opened_at");
+
+                    b.Property<Guid?>("Organisation")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organisation");
+
+                    b.Property<string>("OrganisationText")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("organisation_text");
+
+                    b.Property<Guid?>("Owner")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner");
+
+                    b.Property<string>("OwnerName")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("owner_name");
+
+                    b.Property<int?>("Parent")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("priority");
+
+                    b.Property<int>("PriorityScore")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("priority_score");
+
+                    b.Property<string>("Product")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("product");
+
+                    b.Property<string>("ProductText")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("product_text");
+
+                    b.Property<string>("RequestType")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("request_type");
+
+                    b.Property<DateTime?>("ResponseDueAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("response_due_at");
+
+                    b.Property<string>("Skills")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("skills");
+
+                    b.Property<DateTime?>("SlaBreachAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sla_breach_at");
+
+                    b.Property<long?>("SlaId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("sla_id");
+
+                    b.Property<DateTime?>("SlaPausedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sla_paused_at");
+
+                    b.Property<DateTime?>("SlaStartAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sla_start_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StatusText")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_text");
+
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_type");
+
+                    b.Property<string>("SubTopic")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("sub_topic");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("subject");
+
+                    b.Property<string>("SuppliedCompany")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("supplied_company");
+
+                    b.Property<string>("SuppliedEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("supplied_email");
+
+                    b.Property<string>("SuppliedPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("supplied_phone");
+
+                    b.Property<int>("TaskCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("task_count");
+
+                    b.Property<Guid?>("Team")
+                        .HasColumnType("uuid")
+                        .HasColumnName("team");
+
+                    b.Property<string>("TeamText")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("team_text");
+
+                    b.Property<int>("ThreadCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("thread_count");
+
+                    b.Property<int>("TicketNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ticket_number");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TicketNumber"));
+
+                    b.Property<string>("Topic")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("topic");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("WorkFlowStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("work_flow_status");
+
+                    b.Property<string>("WorkFlowStatusText")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("work_flow_status_text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tickets");
+
+                    b.HasIndex("Brand")
+                        .HasDatabaseName("ix_tickets_brand");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_tickets_created_at");
+
+                    b.HasIndex("DeletedAt")
+                        .HasDatabaseName("ix_tickets_deleted_at");
+
+                    b.HasIndex("Organisation")
+                        .HasDatabaseName("ix_tickets_organisation");
+
+                    b.HasIndex("Owner")
+                        .HasDatabaseName("ix_tickets_owner");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_tickets_status");
+
+                    b.HasIndex("Team")
+                        .HasDatabaseName("ix_tickets_team");
+
+                    b.HasIndex("TicketNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tickets_ticket_number");
+
+                    b.HasIndex("Status", "CreatedAt", "DueAt", "DeletedAt")
+                        .HasDatabaseName("ix_tickets_status_created_at_due_at_deleted_at");
+
+                    b.ToTable("tickets", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.TicketStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<string>("StatusKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_key");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_name");
+
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_ticket_statuses");
+
+                    b.HasIndex("StatusKey")
+                        .HasDatabaseName("ix_ticket_statuses_status_key");
+
+                    b.ToTable("ticket_statuses", (string)null);
+                });
+
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueList", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1161,6 +1828,10 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)")
                         .HasColumnName("list_key");
+
+                    b.Property<int?>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

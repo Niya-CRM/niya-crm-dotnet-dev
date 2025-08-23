@@ -104,6 +104,8 @@ public class UserResponse
     /// </summary>
     public string? LastName { get; set; }
 
+    public string? FullName { get; set; }
+
     /// <summary>
     /// Gets or sets the location of the user.
     /// </summary>

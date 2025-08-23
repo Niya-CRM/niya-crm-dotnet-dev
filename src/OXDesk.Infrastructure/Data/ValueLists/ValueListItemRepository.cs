@@ -27,7 +27,9 @@ public class ValueListItemRepository : IValueListItemRepository
     {
         _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", listKey);
         return await _dbSet.Where(v => v.ListKey == listKey)
-            .OrderBy(v => v.ItemName)
+            .OrderBy(v => v.Order == null) // non-null first
+            .ThenBy(v => v.Order)
+            .ThenBy(v => v.ItemName)
             .ToListAsync(cancellationToken);
     }
 
@@ -94,4 +96,5 @@ public class ValueListItemRepository : IValueListItemRepository
         return entity;
     }
 }
+
 

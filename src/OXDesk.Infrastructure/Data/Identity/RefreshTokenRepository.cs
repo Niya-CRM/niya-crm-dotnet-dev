@@ -23,6 +23,13 @@ namespace OXDesk.Infrastructure.Data.Identity
         public async Task<RefreshToken> AddAsync(RefreshToken token, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(token);
+            // Ensure timestamps are set
+            var now = DateTime.UtcNow;
+            if (token.CreatedAt == default)
+            {
+                token.CreatedAt = now;
+            }
+            token.UpdatedAt = now;
             await _dbContext.RefreshTokens.AddAsync(token, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return token;

@@ -138,6 +138,7 @@ public static class CommonConstant
     {
         public const string Countries = "countries";
         public const string Currencies = "currencies";
+        public const string RequestTypes = "request-types";
         public const string UserProfiles = "user-profiles";
     }
     
@@ -147,6 +148,7 @@ public static class CommonConstant
     public static class UserProfiles
     {
         public static class Agent { public const string Name = "Agent"; public const string Key = "agent"; }
+        public static class AIAgent { public const string Name = "AI Agent"; public const string Key = "ai-agent"; }
         public static class LightAgent { public const string Name = "Light Agent"; public const string Key = "light-agent"; }
         public static class ExternalUser { public const string Name = "External User"; public const string Key = "external-user"; }
         public static class System { public const string Name = "System"; public const string Key = "system"; }
@@ -154,6 +156,7 @@ public static class CommonConstant
         public static readonly (string Name, string Key)[] All =
         {
             (Agent.Name, Agent.Key),
+            (AIAgent.Name, AIAgent.Key),
             (LightAgent.Name, LightAgent.Key),
             (ExternalUser.Name, ExternalUser.Key),
             (System.Name, System.Key)

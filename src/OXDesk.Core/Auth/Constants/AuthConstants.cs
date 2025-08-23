@@ -5,7 +5,7 @@ namespace OXDesk.Core.Auth.Constants
         // JWT Settings
         public static class Jwt
         {
-            public const double TokenExpiryHours = 0.1;
+            public const double TokenExpiryHours = 0.25; //15 minutes
             public const string SecretConfigKey = "JWT:Secret";
             public const string Issuer = "OXDesk";
             public const string Audience = "OXDeskClient";
@@ -17,21 +17,21 @@ namespace OXDesk.Core.Auth.Constants
         public static class Refresh
         {
             // Time-to-live for refresh tokens in hours
-            public const double RefreshTokenExpiryHours = 4.0;
+            public const double RefreshTokenExpiryHours = 4.0; // 4 Hours
         }
 
         // Cookie Settings
         public static class Cookie
         {
             public const string AccessTokenName = "access_token";
-            public const int ExpiryHours = 8;
+            public const int ExpiryHours = 8; // 8 Hours
             public const string SameSiteMode = "Strict";
         }
         
         // Session Settings
         public static class Session
         {
-            public const int ExpiryHours = 8;
+            public const int ExpiryHours = 8; // 8 Hours
         }
     }
 }

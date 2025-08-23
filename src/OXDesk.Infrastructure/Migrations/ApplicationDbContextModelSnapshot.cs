@@ -1055,6 +1055,174 @@ namespace OXDesk.Infrastructure.Migrations
                     b.ToTable("tenants", (string)null);
                 });
 
+            modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BrandColor")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("brand_color");
+
+                    b.Property<string>("BrandKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("brand_key");
+
+                    b.Property<string>("BrandName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("brand_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Logo")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("logo");
+
+                    b.Property<string>("LogoDark")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)")
+                        .HasColumnName("logo_dark");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brands");
+
+                    b.HasIndex("BrandKey")
+                        .HasDatabaseName("ix_brands_brand_key");
+
+                    b.ToTable("brands", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Channel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChannelKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("channel_key");
+
+                    b.Property<string>("ChannelName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("channel_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_channels");
+
+                    b.HasIndex("ChannelKey")
+                        .HasDatabaseName("ix_channels_channel_key");
+
+                    b.ToTable("channels", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Priority", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("IncrementScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("increment_score");
+
+                    b.Property<string>("PriorityKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("priority_key");
+
+                    b.Property<string>("PriorityName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("priority_name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_priorities");
+
+                    b.HasIndex("PriorityKey")
+                        .HasDatabaseName("ix_priorities_priority_key");
+
+                    b.ToTable("priorities", (string)null);
+                });
+
             modelBuilder.Entity("OXDesk.Core.Tickets.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1359,15 +1527,21 @@ namespace OXDesk.Infrastructure.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
                         .HasColumnName("status");
 
                     b.Property<string>("StatusText")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
                         .HasColumnName("status_text");
+
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_type");
 
                     b.Property<string>("SubTopic")
                         .HasMaxLength(100)
@@ -1486,6 +1660,68 @@ namespace OXDesk.Infrastructure.Migrations
                     b.ToTable("tickets", (string)null);
                 });
 
+            modelBuilder.Entity("OXDesk.Core.Tickets.TicketStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<string>("StatusKey")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_key");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_name");
+
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_ticket_statuses");
+
+                    b.HasIndex("StatusKey")
+                        .HasDatabaseName("ix_ticket_statuses_status_key");
+
+                    b.ToTable("ticket_statuses", (string)null);
+                });
+
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueList", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1589,6 +1825,10 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("varchar(60)")
                         .HasColumnName("list_key");
+
+                    b.Property<int?>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

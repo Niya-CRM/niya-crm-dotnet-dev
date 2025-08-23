@@ -33,6 +33,7 @@ namespace OXDesk.Api.Factories.Identity
             UserName = user.UserName ?? string.Empty,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            FullName = user.FirstName + " " + user.LastName,
             Location = user.Location,
             TimeZone = user.TimeZone ?? string.Empty,
             CountryCode = user.CountryCode,
@@ -51,8 +52,6 @@ namespace OXDesk.Api.Factories.Identity
 
             // Build related payload similar to UsersController: profiles + statuses
             var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken))
-                .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive })
-                .OrderBy(p => p.ItemName)
                 .ToArray();
             var statuses = _valueListService.GetStatuses().ToArray();
 
@@ -174,12 +173,8 @@ namespace OXDesk.Api.Factories.Identity
             var dto = await BuildItemAsync(user, cancellationToken);
 
             // Related lists
-            var countries = (await _valueListService.GetCountriesAsync(cancellationToken))
-                .OrderBy(c => c.ItemName)
-                .ToArray();
-            var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken))
-                .OrderBy(p => p.ItemName)
-                .ToArray();
+            var countries = (await _valueListService.GetCountriesAsync(cancellationToken)).ToArray();
+            var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken)).ToArray();
             var timeZones = TimeZoneHelper.GetAllIanaTimeZones()
                 .Select(tz => new StringOption { Value = tz.Key, Name = tz.Value })
                 .ToArray();

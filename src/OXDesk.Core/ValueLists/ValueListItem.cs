@@ -53,6 +53,12 @@ public class ValueListItem
     public bool IsActive { get; set; } = true;
 
     /// <summary>
+    /// Optional custom order for sorting.
+    /// Lower values come first; null means no custom order and sorts after ordered items.
+    /// </summary>
+    public int? Order { get; set; }
+
+    /// <summary>
     /// Gets or sets the date and time when the value list item was created.
     /// </summary>
     [Required]
@@ -105,4 +111,5 @@ public class ValueListItem
         UpdatedBy = createdBy;
     }
 }
+
 
