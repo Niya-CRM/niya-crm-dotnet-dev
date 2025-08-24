@@ -922,6 +922,10 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip_address");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
@@ -1278,21 +1282,21 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("attachment_count");
 
-                    b.Property<string>("Brand")
+                    b.Property<string>("BrandKey")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("brand");
+                        .HasColumnName("brand_key");
 
                     b.Property<string>("BrandText")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("brand_text");
 
-                    b.Property<string>("Channel")
+                    b.Property<string>("ChannelKey")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)")
-                        .HasColumnName("channel");
+                        .HasColumnName("channel_key");
 
                     b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1469,15 +1473,15 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("owner_name");
 
-                    b.Property<int?>("Parent")
+                    b.Property<int?>("ParentTicketNumber")
                         .HasColumnType("integer")
-                        .HasColumnName("parent");
+                        .HasColumnName("parent_ticket_number");
 
-                    b.Property<string>("Priority")
+                    b.Property<string>("PriorityKey")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)")
-                        .HasColumnName("priority");
+                        .HasColumnName("priority_key");
 
                     b.Property<int>("PriorityScore")
                         .ValueGeneratedOnAdd()
@@ -1485,10 +1489,10 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(1)
                         .HasColumnName("priority_score");
 
-                    b.Property<string>("Product")
+                    b.Property<string>("ProductKey")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("product");
+                        .HasColumnName("product_key");
 
                     b.Property<string>("ProductText")
                         .HasMaxLength(100)
@@ -1525,11 +1529,11 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sla_start_at");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("StatusKey")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)")
-                        .HasColumnName("status");
+                        .HasColumnName("status_key");
 
                     b.Property<string>("StatusText")
                         .IsRequired()
@@ -1602,12 +1606,6 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("topic");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("type");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -1616,10 +1614,10 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.Property<string>("WorkFlowStatus")
+                    b.Property<string>("WorkFlowStatusKey")
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)")
-                        .HasColumnName("work_flow_status");
+                        .HasColumnName("work_flow_status_key");
 
                     b.Property<string>("WorkFlowStatusText")
                         .HasMaxLength(30)
@@ -1629,8 +1627,8 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_tickets");
 
-                    b.HasIndex("Brand")
-                        .HasDatabaseName("ix_tickets_brand");
+                    b.HasIndex("BrandKey")
+                        .HasDatabaseName("ix_tickets_brand_key");
 
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("ix_tickets_created_at");
@@ -1644,8 +1642,8 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasIndex("Owner")
                         .HasDatabaseName("ix_tickets_owner");
 
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_tickets_status");
+                    b.HasIndex("StatusKey")
+                        .HasDatabaseName("ix_tickets_status_key");
 
                     b.HasIndex("Team")
                         .HasDatabaseName("ix_tickets_team");
@@ -1654,8 +1652,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_tickets_ticket_number");
 
-                    b.HasIndex("Status", "CreatedAt", "DueAt", "DeletedAt")
-                        .HasDatabaseName("ix_tickets_status_created_at_due_at_deleted_at");
+                    b.HasIndex("StatusKey", "CreatedAt", "DueAt", "DeletedAt")
+                        .HasDatabaseName("ix_tickets_status_key_created_at_due_at_deleted_at");
 
                     b.ToTable("tickets", (string)null);
                 });

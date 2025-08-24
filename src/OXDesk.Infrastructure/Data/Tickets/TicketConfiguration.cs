@@ -25,13 +25,13 @@ namespace OXDesk.Infrastructure.Data.Tickets
 
             // Indexes
             builder.HasIndex(t => t.TicketNumber).IsUnique();
-            builder.HasIndex(t => t.Status);
+            builder.HasIndex(t => t.StatusKey);
             builder.HasIndex(t => t.Owner);
             builder.HasIndex(t => t.Team);
             builder.HasIndex(t => t.Organisation);
-            builder.HasIndex(t => t.Brand);
+            builder.HasIndex(t => t.BrandKey);
             builder.HasIndex(t => t.CreatedAt);
-            builder.HasIndex(t => new { t.Status, t.CreatedAt, t.DueAt, t.DeletedAt });
+            builder.HasIndex(t => new { t.StatusKey, t.CreatedAt, t.DueAt, t.DeletedAt });
             builder.HasIndex(t => t.DeletedAt);
 
             // Defaults for counters and flags (DB-level)

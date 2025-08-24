@@ -1,0 +1,13 @@
+[
+    { "order": 1, "code": "en", "name": "English" },
+    { "order": null, "code": "es", "name": "Spanish" },
+    { "order": null, "code": "fr", "name": "French" },
+    { "order": null, "code": "de", "name": "German" },
+    { "order": null, "code": "pt", "name": "Portuguese" },
+    { "order": null, "code": "zh-CN", "name": "Chinese (Simplified)" },
+    { "order": null, "code": "zh-TW", "name": "Chinese (Traditional)" },
+    { "order": null, "code": "ja", "name": "Japanese" },
+    { "order": null, "code": "ko", "name": "Korean" },
+    { "order": null, "code": "ar", "name": "Arabic" }
+  ]
+  

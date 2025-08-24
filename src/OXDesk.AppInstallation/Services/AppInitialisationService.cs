@@ -56,13 +56,16 @@ namespace OXDesk.AppInstallation.Services
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 7, "Initialize Currencies", async () => {
                 await InitializeCurrenciesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Field Types", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 8, "Initialize Languages", async () => {
+                await InitializeLanguagesAsync();
+            }),
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Initialize Field Types", async () => {
                 await InitializeFieldTypesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 9, "Initialize Request Types", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 10, "Initialize Request Types", async () => {
                 await InitializeRequestTypesAsync();
             }),
-            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 10, "Create System User", async () => {
+            (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 11, "Create System User", async () => {
                 await CreateSystemUserAsync();
             }),
             (CommonConstant.AppInstallation.Pipeline.Initial, CommonConstant.AppInstallation.INITIAL_VERSION, 999, "Setup Tenant and Admin User", async () => {
@@ -142,6 +145,131 @@ namespace OXDesk.AppInstallation.Services
                     
                     await _roleManager.CreateAsync(newRole);
                 }
+            }
+        }
+        
+        private async Task InitializeLanguagesAsync()
+        {
+            _logger.LogInformation("Starting to initialize languages from JSON file");
+            
+            try
+            {
+                // Read languages from JSON file
+                string jsonFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "languages.json");
+                
+                // If the file is not found in the output directory, try to find it in the project directory
+                if (!File.Exists(jsonFilePath))
+                {
+                    string projectDir = AppDomain.CurrentDomain.BaseDirectory;
+                    // Navigate up to find the project directory
+                    var parentDir = Directory.GetParent(projectDir);
+                    while (parentDir != null && !Directory.Exists(Path.Combine(projectDir, "Data")))
+                    {
+                        projectDir = parentDir.FullName;
+                        parentDir = Directory.GetParent(projectDir);
+                    }
+                    
+                    jsonFilePath = Path.Combine(projectDir, "Data", "languages.json");
+                }
+                
+                _logger.LogInformation("Reading languages from: {FilePath}", jsonFilePath);
+                
+                if (!File.Exists(jsonFilePath))
+                {
+                    _logger.LogCritical("Languages JSON file not found at: {FilePath}", jsonFilePath);
+                    return;
+                }
+                
+                string jsonContent = await File.ReadAllTextAsync(jsonFilePath);
+                
+                // Deserialize JSON to language objects
+                var jsonLanguages = System.Text.Json.JsonSerializer.Deserialize<List<LanguageJsonModel>>(jsonContent);
+                
+                if (jsonLanguages == null || jsonLanguages.Count == 0)
+                {
+                    _logger.LogError("No languages found in JSON file or deserialization failed");
+                    return;
+                }
+                
+                _logger.LogInformation("Found {Count} languages in JSON file", jsonLanguages.Count);
+                
+                // Normalize and order by provided order (nulls last), then by name to keep deterministic
+                var languages = jsonLanguages
+                    .Select(l => new {
+                        Code = l.code?.Trim() ?? string.Empty,
+                        Name = l.name?.Trim() ?? string.Empty,
+                        Order = l.order
+                    })
+                    .Where(l => !string.IsNullOrWhiteSpace(l.Code) && !string.IsNullOrWhiteSpace(l.Name))
+                    .OrderBy(l => l.Order.HasValue ? 0 : 1)
+                    .ThenBy(l => l.Order)
+                    .ThenBy(l => l.Name)
+                    .ToList();
+                
+                // Create or get ValueList 'Languages' and add/update items
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
+                
+                var languagesList = await _dbContext.ValueLists
+                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Languages);
+                
+                if (languagesList == null)
+                {
+                    languagesList = new ValueList(
+                        Guid.CreateVersion7(),
+                        listName: "Languages",
+                        listKey: CommonConstant.ValueListKeys.Languages,
+                        description: "List of languages",
+                        valueListTypeId: ValueListConstants.ValueListTypes.Standard,
+                        isActive: true,
+                        allowModify: true,
+                        allowNewItem: true,
+                        createdBy: defaultUser
+                    );
+                    _dbContext.ValueLists.Add(languagesList);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Created ValueList 'Languages' with ID: {Id}", languagesList.Id);
+                }
+                
+                // Fetch existing items for this list
+                var existingItems = await _dbContext.ValueListItems
+                    .Where(i => i.ListKey == languagesList.ListKey)
+                    .ToListAsync();
+                var existingByKey = existingItems.ToDictionary(i => i.ItemKey, StringComparer.OrdinalIgnoreCase);
+                
+                // Prepare inserts and updates
+                var newItems = new List<ValueListItem>();
+                var now = DateTime.UtcNow;
+                
+                foreach (var l in languages)
+                {
+                    var item = new ValueListItem(
+                            Guid.CreateVersion7(),
+                            itemName: l.Name,
+                            itemKey: l.Code,
+                            order: l.Order,
+                            listKey: languagesList.ListKey,
+                            isActive: true,
+                            createdBy: defaultUser
+                        );
+                        newItems.Add(item);
+                }
+                
+                if (newItems.Count > 0)
+                {
+                    await _dbContext.ValueListItems.AddRangeAsync(newItems);
+                    _logger.LogInformation("Prepared {Count} new languages to insert", newItems.Count);
+                }
+                
+                // Save all changes if any
+                if (newItems.Count > 0)
+                {
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Languages initialization completed with inserts: {Inserts}", newItems.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Failed to initialize languages");
             }
         }
 
@@ -1038,6 +1166,14 @@ namespace OXDesk.AppInstallation.Services
         // Model class for deserializing the JSON currency data
         private sealed class CurrencyJsonModel
         {
+            public string? code { get; init; }
+            public string? name { get; init; }
+        }
+        
+        // Model class for deserializing the JSON language data
+        private sealed class LanguageJsonModel
+        {
+            public int? order { get; init; }
             public string? code { get; init; }
             public string? name { get; init; }
         }

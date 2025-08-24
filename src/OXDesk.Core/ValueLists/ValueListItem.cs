@@ -98,12 +98,14 @@ public class ValueListItem
         string itemKey,
         string listKey,
         bool isActive,
-        Guid createdBy)
+        Guid createdBy,
+        int? order = null)
     {
         Id = id;
         ItemName = itemName;
         ItemKey = itemKey;
         ListKey = listKey;
+        Order = order;
         IsActive = isActive;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;

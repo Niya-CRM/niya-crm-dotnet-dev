@@ -138,6 +138,7 @@ public static class CommonConstant
     {
         public const string Countries = "countries";
         public const string Currencies = "currencies";
+        public const string Languages = "languages";
         public const string RequestTypes = "request-types";
         public const string UserProfiles = "user-profiles";
     }

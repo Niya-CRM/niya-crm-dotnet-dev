@@ -22,12 +22,7 @@ public class Ticket
     [Required]
     [StringLength(10)]
     [Column(TypeName = "varchar(10)")]
-    public string Type { get; set; } = string.Empty;
-
-    [Required]
-    [StringLength(10)]
-    [Column(TypeName = "varchar(10)")]
-    public string Channel { get; set; } = string.Empty;
+    public string ChannelKey { get; set; } = string.Empty;
 
     [StringLength(10)]
     [Column(TypeName = "varchar(10)")]
@@ -36,7 +31,7 @@ public class Ticket
     // Brand and Product
     [StringLength(50)]
     [Column(TypeName = "varchar(50)")]
-    public string? Brand { get; set; }
+    public string? BrandKey { get; set; }
 
     [StringLength(50)]
     [Column(TypeName = "varchar(50)")]
@@ -44,7 +39,7 @@ public class Ticket
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
-    public string? Product { get; set; }
+    public string? ProductKey { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
@@ -63,7 +58,7 @@ public class Ticket
     [Required]
     [StringLength(10)]
     [Column(TypeName = "varchar(10)")]
-    public string Priority { get; set; } = string.Empty;
+    public string PriorityKey { get; set; } = string.Empty;
 
     [Required]
     public int PriorityScore { get; set; } = 1;
@@ -72,7 +67,7 @@ public class Ticket
     [Required]
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
-    public string Status { get; set; } = string.Empty;
+    public string StatusKey { get; set; } = string.Empty;
 
     [Required]
     [StringLength(30)]
@@ -87,7 +82,7 @@ public class Ticket
 
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
-    public string? WorkFlowStatus { get; set; }
+    public string? WorkFlowStatusKey { get; set; }
 
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
@@ -270,7 +265,7 @@ public class Ticket
     public DateTime? OnHoldAt { get; set; }
 
     // Relations
-    public int? Parent { get; set; }
+    public int? ParentTicketNumber { get; set; }
 
     // Counters
     public int AttachmentCount { get; set; } = 0;

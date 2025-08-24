@@ -245,21 +245,20 @@ namespace OXDesk.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     ticket_number = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    type = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
-                    channel = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    channel_key = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     language = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
-                    brand = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    brand_key = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     brand_text = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    product = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    product_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     product_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     subject = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    priority = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    priority_key = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     priority_score = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
-                    status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    work_flow_status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    work_flow_status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     work_flow_status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     is_escalated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_spam = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
@@ -319,7 +318,7 @@ namespace OXDesk.Infrastructure.Migrations
                     response_due_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     customer_responded_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     on_hold_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    parent = table.Column<int>(type: "integer", nullable: true),
+                    parent_ticket_number = table.Column<int>(type: "integer", nullable: true),
                     attachment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     comment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     task_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
@@ -425,6 +424,7 @@ namespace OXDesk.Infrastructure.Migrations
                     device = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     ip_address = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -743,9 +743,9 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "status_key");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_brand",
+                name: "ix_tickets_brand_key",
                 table: "tickets",
-                column: "brand");
+                column: "brand_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_tickets_created_at",
@@ -768,14 +768,14 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "owner");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_status",
+                name: "ix_tickets_status_key",
                 table: "tickets",
-                column: "status");
+                column: "status_key");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_status_created_at_due_at_deleted_at",
+                name: "ix_tickets_status_key_created_at_due_at_deleted_at",
                 table: "tickets",
-                columns: new[] { "status", "created_at", "due_at", "deleted_at" });
+                columns: new[] { "status_key", "created_at", "due_at", "deleted_at" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_tickets_team",
