@@ -1,5 +1,5 @@
 {
   "PostgreSQL": {
-    "ConnectionString": "Host=localhost;Port=5432;Database=niya_crm;Username=postgres;Password=postgres"
+    "ConnectionString": "Host=localhost;Port=5432;Database=oxdesk;Username=postgres;Password=postgres"
   }
 }

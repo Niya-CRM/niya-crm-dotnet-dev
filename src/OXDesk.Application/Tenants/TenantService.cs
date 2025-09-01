@@ -1,13 +1,12 @@
 using Microsoft.Extensions.Logging;
-using OXDesk.Core.Tenants;
-using OXDesk.Core.Common;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
+using OXDesk.Core.Common;
+using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
-using System.ComponentModel.DataAnnotations;
-
 using Microsoft.AspNetCore.Http;
-using OXDesk.Application.Cache;
+using System.ComponentModel.DataAnnotations;
+using OXDesk.Application.Common;
 using OXDesk.Core.Cache;
 
 namespace OXDesk.Application.Tenants;
@@ -15,14 +14,37 @@ namespace OXDesk.Application.Tenants;
 /// <summary>
 /// Service implementation for tenant management operations.
 /// </summary>
-public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger, IHttpContextAccessor httpContextAccessor, ICacheService cacheService) : ITenantService
+public class TenantService : ITenantService
 {
-    private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-    private readonly ILogger<TenantService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<TenantService> _logger;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITenantContextService _tenantContextService;
+    private readonly ICacheService _cacheService;
 
     private readonly string _tenantCachePrefix = "tenant:";
+
+    /// <summary>
+    /// Initializes a new instance of the TenantService.
+    /// </summary>
+    /// <param name="unitOfWork">The unit of work.</param>
+    /// <param name="logger">The logger.</param>
+    /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+    /// <param name="tenantContextService">The tenant context service.</param>
+    /// <param name="cacheService">The cache service.</param>
+    public TenantService(
+        IUnitOfWork unitOfWork, 
+        ILogger<TenantService> logger, 
+        IHttpContextAccessor httpContextAccessor,
+        ITenantContextService tenantContextService,
+        ICacheService cacheService)
+    {
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
+        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+    }
 
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
@@ -42,8 +64,12 @@ public class TenantService(IUnitOfWork unitOfWork, ILogger<TenantService> logger
         Guid createdBy,
         CancellationToken cancellationToken)
     {
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        
         var auditLog = new AuditLog(
             id: Guid.CreateVersion7(),
+            tenantId: tenantId,
             objectKey: CommonConstant.MODULE_TENANT,
             @event: @event,
             objectItemId: objectItemId,
