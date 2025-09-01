@@ -15,11 +15,9 @@ namespace OXDesk.Infrastructure.Data.ValueLists
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<ValueListItem> builder)
         {
-            // Non-unique index on ItemKey
-            builder.HasIndex(v => v.ItemKey);
-
-            // Index on ListKey
-            builder.HasIndex(v => v.ListKey);
+            // Composite index with tenant_id and ListKey
+            builder.HasIndex(v => new { v.TenantId, v.ListKey })
+                .HasDatabaseName("ix_value_list_items_tenant_id_list_key");
 
             // Map relationship by ListKey (FK) to ValueList.ListKey (principal key)
             builder

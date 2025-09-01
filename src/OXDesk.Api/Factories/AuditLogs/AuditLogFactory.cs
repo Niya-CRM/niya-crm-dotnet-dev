@@ -25,6 +25,7 @@ namespace OXDesk.Api.Factories.AuditLogs
         private static AuditLogResponse Map(AuditLog log) => new AuditLogResponse
         {
             Id = log.Id,
+            TenantId = log.TenantId,
             ObjectKey = log.ObjectKey,
             Event = log.Event,
             ObjectItemId = log.ObjectItemId,

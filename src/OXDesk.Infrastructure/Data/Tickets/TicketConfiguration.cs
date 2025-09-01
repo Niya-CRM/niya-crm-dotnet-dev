@@ -18,21 +18,32 @@ namespace OXDesk.Infrastructure.Data.Tickets
             // Primary key
             builder.HasKey(t => t.Id);
 
-            // Identity/auto-increment for TicketNumber (PostgreSQL identity)
-            builder.Property(t => t.TicketNumber)
-                   .ValueGeneratedOnAdd()
-                   .UseIdentityByDefaultColumn();
-
-            // Indexes
-            builder.HasIndex(t => t.TicketNumber).IsUnique();
-            builder.HasIndex(t => t.StatusKey);
-            builder.HasIndex(t => t.Owner);
-            builder.HasIndex(t => t.Team);
-            builder.HasIndex(t => t.Organisation);
-            builder.HasIndex(t => t.BrandKey);
-            builder.HasIndex(t => t.CreatedAt);
-            builder.HasIndex(t => new { t.StatusKey, t.CreatedAt, t.DueAt, t.DeletedAt });
-            builder.HasIndex(t => t.DeletedAt);
+            // Index for tenant_id for efficient multi-tenant filtering
+            builder.HasIndex(t => t.TenantId)
+                .HasDatabaseName("ix_tickets_tenant_id");
+            
+            // Composite index with tenant_id and TicketNumber
+            builder.HasIndex(t => new { t.TenantId, t.TicketNumber })
+                .HasDatabaseName("ix_tickets_tenant_id_ticket_number")
+                .IsUnique();
+            
+            // Composite indexes with tenant_id for multi-tenant filtering
+            builder.HasIndex(t => new { t.TenantId, t.BrandKey })
+                .HasDatabaseName("ix_tickets_tenant_id_brand_key");
+            builder.HasIndex(t => new { t.TenantId, t.Owner })
+                .HasDatabaseName("ix_tickets_tenant_id_owner");
+            builder.HasIndex(t => new { t.TenantId, t.Team })
+                .HasDatabaseName("ix_tickets_tenant_id_team");
+            builder.HasIndex(t => new { t.TenantId, t.Organisation })
+                .HasDatabaseName("ix_tickets_tenant_id_organisation");
+            builder.HasIndex(t => new { t.TenantId, t.StatusKey })
+                .HasDatabaseName("ix_tickets_tenant_id_status_key");
+            builder.HasIndex(t => new { t.TenantId, t.CreatedAt })
+                .HasDatabaseName("ix_tickets_tenant_id_created_at");
+            builder.HasIndex(t => new { t.TenantId, t.DeletedAt })
+                .HasDatabaseName("ix_tickets_tenant_id_deleted_at");
+            builder.HasIndex(t => new { t.TenantId, t.StatusKey, t.CreatedAt, t.DueAt, t.DeletedAt })
+                .HasDatabaseName("ix_tickets_tenant_id_status_created_due_deleted");
 
             // Defaults for counters and flags (DB-level)
             builder.Property(t => t.PriorityScore).HasDefaultValue(1);

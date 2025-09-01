@@ -16,6 +16,7 @@ using OXDesk.Core.ValueLists.DTOs;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Application.Common.Helpers;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using System;
 
 namespace OXDesk.Application.Identity;
 
@@ -33,6 +34,7 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly ICacheService _cacheService;
     private readonly IValueListService _valueListService;
+    private readonly ITenantContextService _tenantContextService;
     
     // Cache key prefix for users
     private const string USER_CACHE_KEY_PREFIX = "user_";
@@ -58,7 +60,8 @@ public class UserService : IUserService
         IChangeHistoryLogService changeHistoryLogService,
         IUserRepository userRepository,
         ICacheService cacheService,
-        IValueListService valueListService)
+        IValueListService valueListService,
+        ITenantContextService tenantContextService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -69,6 +72,7 @@ public class UserService : IUserService
         _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
     }
 
     /// <summary>
@@ -119,18 +123,25 @@ public class UserService : IUserService
     /// </summary>
     private async Task<List<ApplicationUser>> GetUsersListCacheAsync(CancellationToken cancellationToken = default)
     {
+        // Get current tenant ID
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        
+        // Use tenant-specific cache key
+        var cacheKey = $"{USER_ENTITIES_CACHE_KEY}:{tenantId}";
+        
         // Try cache for full ApplicationUser list
-        var cachedUsers = await _cacheService.GetAsync<List<ApplicationUser>>(USER_ENTITIES_CACHE_KEY);
+        var cachedUsers = await _cacheService.GetAsync<List<ApplicationUser>>(cacheKey);
         if (cachedUsers != null)
         {
             return cachedUsers;
         }
 
-        // Load from DB and cache
+        // Load from DB and cache with tenant filter
         var usersEntities = _userManager.Users
+            .Where(u => u.TenantId == tenantId)
             .OrderBy(u => u.UserName)
             .ToList();
-        await _cacheService.SetAsync(USER_ENTITIES_CACHE_KEY, usersEntities);
+        await _cacheService.SetAsync(cacheKey, usersEntities);
         return usersEntities;
     }
     
@@ -189,6 +200,15 @@ public class UserService : IUserService
             _logger.LogWarning("User not found: {UserId}", id);
             return null;
         }
+        
+        // Enforce tenant ID check
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        if (user.TenantId != tenantId)
+        {
+            _logger.LogWarning("User found but belongs to different tenant: {UserId}", id);
+            return null;
+        }
+        
         return user;
     }
     
@@ -208,16 +228,25 @@ public class UserService : IUserService
         if (string.IsNullOrWhiteSpace(request.Password))
             throw new ValidationException("Password cannot be null or empty.");
 
-        // Check if user with email already exists
-        var existingUserByEmail = await _userManager.FindByEmailAsync(request.Email);
+        // Get current tenant ID
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+
+        // Check if user with email already exists in this tenant
+        var existingUserByEmail = _userManager.Users
+            .Where(u => u.Email == request.Email && u.TenantId == tenantId)
+            .FirstOrDefault();
+            
         if (existingUserByEmail != null)
         {
             _logger.LogWarning("Attempt to create user with existing email: {Email}", request.Email);
             throw new InvalidOperationException($"A user with email '{request.Email}' already exists.");
         }
 
-        // Check if user with username already exists
-        var existingUserByUsername = await _userManager.FindByNameAsync(request.UserName);
+        // Check if user with username already exists in this tenant
+        var existingUserByUsername = _userManager.Users
+            .Where(u => u.UserName == request.UserName && u.TenantId == tenantId)
+            .FirstOrDefault();
+            
         if (existingUserByUsername != null)
         {
             _logger.LogWarning("Attempt to create user with existing username: {UserName}", request.UserName);
@@ -227,10 +256,11 @@ public class UserService : IUserService
         var userId = Guid.CreateVersion7();
         var currentUserId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
-        // Create new user
+        // Create new user with tenant ID
         var user = new ApplicationUser
         {
             Id = userId,
+            TenantId = tenantId, // Set tenant ID
             UserName = request.UserName,
             Email = request.Email,
             FirstName = request.FirstName,
@@ -268,9 +298,11 @@ public class UserService : IUserService
 
         _logger.LogInformation("Successfully created user with ID: {UserId}", user.Id);
         // Invalidate cached user-related data
+        // Invalidate tenant-specific cache
+        var cacheKey = $"{USER_ENTITIES_CACHE_KEY}:{tenantId}";
         await _cacheService.RemoveAsync(CommonConstant.CacheKeys.UserList);
-        await _cacheService.RemoveAsync(USER_ENTITIES_CACHE_KEY);
-        _logger.LogDebug("Invalidated cache keys: {CacheKey1}, {CacheKey2}", CommonConstant.CacheKeys.UserList, USER_ENTITIES_CACHE_KEY);
+        await _cacheService.RemoveAsync(cacheKey);
+        _logger.LogDebug("Invalidated cache keys: {CacheKey1}, {CacheKey2}", CommonConstant.CacheKeys.UserList, cacheKey);
         return user;
     }
 
@@ -297,6 +329,14 @@ public class UserService : IUserService
         {
             _logger.LogWarning("User not found for {ActionVerb}: {UserId}", actionVerb.ToLower(), id);
             throw new InvalidOperationException($"User with ID '{id}' not found.");
+        }
+        
+        // Enforce tenant ID check
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        if (user.TenantId != tenantId)
+        {
+            _logger.LogWarning("User found but belongs to different tenant: {UserId}", id);
+            throw new InvalidOperationException($"User with ID '{id}' not found in current tenant.");
         }
 
         // Determine actor: changedBy parameter or current user from context
@@ -356,6 +396,14 @@ public class UserService : IUserService
             _logger.LogWarning("User not found when getting roles: {UserId}", userId);
             throw new InvalidOperationException($"User with ID '{userId}' not found.");
         }
+        
+        // Enforce tenant ID check
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        if (user.TenantId != tenantId)
+        {
+            _logger.LogWarning("User found but belongs to different tenant: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found in current tenant.");
+        }
 
         var roleNames = await _userManager.GetRolesAsync(user);
         var roles = _roleManager.Roles
@@ -372,6 +420,14 @@ public class UserService : IUserService
         {
             _logger.LogWarning("User not found when adding role: {UserId}", userId);
             throw new InvalidOperationException($"User with ID '{userId}' not found.");
+        }
+        
+        // Enforce tenant ID check
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        if (user.TenantId != tenantId)
+        {
+            _logger.LogWarning("User found but belongs to different tenant: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found in current tenant.");
         }
 
         var role = await _roleManager.FindByIdAsync(roleId.ToString());
@@ -417,6 +473,14 @@ public class UserService : IUserService
         {
             _logger.LogWarning("User not found when removing role: {UserId}", userId);
             throw new InvalidOperationException($"User with ID '{userId}' not found.");
+        }
+        
+        // Enforce tenant ID check
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        if (user.TenantId != tenantId)
+        {
+            _logger.LogWarning("User found but belongs to different tenant: {UserId}", userId);
+            throw new InvalidOperationException($"User with ID '{userId}' not found in current tenant.");
         }
 
         var role = await _roleManager.FindByIdAsync(roleId.ToString());
@@ -466,7 +530,12 @@ public class UserService : IUserService
 
         var roleName = role.Name ?? string.Empty;
         var users = await _userManager.GetUsersInRoleAsync(roleName);
-        var ordered = users.OrderBy(u => u.UserName).ToList();
+        
+        // Filter users by tenant ID
+        var tenantId = _tenantContextService.GetCurrentTenantId();
+        var filteredUsers = users.Where(u => u.TenantId == tenantId).ToList();
+        
+        var ordered = filteredUsers.OrderBy(u => u.UserName).ToList();
         return ordered;
     }
 }

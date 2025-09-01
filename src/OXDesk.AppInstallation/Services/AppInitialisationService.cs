@@ -17,6 +17,7 @@ using OXDesk.Infrastructure.Data;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Core.Tenants;
 
 namespace OXDesk.AppInstallation.Services
 {
@@ -30,6 +31,8 @@ namespace OXDesk.AppInstallation.Services
         private readonly IValueListService _valueListService;
         private readonly IChangeHistoryLogService _changeHistoryLogService;
         private readonly IAppSetupService _appSetupService;
+        private readonly ICurrentTenant _currentTenant;
+        private readonly Guid _tenantId;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -80,6 +83,7 @@ namespace OXDesk.AppInstallation.Services
             IValueListService valueListService,
             IChangeHistoryLogService changeHistoryLogService,
             IAppSetupService appSetupService,
+            ICurrentTenant currentTenant,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -89,11 +93,21 @@ namespace OXDesk.AppInstallation.Services
             _valueListService = valueListService;
             _changeHistoryLogService = changeHistoryLogService;
             _appSetupService = appSetupService;
+            _currentTenant = currentTenant;
             _logger = logger;
+
+            // Generate a tenant ID for initialization process
+            _tenantId = Guid.CreateVersion7();
         }
 
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
         {
+
+            // Set the current tenant via ICurrentTenant
+            _currentTenant.Change(_tenantId);
+            
+            _logger.LogInformation("Generated initialization tenant ID: {TenantId}", _tenantId);
+            
             // Check if any status records exist
             if (!await _dbContext.AppInstallationStatus.AnyAsync(cancellationToken))
             {
@@ -137,6 +151,7 @@ namespace OXDesk.AppInstallation.Services
                 {
                     var newRole = new OXDesk.Core.Identity.ApplicationRole(role)
                     {
+                        TenantId = _tenantId,
                         CreatedBy = defaultUser,
                         UpdatedBy = defaultUser,
                         CreatedAt = utcNow,
@@ -214,8 +229,10 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (languagesList == null)
                 {
+                    
                     languagesList = new ValueList(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         listName: "Languages",
                         listKey: CommonConstant.ValueListKeys.Languages,
                         description: "List of languages",
@@ -242,8 +259,10 @@ namespace OXDesk.AppInstallation.Services
                 
                 foreach (var l in languages)
                 {
+                    
                     var item = new ValueListItem(
                             Guid.CreateVersion7(),
+                            tenantId: _tenantId,
                             itemName: l.Name,
                             itemKey: l.Code,
                             order: l.Order,
@@ -282,7 +301,7 @@ namespace OXDesk.AppInstallation.Services
             {
                 // Check if permission already exists by normalized name (uppercase)
                 var normalizedName = permissionName.ToUpperInvariant();
-                var existingPermission = await _permissionRepository.GetByNameAsync(normalizedName);
+                var existingPermission = await _permissionRepository.GetByNameAsync(normalizedName, _tenantId);
                 
                 if (existingPermission == null)
                 {
@@ -292,6 +311,7 @@ namespace OXDesk.AppInstallation.Services
                         Id = Guid.CreateVersion7(),
                         Name = permissionName,
                         NormalizedName = normalizedName,
+                        TenantId = _tenantId,
                         CreatedBy = defaultUser,
                         CreatedAt = utcNow,
                         UpdatedBy = defaultUser,
@@ -307,7 +327,6 @@ namespace OXDesk.AppInstallation.Services
         /// Create System User
         /// </summary>
         /// <returns></returns>
-
         private async Task CreateSystemUserAsync()
         {
             // Check if system user already exists
@@ -318,11 +337,14 @@ namespace OXDesk.AppInstallation.Services
             {
                 // Set profile key for System user directly using the value list item key
                 string? systemProfileKey = CommonConstant.UserProfiles.System.Key;
+                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
+                var utcNow = DateTime.UtcNow;
                 
                 // Create the system user
                 var systemUser = new OXDesk.Core.Identity.ApplicationUser
                 {
                     Id = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
+                    TenantId = _tenantId,
                     UserName = systemUserEmail,
                     Email = systemUserEmail,
                     FirstName = "OX Desk",
@@ -333,10 +355,10 @@ namespace OXDesk.AppInstallation.Services
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
-                    UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER
+                    CreatedAt = utcNow,
+                    CreatedBy = defaultUser,
+                    UpdatedAt = utcNow,
+                    UpdatedBy = defaultUser
                 };
                 
                 // Generate a strong random password
@@ -348,9 +370,6 @@ namespace OXDesk.AppInstallation.Services
                 if (result.Succeeded)
                 {
                     // Instead of using UserManager.AddToRoleAsync, we'll create the user role directly
-                    // to set the audit fields
-                    var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-                    var utcNow = DateTime.UtcNow;
 
                     // Add change history log for creation (first change event)
                     await _changeHistoryLogService.CreateChangeHistoryLogAsync(
@@ -359,7 +378,7 @@ namespace OXDesk.AppInstallation.Services
                         fieldName: CommonConstant.ChangeHistoryFields.Created,
                         oldValue: null,
                         newValue: null,
-                        createdBy: OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
+                        createdBy: defaultUser,
                         cancellationToken: default
                     );
                     
@@ -397,9 +416,7 @@ namespace OXDesk.AppInstallation.Services
                 }
                 else
                 {
-                    // Log the error
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    _logger.LogCritical("Failed to create system user: {Errors}", errors);
+                _logger.LogInformation("System user already exists with ID: {Id}", existingUser?.Id);
                 }
             }
         }
@@ -662,15 +679,17 @@ namespace OXDesk.AppInstallation.Services
 
                 if (countriesList == null)
                 {
+                    
                     countriesList = new ValueList(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         listName: "Countries",
                         listKey: CommonConstant.ValueListKeys.Countries,
                         description: "List of countries",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
-                        allowModify: true,
-                        allowNewItem: true,
+                        allowModify: false,
+                        allowNewItem: false,
                         createdBy: defaultUser
                     );
                     _dbContext.ValueLists.Add(countriesList);
@@ -684,11 +703,13 @@ namespace OXDesk.AppInstallation.Services
                     .Select(i => i.ItemKey)
                     .ToListAsync();
 
+                
                 var newValueListItems = countries
                     .Where(c => !string.IsNullOrWhiteSpace(c.CountryCode))
                     .Where(c => !existingItemKeys.Contains(c.CountryCode))
                     .Select(c => new ValueListItem(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         itemName: c.CountryName,
                         itemKey: c.CountryCode,
                         listKey: countriesList.ListKey,
@@ -773,15 +794,17 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (currenciesList == null)
                 {
+                    
                     currenciesList = new ValueList(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         listName: "Currencies",
                         listKey: CommonConstant.ValueListKeys.Currencies,
                         description: "List of currencies",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
-                        allowModify: true,
-                        allowNewItem: true,
+                        allowModify: false,
+                        allowNewItem: false,
                         createdBy: defaultUser
                     );
                     _dbContext.ValueLists.Add(currenciesList);
@@ -795,10 +818,12 @@ namespace OXDesk.AppInstallation.Services
                     .Select(i => i.ItemKey)
                     .ToListAsync();
                 
+                
                 var newValueListItems = currencies
                     .Where(c => !existingCurrencyKeys.Contains(c.Code))
                     .Select(c => new ValueListItem(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         itemName: c.Name,
                         itemKey: c.Code,
                         listKey: currenciesList.ListKey,
@@ -834,8 +859,10 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (profilesList == null)
                 {
+                    
                     profilesList = new ValueList(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         listName: "User Profiles",
                         listKey: CommonConstant.ValueListKeys.UserProfiles,
                         description: "List of user profiles",
@@ -858,10 +885,12 @@ namespace OXDesk.AppInstallation.Services
                 
                 var desiredProfiles = CommonConstant.UserProfiles.All;
                 
+                
                 var newItems = desiredProfiles
                     .Where(p => !existingProfileKeys.Contains(p.Key))
                     .Select(p => new ValueListItem(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         itemName: p.Name,
                         itemKey: p.Key,
                         listKey: profilesList.ListKey,
@@ -1099,8 +1128,10 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (requestTypesList == null)
                 {
+                    
                     requestTypesList = new ValueList(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         listName: "Request Types",
                         listKey: CommonConstant.ValueListKeys.RequestTypes,
                         description: "List of request types",
@@ -1129,10 +1160,14 @@ namespace OXDesk.AppInstallation.Services
                     ("Others", "others")
                 };
                 
+                // Get default tenant ID for system initialization
+                
+                
                 var newItems = desired
                     .Where(d => !existingKeys.Contains(d.Key))
                     .Select(d => new ValueListItem(
                         Guid.CreateVersion7(),
+                        tenantId: _tenantId,
                         itemName: d.Name,
                         itemKey: d.Key,
                         listKey: requestTypesList.ListKey,
@@ -1155,6 +1190,17 @@ namespace OXDesk.AppInstallation.Services
         }
         
         // Model class for deserializing the JSON country data
+        /// <summary>
+        /// Gets the default tenant ID for system initialization.
+        /// </summary>
+        /// <returns>The default tenant ID.</returns>
+        private Task<Guid> Get_tenantIdAsync()
+        {
+            // Use a fixed system tenant ID for initialization
+            // This ensures all seeded entities belong to the same tenant
+            return Task.FromResult(_tenantId);
+        }
+        
         private sealed class CountryJsonModel
         {
             public string? Country_Name { get; init; }
@@ -1233,7 +1279,7 @@ namespace OXDesk.AppInstallation.Services
             };
             
             // Get all permissions from the repository after ensuring they're seeded
-            var allPermissions = await _permissionRepository.GetAllAsync();
+            var allPermissions = await _permissionRepository.GetAllAsync(_tenantId);
             var permissionDict = allPermissions.ToDictionary(p => p.Name, p => p);
             
             // Log the permissions found for debugging
@@ -1306,6 +1352,7 @@ namespace OXDesk.AppInstallation.Services
                             RoleId = role.Id,
                             ClaimType = claimType,
                             ClaimValue = claimValue,
+                            TenantId = _tenantId,
                             CreatedBy = defaultUser,
                             CreatedAt = utcNow,
                             UpdatedBy = defaultUser,

@@ -10,9 +10,9 @@ namespace OXDesk.Core.Identity;
 public interface IPermissionRepository
 {
     Task<Permission> AddAsync(Permission permission);
-    Task<IEnumerable<Permission>> GetAllAsync();
-    Task<Permission?> GetByIdAsync(Guid id);
-    Task<Permission?> GetByNameAsync(string normalizedName);
+    Task<IEnumerable<Permission>> GetAllAsync(Guid tenantId);
+    Task<Permission?> GetByIdAsync(Guid id, Guid tenantId);
+    Task<Permission?> GetByNameAsync(string normalizedName, Guid tenantId);
     Task<Permission> UpdateAsync(Permission permission);
-    Task<bool> DeleteAsync(Guid id);
+    Task<bool> DeleteAsync(Guid id, Guid tenantId);
 }

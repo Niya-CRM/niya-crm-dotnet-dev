@@ -27,7 +27,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(Guid tenantId, int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default)
     {
         // Check if pagination should be applied
         bool usePagination = pageNumber.HasValue && pageSize.HasValue && pageNumber.Value > 0 && pageSize.Value > 0;
@@ -43,6 +43,10 @@ public class UserRepository : IUserRepository
 
         // Start building the query
         IQueryable<ApplicationUser> query = _dbContext.Users.AsNoTracking();
+        
+        // Apply tenant filter
+        query = query.Where(u => u.TenantId == tenantId);
+        _logger.LogDebug("Filtering users by tenant ID: {TenantId}", tenantId);
         
         // Always order by username
         IOrderedQueryable<ApplicationUser> orderedQuery = query.OrderBy(u => u.UserName);
@@ -87,13 +91,18 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<UserResponse?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<UserResponse?> GetUserByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID: {UserId}", id);
 
-        var user = await _dbContext.Users
+        var query = _dbContext.Users
             .AsNoTracking()
             .Where(u => u.Id == id)
+            .Where(u => u.TenantId == tenantId);
+            
+        _logger.LogDebug("Filtering user by tenant ID: {TenantId}", tenantId);
+            
+        var user = await query
             .Select(u => new UserResponse
             {
                 Id = u.Id,

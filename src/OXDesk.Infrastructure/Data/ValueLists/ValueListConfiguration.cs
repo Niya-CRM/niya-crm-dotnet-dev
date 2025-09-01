@@ -15,8 +15,14 @@ namespace OXDesk.Infrastructure.Data.ValueLists
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<ValueList> builder)
         {
-            // Configure ListKey as an alternate key (unique constraint)
-            builder.HasAlternateKey(v => v.ListKey);
+            // Index for tenant_id for efficient multi-tenant filtering
+            builder.HasIndex(v => v.TenantId)
+                .HasDatabaseName("ix_value_lists_tenant_id");
+                
+            // Composite index with tenant_id and ListKey
+            builder.HasIndex(v => new { v.TenantId, v.ListKey })
+                .HasDatabaseName("ix_value_lists_tenant_id_list_key")
+                .IsUnique();
 
             // Optional: explicit property configuration (attributes already set types)
             builder.Property(v => v.ListName)

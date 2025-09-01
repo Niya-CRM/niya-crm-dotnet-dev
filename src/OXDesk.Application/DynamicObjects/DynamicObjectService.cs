@@ -7,6 +7,7 @@ using OXDesk.Core.DynamicObjects.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
+using OXDesk.Application.Common;
 
 namespace OXDesk.Application.DynamicObjects;
 
@@ -19,6 +20,7 @@ public class DynamicObjectService : IDynamicObjectService
     private readonly ILogger<DynamicObjectService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheService _cacheService;
+    private readonly ITenantContextService _tenantContextService;
 
     private readonly string _dynamicObjectCachePrefix = "dynamic_object:";
 
@@ -29,16 +31,19 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="logger">The logger.</param>
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
     /// <param name="cacheService">The cache service.</param>
+    /// <param name="tenantContextService">The tenant context service.</param>
     public DynamicObjectService(
         IUnitOfWork unitOfWork, 
         ILogger<DynamicObjectService> logger, 
         IHttpContextAccessor httpContextAccessor, 
-        ICacheService cacheService)
+        ICacheService cacheService,
+        ITenantContextService tenantContextService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
     }
 
     private string GetUserIp() =>
@@ -59,8 +64,12 @@ public class DynamicObjectService : IDynamicObjectService
         Guid createdBy,
         CancellationToken cancellationToken)
     {
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        
         var auditLog = new AuditLog(
             id: Guid.CreateVersion7(),
+            tenantId: tenantId,
             objectKey: "dynamic_object",
             @event: @event,
             objectItemId: objectItemId,
@@ -98,8 +107,11 @@ public class DynamicObjectService : IDynamicObjectService
             .Where(c => char.IsLetter(c))
             .ToArray()) + "__c";
 
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        
         // Check if object name is already taken
-        var exists = await _unitOfWork.GetRepository<IDynamicObjectRepository>().ExistsByNameAsync(normalizedObjectName, null, cancellationToken);
+        var exists = await _unitOfWork.GetRepository<IDynamicObjectRepository>().ExistsByNameAsync(normalizedObjectName, tenantId, null, cancellationToken);
         if (exists)
         {
             _logger.LogWarning("Attempt to create dynamic object with existing name: {ObjectName}", normalizedObjectName);
@@ -148,7 +160,9 @@ public class DynamicObjectService : IDynamicObjectService
             _logger.LogDebug("Dynamic object {DynamicObjectId} found in cache", id);
             return cachedDynamicObject;
         }
-        var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByIdAsync(id, cancellationToken);
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByIdAsync(id, tenantId, cancellationToken);
         if (dynamicObject != null)
         {
             await _cacheService.SetAsync(cacheKey, dynamicObject);
@@ -172,8 +186,11 @@ public class DynamicObjectService : IDynamicObjectService
         if (string.IsNullOrWhiteSpace(request.PluralName))
             throw new ValidationException("Plural name cannot be null or empty.");
 
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        
         // Get existing dynamic object
-        var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByIdAsync(id, cancellationToken);
+        var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByIdAsync(id, tenantId, cancellationToken);
         if (dynamicObject == null)
         {
             _logger.LogWarning("Dynamic object not found for update: {DynamicObjectId}", id);
@@ -189,7 +206,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Check if new object name conflicts with existing dynamic object (excluding current object)
         if (normalizedObjectName != dynamicObject.ObjectName)
         {
-            var exists = await _unitOfWork.GetRepository<IDynamicObjectRepository>().ExistsByNameAsync(normalizedObjectName, id, cancellationToken);
+            var exists = await _unitOfWork.GetRepository<IDynamicObjectRepository>().ExistsByNameAsync(normalizedObjectName, tenantId, id, cancellationToken);
             if (exists)
             {
                 _logger.LogWarning("Attempt to update dynamic object {DynamicObjectId} to existing name: {ObjectName}", id, normalizedObjectName);
@@ -209,7 +226,7 @@ public class DynamicObjectService : IDynamicObjectService
         dynamicObject.UpdatedBy = modifiedBy;
 
         // Save changes
-        var updatedDynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().UpdateAsync(dynamicObject, cancellationToken);
+        var updatedDynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().UpdateAsync(dynamicObject, tenantId, cancellationToken);
 
         // Insert audit log for update
         await AddDynamicObjectAuditLogAsync(
@@ -230,6 +247,8 @@ public class DynamicObjectService : IDynamicObjectService
     public async Task<IEnumerable<DynamicObject>> GetAllDynamicObjectsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all dynamic objects - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-        return await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);
+        // Get tenant ID from the tenant context service
+        Guid tenantId = _tenantContextService.GetCurrentTenantId();
+        return await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetAllAsync(tenantId, pageNumber, pageSize, cancellationToken);
     }
 }

@@ -15,8 +15,11 @@ namespace OXDesk.Infrastructure.Data.DynamicObjects
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<DynamicObject> builder)
         {
-            // Add index on Key property
-            builder.HasIndex(o => o.ObjectKey)
+            // Index for tenant_id for efficient multi-tenant filtering
+            builder.HasIndex(o => o.TenantId);
+            
+            // Add index on Key property with tenant_id
+            builder.HasIndex(o => new { o.TenantId, o.ObjectKey })
                 .IsUnique();
         }
     }

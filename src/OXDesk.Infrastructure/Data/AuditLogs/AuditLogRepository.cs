@@ -22,12 +22,15 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             _dbSet = dbContext.Set<AuditLog>();
         }
 
-        public async Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<AuditLog?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync([id], cancellationToken);
+            return await _dbSet
+                .Where(a => a.Id == id && a.TenantId == tenantId)
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
+            Guid tenantId,
             string? objectKey = null,
             string? objectItemId = null,
             Guid? createdBy = null,
@@ -37,7 +40,9 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsNoTracking().AsQueryable();
+            var query = _dbSet.AsNoTracking()
+                .Where(a => a.TenantId == tenantId)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(objectKey))
                 query = query.Where(a => a.ObjectKey == objectKey);
@@ -72,12 +77,17 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                 Data = x.a.Data,
                 CreatedAt = x.a.CreatedAt,
                 CreatedBy = x.a.CreatedBy,
+                TenantId = x.a.TenantId,
                 CreatedByText = string.Join(" ", new[] { x.u.FirstName, x.u.LastName }.Where(s => !string.IsNullOrWhiteSpace(s))) ?? x.a.CreatedBy.ToString()
             });
         }
 
         public async Task<AuditLog> AddAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
         {
+            // Ensure CreatedAt is set to UTC now if not already set
+            if (auditLog.CreatedAt == default)
+                auditLog.CreatedAt = DateTime.UtcNow;
+
             await _dbSet.AddAsync(auditLog, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return auditLog;

@@ -22,5 +22,14 @@ public class ApplicationRoleConfiguration : IEntityTypeConfiguration<Application
         builder.Property(r => r.CreatedAt).IsRequired();
         builder.Property(r => r.UpdatedBy).IsRequired();
         builder.Property(r => r.UpdatedAt).IsRequired();
+        
+        // Add tenant_id index
+        builder.HasIndex(r => r.TenantId)
+            .HasDatabaseName("ix_asp_net_roles_tenant_id");
+            
+        // Add composite index with tenant_id and NormalizedName
+        builder.HasIndex(r => new { r.TenantId, r.NormalizedName })
+            .HasDatabaseName("ix_asp_net_roles_tenant_id_normalized_name")
+            .IsUnique();
     }
 }

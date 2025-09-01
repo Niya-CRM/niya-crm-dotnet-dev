@@ -11,6 +11,12 @@ namespace OXDesk.Core.Identity
     public class ApplicationUser : IdentityUser<Guid>
     {
         /// <summary>
+        /// Gets or sets the tenant identifier.
+        /// </summary>
+        [Column("tenant_id")]
+        [Required]
+        public Guid TenantId { get; set; }
+        /// <summary>
         /// Gets or sets the first name of the user.
         /// </summary>
         [MaxLength(30)]

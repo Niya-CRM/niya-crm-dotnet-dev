@@ -17,6 +17,13 @@ public class AuditLog
     [Column("id")]
     [Required]
     public Guid Id { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the tenant identifier.
+    /// </summary>
+    [Column("tenant_id")]
+    [Required]
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key/entity type that was affected.
@@ -93,9 +100,10 @@ public class AuditLog
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
-    public AuditLog(Guid id, string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(Guid id, Guid tenantId, string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
     {
         Id = id;
+        TenantId = tenantId;
         ObjectKey = objectKey;
         Event = @event;
         ObjectItemId = objectItemId;
@@ -103,5 +111,6 @@ public class AuditLog
         Data = data;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+        
     }
 }

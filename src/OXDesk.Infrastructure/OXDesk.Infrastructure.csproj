@@ -28,4 +28,11 @@
     <ProjectReference Include="..\OXDesk.Core\OXDesk.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="
+    Scripts\ApplyTenantPolicy.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

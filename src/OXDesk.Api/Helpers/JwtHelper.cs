@@ -166,6 +166,9 @@ namespace OXDesk.Api.Helpers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7().ToString())
             };
 
+            // Add tenant_id claim if the user has a tenant assigned
+            claims.Add(new Claim("tenant_id", user.TenantId.ToString()));
+
             // Add role claims
             foreach (var role in userRoles)
             {

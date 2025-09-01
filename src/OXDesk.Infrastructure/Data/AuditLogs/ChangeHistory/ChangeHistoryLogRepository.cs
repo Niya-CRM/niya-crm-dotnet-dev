@@ -21,12 +21,15 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             _dbSet = dbContext.Set<ChangeHistoryLog>();
         }
 
-        public async Task<ChangeHistoryLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ChangeHistoryLog?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FindAsync([id], cancellationToken);
+            return await _dbSet
+                .Where(c => c.Id == id && c.TenantId == tenantId)
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
+            Guid tenantId,
             string? objectKey = null,
             Guid? objectItemId = null,
             string? fieldName = null,
@@ -37,7 +40,9 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsNoTracking().AsQueryable();
+            var query = _dbSet.AsNoTracking()
+                .Where(c => c.TenantId == tenantId)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(objectKey))
                 query = query.Where(c => c.ObjectKey == objectKey);
@@ -74,6 +79,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
                 NewValue = x.c.NewValue,
                 CreatedAt = x.c.CreatedAt,
                 CreatedBy = x.c.CreatedBy,
+                TenantId = x.c.TenantId,
                 CreatedByText = x.u == null
                     ? x.c.CreatedBy.ToString()
                     : (string.Join(" ", new[] { x.u.FirstName, x.u.LastName }.Where(s => !string.IsNullOrWhiteSpace(s))) is string full && !string.IsNullOrWhiteSpace(full)
@@ -83,12 +89,14 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
         }
 
         public async Task<IEnumerable<ChangeHistoryLog>> GetAllAsync(
+            Guid tenantId,
             int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()
+                .Where(c => c.TenantId == tenantId)
                 .OrderByDescending(c => c.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -97,6 +105,10 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
 
         public async Task<ChangeHistoryLog> AddAsync(ChangeHistoryLog changeHistoryLog, CancellationToken cancellationToken = default)
         {
+            // Ensure CreatedAt is set to UTC now if not already set
+            if (changeHistoryLog.CreatedAt == default)
+                changeHistoryLog.CreatedAt = DateTime.UtcNow;
+
             await _dbSet.AddAsync(changeHistoryLog, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
             return changeHistoryLog;

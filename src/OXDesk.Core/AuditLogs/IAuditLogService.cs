@@ -27,6 +27,7 @@ public interface IAuditLogService
     /// <param name="id">The audit log identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The audit log if found, otherwise null.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<AuditLog?> GetAuditLogByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -35,6 +36,7 @@ public interface IAuditLogService
     /// <param name="query">The query parameters for filtering audit logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of audit logs matching the filters.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
         AuditLogQueryDto query,
         CancellationToken cancellationToken = default

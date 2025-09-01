@@ -13,13 +13,13 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
         public void Configure(EntityTypeBuilder<ChangeHistoryLog> builder)
         {            
             // Composite index for efficient filtering by entity
-            builder.HasIndex(c => new { c.ObjectKey, c.ObjectItemId, c.CreatedAt });
+            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemId, c.CreatedAt });
             
             // Index for filtering by field name
-            builder.HasIndex(c => new { c.ObjectKey, c.ObjectItemId, c.FieldName, c.CreatedAt });
+            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemId, c.FieldName, c.CreatedAt });
             
             // Index for time-based queries
-            builder.HasIndex(c => c.CreatedAt);
+            builder.HasIndex(c => new { c.TenantId, c.CreatedAt });
         }
     }
 }

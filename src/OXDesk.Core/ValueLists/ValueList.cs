@@ -17,6 +17,13 @@ public class ValueList
     public Guid Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the tenant identifier.
+    /// </summary>
+    [Column("tenant_id")]
+    [Required]
+    public Guid TenantId { get; set; }
+
+    /// <summary>
     /// Gets or sets the display name of the value list.
     /// </summary>
     [Required]
@@ -101,6 +108,7 @@ public class ValueList
     /// </summary>
     public ValueList(
         Guid id,
+        Guid tenantId,
         string listName,
         string listKey,
         string description,
@@ -111,6 +119,7 @@ public class ValueList
         Guid createdBy)
     {
         Id = id;
+        TenantId = tenantId;
         ListName = listName;
         ListKey = listKey;
         Description = description;

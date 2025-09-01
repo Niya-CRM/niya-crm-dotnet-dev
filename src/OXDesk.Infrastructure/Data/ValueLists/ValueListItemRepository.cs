@@ -23,10 +23,11 @@ public class ValueListItemRepository : IValueListItemRepository
         _dbSet = dbContext.Set<ValueListItem>();
     }
 
-    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, Guid tenantId, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", listKey);
-        return await _dbSet.Where(v => v.ListKey == listKey)
+        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}, TenantId: {TenantId}", listKey, tenantId);
+        return await _dbSet
+            .Where(v => v.ListKey == listKey && v.TenantId == tenantId)
             .OrderBy(v => v.Order == null) // non-null first
             .ThenBy(v => v.Order)
             .ThenBy(v => v.ItemName)
@@ -49,50 +50,70 @@ public class ValueListItemRepository : IValueListItemRepository
         return entry.Entity;
     }
 
-    public async Task<ValueListItem> UpdateAsync(ValueListItem item, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> UpdateAsync(ValueListItem item, Guid tenantId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.Id == Guid.Empty) throw new ArgumentException("ValueListItem Id cannot be empty.", nameof(item));
 
-        _logger.LogDebug("Updating ValueListItem: {Id}", item.Id);
+        _logger.LogDebug("Updating ValueListItem: {Id}, TenantId: {TenantId}", item.Id, tenantId);
+        
+        // Verify the entity belongs to the specified tenant
+        var existingEntity = await _dbSet
+            .Where(v => v.Id == item.Id && v.TenantId == tenantId)
+            .FirstOrDefaultAsync(cancellationToken);
+            
+        if (existingEntity == null)
+        {
+            throw new InvalidOperationException($"ValueListItem with ID {item.Id} not found for tenant {tenantId}");
+        }
+        
+        // Ensure tenant ID is preserved
+        item.TenantId = tenantId;
         item.UpdatedAt = DateTime.UtcNow;
+        
         var entry = _dbSet.Update(item);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated ValueListItem: {Id}", item.Id);
         return entry.Entity;
     }
 
-    public async Task<ValueListItem> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(Guid id, Guid tenantId, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbSet
+            .Where(v => v.Id == id && v.TenantId == tenantId)
+            .FirstOrDefaultAsync(cancellationToken);
+            
         if (entity == null)
         {
-            _logger.LogWarning("ValueListItem not found for activation: {Id}", id);
-            throw new InvalidOperationException($"ValueListItem with ID '{id}' not found.");
+            _logger.LogWarning("ValueListItem not found for activation: {Id}, TenantId: {TenantId}", id, tenantId);
+            throw new InvalidOperationException($"ValueListItem with ID '{id}' not found for tenant {tenantId}.");
         }
 
         entity.IsActive = true;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Activated ValueListItem: {Id}", id);
+        _logger.LogInformation("Activated ValueListItem: {Id}, TenantId: {TenantId}", id, tenantId);
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(Guid id, Guid tenantId, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync([id], cancellationToken);
+        var entity = await _dbSet
+            .Where(v => v.Id == id && v.TenantId == tenantId)
+            .FirstOrDefaultAsync(cancellationToken);
+            
         if (entity == null)
         {
-            _logger.LogWarning("ValueListItem not found for deactivation: {Id}", id);
-            throw new InvalidOperationException($"ValueListItem with ID '{id}' not found.");
+            _logger.LogWarning("ValueListItem not found for deactivation: {Id}, TenantId: {TenantId}", id, tenantId);
+            throw new InvalidOperationException($"ValueListItem with ID '{id}' not found for tenant {tenantId}.");
         }
 
         entity.IsActive = false;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Deactivated ValueListItem: {Id}", id);
+        _logger.LogInformation("Deactivated ValueListItem: {Id}, TenantId: {TenantId}", id, tenantId);
         return entity;
     }
 }

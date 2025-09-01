@@ -13,6 +13,7 @@ public interface IDynamicObjectFieldService
     /// <param name="id">The field type identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The field type if found; otherwise, null.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -20,6 +21,7 @@ public interface IDynamicObjectFieldService
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of field types.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<DynamicObjectFieldType>> GetAllFieldTypesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -28,6 +30,7 @@ public interface IDynamicObjectFieldService
     /// <param name="objectId">The dynamic object ID.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of fields for the object.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -37,6 +40,7 @@ public interface IDynamicObjectFieldService
     /// <param name="id">The field identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The field if found; otherwise, null.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -46,6 +50,7 @@ public interface IDynamicObjectFieldService
     /// <param name="field">The field to add.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created field entity.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context and set on the field entity.</remarks>
     Task<DynamicObjectField> AddFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -55,6 +60,7 @@ public interface IDynamicObjectFieldService
     /// <param name="field">The field to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated field entity.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -64,5 +70,6 @@ public interface IDynamicObjectFieldService
     /// <param name="fieldId">The field identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a field was deleted; otherwise, false.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default);
 }

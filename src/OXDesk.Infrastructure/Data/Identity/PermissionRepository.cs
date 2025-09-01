@@ -26,20 +26,29 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
-    public async Task<IEnumerable<Permission>> GetAllAsync()
+    public async Task<IEnumerable<Permission>> GetAllAsync(Guid tenantId)
     {
-        return await _dbContext.Permissions.ToListAsync();
+        var query = _dbContext.Permissions.AsQueryable()
+            .Where(p => p.TenantId == tenantId);
+        
+        return await query.ToListAsync();
     }
 
-    public async Task<Permission?> GetByIdAsync(Guid id)
+    public async Task<Permission?> GetByIdAsync(Guid id, Guid tenantId)
     {
-        return await _dbContext.Permissions.FindAsync(id);
+        // FindAsync doesn't support filtering by additional conditions, so we use FirstOrDefaultAsync
+        var query = _dbContext.Permissions.Where(p => p.Id == id)
+            .Where(p => p.TenantId == tenantId);
+        
+        return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<Permission?> GetByNameAsync(string normalizedName)
+    public async Task<Permission?> GetByNameAsync(string normalizedName, Guid tenantId)
     {
-        return await _dbContext.Permissions
-            .FirstOrDefaultAsync(p => p.NormalizedName == normalizedName);
+        var query = _dbContext.Permissions.Where(p => p.NormalizedName == normalizedName)
+            .Where(p => p.TenantId == tenantId);
+        
+        return await query.FirstOrDefaultAsync();
     }
 
     public async Task<Permission> UpdateAsync(Permission permission)
@@ -49,9 +58,13 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(Guid id, Guid tenantId)
     {
-        var permission = await _dbContext.Permissions.FindAsync(id);
+        // Find the permission with tenant filter
+        var query = _dbContext.Permissions.Where(p => p.Id == id)
+            .Where(p => p.TenantId == tenantId);
+        
+        var permission = await query.FirstOrDefaultAsync();
         if (permission == null) return false;
         
         _dbContext.Permissions.Remove(permission);

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using OXDesk.Core.Common;
 using OXDesk.Core.AppInstallation.AppSetup;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
-using OXDesk.Core.Referentials;
 using OXDesk.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
 using OXDesk.Core.ValueLists;

@@ -1,55 +1,60 @@
+using FluentValidation;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
-using OXDesk.Core.Identity;
-using Microsoft.IdentityModel.Tokens;
-using OXDesk.Api.Configurations;
-using OXDesk.Infrastructure.Logging.Serilog;
-using OXDesk.Infrastructure.Data;
-using OXDesk.Core.Tenants;
-using OXDesk.Application.Tenants;
-using FluentValidation;
-using OXDesk.Application.Tenants.Validators;
-using OXDesk.Api.Validators.Tenants;
-using OXDesk.Infrastructure.Data.Tenants;
-using OXDesk.Core.AuditLogs;
-using OXDesk.Application.AuditLogs;
-using OXDesk.Infrastructure.Data.AuditLogs;
-using OXDesk.Core.AuditLogs.ChangeHistory;
-using OXDesk.Application.AuditLogs.ChangeHistory;
-using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
-using OXDesk.Core.DynamicObjects;
-using OXDesk.Core.DynamicObjects.Fields;
-using OXDesk.Application.DynamicObjects;
-using OXDesk.Infrastructure.Data.DynamicObjects;
-using OXDesk.Application.Identity;
-using OXDesk.Infrastructure.Data.Identity;
-using OXDesk.Core;
-using OXDesk.Core.ValueLists;
-using OXDesk.Application.ValueLists;
-using OXDesk.Infrastructure.Data.ValueLists;
-using Serilog;
-using System.Reflection;
-using System.Text;
-using OXDesk.Core.Tenants.DTOs;
-using OXDesk.Api.Middleware;
-using OXDesk.Api.Helpers;
-using OXDesk.Core.Auth.Constants;
-using OXDesk.Core.Common;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using OXDesk.Api.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OXDesk.AppInstallation;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using OXDesk.Core.Identity.DTOs;
-using OXDesk.Application.Identity.Validators;
-using OXDesk.Api.Factories.Identity;
-using OXDesk.Api.Factories.Tenants;
+
+using OXDesk.Api.Configurations;
+using OXDesk.Api.Conventions;
 using OXDesk.Api.Factories.AuditLogs;
 using OXDesk.Api.Factories.DynamicObjects;
+using OXDesk.Api.Factories.Identity;
+using OXDesk.Api.Factories.Tenants;
+using OXDesk.Api.Helpers;
+using OXDesk.Api.Middleware;
+using OXDesk.Api.Validators.Tenants;
+using OXDesk.AppInstallation;
+using OXDesk.Application.AuditLogs;
+using OXDesk.Application.AuditLogs.ChangeHistory;
+using OXDesk.Application.Common;
+using OXDesk.Application.DynamicObjects;
+using OXDesk.Application.DynamicObjects.Fields;
+using OXDesk.Application.Identity;
+using OXDesk.Application.Identity.Validators;
+using OXDesk.Application.Tenants;
+using OXDesk.Application.Tenants.Validators;
+using OXDesk.Application.ValueLists;
+using OXDesk.Core;
+using OXDesk.Core.AuditLogs;
+using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Core.Auth.Constants;
+using OXDesk.Core.Common;
+using OXDesk.Core.DynamicObjects;
+using OXDesk.Core.DynamicObjects.Fields;
+using OXDesk.Core.Identity;
+using OXDesk.Core.Identity.DTOs;
+using OXDesk.Core.Tenants;
+using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Core.ValueLists;
+using OXDesk.Infrastructure.Data;
+using OXDesk.Infrastructure.Data.AuditLogs;
+using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
+using OXDesk.Infrastructure.Data.DynamicObjects;
+using OXDesk.Infrastructure.Data.DynamicObjects.Fields;
+using OXDesk.Infrastructure.Data.Identity;
+using OXDesk.Infrastructure.Data.Tenants;
+using OXDesk.Infrastructure.Data.ValueLists;
+using OXDesk.Infrastructure.Logging.Serilog;
+
+using Serilog;
+
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 try
 {
@@ -95,6 +100,9 @@ builder.Services.AddScoped<IValidator<ActivateDeactivateUserRequest>, ActivateDe
 
 // For http request context accessing
 builder.Services.AddHttpContextAccessor();
+
+// Register current tenant holder (scoped per request)
+builder.Services.AddScoped<ICurrentTenant, CurrentTenant>();
 
 // Register ApplicationDbContext with PostgreSQL
 builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
@@ -157,9 +165,9 @@ authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
 
 // Permission-based policies
 authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupRead, policy =>
-    policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupRead));
+   policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupRead));
 authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupWrite, policy =>
-    policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupWrite));
+   policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupWrite));
 
 // Register Tenant Services
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -169,12 +177,12 @@ builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
 // Register AuditLog Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<OXDesk.Core.AuditLogs.IAuditLogFactory, AuditLogFactory>();
+builder.Services.AddScoped<IAuditLogFactory, AuditLogFactory>();
 
 // Register ChangeHistoryLog Services
 builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
 builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
-builder.Services.AddScoped<OXDesk.Core.AuditLogs.ChangeHistory.IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
+builder.Services.AddScoped<IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
 
 // Register DynamicObject Services
 builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
@@ -182,8 +190,8 @@ builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
 builder.Services.AddScoped<IDynamicObjectFactory, DynamicObjectFactory>();
 
 // Register DynamicObject Field Type Services
-builder.Services.AddScoped<OXDesk.Core.DynamicObjects.Fields.IDynamicObjectFieldRepository, OXDesk.Infrastructure.Data.DynamicObjects.Fields.DynamicObjectFieldRepository>();
-builder.Services.AddScoped<OXDesk.Core.DynamicObjects.Fields.IDynamicObjectFieldService, OXDesk.Application.DynamicObjects.Fields.DynamicObjectFieldService>();
+builder.Services.AddScoped<IDynamicObjectFieldRepository, DynamicObjectFieldRepository>();
+builder.Services.AddScoped<IDynamicObjectFieldService, DynamicObjectFieldService>();
 builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
 
 // Register User Services
@@ -191,11 +199,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Register Refresh Token Repository
-builder.Services.AddScoped<OXDesk.Core.Identity.IRefreshTokenRepository, OXDesk.Infrastructure.Data.Identity.RefreshTokenRepository>();
-
-// Register ReferenceData Services
-builder.Services.AddScoped<OXDesk.Core.Referentials.ICountryRepository, OXDesk.Infrastructure.Data.ReferenceData.CountryRepository>();
-builder.Services.AddScoped<OXDesk.Core.Referentials.IReferenceDataService, OXDesk.Application.Referentials.ReferenceDataService>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // Register ValueList Services
 builder.Services.AddScoped<IValueListRepository, ValueListRepository>();
@@ -246,6 +250,9 @@ builder.Host.UseDefaultServiceProvider(options =>
 
 var app = builder.Build();
 
+// Apply database migrations and tenant policies automatically
+await app.ApplyMigrationsAndTenantPolicies(Log.Logger);
+
 // Configure Swagger and Swagger UI
 app.UseSwaggerMiddleware(app.Environment);
 
@@ -263,6 +270,13 @@ app.UseJwtCookieAuthentication();
 
 // Enable authentication & authorization
 app.UseAuthentication();
+
+// Add tenant middleware to extract tenant_id from JWT token
+app.UseTenantMiddleware();
+
+// Add middleware to set PostgreSQL session variable for tenant_id
+app.UseTenantDbContext();
+
 app.UseAuthorization();
 
 // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.

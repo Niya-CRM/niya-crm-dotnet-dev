@@ -16,6 +16,13 @@ public class ApplicationUserRole : IdentityUserRole<Guid>
     }
     
     /// <summary>
+    /// Gets or sets the tenant identifier.
+    /// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
+    [Required]
+    public Guid TenantId { get; set; }
+    
+    /// <summary>
     /// Gets or sets the ID of the user who created this user role.
     /// </summary>
     [Required]

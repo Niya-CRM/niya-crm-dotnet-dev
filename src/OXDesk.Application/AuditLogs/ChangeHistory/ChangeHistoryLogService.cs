@@ -17,14 +17,16 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
     public class ChangeHistoryLogService : IChangeHistoryLogService
     {
         private readonly IChangeHistoryLogRepository _repository;
+        private readonly ITenantContextService _tenantContextService;
 
         /// <summary>
         /// Backward-compatible constructor to satisfy existing tests injecting IUserService.
         /// DI will prefer the marked constructor above.
         /// </summary>
-        public ChangeHistoryLogService(IChangeHistoryLogRepository repository)
+        public ChangeHistoryLogService(IChangeHistoryLogRepository repository, ITenantContextService tenantContextService)
         {
             _repository = repository;
+            _tenantContextService = tenantContextService;
         }
 
         /// <inheritdoc/>
@@ -37,8 +39,12 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
             Guid createdBy,
             CancellationToken cancellationToken = default)
         {
+            // Get tenant ID from the tenant context service
+            Guid tenantId = _tenantContextService.GetCurrentTenantId();
+            
             var changeHistoryLog = new ChangeHistoryLog(
                 Guid.CreateVersion7(),
+                tenantId,
                 objectKey,
                 objectItemId,
                 fieldName,
@@ -53,7 +59,9 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
         /// <inheritdoc/>
         public async Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _repository.GetByIdAsync(id, cancellationToken);
+            // Get tenant ID from the tenant context service
+            Guid tenantId = _tenantContextService.GetCurrentTenantId();
+            return await _repository.GetByIdAsync(id, tenantId, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -61,7 +69,11 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
             ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
+            // Get tenant ID from the tenant context service
+            Guid tenantId = _tenantContextService.GetCurrentTenantId();
+            
             var logs = await _repository.GetChangeHistoryLogsAsync(
+                tenantId,
                 query.ObjectKey,
                 query.ObjectItemId,
                 query.FieldName,
@@ -80,7 +92,9 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
             int pageSize = Core.Common.CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
-            return await _repository.GetAllAsync(pageNumber, pageSize, cancellationToken);
+            // Get tenant ID from the tenant context service
+            Guid tenantId = _tenantContextService.GetCurrentTenantId();
+            return await _repository.GetAllAsync(tenantId, pageNumber, pageSize, cancellationToken);
         }
     }
 }

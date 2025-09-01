@@ -17,6 +17,18 @@ namespace OXDesk.Infrastructure.Data.Identity
                    .HasColumnType("varchar(60)")
                    .IsRequired()
                    .HasDefaultValue(string.Empty);
+                   
+            // Add tenant_id index
+            builder.HasIndex(u => u.TenantId)
+                .HasDatabaseName("ix_asp_net_users_tenant_id");
+                
+            // Add composite indexes with tenant_id
+            builder.HasIndex(u => new { u.TenantId, u.NormalizedUserName })
+                .HasDatabaseName("ix_asp_net_users_tenant_id_normalized_user_name")
+                .IsUnique();
+                
+            builder.HasIndex(u => new { u.TenantId, u.NormalizedEmail })
+                .HasDatabaseName("ix_asp_net_users_tenant_id_normalized_email");
         }
     }
 }

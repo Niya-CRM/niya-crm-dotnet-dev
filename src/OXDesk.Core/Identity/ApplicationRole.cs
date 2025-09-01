@@ -9,6 +9,12 @@ namespace OXDesk.Core.Identity;
 /// </summary>
 public class ApplicationRole : IdentityRole<Guid>
 {
+    /// <summary>
+    /// Gets or sets the tenant identifier.
+    /// </summary>
+    [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
+    [Required]
+    public Guid TenantId { get; set; }
     public ApplicationRole() : base() 
     { 
         CreatedAt = DateTime.UtcNow;

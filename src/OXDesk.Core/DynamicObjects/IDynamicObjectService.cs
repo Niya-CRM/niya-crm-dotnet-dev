@@ -23,6 +23,7 @@ public interface IDynamicObjectService
     /// <param name="id">The dynamic object identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found, otherwise null.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<DynamicObject?> GetDynamicObjectByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -42,5 +43,6 @@ public interface IDynamicObjectService
     /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A paginated collection of dynamic objects.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<DynamicObject>> GetAllDynamicObjectsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default);
 }

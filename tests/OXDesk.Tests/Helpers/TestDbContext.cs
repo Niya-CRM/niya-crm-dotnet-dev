@@ -3,7 +3,6 @@ using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.Identity;
-using OXDesk.Core.Referentials;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.ValueLists;
 using OXDesk.Infrastructure.Data;
@@ -22,7 +21,6 @@ namespace OXDesk.Tests.Helpers
         public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
         public DbSet<Tenant> Tenants { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
-        public DbSet<Country> Countries { get; set; } = null!;
         public DbSet<DynamicObject> DynamicObjects { get; set; } = null!;
         public DbSet<ValueList> ValueLists { get; set; } = null!;
         public DbSet<ValueListItem> ValueListItems { get; set; } = null!;

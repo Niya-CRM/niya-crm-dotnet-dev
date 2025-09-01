@@ -19,7 +19,12 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.HasKey(p => p.Id);
 
         // Indexes
-        builder.HasIndex(p => p.NormalizedName)
+        builder.HasIndex(p => p.TenantId)
+            .HasDatabaseName("ix_permissions_tenant_id");
+            
+        // Replace single unique index with composite unique index including tenant_id
+        builder.HasIndex(p => new { p.TenantId, p.NormalizedName })
+            .HasDatabaseName("ix_permissions_tenant_id_normalized_name")
             .IsUnique();
     }
 }

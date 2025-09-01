@@ -10,6 +10,13 @@ public class Brand
     [Key]
     [Required]
     public Guid Id { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the tenant identifier.
+    /// </summary>
+    [Column("tenant_id")]
+    [Required]
+    public Guid TenantId { get; set; }
 
     [Required]
     [StringLength(30)]

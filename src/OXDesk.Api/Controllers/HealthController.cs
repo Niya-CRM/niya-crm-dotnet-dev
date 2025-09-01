@@ -29,6 +29,7 @@ namespace OXDesk.Api.Controllers
         /// </summary>
         /// <returns>Health status information</returns>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Get()
         {
             if (!_memoryCache.TryGetValue(HealthCacheKey, out object? cachedResponse))
@@ -73,6 +74,7 @@ namespace OXDesk.Api.Controllers
         /// </summary>
         /// <returns>Readiness status information</returns>
         [HttpGet("ready")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetReady()
         {
             if (!_memoryCache.TryGetValue(ReadyCacheKey, out object? cachedResponse))
@@ -118,6 +120,7 @@ namespace OXDesk.Api.Controllers
         /// </summary>
         /// <returns>Liveness status information</returns>
         [HttpGet("live")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetLive()
         {
             if (!_memoryCache.TryGetValue(LiveCacheKey, out object? cachedResponse))

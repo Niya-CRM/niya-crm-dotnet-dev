@@ -20,6 +20,7 @@ public interface IChangeHistoryLogService
     /// <param name="createdBy">The user who created the change.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created change history log entry.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
         string objectKey,
         Guid objectItemId,
@@ -35,6 +36,7 @@ public interface IChangeHistoryLogService
     /// <param name="id">The change history log identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The change history log if found, otherwise null.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -43,6 +45,7 @@ public interface IChangeHistoryLogService
     /// <param name="query">The query parameters for filtering change history logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of change history logs matching the filters.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
         ChangeHistoryLogQueryDto query,
         CancellationToken cancellationToken = default);
@@ -54,6 +57,7 @@ public interface IChangeHistoryLogService
     /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of change history logs.</returns>
+    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<IEnumerable<ChangeHistoryLog>> GetAllChangeHistoryLogsAsync(
         int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
         int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
