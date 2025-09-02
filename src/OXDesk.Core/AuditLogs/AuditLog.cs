@@ -100,10 +100,10 @@ public class AuditLog
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
-    public AuditLog(Guid id, Guid tenantId, string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
+    /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
+    public AuditLog(Guid id, string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
     {
         Id = id;
-        TenantId = tenantId;
         ObjectKey = objectKey;
         Event = @event;
         ObjectItemId = objectItemId;
@@ -111,6 +111,5 @@ public class AuditLog
         Data = data;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
-        
     }
 }

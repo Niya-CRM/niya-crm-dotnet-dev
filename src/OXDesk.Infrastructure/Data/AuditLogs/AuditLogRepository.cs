@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Common;
+using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Infrastructure.Data.AuditLogs;
 using OXDesk.Core.Identity;
 using System;
@@ -22,49 +23,41 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             _dbSet = dbContext.Set<AuditLog>();
         }
 
-        public async Task<AuditLog?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
+        public async Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .Where(a => a.Id == id && a.TenantId == tenantId)
-                .FirstOrDefaultAsync(cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-            Guid tenantId,
-            string? objectKey = null,
-            string? objectItemId = null,
-            Guid? createdBy = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+            AuditLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsNoTracking()
-                .Where(a => a.TenantId == tenantId)
+            var q = _dbSet.AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(objectKey))
-                query = query.Where(a => a.ObjectKey == objectKey);
-            if (!string.IsNullOrEmpty(objectItemId))
-                query = query.Where(a => a.ObjectItemId == objectItemId);
-            if (createdBy.HasValue)
-                query = query.Where(a => a.CreatedBy == createdBy.Value);
-            if (startDate.HasValue)
-                query = query.Where(a => a.CreatedAt >= startDate.Value);
-            if (endDate.HasValue)
-                query = query.Where(a => a.CreatedAt <= endDate.Value);
+            if (!string.IsNullOrEmpty(query.ObjectKey))
+                q = q.Where(a => a.ObjectKey == query.ObjectKey);
+            if (!string.IsNullOrEmpty(query.ObjectItemId))
+                q = q.Where(a => a.ObjectItemId == query.ObjectItemId);
+            if (query.CreatedBy.HasValue)
+                q = q.Where(a => a.CreatedBy == query.CreatedBy.Value);
+            if (query.StartDate.HasValue)
+                q = q.Where(a => a.CreatedAt >= query.StartDate.Value);
+            if (query.EndDate.HasValue)
+                q = q.Where(a => a.CreatedAt <= query.EndDate.Value);
 
             // Left join to users, select raw data; build display name client-side to avoid expression tree null-propagation
-            var joined = from a in query
+            var joined = from a in q
                          join u in _dbContext.Users.AsNoTracking() on a.CreatedBy equals u.Id into gj
                          from u in gj.DefaultIfEmpty()
                          orderby a.CreatedAt descending
                          select new { a, u };
 
             var rows = await joined
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync(cancellationToken);
 
             return rows.Select(x => new AuditLog

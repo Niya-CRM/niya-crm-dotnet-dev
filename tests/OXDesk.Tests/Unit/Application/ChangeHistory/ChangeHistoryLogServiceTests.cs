@@ -124,14 +124,15 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             _mockRepository
                 .Setup(r => r.GetChangeHistoryLogsAsync(
-                    objectKey,
-                    objectItemId,
-                    fieldName,
-                    createdBy,
-                    startDate,
-                    endDate,
-                    pageNumber,
-                    pageSize,
+                    It.Is<ChangeHistoryLogQueryDto>(q =>
+                        q.ObjectKey == objectKey &&
+                        q.ObjectItemId == objectItemId &&
+                        q.FieldName == fieldName &&
+                        q.CreatedBy == createdBy &&
+                        q.StartDate == startDate &&
+                        q.EndDate == endDate &&
+                        q.PageNumber == pageNumber &&
+                        q.PageSize == pageSize),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedLogs);
 
@@ -160,14 +161,15 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             entity.CreatedByText.ShouldBe("Test User");
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
-                objectKey,
-                objectItemId,
-                fieldName,
-                createdBy,
-                startDate,
-                endDate,
-                pageNumber,
-                pageSize,
+                It.Is<ChangeHistoryLogQueryDto>(q =>
+                    q.ObjectKey == objectKey &&
+                    q.ObjectItemId == objectItemId &&
+                    q.FieldName == fieldName &&
+                    q.CreatedBy == createdBy &&
+                    q.StartDate == startDate &&
+                    q.EndDate == endDate &&
+                    q.PageNumber == pageNumber &&
+                    q.PageSize == pageSize),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

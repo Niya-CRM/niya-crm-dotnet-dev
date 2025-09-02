@@ -26,29 +26,22 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
-    public async Task<IEnumerable<Permission>> GetAllAsync(Guid tenantId)
+    public async Task<IEnumerable<Permission>> GetAllAsync()
     {
-        var query = _dbContext.Permissions.AsQueryable()
-            .Where(p => p.TenantId == tenantId);
-        
-        return await query.ToListAsync();
+        return await _dbContext.Permissions.AsQueryable().ToListAsync();
     }
 
-    public async Task<Permission?> GetByIdAsync(Guid id, Guid tenantId)
+    public async Task<Permission?> GetByIdAsync(Guid id)
     {
-        // FindAsync doesn't support filtering by additional conditions, so we use FirstOrDefaultAsync
-        var query = _dbContext.Permissions.Where(p => p.Id == id)
-            .Where(p => p.TenantId == tenantId);
-        
-        return await query.FirstOrDefaultAsync();
+        // Global query filter will ensure tenant isolation
+        return await _dbContext.Permissions.Where(p => p.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<Permission?> GetByNameAsync(string normalizedName, Guid tenantId)
+    public async Task<Permission?> GetByNameAsync(string normalizedName)
     {
-        var query = _dbContext.Permissions.Where(p => p.NormalizedName == normalizedName)
-            .Where(p => p.TenantId == tenantId);
-        
-        return await query.FirstOrDefaultAsync();
+        return await _dbContext.Permissions
+            .Where(p => p.NormalizedName == normalizedName)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Permission> UpdateAsync(Permission permission)
@@ -58,13 +51,12 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
-    public async Task<bool> DeleteAsync(Guid id, Guid tenantId)
+    public async Task<bool> DeleteAsync(Guid id)
     {
-        // Find the permission with tenant filter
-        var query = _dbContext.Permissions.Where(p => p.Id == id)
-            .Where(p => p.TenantId == tenantId);
-        
-        var permission = await query.FirstOrDefaultAsync();
+        // Global query filter will ensure tenant isolation
+        var permission = await _dbContext.Permissions
+            .Where(p => p.Id == id)
+            .FirstOrDefaultAsync();
         if (permission == null) return false;
         
         _dbContext.Permissions.Remove(permission);

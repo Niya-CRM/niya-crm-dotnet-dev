@@ -22,8 +22,9 @@ namespace OXDesk.Infrastructure.Data
 
         public static async Task<bool> TryAcquireAdvisoryLock(ApplicationDbContext dbContext, long lockId)
         {
+            // EF Core expects a column named "Value" for primitive projections; alias accordingly
             var result = await dbContext.Database
-                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0})", lockId)
+                .SqlQueryRaw<bool>("SELECT pg_try_advisory_lock({0}) AS \"Value\"", lockId)
                 .SingleAsync();
             return result;
         }

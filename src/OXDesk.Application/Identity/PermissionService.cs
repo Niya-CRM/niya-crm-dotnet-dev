@@ -16,20 +16,17 @@ public class PermissionService : IPermissionService
     private readonly IPermissionRepository _permissionRepository;
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ITenantContextService _tenantContextService;
 
     private const string PermissionClaimType = "permission";
 
     public PermissionService(
         IPermissionRepository permissionRepository,
         RoleManager<ApplicationRole> roleManager,
-        IHttpContextAccessor httpContextAccessor,
-        ITenantContextService tenantContextService)
+        IHttpContextAccessor httpContextAccessor)
     {
         _permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
     }
 
     private Guid GetCurrentUserIdOrDefault()
@@ -40,8 +37,7 @@ public class PermissionService : IPermissionService
     }
     public async Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var entities = (await _permissionRepository.GetAllAsync(tenantId))
+        var entities = (await _permissionRepository.GetAllAsync())
             .OrderBy(e => e.Name)
             .ToList();
         return entities;
@@ -49,8 +45,7 @@ public class PermissionService : IPermissionService
 
     public async Task<Permission?> GetPermissionByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var entity = await _permissionRepository.GetByIdAsync(id, tenantId);
+        var entity = await _permissionRepository.GetByIdAsync(id);
         return entity;
     }
 
@@ -60,8 +55,7 @@ public class PermissionService : IPermissionService
         var name = request.Name.Trim();
         var normalized = name.ToUpperInvariant();
         
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var existing = await _permissionRepository.GetByNameAsync(normalized, tenantId);
+        var existing = await _permissionRepository.GetByNameAsync(normalized);
             
         if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists in this tenant.");
 
@@ -76,8 +70,7 @@ public class PermissionService : IPermissionService
             CreatedAt = now,
             UpdatedAt = now,
             CreatedBy = userId,
-            UpdatedBy = userId,
-            TenantId = tenantId // Assign tenant ID to the new permission
+            UpdatedBy = userId
         };
 
         entity = await _permissionRepository.AddAsync(entity);
@@ -86,17 +79,15 @@ public class PermissionService : IPermissionService
 
     public async Task<Permission> UpdatePermissionAsync(Guid id, UpdatePermissionRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var entity = await _permissionRepository.GetByIdAsync(id, tenantId);
+        var entity = await _permissionRepository.GetByIdAsync(id);
         if (entity == null) throw new InvalidOperationException($"Permission with ID '{id}' was not found.");
 
-        var oldName = entity.Name;
         var newName = request.Name?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(newName)) throw new InvalidOperationException("Permission name is required.");
         var newNormalized = newName.ToUpperInvariant();
 
         // uniqueness check within tenant
-        var dup = await _permissionRepository.GetByNameAsync(newNormalized, tenantId);
+        var dup = await _permissionRepository.GetByNameAsync(newNormalized);
             
         if (dup != null && dup.Id != entity.Id)
         {
@@ -115,28 +106,23 @@ public class PermissionService : IPermissionService
     // Support methods used by validators and potential maintenance ops
     public async Task<Permission?> GetPermissionByNameAsync(string normalizedName)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var permission = await _permissionRepository.GetByNameAsync(normalizedName, tenantId);
+        var permission = await _permissionRepository.GetByNameAsync(normalizedName);
         return permission;
     }
 
     public async Task<bool> DeletePermissionAsync(Guid id)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _permissionRepository.DeleteAsync(id, tenantId);
+        return await _permissionRepository.DeleteAsync(id);
     }
 
     public async Task<string[]> GetPermissionRolesAsync(Guid permissionId, CancellationToken cancellationToken = default)
     {
-        var tenantId = _tenantContextService.GetCurrentTenantId();
-        var permission = await _permissionRepository.GetByIdAsync(permissionId, tenantId);
+        var permission = await _permissionRepository.GetByIdAsync(permissionId);
         if (permission == null) throw new InvalidOperationException($"Permission with ID '{permissionId}' was not found in the current tenant.");
 
 
-        // Filter roles by tenant ID
-        var roles = _roleManager.Roles
-            .Where(r => r.TenantId == tenantId)
-            .ToList();
+        // Roles are filtered by global query filters
+        var roles = _roleManager.Roles.ToList();
         var rolesWithPermission = new List<string>();
         foreach (var role in roles)
         {

@@ -103,41 +103,42 @@ namespace OXDesk.AppInstallation.Services
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
         {
 
-            // Set the current tenant via ICurrentTenant
-            _currentTenant.Change(_tenantId);
-            
-            _logger.LogInformation("Generated initialization tenant ID: {TenantId}", _tenantId);
-            
-            // Check if any status records exist
-            if (!await _dbContext.AppInstallationStatus.AnyAsync(cancellationToken))
+            // Seed using a scoped tenant context
+            using (_currentTenant.ChangeScoped(_tenantId))
             {
-                // Seed steps
-                foreach (var step in Steps)
+                _logger.LogInformation("Generated initialization tenant ID: {TenantId}", _tenantId);
+
+                // Check if any status records exist
+                if (!await _dbContext.AppInstallationStatus.AnyAsync(cancellationToken))
                 {
-                    _dbContext.AppInstallationStatus.Add(new AppInstallationStatus
+                    // Seed steps
+                    foreach (var step in Steps)
                     {
-                        Pipeline = step.Pipeline,
-                        Version = step.Version,
-                        Order = step.Order,
-                        Step = step.Step,
-                        Completed = "N"
-                    });
+                        _dbContext.AppInstallationStatus.Add(new AppInstallationStatus
+                        {
+                            Pipeline = step.Pipeline,
+                            Version = step.Version,
+                            Order = step.Order,
+                            Step = step.Step,
+                            Completed = "N"
+                        });
+                    }
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                // Run each step that is not completed
+                var statuses = await _dbContext.AppInstallationStatus.Where(s => s.Completed != "Y").ToListAsync(cancellationToken);
+                foreach (var status in statuses)
+                {
+                    var step = Steps.FirstOrDefault(x => x.Pipeline == status.Pipeline && x.Version == status.Version && x.Order == status.Order && x.Step == status.Step);
+                    if (step.Action != null)
+                    {
+                        await step.Action();
+                        status.Completed = "Y";
+                    }
                 }
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
-
-            // Run each step that is not completed
-            var statuses = await _dbContext.AppInstallationStatus.Where(s => s.Completed != "Y").ToListAsync(cancellationToken);
-            foreach (var status in statuses)
-            {
-                var step = Steps.FirstOrDefault(x => x.Pipeline == status.Pipeline && x.Version == status.Version && x.Order == status.Order && x.Step == status.Step);
-                if (step.Action != null)
-                {
-                    await step.Action();
-                    status.Completed = "Y";
-                }
-            }
-            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         private async Task SeedDefaultRolesAsync()
@@ -301,7 +302,7 @@ namespace OXDesk.AppInstallation.Services
             {
                 // Check if permission already exists by normalized name (uppercase)
                 var normalizedName = permissionName.ToUpperInvariant();
-                var existingPermission = await _permissionRepository.GetByNameAsync(normalizedName, _tenantId);
+                var existingPermission = await _permissionRepository.GetByNameAsync(normalizedName);
                 
                 if (existingPermission == null)
                 {
@@ -311,7 +312,6 @@ namespace OXDesk.AppInstallation.Services
                         Id = Guid.CreateVersion7(),
                         Name = permissionName,
                         NormalizedName = normalizedName,
-                        TenantId = _tenantId,
                         CreatedBy = defaultUser,
                         CreatedAt = utcNow,
                         UpdatedBy = defaultUser,
@@ -1278,8 +1278,8 @@ namespace OXDesk.AppInstallation.Services
                 ]
             };
             
-            // Get all permissions from the repository after ensuring they're seeded
-            var allPermissions = await _permissionRepository.GetAllAsync(_tenantId);
+            // Get all permissions from the repository after ensuring they're seeded (global filters apply)
+            var allPermissions = await _permissionRepository.GetAllAsync();
             var permissionDict = allPermissions.ToDictionary(p => p.Name, p => p);
             
             // Log the permissions found for debugging
@@ -1352,7 +1352,6 @@ namespace OXDesk.AppInstallation.Services
                             RoleId = role.Id,
                             ClaimType = claimType,
                             ClaimValue = claimValue,
-                            TenantId = _tenantId,
                             CreatedBy = defaultUser,
                             CreatedAt = utcNow,
                             UpdatedBy = defaultUser,

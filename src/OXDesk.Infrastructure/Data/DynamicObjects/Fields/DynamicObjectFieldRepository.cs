@@ -32,9 +32,9 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting DynamicObjectFieldType by ID: {Id}, TenantId: {TenantId}", id, tenantId);
+        _logger.LogDebug("Getting DynamicObjectFieldType by ID: {Id}", id);
         // Note: If DynamicObjectFieldType doesn't have TenantId property, we just filter by ID
         return await _dbSetFieldTypes.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null, cancellationToken);
@@ -42,10 +42,9 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
 
     /// <inheritdoc />
     public async Task<IEnumerable<DynamicObjectFieldType>> GetAllFieldTypesAsync(
-        Guid tenantId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting DynamicObjectFieldTypes for TenantId: {TenantId}", tenantId);
+        _logger.LogDebug("Getting DynamicObjectFieldTypes");
 
         // Note: If DynamicObjectFieldType doesn't have TenantId property, we don't filter by tenant
         return await _dbSetFieldTypes.AsNoTracking()
@@ -55,42 +54,42 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default)
     {
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
-            .FirstOrDefaultAsync(o => o.Id == objectId && o.TenantId == tenantId && o.DeletedAt == null, cancellationToken);
+            .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
         if (obj is null)
-            throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found for tenant {tenantId}.");
+            throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found.");
 
         var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Getting DynamicObjectFields for ObjectId: {ObjectId} (ObjectKey: {ObjectKey}), TenantId: {TenantId}", 
-            objectId, objectKey, tenantId);
+        _logger.LogDebug("Getting DynamicObjectFields for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
+            objectId, objectKey);
 
         return await _dbSetFields.AsNoTracking()
-            .Where(f => f.ObjectKey == objectKey && f.TenantId == tenantId && f.DeletedAt == null)
+            .Where(f => f.ObjectKey == objectKey && f.DeletedAt == null)
             .OrderBy(f => f.Label)
             .ToListAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default)
     {
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
-            .FirstOrDefaultAsync(o => o.Id == objectId && o.TenantId == tenantId && o.DeletedAt == null, cancellationToken);
+            .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
         if (obj is null)
             return null;
 
         var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Getting DynamicObjectField by ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey}), TenantId: {TenantId}", 
-            id, objectId, objectKey, tenantId);
+        _logger.LogDebug("Getting DynamicObjectField by ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
+            id, objectId, objectKey);
         return await _dbSetFields.AsNoTracking().FirstOrDefaultAsync(
-            f => f.Id == id && f.ObjectKey == objectKey && f.TenantId == tenantId && f.DeletedAt == null,
+            f => f.Id == id && f.ObjectKey == objectKey && f.DeletedAt == null,
             cancellationToken);
     }
 
@@ -114,20 +113,20 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(field);
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
-            .FirstOrDefaultAsync(o => o.Id == objectId && o.TenantId == tenantId && o.DeletedAt == null, cancellationToken);
+            .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
         if (obj is null)
-            throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found for tenant {tenantId}.");
+            throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found.");
 
         field.ObjectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey}), TenantId: {TenantId}", 
-            field.Id, objectId, field.ObjectKey, tenantId);
+        _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
+            field.Id, objectId, field.ObjectKey);
         var entry = _dbSetFields.Update(field);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated DynamicObjectField ID: {Id}", field.Id);
@@ -135,32 +134,32 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default)
     {
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
-            .FirstOrDefaultAsync(o => o.Id == objectId && o.TenantId == tenantId && o.DeletedAt == null, cancellationToken);
+            .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
         if (obj is null)
             return false;
 
         var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey}), TenantId: {TenantId}", 
-            fieldId, objectId, objectKey, tenantId);
+        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
+            fieldId, objectId, objectKey);
 
         var entity = await _dbSetFields.FirstOrDefaultAsync(f => f.Id == fieldId && f.ObjectKey == objectKey, cancellationToken);
         if (entity is null)
         {
-            _logger.LogWarning("DynamicObjectField not found. ID: {Id}, ObjectId: {ObjectId}, TenantId: {TenantId}", 
-                fieldId, objectId, tenantId);
+            _logger.LogWarning("DynamicObjectField not found. ID: {Id}, ObjectId: {ObjectId}", 
+                fieldId, objectId);
             return false;
         }
         // Soft delete: set DeletedAt
         entity.DeletedAt = System.DateTime.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Deleted DynamicObjectField ID: {Id} for ObjectId: {ObjectId}, TenantId: {TenantId}", 
-            fieldId, objectId, tenantId);
+        _logger.LogInformation("Deleted DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", 
+            fieldId, objectId);
         return true;
     }
 }

@@ -2,9 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
 using Shouldly;
+using Microsoft.Extensions.DependencyInjection;
+using OXDesk.Core.Tenants;
 
 namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
 {
@@ -22,7 +25,11 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            _dbContext = new ApplicationDbContext(options);
+            // Set a random tenant for this test context so global filters and ApplyTenantId work consistently
+            var tenantId = Guid.CreateVersion7();
+            var services = new ServiceCollection().BuildServiceProvider();
+            var currentTenant = new FakeCurrentTenant(tenantId);
+            _dbContext = new ApplicationDbContext(options, services, currentTenant);
             
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
@@ -87,7 +94,12 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             var objectKey = "User";
 
             // Act
-            var result = await _repository.GetChangeHistoryLogsAsync(objectKey: objectKey);
+            var query = new ChangeHistoryLogQueryDto
+            {
+                ObjectKey = objectKey,
+                ObjectItemId = Guid.Empty
+            };
+            var result = await _repository.GetChangeHistoryLogsAsync(query);
 
             // Assert
             result.ShouldNotBeNull();
@@ -125,6 +137,40 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             _dbContext.Dispose();
             GC.SuppressFinalize(this);
+        }
+    }
+}
+
+namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
+{
+    // Minimal test double for ICurrentTenant
+    internal sealed class FakeCurrentTenant : ICurrentTenant
+    {
+        private Guid? _id;
+        public Guid? Id => _id;
+
+        public FakeCurrentTenant(Guid? tenantId)
+        {
+            _id = tenantId;
+        }
+
+        public void Change(Guid? tenantId)
+        {
+            _id = tenantId;
+        }
+
+        public IDisposable ChangeScoped(Guid? tenantId)
+        {
+            var previous = _id;
+            _id = tenantId;
+            return new Restore(() => _id = previous);
+        }
+
+        private sealed class Restore : IDisposable
+        {
+            private readonly Action _onDispose;
+            public Restore(Action onDispose) => _onDispose = onDispose;
+            public void Dispose() => _onDispose();
         }
     }
 }

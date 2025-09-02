@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
+using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,52 +22,43 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             _dbSet = dbContext.Set<ChangeHistoryLog>();
         }
 
-        public async Task<ChangeHistoryLog?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
+        public async Task<ChangeHistoryLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
-                .Where(c => c.Id == id && c.TenantId == tenantId)
-                .FirstOrDefaultAsync(cancellationToken);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
         public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
-            Guid tenantId,
-            string? objectKey = null,
-            Guid? objectItemId = null,
-            string? fieldName = null,
-            Guid? createdBy = null,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
-            int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+            ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
-            var query = _dbSet.AsNoTracking()
-                .Where(c => c.TenantId == tenantId)
+            var q = _dbSet.AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(objectKey))
-                query = query.Where(c => c.ObjectKey == objectKey);
-            if (objectItemId.HasValue)
-                query = query.Where(c => c.ObjectItemId == objectItemId.Value);
-            if (!string.IsNullOrEmpty(fieldName))
-                query = query.Where(c => c.FieldName == fieldName);
-            if (createdBy.HasValue)
-                query = query.Where(c => c.CreatedBy == createdBy.Value);
-            if (startDate.HasValue)
-                query = query.Where(c => c.CreatedAt >= startDate.Value);
-            if (endDate.HasValue)
-                query = query.Where(c => c.CreatedAt <= endDate.Value);
+            if (!string.IsNullOrEmpty(query.ObjectKey))
+                q = q.Where(c => c.ObjectKey == query.ObjectKey);
+            if (query.ObjectItemId != Guid.Empty)
+                q = q.Where(c => c.ObjectItemId == query.ObjectItemId);
+            if (!string.IsNullOrEmpty(query.FieldName))
+                q = q.Where(c => c.FieldName == query.FieldName);
+            if (query.CreatedBy.HasValue)
+                q = q.Where(c => c.CreatedBy == query.CreatedBy.Value);
+            if (query.StartDate.HasValue)
+                q = q.Where(c => c.CreatedAt >= query.StartDate.Value);
+            if (query.EndDate.HasValue)
+                q = q.Where(c => c.CreatedAt <= query.EndDate.Value);
 
             // Left join to users and project raw data; build display name after materialization for null-safety
-            var joined = from c in query
+            var joined = from c in q
                          join u in _dbContext.Users.AsNoTracking() on c.CreatedBy equals u.Id into gj
                          from u in gj.DefaultIfEmpty()
                          orderby c.CreatedAt descending
                          select new { c, u };
 
             var rows = await joined
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((query.PageNumber - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync(cancellationToken);
 
             return rows.Select(x => new ChangeHistoryLog
@@ -89,14 +81,12 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
         }
 
         public async Task<IEnumerable<ChangeHistoryLog>> GetAllAsync(
-            Guid tenantId,
             int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
             int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
             CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()
-                .Where(c => c.TenantId == tenantId)
                 .OrderByDescending(c => c.CreatedAt)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -115,3 +105,4 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
         }
     }
 }
+

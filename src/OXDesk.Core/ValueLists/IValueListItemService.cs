@@ -9,10 +9,9 @@ public interface IValueListItemService
     /// Gets value list items by list key.
     /// </summary>
     /// <param name="listKey">The list key.</param>
-    /// <param name="tenantId">The tenant identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of value list items.</returns>
-    Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default);
     /// <summary>
     /// Creates a new value list item.
     /// </summary>
@@ -20,7 +19,7 @@ public interface IValueListItemService
     /// <param name="createdBy">The user who created the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created value list item.</returns>
-    /// <remarks>TenantId should be set on the item entity before calling this method.</remarks>
+    /// <remarks>Tenant context is applied by global query filters; TenantId will be set by the DbContext.</remarks>
     Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// Updates an existing value list item.

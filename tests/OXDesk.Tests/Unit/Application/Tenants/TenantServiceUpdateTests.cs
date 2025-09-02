@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using OXDesk.Application.Common;
 
 namespace OXDesk.Tests.Unit.Application.Tenants
 {
@@ -62,7 +63,6 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             mockHttpContext.Setup(c => c.User).Returns(user);
         
             _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
-
             _tenantService = new TenantService(
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,

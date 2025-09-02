@@ -6,7 +6,6 @@ using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using OXDesk.Application.Common;
 using OXDesk.Core.Cache;
 
 namespace OXDesk.Application.Tenants;
@@ -19,7 +18,6 @@ public class TenantService : ITenantService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<TenantService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ITenantContextService _tenantContextService;
     private readonly ICacheService _cacheService;
 
     private readonly string _tenantCachePrefix = "tenant:";
@@ -36,13 +34,11 @@ public class TenantService : ITenantService
         IUnitOfWork unitOfWork, 
         ILogger<TenantService> logger, 
         IHttpContextAccessor httpContextAccessor,
-        ITenantContextService tenantContextService,
         ICacheService cacheService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     }
 
@@ -64,12 +60,8 @@ public class TenantService : ITenantService
         Guid createdBy,
         CancellationToken cancellationToken)
     {
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        
         var auditLog = new AuditLog(
             id: Guid.CreateVersion7(),
-            tenantId: tenantId,
             objectKey: CommonConstant.MODULE_TENANT,
             @event: @event,
             objectItemId: objectItemId,

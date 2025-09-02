@@ -93,7 +93,6 @@ public class ChangeHistoryLog
     /// Constructor for creating new change history log entries.
     /// </summary>
     /// <param name="id">The change history log identifier.</param>
-    /// <param name="tenantId">The tenant identifier.</param>
     /// <param name="entityType">The object key (entity type).</param>
     /// <param name="entityId">The object item ID (entity ID).</param>
     /// <param name="fieldName">The name of the field that was changed.</param>
@@ -102,7 +101,6 @@ public class ChangeHistoryLog
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
         Guid id,
-        Guid tenantId,
         string entityType,
         Guid entityId,
         string fieldName,
@@ -111,7 +109,6 @@ public class ChangeHistoryLog
         Guid changedBy)
     {
         Id = id;
-        TenantId = tenantId;
         ObjectKey = entityType;
         ObjectItemId = entityId;
         FieldName = fieldName;

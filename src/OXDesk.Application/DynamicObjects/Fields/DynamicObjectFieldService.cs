@@ -11,24 +11,20 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
 {
     private readonly IDynamicObjectFieldRepository _repository;
     private readonly ILogger<DynamicObjectFieldService> _logger;
-    private readonly ITenantContextService _tenantContextService;
 
     public DynamicObjectFieldService(
         IDynamicObjectFieldRepository repository,
-        ILogger<DynamicObjectFieldService> logger,
-        ITenantContextService tenantContextService)
+        ILogger<DynamicObjectFieldService> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
     }
 
     /// <inheritdoc />
     public async Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Fetching DynamicObjectFieldType by ID: {Id}", id);
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _repository.GetFieldTypeByIdAsync(id, tenantId, cancellationToken);
+        return await _repository.GetFieldTypeByIdAsync(id, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -36,8 +32,7 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
         CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Fetching all DynamicObjectFieldTypes");
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _repository.GetAllFieldTypesAsync(tenantId, cancellationToken);
+        return await _repository.GetAllFieldTypesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
@@ -47,8 +42,7 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         _logger.LogDebug("Fetching DynamicObjectFields for ObjectId: {ObjectId}", objectId);
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _repository.GetFieldsByObjectIdAsync(objectId, tenantId, cancellationToken);
+        return await _repository.GetFieldsByObjectIdAsync(objectId, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -58,8 +52,7 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
         _logger.LogDebug("Fetching DynamicObjectField by ID: {Id} for ObjectId: {ObjectId}", id, objectId);
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _repository.GetFieldByIdAsync(objectId, id, tenantId, cancellationToken);
+        return await _repository.GetFieldByIdAsync(objectId, id, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -69,10 +62,6 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
-        // Set tenant ID on the field entity
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        field.TenantId = tenantId;
-        
         _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId}, FieldKey: {FieldKey}", objectId, field.FieldKey);
         return await _repository.AddFieldAsync(objectId, field, cancellationToken);
     }
@@ -84,9 +73,8 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
         _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", field.Id, objectId);
-        return await _repository.UpdateFieldAsync(objectId, field, tenantId, cancellationToken);
+        return await _repository.UpdateFieldAsync(objectId, field, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -95,8 +83,7 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
         if (objectId == Guid.Empty)
             throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
 
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
         _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", fieldId, objectId);
-        return await _repository.DeleteFieldAsync(objectId, fieldId, tenantId, cancellationToken);
+        return await _repository.DeleteFieldAsync(objectId, fieldId, cancellationToken);
     }
 }

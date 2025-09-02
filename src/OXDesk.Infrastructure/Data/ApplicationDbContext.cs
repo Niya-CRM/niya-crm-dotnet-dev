@@ -1,5 +1,8 @@
 using System;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using OXDesk.Core.Identity;
@@ -22,19 +25,37 @@ namespace OXDesk.Infrastructure.Data
     /// </summary>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider? _serviceProvider;
+        private readonly ICurrentTenant? _currentTenant;
+
+        // Expose current tenant id for EF Core global filters (evaluated per DbContext instance)
+        public Guid? CurrentTenantId => _currentTenant?.Id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.
         /// </summary>
         /// <param name="options">The options for the database context.</param>
         /// <param name="serviceProvider">The service provider to resolve services.</param>
+        /// <param name="currentTenant">The current tenant accessor.</param>
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            ICurrentTenant currentTenant)
             : base(options)
         {
             _serviceProvider = serviceProvider;
+            _currentTenant = currentTenant;
+        }
+
+        /// <summary>
+        /// Test-only convenience constructor allowing creation with just options (e.g., InMemory provider).
+        /// Multi-tenant features that rely on ICurrentTenant will be inactive when using this overload.
+        /// </summary>
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+            _serviceProvider = null;
+            _currentTenant = null;
         }
 
         /// <summary>
@@ -106,102 +127,92 @@ namespace OXDesk.Infrastructure.Data
                     index.SetDatabaseName(index.GetDatabaseName()!.ToSnakeCase());
                 }
             }
+
+            // Global query filters for multi-tenancy (use instance property for dynamic evaluation)
+            builder.Entity<ApplicationUser>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<ApplicationRole>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+
+            // Core entities with TenantId
+            builder.Entity<Permission>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<ValueList>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<ValueListItem>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<AuditLog>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<ChangeHistoryLog>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<DynamicObject>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<DynamicObjectField>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+
+            // Ticketing
+            builder.Entity<Ticket>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<TicketStatus>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<Channel>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<Brand>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+            builder.Entity<Priority>()
+                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
         }
-        
+
         /// <summary>
-        /// Sets the PostgreSQL session variable app.tenant_id if a tenant_id is available from the tenant provider
-        /// This method is kept for backward compatibility but is deprecated
+        /// Automatically sets TenantId for new entities based on ICurrentTenant.
         /// </summary>
-        [Obsolete("This method is deprecated. Use parameterized queries with tenant ID instead.")]
-        public void SetTenantIdSessionVariable()
+        /// <returns>Number of affected rows.</returns>
+        public override int SaveChanges()
         {
-            try
+            ApplyTenantId();
+            return base.SaveChanges();
+        }
+
+        /// <summary>
+        /// Automatically sets TenantId for new entities based on ICurrentTenant.
+        /// </summary>
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyTenantId();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void ApplyTenantId()
+        {
+            var tenantId = _currentTenant?.Id;
+            if (!tenantId.HasValue)
             {
-                // Only try to get the tenant provider if we're in a scope
-                if (_serviceProvider == null)
+                return; // No tenant in scope; leave as-is
+            }
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State != EntityState.Added) continue;
+
+                var tenantProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "TenantId", StringComparison.Ordinal));
+                if (tenantProp == null) continue;
+
+                if (tenantProp.Metadata.ClrType == typeof(Guid))
                 {
-                    return;
+                    var current = (Guid) (tenantProp.CurrentValue ?? Guid.Empty);
+                    if (current == Guid.Empty)
+                    {
+                        tenantProp.CurrentValue = tenantId.Value;
+                    }
                 }
-                
-                // Try to get the tenant provider from the current scope
-                // This will only work during a request, not during startup
-                var httpContextAccessor = _serviceProvider.GetService(typeof(Microsoft.AspNetCore.Http.IHttpContextAccessor)) as Microsoft.AspNetCore.Http.IHttpContextAccessor;
-                if (httpContextAccessor?.HttpContext == null)
+                else if (tenantProp.Metadata.ClrType == typeof(Guid?))
                 {
-                    return; // No HTTP context available
-                }
-                
-                // Get tenant ID from HttpContext.Items directly
-                if (httpContextAccessor.HttpContext.Items.TryGetValue("tenant_id", out var tenantIdObj) && tenantIdObj is Guid tenantId)
-                {
-                    // Set the PostgreSQL session variable using a parameterized query to prevent SQL injection
-                    var tenantIdParam = new NpgsqlParameter("tenantId", tenantId);
-                    this.Database.ExecuteSqlRaw("SET LOCAL \"app.tenant_id\" = @tenantId;", tenantIdParam);
+                    if (tenantProp.CurrentValue == null)
+                    {
+                        tenantProp.CurrentValue = tenantId;
+                    }
                 }
             }
-            catch (Exception ex)
-            {
-                // Log the error but don't stop execution
-                // In production, you would want to use a proper logging mechanism here
-                System.Diagnostics.Debug.WriteLine($"Error setting tenant_id session variable: {ex.Message}");
-            }
-        }
-        
-        /// <summary>
-        /// Creates a SQL parameter for tenant ID to be used in parameterized queries
-        /// </summary>
-        /// <returns>NpgsqlParameter with the current tenant ID</returns>
-        public NpgsqlParameter CreateTenantIdParameter()
-        {
-            var tenantId = GetCurrentTenantId();
-            return new NpgsqlParameter("tenantId", tenantId);
-        }
-        
-        /// <summary>
-        /// Sets the current tenant ID as a PostgreSQL session variable
-        /// </summary>
-        public void SetCurrentTenantIdSessionVariable()
-        {
-            try
-            {
-                var tenantId = GetCurrentTenantId();
-                var tenantIdParam = new NpgsqlParameter("tenantId", tenantId);
-                this.Database.ExecuteSqlRaw("SET LOCAL \"app.current_tenant_id\" = @tenantId;", tenantIdParam);
-            }
-            catch (Exception ex)
-            {
-                // Log the error but don't stop execution
-                System.Diagnostics.Debug.WriteLine($"Error setting app.current_tenant_id session variable: {ex.Message}");
-            }
-        }
-        
-        /// <summary>
-        /// Gets the current tenant ID from the HTTP context
-        /// </summary>
-        /// <returns>The current tenant ID</returns>
-        /// <exception cref="InvalidOperationException">Thrown when tenant ID is not found</exception>
-        public Guid GetCurrentTenantId()
-        {
-            // Only try to get the tenant provider if we're in a scope
-            if (_serviceProvider == null)
-            {
-                throw new InvalidOperationException("Service provider is not available");
-            }
-            
-            // Try to get the tenant provider from the current scope
-            var httpContextAccessor = _serviceProvider.GetService(typeof(Microsoft.AspNetCore.Http.IHttpContextAccessor)) as Microsoft.AspNetCore.Http.IHttpContextAccessor;
-            if (httpContextAccessor?.HttpContext == null)
-            {
-                throw new InvalidOperationException("HTTP context is not available");
-            }
-            
-            // Get tenant ID from HttpContext.Items directly
-            if (httpContextAccessor.HttpContext.Items.TryGetValue("tenant_id", out var tenantIdObj) && tenantIdObj is Guid tenantId)
-            {
-                return tenantId;
-            }
-            
-            throw new InvalidOperationException("Tenant ID not found in HTTP context");
         }
     }
 }

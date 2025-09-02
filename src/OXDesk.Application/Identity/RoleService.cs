@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
+ 
 
 namespace OXDesk.Application.Identity
 {
@@ -19,18 +20,15 @@ namespace OXDesk.Application.Identity
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IRoleClaimRepository _roleClaimRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITenantContextService _tenantContextService;
 
         public RoleService(
             RoleManager<ApplicationRole> roleManager,
             IRoleClaimRepository roleClaimRepository,
-            IHttpContextAccessor httpContextAccessor,
-            ITenantContextService tenantContextService)
+            IHttpContextAccessor httpContextAccessor)
         {
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _roleClaimRepository = roleClaimRepository ?? throw new ArgumentNullException(nameof(roleClaimRepository));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-            _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         }
 
         private Guid GetCurrentUserIdOrDefault() {
@@ -40,10 +38,8 @@ namespace OXDesk.Application.Identity
         }
         public Task<IReadOnlyList<ApplicationRole>> GetAllRolesAsync(CancellationToken cancellationToken = default)
         {
-            // Filter roles by tenant ID and order by Name for deterministic output
-            var tenantId = _tenantContextService.GetCurrentTenantId();
+            // Rely on global query filters for tenant scoping
             var roles = _roleManager.Roles
-                .Where(r => r.TenantId == tenantId)
                 .OrderBy(r => r.Name)
                 .ToList();
             return Task.FromResult<IReadOnlyList<ApplicationRole>>(roles);
@@ -54,9 +50,7 @@ namespace OXDesk.Application.Identity
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) return null;
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId) return null;
+            // Tenant scope is enforced by global query filters
             return role;
         }
 
@@ -64,11 +58,9 @@ namespace OXDesk.Application.Identity
         {
             if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Role name is required.");
 
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            
-            // Check if role with same name exists in the current tenant
+            // Check if role with same name exists (tenant filtered implicitly)
             var existingRole = _roleManager.Roles
-                .Where(r => r.NormalizedName == request.Name.ToUpperInvariant() && r.TenantId == tenantId)
+                .Where(r => r.NormalizedName == request.Name.ToUpperInvariant())
                 .FirstOrDefault();
                 
             if (existingRole != null) throw new InvalidOperationException($"Role '{request.Name}' already exists in this tenant.");
@@ -84,8 +76,7 @@ namespace OXDesk.Application.Identity
                 CreatedAt = now,
                 UpdatedAt = now,
                 CreatedBy = userId,
-                UpdatedBy = userId,
-                TenantId = tenantId // Assign tenant ID to the new role
+                UpdatedBy = userId
             };
 
             var result = await _roleManager.CreateAsync(role);
@@ -102,19 +93,12 @@ namespace OXDesk.Application.Identity
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{id}' not found.");
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId)
-            {
-                throw new InvalidOperationException($"Role with ID '{id}' not found in the current tenant.");
-            }
-
             var oldName = role.Name ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(request.Name) && !string.Equals(oldName, request.Name, StringComparison.Ordinal))
             {
-                // Use existing tenantId variable
+                // Rely on global filters for tenant scoping
                 var dup = _roleManager.Roles
-                    .Where(r => r.NormalizedName == request.Name.ToUpperInvariant() && r.TenantId == tenantId)
+                    .Where(r => r.NormalizedName == request.Name.ToUpperInvariant())
                     .FirstOrDefault();
                     
                 if (dup != null && dup.Id != role.Id)
@@ -141,13 +125,6 @@ namespace OXDesk.Application.Identity
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) return false;
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId)
-            {
-                return false; // Role doesn't belong to current tenant
-            }
-
             // Prevent deletion of built-in roles (optional safeguard)
             if (CommonConstant.RoleNames.All.Contains(role.Name ?? string.Empty))
                 throw new InvalidOperationException($"Built-in role '{role.Name}' cannot be deleted.");
@@ -166,12 +143,7 @@ namespace OXDesk.Application.Identity
             var role = await _roleManager.FindByIdAsync(roleId.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId)
-            {
-                throw new InvalidOperationException($"Role with ID '{roleId}' not found in the current tenant.");
-            }
+            // Tenant scope is enforced by global query filters
             var claims = await _roleManager.GetClaimsAsync(role);
             return claims.Where(c => c.Type == PermissionClaimType).Select(c => c.Value).Distinct().OrderBy(v => v).ToArray();
         }
@@ -184,12 +156,7 @@ namespace OXDesk.Application.Identity
             var role = await _roleManager.FindByIdAsync(roleId.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId)
-            {
-                throw new InvalidOperationException($"Role with ID '{roleId}' not found in the current tenant.");
-            }
+            // Tenant scope is enforced by global query filters
 
             // Load existing claims
             var existingClaims = await _roleManager.GetClaimsAsync(role);
@@ -229,12 +196,7 @@ namespace OXDesk.Application.Identity
         {
             var role = await _roleManager.FindByIdAsync(roleId.ToString()) ?? throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
             
-            // Verify the role belongs to the current tenant
-            var tenantId = _tenantContextService.GetCurrentTenantId();
-            if (role.TenantId != tenantId)
-            {
-                throw new InvalidOperationException($"Role with ID '{roleId}' not found in the current tenant.");
-            }
+            // Tenant scope is enforced by global query filters
             var claims = await _roleClaimRepository.GetRoleClaimsAsync(role.Id, PermissionClaimType, cancellationToken);
             return claims;
         }

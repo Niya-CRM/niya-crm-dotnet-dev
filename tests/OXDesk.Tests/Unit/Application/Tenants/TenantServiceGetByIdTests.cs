@@ -60,7 +60,6 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             mockHttpContext.Setup(c => c.User).Returns(user);
         
             _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
-
             _tenantService = new TenantService(
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,

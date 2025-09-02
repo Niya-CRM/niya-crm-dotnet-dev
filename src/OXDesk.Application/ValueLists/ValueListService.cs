@@ -14,13 +14,12 @@ namespace OXDesk.Application.ValueLists;
 /// <summary>
 /// Service implementation for ValueList business operations.
 /// </summary>
-public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valueListItemService, ILogger<ValueListService> logger, ICacheService cacheService, ITenantContextService tenantContextService) : IValueListService
+public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valueListItemService, ILogger<ValueListService> logger, ICacheService cacheService) : IValueListService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly IValueListItemService _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
     private readonly ILogger<ValueListService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-    private readonly ITenantContextService _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:";
 
     public async Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default)
@@ -36,12 +35,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             throw new ValidationException("ValueList Type cannot be null or empty.");
 
         _logger.LogInformation("Creating ValueList: {Name}", valueList.ListName);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-
         valueList.Id = valueList.Id == Guid.Empty ? Guid.CreateVersion7() : valueList.Id;
-        valueList.TenantId = tenantId;
         valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
         valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.CreatedBy);
@@ -50,6 +44,8 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         var created = await _unitOfWork.GetRepository<IValueListRepository>().AddAsync(valueList, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Created ValueList with ID: {Id}", created.Id);
+        // Invalidate lookup cache for this list
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{created.ListKey}");
         return created;
     }
 
@@ -68,17 +64,14 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             throw new ValidationException("ValueList Type cannot be null or empty.");
 
         _logger.LogInformation("Updating ValueList: {Id}", valueList.Id);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-
-        var existing = await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(valueList.Id, tenantId, cancellationToken);
+        var existing = await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(valueList.Id, cancellationToken);
         if (existing == null)
         {
             _logger.LogWarning("ValueList not found for update: {Id}", valueList.Id);
             throw new InvalidOperationException($"ValueList with ID '{valueList.Id}' not found.");
         }
 
+        var oldKey = existing.ListKey;
         existing.ListName = valueList.ListName.Trim();
         existing.ListKey = valueList.ListKey.Trim();
         existing.Description = valueList.Description.Trim();
@@ -88,29 +81,28 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         existing.AllowNewItem = valueList.AllowNewItem;
         existing.UpdatedAt = DateTime.UtcNow;
         existing.UpdatedBy = modifiedBy ?? (valueList.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.UpdatedBy);
-
-        var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, tenantId, cancellationToken);
+        var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated ValueList: {Id}", updated.Id);
+        // Invalidate lookup cache for old and new keys (if changed)
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{oldKey}");
+        if (!string.Equals(oldKey, updated.ListKey, System.StringComparison.OrdinalIgnoreCase))
+        {
+            await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{updated.ListKey}");
+        }
         return updated;
     }
 
     public async Task<IEnumerable<ValueList>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueLists - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _unitOfWork.GetRepository<IValueListRepository>().GetAllAsync(tenantId, pageNumber, pageSize, cancellationToken);
+        return await _unitOfWork.GetRepository<IValueListRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);
     }
 
     public async Task<ValueList?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueList by ID: {Id}", id);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(id, tenantId, cancellationToken);
+        return await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(id, cancellationToken);
     }
 
     public async Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
@@ -120,10 +112,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
 
         var trimmed = name.Trim();
         _logger.LogDebug("Getting ValueList by Name: {Name}", trimmed);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _unitOfWork.GetRepository<IValueListRepository>().GetByNameAsync(trimmed, tenantId, cancellationToken);
+        return await _unitOfWork.GetRepository<IValueListRepository>().GetByNameAsync(trimmed, cancellationToken);
     }
 
     public async Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
@@ -133,41 +122,31 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
 
         var trimmed = key.Trim();
         _logger.LogDebug("Getting ValueList by Key: {Key}", trimmed);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, tenantId, cancellationToken);
+        return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
     }
 
     public async Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, tenantId, modifiedBy, cancellationToken);
+        var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
         return entity;
     }
 
     public async Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
-
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, tenantId, modifiedBy, cancellationToken);
+        var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
         return entity;
     }
 
     private async Task<IEnumerable<ValueListItem>> GetItemsByListKeyAsync(string listKey, CancellationToken cancellationToken)
     {
         // Fetch directly from repository via service to preserve DB ordering.
-        
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        return await _valueListItemService.GetByListKeyAsync(listKey, tenantId, cancellationToken);
+        return await _valueListItemService.GetByListKeyAsync(listKey, cancellationToken);
     }
 
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
@@ -187,9 +166,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             _logger.LogWarning("ValueList not found: {Key}", listKey);
             return new Dictionary<string, ValueListItem>(capacity: 0, comparer: StringComparer.OrdinalIgnoreCase);
         }
-        // Get tenant ID from the tenant context service
-        Guid tenantId = _tenantContextService.GetCurrentTenantId();
-        var items = await _valueListItemService.GetByListKeyAsync(list.ListKey, tenantId, cancellationToken);
+        var items = await _valueListItemService.GetByListKeyAsync(list.ListKey, cancellationToken);
         var dict = items
             .Where(i => !string.IsNullOrWhiteSpace(i.ItemKey))
             .GroupBy(i => i.ItemKey!, StringComparer.OrdinalIgnoreCase)

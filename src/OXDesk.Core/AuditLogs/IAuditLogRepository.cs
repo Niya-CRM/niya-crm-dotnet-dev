@@ -1,4 +1,5 @@
 using OXDesk.Core.Common;
+using OXDesk.Core.AuditLogs.DTOs;
 
 namespace OXDesk.Core.AuditLogs;
 
@@ -11,33 +12,18 @@ public interface IAuditLogRepository
     /// Gets an audit log by its unique identifier.
     /// </summary>
     /// <param name="id">The audit log identifier.</param>
-    /// <param name="tenantId">The tenant identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The audit log if found, otherwise null.</returns>
-    Task<AuditLog?> GetByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets audit logs by optional filters. All filters are optional and can be combined.
     /// </summary>
-    /// <param name="tenantId">The tenant identifier.</param>
-    /// <param name="objectKey">The object key/entity type (optional).</param>
-    /// <param name="objectItemId">The object item ID (optional).</param>
-    /// <param name="createdBy">The user who performed the action (optional).</param>
-    /// <param name="startDate">The start date for filtering (optional).</param>
-    /// <param name="endDate">The end date for filtering (optional).</param>
-    /// <param name="pageNumber">The page number (1-based).</param>
-    /// <param name="pageSize">The page size.</param>
+    /// <param name="query">The query parameters for filtering audit logs.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of audit logs matching the filters.</returns>
     Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
-        Guid tenantId,
-        string? objectKey = null,
-        string? objectItemId = null,
-        Guid? createdBy = null,
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-        int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
+        AuditLogQueryDto query,
         CancellationToken cancellationToken = default
     );
 

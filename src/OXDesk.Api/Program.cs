@@ -274,9 +274,6 @@ app.UseAuthentication();
 // Add tenant middleware to extract tenant_id from JWT token
 app.UseTenantMiddleware();
 
-// Add middleware to set PostgreSQL session variable for tenant_id
-app.UseTenantDbContext();
-
 app.UseAuthorization();
 
 // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
