@@ -29,7 +29,8 @@ namespace OXDesk.Infrastructure.Data
         private readonly ICurrentTenant? _currentTenant;
 
         // Expose current tenant id for EF Core global filters (evaluated per DbContext instance)
-        public Guid? CurrentTenantId => _currentTenant?.Id;
+        public Guid CurrentTenantId => _currentTenant?.Id
+            ?? throw new InvalidOperationException("Tenant context is required but was not provided.");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.
@@ -128,39 +129,41 @@ namespace OXDesk.Infrastructure.Data
                 }
             }
 
-            // Global query filters for multi-tenancy (use instance property for dynamic evaluation)
+            // Global query filters for multi-tenancy (strict: require tenant to be present)
             builder.Entity<ApplicationUser>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<ApplicationRole>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
             // Core entities with TenantId
             builder.Entity<Permission>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<ValueList>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<ValueListItem>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<AuditLog>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<ChangeHistoryLog>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            builder.Entity<RefreshToken>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<DynamicObject>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<DynamicObjectField>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
             // Ticketing
             builder.Entity<Ticket>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<TicketStatus>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<Channel>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<Brand>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<Priority>()
-                .HasQueryFilter(e => e.TenantId == (CurrentTenantId ?? e.TenantId));
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
         /// <summary>
@@ -187,7 +190,7 @@ namespace OXDesk.Infrastructure.Data
             var tenantId = _currentTenant?.Id;
             if (!tenantId.HasValue)
             {
-                return; // No tenant in scope; leave as-is
+                throw new InvalidOperationException("Tenant context is required but was not provided.");
             }
 
             foreach (var entry in ChangeTracker.Entries())
