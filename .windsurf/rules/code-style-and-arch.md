@@ -1,0 +1,51 @@
+---
+trigger: always_on
+---
+
+# About the Application
+- The Application is an API Microservice writtern in .NET 9.0
+- However, there are two web page servered directly by app i.e. auth/login and /setup.
+- Application Name is OXDesk which provides CRM for Sales, Helpdesk Tool, Customer Surveys and leverage LLM/AI using external providers.
+- Application is Multi-tenant, however we use seperate Database for each tenant and no specific columns are added to the table.
+
+# General Code Style & Formatting
+- Use English for all code and documentation.
+- Use PascalCase for class and public method names
+- Use camelCase for method parameters and local variables.
+- Follow the Clean Architecture with Core, Application, Infrasture and API Projects.
+- Add XML comments in all interfaces classes and methods. Use inheritdoc to inherit comments from base classes and interfaces in the concrete implementation.
+- Add OpenAPI comments to generate XML file for Swagger in all API controllers and endpoints.
+
+# Project Structure & Architecture
+- Core project include the Domain Models, Entities, Value Objects, , Specifications, Interfaces, DTOs, Constants, etc.
+- All common functionalities are under Common folder in Core Project.
+- All specific features are directly added into their respective folder.
+- Infrastructure project contains database, redis connection, logging, Email Services, and other external services.
+- Data folder for database access related code
+- Entity Configurations are stored in respective Data/feature folder under Infrasture Project 
+- Application project contains business logic
+- API project contains API endpoints using Contollers and Factory Services
+- Factory Service is responsible for DTOs transformation.
+- Validators folder in API project contains validation logic using FluentValidation
+- All Configuration are in Configurations folder under OXDesk.Api project with specific json files for different modules.
+- Refer 'Tenant' as an example.
+- Middlewares are stored in src\OXDesk.Api\Middleware
+
+# Functions & Logic
+- API Endpoints call the Application Service layer and Application  Services layer calls the Infrastructure layer.
+- Use Extension method instead of direct implementation in program.cs
+- Use DTOs in the Controller Method for Requests and Responses.
+- middleware that automatically adds the api prefix, so controller routes do not need to include it.
+- Use Dotnet DateTime.UtCNow for getting current time instead of just .Now
+- Use Guid.CreateVersion7() i.e. UUID v7 always
+- CacheService to be used for Cache management
+
+# Data Handling
+- Use EF Core and using PostgreSQL Database 
+- Backend connects to Database and Memory Cache
+- Where application, we need to cache the DB response in memory
+- UnitOfWork is used for transatin with Start and Commit methods
+
+# Tests
+- Currently only Unit Tests are implmemented
+- Tests are tests\OXDesk.Tests
