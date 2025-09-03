@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.Common.Response;
 using OXDesk.Core.Identity;
 
 namespace OXDesk.Api.Factories.AuditLogs
@@ -22,7 +23,7 @@ namespace OXDesk.Api.Factories.AuditLogs
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
-        private static AuditLogResponse Map(AuditLog log) => new AuditLogResponse
+        private static AuditLogResponse Map(AuditLog log) => new()
         {
             Id = log.Id,
             TenantId = log.TenantId,
@@ -53,19 +54,19 @@ namespace OXDesk.Api.Factories.AuditLogs
                 Data = list,
                 PageNumber = 1,
                 RowCount = list.Count,
-                Related = Array.Empty<object>()
+                Related = []
             };
         }
 
-        public async Task<EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>> BuildDetailsAsync(AuditLog log, CancellationToken cancellationToken = default)
+        public async Task<EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>> BuildDetailsAsync(AuditLog log, CancellationToken cancellationToken = default)
         {
             var dto = Map(log);
             await EnrichAsync(dto, cancellationToken);
 
-            return new EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>
+            return new EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>
             {
                 Data = dto,
-                Related = new AuditLogDetailsRelated()
+                Related = new EmptyRelated()
             };
         }
     }

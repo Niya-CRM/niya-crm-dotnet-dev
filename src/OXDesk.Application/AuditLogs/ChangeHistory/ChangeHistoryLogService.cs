@@ -66,15 +66,6 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
                 cancellationToken);
             return logs;
         }
-
-        /// <inheritdoc/>
-        public async Task<IEnumerable<ChangeHistoryLog>> GetAllChangeHistoryLogsAsync(
-            int pageNumber = Core.Common.CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = Core.Common.CommonConstant.PAGE_SIZE_DEFAULT,
-            CancellationToken cancellationToken = default)
-        {
-            return await _repository.GetAllAsync(pageNumber, pageSize, cancellationToken);
-        }
     }
 }
 

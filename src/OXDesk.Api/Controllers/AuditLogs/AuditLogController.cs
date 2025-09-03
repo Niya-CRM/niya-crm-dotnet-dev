@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OXDesk.Core.AuditLogs;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
 using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Api.Common;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.Common.Response;
 
 namespace OXDesk.Api.Controllers.AuditLogs
 {
@@ -48,9 +45,9 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// Gets a specific audit log by its ID.
         /// </summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>), 200)]
+        [ProducesResponseType(typeof(EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>>> GetById(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>>> GetById(Guid id, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {

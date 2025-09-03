@@ -77,11 +77,6 @@ public class AuditLog
     [Required]
     public Guid CreatedBy { get; set; }
 
-    /// <summary>
-    /// Display text for the user who performed the action. Not persisted.
-    /// </summary>
-    [NotMapped]
-    public string? CreatedByText { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuditLog"/> class.

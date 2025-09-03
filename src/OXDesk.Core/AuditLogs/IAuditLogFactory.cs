@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.Common.Response;
 
 namespace OXDesk.Core.AuditLogs
 {
@@ -13,6 +14,6 @@ namespace OXDesk.Core.AuditLogs
     {
         Task<PagedListWithRelatedResponse<AuditLogResponse>> BuildListAsync(IEnumerable<AuditLog> logs, CancellationToken cancellationToken = default);
 
-        Task<EntityWithRelatedResponse<AuditLogResponse, AuditLogDetailsRelated>> BuildDetailsAsync(AuditLog log, CancellationToken cancellationToken = default);
+        Task<EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>> BuildDetailsAsync(AuditLog log, CancellationToken cancellationToken = default);
     }
 }

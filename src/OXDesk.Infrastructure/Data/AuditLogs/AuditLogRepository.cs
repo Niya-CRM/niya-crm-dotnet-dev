@@ -48,31 +48,11 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             if (query.EndDate.HasValue)
                 q = q.Where(a => a.CreatedAt <= query.EndDate.Value);
 
-            // Left join to users, select raw data; build display name client-side to avoid expression tree null-propagation
-            var joined = from a in q
-                         join u in _dbContext.Users.AsNoTracking() on a.CreatedBy equals u.Id into gj
-                         from u in gj.DefaultIfEmpty()
-                         orderby a.CreatedAt descending
-                         select new { a, u };
-
-            var rows = await joined
+            return await q
+                .OrderByDescending(a => a.CreatedAt)
                 .Skip((query.PageNumber - 1) * query.PageSize)
                 .Take(query.PageSize)
                 .ToListAsync(cancellationToken);
-
-            return rows.Select(x => new AuditLog
-            {
-                Id = x.a.Id,
-                ObjectKey = x.a.ObjectKey,
-                Event = x.a.Event,
-                ObjectItemId = x.a.ObjectItemId,
-                IP = x.a.IP,
-                Data = x.a.Data,
-                CreatedAt = x.a.CreatedAt,
-                CreatedBy = x.a.CreatedBy,
-                TenantId = x.a.TenantId,
-                CreatedByText = string.Join(" ", new[] { x.u.FirstName, x.u.LastName }.Where(s => !string.IsNullOrWhiteSpace(s))) ?? x.a.CreatedBy.ToString()
-            });
         }
 
         public async Task<AuditLog> AddAsync(AuditLog auditLog, CancellationToken cancellationToken = default)

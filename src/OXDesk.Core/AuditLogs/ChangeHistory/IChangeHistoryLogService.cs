@@ -49,17 +49,4 @@ public interface IChangeHistoryLogService
     Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
         ChangeHistoryLogQueryDto query,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Gets all change history logs with pagination.
-    /// </summary>
-    /// <param name="pageNumber">The page number (1-based).</param>
-    /// <param name="pageSize">The page size.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of change history logs.</returns>
-    /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
-    Task<IEnumerable<ChangeHistoryLog>> GetAllChangeHistoryLogsAsync(
-        int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-        int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
-        CancellationToken cancellationToken = default);
 }

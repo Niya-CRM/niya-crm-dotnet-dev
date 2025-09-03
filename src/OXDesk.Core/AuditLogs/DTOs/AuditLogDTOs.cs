@@ -13,9 +13,4 @@ namespace OXDesk.Core.AuditLogs.DTOs
         public Guid CreatedBy { get; set; }
         public string? CreatedByText { get; set; }
     }
-
-    public sealed class AuditLogDetailsRelated
-    {
-        // Intentionally left empty for now; add related collections if needed later.
-    }
 }

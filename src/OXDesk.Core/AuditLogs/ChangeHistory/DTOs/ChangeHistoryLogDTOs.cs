@@ -14,8 +14,4 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory.DTOs
         public Guid CreatedBy { get; set; }
         public string? CreatedByText { get; set; }
     }
-
-    public sealed class ChangeHistoryLogDetailsRelated
-    {
-    }
 }

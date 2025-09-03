@@ -27,18 +27,6 @@ public interface IChangeHistoryLogRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets all change history logs with pagination.
-    /// </summary>
-    /// <param name="pageNumber">The page number (1-based).</param>
-    /// <param name="pageSize">The page size.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of change history logs.</returns>
-    Task<IEnumerable<ChangeHistoryLog>> GetAllAsync(
-        int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-        int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Adds a new change history log entry.
     /// </summary>
     /// <param name="changeHistoryLog">The change history log to add.</param>

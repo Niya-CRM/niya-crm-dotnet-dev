@@ -109,16 +109,13 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             var expectedLogs = new List<ChangeHistoryLog>
             {
-                new ChangeHistoryLog
-                {
+                new() {
                     Id = Guid.CreateVersion7(),
                     ObjectKey = objectKey,
                     ObjectItemId = objectItemId,
                     FieldName = fieldName,
                     CreatedBy = createdBy,
-                    CreatedAt = DateTime.UtcNow.AddDays(-3),
-                    // Simulate repository enrichment
-                    CreatedByText = "Test User"
+                    CreatedAt = DateTime.UtcNow.AddDays(-3)
                 }
             };
 
@@ -158,7 +155,6 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             entity.ObjectItemId.ShouldBe(objectItemId);
             entity.FieldName.ShouldBe(fieldName);
             entity.CreatedBy.ShouldBe(createdBy);
-            entity.CreatedByText.ShouldBe("Test User");
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 It.Is<ChangeHistoryLogQueryDto>(q =>
@@ -170,39 +166,6 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
                     q.EndDate == endDate &&
                     q.PageNumber == pageNumber &&
                     q.PageSize == pageSize),
-                It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
-        public async Task GetAllChangeHistoryLogsAsync_ShouldCallRepositoryMethod()
-        {
-            // Arrange
-            var pageNumber = 1;
-            var pageSize = 20;
-            var expectedLogs = new List<ChangeHistoryLog>
-            {
-                new ChangeHistoryLog { Id = Guid.CreateVersion7() },
-                new ChangeHistoryLog { Id = Guid.CreateVersion7() }
-            };
-
-            _mockRepository
-                .Setup(r => r.GetAllAsync(
-                    pageNumber,
-                    pageSize,
-                    It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedLogs);
-
-            // Act
-            var result = await _service.GetAllChangeHistoryLogsAsync(pageNumber, pageSize);
-
-            // Assert
-            result.ShouldNotBeNull();
-            result.Count().ShouldBe(expectedLogs.Count);
-            result.ShouldBe(expectedLogs);
-            
-            _mockRepository.Verify(r => r.GetAllAsync(
-                pageNumber,
-                pageSize,
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }

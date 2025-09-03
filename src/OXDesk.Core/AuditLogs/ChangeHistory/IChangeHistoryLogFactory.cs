@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.Common.Response;
 
 namespace OXDesk.Core.AuditLogs.ChangeHistory
 {
@@ -13,6 +14,6 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory
     {
         Task<PagedListWithRelatedResponse<ChangeHistoryLogResponse>> BuildListAsync(IEnumerable<ChangeHistoryLog> logs, CancellationToken cancellationToken = default);
 
-        Task<EntityWithRelatedResponse<ChangeHistoryLogResponse, ChangeHistoryLogDetailsRelated>> BuildDetailsAsync(ChangeHistoryLog log, CancellationToken cancellationToken = default);
+        Task<EntityWithRelatedResponse<ChangeHistoryLogResponse, EmptyRelated>> BuildDetailsAsync(ChangeHistoryLog log, CancellationToken cancellationToken = default);
     }
 }

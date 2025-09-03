@@ -15,9 +15,6 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             // Composite index for efficient filtering by entity
             builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemId, c.CreatedAt });
             
-            // Index for filtering by field name
-            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemId, c.FieldName, c.CreatedAt });
-            
             // Index for time-based queries
             builder.HasIndex(c => new { c.TenantId, c.CreatedAt });
         }

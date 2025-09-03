@@ -49,47 +49,10 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             if (query.EndDate.HasValue)
                 q = q.Where(c => c.CreatedAt <= query.EndDate.Value);
 
-            // Left join to users and project raw data; build display name after materialization for null-safety
-            var joined = from c in q
-                         join u in _dbContext.Users.AsNoTracking() on c.CreatedBy equals u.Id into gj
-                         from u in gj.DefaultIfEmpty()
-                         orderby c.CreatedAt descending
-                         select new { c, u };
-
-            var rows = await joined
+            return await q
+                .OrderByDescending(c => c.CreatedAt)
                 .Skip((query.PageNumber - 1) * query.PageSize)
                 .Take(query.PageSize)
-                .ToListAsync(cancellationToken);
-
-            return rows.Select(x => new ChangeHistoryLog
-            {
-                Id = x.c.Id,
-                ObjectKey = x.c.ObjectKey,
-                ObjectItemId = x.c.ObjectItemId,
-                FieldName = x.c.FieldName,
-                OldValue = x.c.OldValue,
-                NewValue = x.c.NewValue,
-                CreatedAt = x.c.CreatedAt,
-                CreatedBy = x.c.CreatedBy,
-                TenantId = x.c.TenantId,
-                CreatedByText = x.u == null
-                    ? x.c.CreatedBy.ToString()
-                    : (string.Join(" ", new[] { x.u.FirstName, x.u.LastName }.Where(s => !string.IsNullOrWhiteSpace(s))) is string full && !string.IsNullOrWhiteSpace(full)
-                        ? full
-                        : (x.u.Email ?? x.u.UserName ?? x.c.CreatedBy.ToString()))
-            });
-        }
-
-        public async Task<IEnumerable<ChangeHistoryLog>> GetAllAsync(
-            int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
-            int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,
-            CancellationToken cancellationToken = default)
-        {
-            return await _dbSet
-                .AsNoTracking()
-                .OrderByDescending(c => c.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .ToListAsync(cancellationToken);
         }
 

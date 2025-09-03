@@ -77,17 +77,6 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         }
 
         [Fact]
-        public async Task GetAllAsync_ShouldReturnAllLogs()
-        {
-            // Act
-            var result = await _repository.GetAllAsync();
-
-            // Assert
-            result.ShouldNotBeNull();
-            result.Count().ShouldBe(_changeHistoryLogs.Count);
-        }
-
-        [Fact]
         public async Task GetChangeHistoryLogsAsync_WithObjectKeyFilter_ShouldReturnFilteredLogs()
         {
             // Arrange

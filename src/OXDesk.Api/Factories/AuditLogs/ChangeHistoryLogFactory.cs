@@ -7,6 +7,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
+using OXDesk.Core.Common.Response;
 
 namespace OXDesk.Api.Factories.AuditLogs
 {
@@ -22,7 +23,7 @@ namespace OXDesk.Api.Factories.AuditLogs
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         }
 
-        private static ChangeHistoryLogResponse Map(ChangeHistoryLog log) => new ChangeHistoryLogResponse
+        private static ChangeHistoryLogResponse Map(ChangeHistoryLog log) => new()
         {
             Id = log.Id,
             ObjectKey = log.ObjectKey,
@@ -52,18 +53,18 @@ namespace OXDesk.Api.Factories.AuditLogs
                 Data = list,
                 PageNumber = 1,
                 RowCount = list.Count,
-                Related = Array.Empty<object>()
+                Related = []
             };
         }
 
-        public async Task<EntityWithRelatedResponse<ChangeHistoryLogResponse, ChangeHistoryLogDetailsRelated>> BuildDetailsAsync(ChangeHistoryLog log, CancellationToken cancellationToken = default)
+        public async Task<EntityWithRelatedResponse<ChangeHistoryLogResponse, EmptyRelated>> BuildDetailsAsync(ChangeHistoryLog log, CancellationToken cancellationToken = default)
         {
             var dto = Map(log);
             await EnrichAsync(dto, cancellationToken);
-            return new EntityWithRelatedResponse<ChangeHistoryLogResponse, ChangeHistoryLogDetailsRelated>
+            return new EntityWithRelatedResponse<ChangeHistoryLogResponse, EmptyRelated>
             {
                 Data = dto,
-                Related = new ChangeHistoryLogDetailsRelated()
+                Related = new EmptyRelated()
             };
         }
     }

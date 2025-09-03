@@ -1,3 +1,5 @@
+using System;
+
 namespace OXDesk.Core.Common;
 
 public static class CommonConstant
@@ -155,13 +157,13 @@ public static class CommonConstant
         public static class System { public const string Name = "System"; public const string Key = "system"; }
 
         public static readonly (string Name, string Key)[] All =
-        {
+        [
             (Agent.Name, Agent.Key),
             (AIAgent.Name, AIAgent.Key),
             (LightAgent.Name, LightAgent.Key),
             (ExternalUser.Name, ExternalUser.Key),
             (System.Name, System.Key)
-        };
+        ];
     }
 
     /// <summary>
@@ -172,12 +174,12 @@ public static class CommonConstant
         /// <summary>
         /// Tags for service health checks
         /// </summary>
-        public static readonly string[] ServiceTags = { "service" };
+        public static readonly string[] ServiceTags = ["service"];
         
         /// <summary>
         /// Tags for database health checks
         /// </summary>
-        public static readonly string[] DatabaseTags = { "database" };
+        public static readonly string[] DatabaseTags = ["database"];
     }
     
     /// <summary>
@@ -194,10 +196,10 @@ public static class CommonConstant
             public const string Upgrade = "Upgrade";
             
             public static readonly string[] All = 
-            {
+            [
                 Initial,
                 Upgrade
-            };
+            ];
         }
 
         public const string INITIAL_VERSION = "0.0.1";
