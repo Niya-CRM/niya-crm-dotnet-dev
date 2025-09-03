@@ -47,14 +47,14 @@ namespace OXDesk.Infrastructure.Data
                 options.UseNpgsql(postgreSqlSettings.ConnectionString);
 
                 // Only enable detailed logging in development environment
-                if (environment.IsDevelopment())
+                if (true) //environment.IsDevelopment())
                 {
                     options.EnableSensitiveDataLogging();
                     options.EnableDetailedErrors();
 
                     // Log to console with Serilog
                     options.LogTo(
-                        message => Serilog.Log.Debug(message),
+                        message => Serilog.Log.Information(message),
                         new[] { "Microsoft.EntityFrameworkCore.Database.Command" },
                         LogLevel.Information,
                         DbContextLoggerOptions.DefaultWithUtcTime);

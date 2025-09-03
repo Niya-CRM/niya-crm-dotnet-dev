@@ -19,7 +19,7 @@ public class TenantService : ITenantService
     private readonly ILogger<TenantService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheService _cacheService;
-
+    private readonly ICurrentTenant _tenantContextService;
     private readonly string _tenantCachePrefix = "tenant:";
 
     /// <summary>
@@ -34,11 +34,13 @@ public class TenantService : ITenantService
         IUnitOfWork unitOfWork, 
         ILogger<TenantService> logger, 
         IHttpContextAccessor httpContextAccessor,
+        ICurrentTenant tenantContextService,
         ICacheService cacheService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     }
 
@@ -101,9 +103,13 @@ public class TenantService : ITenantService
             throw new InvalidOperationException($"A tenant with host '{normalizedHost}' already exists.");
         }
 
+        // Get CurrrentTenant Id from ICurrentTenant
+        var currentTenantId = _tenantContextService.Id ?? Guid.CreateVersion7();
+        
+
         // Create new tenant
         var tenant = new Tenant(
-            id: Guid.CreateVersion7(),
+            id: currentTenantId,
             name: normalizedName,
             host: normalizedHost,
             email: normalizedEmail,

@@ -75,7 +75,7 @@ namespace OXDesk.Api.Controllers.Auth
             if (user == null)
             {
                 _logger.LogWarning("User not found: {Email}", model.Email);
-                return Unauthorized(new { Message = "Invalid email or password" });
+                return Unauthorized(new { Message = "Invalid email or password." });
             }
 
             if (user.IsActive != "Y")

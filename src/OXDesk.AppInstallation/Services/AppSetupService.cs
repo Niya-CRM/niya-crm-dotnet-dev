@@ -11,6 +11,7 @@ using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.ValueLists;
 using System.Linq;
 using OXDesk.Infrastructure.Data;
+using OXDesk.Core.Tenants.DTOs;
 
 namespace OXDesk.AppInstallation.Services;
 
@@ -176,7 +177,7 @@ public class AppSetupService : IAppSetupService
     /// <inheritdoc/>
     private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid systemUserId, CancellationToken cancellationToken = default)
     {
-        var createTenantRequest = new OXDesk.Core.Tenants.DTOs.CreateTenantRequest
+        var createTenantRequest = new CreateTenantRequest
         {
             Name = setupDto.TenantName,
             Host = setupDto.Host,

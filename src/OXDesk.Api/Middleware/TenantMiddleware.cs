@@ -47,6 +47,44 @@ namespace OXDesk.Api.Middleware
                         _logger.LogCritical("No valid tenant_id found in the user claims");
                     }
                 }
+                else
+                {
+                    // Fallback for unauthenticated requests: resolve tenant from X-Forwarded-Host
+                    var forwardedHostHeader = context.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(forwardedHostHeader))
+                    {
+                        // Some proxies may send multiple hosts separated by comma, take the first
+                        var firstHost = forwardedHostHeader.Split(',').FirstOrDefault()?.Trim();
+                        if (!string.IsNullOrWhiteSpace(firstHost))
+                        {
+                            // Strip port if present (host:port)
+                            var hostWithoutPort = firstHost.Split(':').FirstOrDefault() ?? firstHost;
+
+                            try
+                            {
+                                var tenantService = context.RequestServices.GetRequiredService<ITenantService>();
+                                var tenant = await tenantService.GetTenantByHostAsync(hostWithoutPort);
+                                if (tenant != null)
+                                {
+                                    context.Items[TenantIdKey] = tenant.Id;
+
+                                    var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
+                                    currentTenant?.Change(tenant.Id);
+
+                                    _logger.LogDebug("Resolved tenant {TenantId} from X-Forwarded-Host: {Host}", tenant.Id, hostWithoutPort);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("No tenant found for X-Forwarded-Host: {Host}", hostWithoutPort);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Error resolving tenant from X-Forwarded-Host header");
+                            }
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
