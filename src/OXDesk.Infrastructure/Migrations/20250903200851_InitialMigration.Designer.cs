@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250902214045_InitialMigration")]
+    [Migration("20250903200851_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -185,9 +185,6 @@ namespace OXDesk.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "ObjectKey", "ObjectItemId", "CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_object_item_id_cre~");
-
-                    b.HasIndex("TenantId", "ObjectKey", "ObjectItemId", "FieldName", "CreatedAt")
-                        .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_object_item_id_fie~");
 
                     b.ToTable("change_history_logs");
                 });

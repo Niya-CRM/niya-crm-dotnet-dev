@@ -684,11 +684,6 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: new[] { "tenant_id", "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_change_history_logs_tenant_id_object_key_object_item_id_fie~",
-                table: "change_history_logs",
-                columns: new[] { "tenant_id", "object_key", "object_item_id", "field_name", "created_at" });
-
-            migrationBuilder.CreateIndex(
                 name: "ix_channels_channel_key",
                 table: "channels",
                 column: "channel_key");
