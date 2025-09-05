@@ -64,10 +64,15 @@ builder.AddConfigurations();
 
 Log.Error("Server Booting Up...");
 
-// HTTP Loging Config
+// HTTP Logging Config (hardened to avoid sensitive data leakage)
 builder.Services.AddHttpLogging(logging =>
 {
-    logging.LoggingFields = HttpLoggingFields.All;
+    // Log request/response properties and headers only. Do NOT log bodies or query strings.
+    logging.LoggingFields =
+        HttpLoggingFields.RequestPropertiesAndHeaders |
+        HttpLoggingFields.ResponsePropertiesAndHeaders;
+
+    // Whitelist safe request headers; avoid Authorization/Cookie headers.
     logging.RequestHeaders.Add("x-correlation-id");
     logging.RequestHeaders.Add("X-Forwarded-For");
     logging.RequestHeaders.Add("X-Forwarded-Proto");
@@ -79,10 +84,17 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Add("sec-ch-ua");
     logging.RequestHeaders.Add("sec-ch-ua-mobile");
     logging.RequestHeaders.Add("sec-ch-ua-platform");
+
+    // Whitelist safe response headers.
     logging.ResponseHeaders.Add("x-correlation-id");
     logging.ResponseHeaders.Add("Pragma");
     logging.ResponseHeaders.Add("Cache-Control");
     logging.ResponseHeaders.Add("max-age");
+
+    // Explicitly ensure sensitive headers are not logged.
+    logging.RequestHeaders.Remove("Authorization");
+    logging.RequestHeaders.Remove("Cookie");
+    logging.ResponseHeaders.Remove("Set-Cookie");
 });
 
 builder.Services.AddControllersWithViews(options =>
@@ -262,8 +274,11 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 // Add Domain to log context for all requests
 app.UseMiddleware<DomainMiddleware>();
 
-// Log all requests and response.
-app.UseHttpLogging();
+// Log requests/responses only for non-sensitive paths (exclude /auth/token)
+app.UseWhen(ctx => !ctx.Request.Path.StartsWithSegments("/api/auth/"), branch =>
+{
+    branch.UseHttpLogging();
+});
 
 // Add JWT cookie authentication middleware
 app.UseJwtCookieAuthentication();

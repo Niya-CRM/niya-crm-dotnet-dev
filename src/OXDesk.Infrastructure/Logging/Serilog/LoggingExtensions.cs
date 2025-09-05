@@ -33,13 +33,8 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.ResponseBodyLogLimit = 1024 * 1024; // 1 MB
                     // Combine into a single log message per request where supported (net8+)
                     logging.CombineLogs = true;
-                    // Allow text content-types for body logging
-                    logging.MediaTypeOptions.AddText("application/json");
-                    logging.MediaTypeOptions.AddText("text/json");
-                    logging.MediaTypeOptions.AddText("text/plain");
-                    logging.MediaTypeOptions.AddText("application/xml");
-                    logging.MediaTypeOptions.AddText("application/x-www-form-urlencoded");
 
+                    // Whitelist safe request headers
                     logging.RequestHeaders.Add("x-correlation-id");
                     logging.RequestHeaders.Add("X-Forwarded-For");
                     logging.RequestHeaders.Add("X-Forwarded-Proto");
@@ -51,10 +46,16 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.RequestHeaders.Add("sec-ch-ua");
                     logging.RequestHeaders.Add("sec-ch-ua-mobile");
 
+                    // Whitelist safe response headers
                     logging.ResponseHeaders.Add("x-correlation-id");
                     logging.ResponseHeaders.Add("Pragma");
                     logging.ResponseHeaders.Add("Cache-Control");
                     logging.ResponseHeaders.Add("max-age");
+
+                    // Explicitly ensure sensitive headers are not logged
+                    logging.RequestHeaders.Remove("Authorization");
+                    logging.RequestHeaders.Remove("Cookie");
+                    logging.ResponseHeaders.Remove("Set-Cookie");
                 });
             });
 
