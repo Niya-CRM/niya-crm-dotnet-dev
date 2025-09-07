@@ -57,7 +57,6 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
 
         public async Task<AuditLog> AddAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
         {
-            // Ensure CreatedAt is set to UTC now if not already set
             if (auditLog.CreatedAt == default)
                 auditLog.CreatedAt = DateTime.UtcNow;
 

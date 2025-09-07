@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using OXDesk.Core.Cache;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
+using OXDesk.Core.Tenants;
 namespace OXDesk.Application.Cache
 {
     /// <summary>
@@ -10,12 +12,14 @@ namespace OXDesk.Application.Cache
     public partial class CacheService : ICacheService
     {
         private readonly ICacheRepository _cacheRepository;
-        private readonly Microsoft.Extensions.Logging.ILogger<CacheService> _logger;
+        private readonly ILogger<CacheService> _logger;
+        private readonly ICurrentTenant _currentTenant;
 
-        public CacheService(ICacheRepository cacheRepository, Microsoft.Extensions.Logging.ILogger<CacheService> logger)
+        public CacheService(ICacheRepository cacheRepository, ILogger<CacheService> logger, ICurrentTenant currentTenant)
         {
             _cacheRepository = cacheRepository;
             _logger = logger;
+            _currentTenant = currentTenant;
         }
 
         public Task<T?> GetAsync<T>(string key)
@@ -51,16 +55,22 @@ namespace OXDesk.Application.Cache
         /// </summary>
         /// <param name="key">The original cache key.</param>
         /// <returns>A sanitized cache key.</returns>
-        private static string SanitizeKey(string key)
+        private string SanitizeKey(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Cache key cannot be null or whitespace.");
-            
+
             var trimmed = key.Trim().ToLowerInvariant();
-            return MyRegex().Replace(trimmed, "");
+
+            var tenantPart = _currentTenant?.Id.HasValue == true
+                ? _currentTenant.Id!.Value.ToString("N")
+                : "global";
+
+            var combined = $"t:{tenantPart}:{trimmed}";
+            return MyRegex().Replace(combined, "");
         }
 
-        [System.Text.RegularExpressions.GeneratedRegex("[^a-zA-Z0-9_:]")]
-        private static partial System.Text.RegularExpressions.Regex MyRegex();
+        [GeneratedRegex("[^a-zA-Z0-9_:]")]
+        private static partial Regex MyRegex();
     }
 }

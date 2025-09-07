@@ -28,10 +28,8 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 {
                     // Log headers, properties, and bodies
                     logging.LoggingFields = HttpLoggingFields.All;
-                    // Include request/response bodies (size limits to avoid excessive logging)
                     logging.RequestBodyLogLimit = 1024 * 1024; // 1 MB
                     logging.ResponseBodyLogLimit = 1024 * 1024; // 1 MB
-                    // Combine into a single log message per request where supported (net8+)
                     logging.CombineLogs = true;
 
                     // Whitelist safe request headers
@@ -124,7 +122,6 @@ namespace OXDesk.Infrastructure.Logging.Serilog
         {
             if (CompactConsoleLogging)
             {
-                // Output template cannot be customized with compact JSON formatter
                 configuration.WriteTo.Console(new CompactJsonFormatter());
             }
             else
@@ -157,7 +154,6 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                      .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreAuthentication ?? CommonConstant.ERROR_LEVEL_WARNING))
                      .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Infrastructure", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreMvcInfrastructure ?? CommonConstant.ERROR_LEVEL_WARNING))
                      .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? CommonConstant.ERROR_LEVEL_WARNING))
-                     // Ensure HttpLogging middleware (which logs bodies) is not suppressed
                      .MinimumLevel.Override("Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware", GetLoggingLevel(CommonConstant.ERROR_LEVEL_INFORMATION));
         }
 

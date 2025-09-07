@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using OXDesk.Application.Cache;
 using OXDesk.Core.Cache;
+using OXDesk.Core.Tenants;
 using Shouldly;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,14 +13,22 @@ namespace OXDesk.Tests.Unit.Application.Cache
     {
         private readonly Mock<ICacheRepository> _mockCacheRepository;
         private readonly Mock<ILogger<CacheService>> _mockLogger;
+        private readonly Mock<ICurrentTenant> _mockCurrentTenant;
         private readonly CacheService _cacheService;
+        private readonly string _tenantPrefix;
 
         public CacheServiceTests()
         {
             _mockCacheRepository = new Mock<ICacheRepository>();
             _mockLogger = new Mock<ILogger<CacheService>>();
+            _mockCurrentTenant = new Mock<ICurrentTenant>();
 
-            _cacheService = new CacheService(_mockCacheRepository.Object, _mockLogger.Object);
+            // Use a deterministic tenant id for assertions: all 'a's
+            var tenantId = System.Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+            _mockCurrentTenant.SetupGet(t => t.Id).Returns(tenantId);
+            _tenantPrefix = $"t:{tenantId:N}:"; // e.g., t:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:
+
+            _cacheService = new CacheService(_mockCacheRepository.Object, _mockLogger.Object, _mockCurrentTenant.Object);
         }
 
         [Fact]
@@ -27,7 +36,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "Test Key";
-            var sanitizedKey = "testkey";
+            var sanitizedKey = _tenantPrefix + "testkey";
             var expectedValue = "Test Value";
 
             _mockCacheRepository
@@ -52,7 +61,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "NonExistent Key";
-            var sanitizedKey = "nonexistentkey";
+            var sanitizedKey = _tenantPrefix + "nonexistentkey";
 
             _mockCacheRepository
                 .Setup(repo => repo.GetAsync<string>(sanitizedKey))
@@ -75,7 +84,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "Test Key";
-            var sanitizedKey = "testkey";
+            var sanitizedKey = _tenantPrefix + "testkey";
             var value = "Test Value";
             var absoluteExpiration = TimeSpan.FromMinutes(60);
             var slidingExpiration = TimeSpan.FromMinutes(15);
@@ -99,7 +108,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "Test Key";
-            var sanitizedKey = "testkey";
+            var sanitizedKey = _tenantPrefix + "testkey";
             var value = "Test Value";
 
             _mockCacheRepository
@@ -129,7 +138,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "Test Key";
-            var sanitizedKey = "testkey";
+            var sanitizedKey = _tenantPrefix + "testkey";
 
             _mockCacheRepository
                 .Setup(repo => repo.RemoveAsync(sanitizedKey))
@@ -164,7 +173,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "  Test Key  ";
-            var sanitizedKey = "testkey";
+            var sanitizedKey = _tenantPrefix + "testkey";
             var expectedValue = "Test Value";
 
             _mockCacheRepository
@@ -188,7 +197,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "Test@Key#123!";
-            var sanitizedKey = "testkey123";
+            var sanitizedKey = _tenantPrefix + "testkey123";
             var expectedValue = "Test Value";
 
             _mockCacheRepository
@@ -212,7 +221,7 @@ namespace OXDesk.Tests.Unit.Application.Cache
         {
             // Arrange
             var key = "test:key_value";
-            var sanitizedKey = "test:key_value";
+            var sanitizedKey = _tenantPrefix + "test:key_value";
             var expectedValue = "Test Value";
 
             _mockCacheRepository

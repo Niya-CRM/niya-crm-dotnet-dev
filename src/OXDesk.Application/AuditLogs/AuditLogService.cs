@@ -49,7 +49,6 @@ namespace OXDesk.Application.AuditLogs
             var logs = await _repository.GetAuditLogsAsync(
                 query,
                 cancellationToken);
-            // Repository populates CreatedByText via join with users
             return logs;
         }
     }
