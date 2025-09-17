@@ -30,7 +30,7 @@ namespace OXDesk.Api.Controllers.Auth
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JwtHelper _jwtHelper;
         private readonly ILogger<ApiAuthController> _logger;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUserRefreshTokenRepository _refreshTokenRepository;
         private readonly IAuditLogService _auditLogService;
 
         public ApiAuthController(
@@ -39,7 +39,7 @@ namespace OXDesk.Api.Controllers.Auth
             JwtHelper jwtHelper,
             IAuditLogService auditLogService,
             ILogger<ApiAuthController> logger,
-            IRefreshTokenRepository refreshTokenRepository)
+            IUserRefreshTokenRepository refreshTokenRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;

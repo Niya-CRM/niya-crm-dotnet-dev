@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250903211652_InitialMigration")]
+    [Migration("20250917193214_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1010,7 +1010,7 @@ namespace OXDesk.Infrastructure.Migrations
                     b.ToTable("permissions", (string)null);
                 });
 
-            modelBuilder.Entity("OXDesk.Core.Identity.RefreshToken", b =>
+            modelBuilder.Entity("OXDesk.Core.Identity.UserRefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1049,17 +1049,25 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<int>("UsedCounter")
+                        .HasColumnType("integer")
+                        .HasColumnName("used_counter");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_refresh_tokens");
+                        .HasName("pk_user_refresh_tokens");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_refresh_tokens_user_id");
+                        .HasDatabaseName("ix_user_refresh_tokens_user_id");
 
-                    b.ToTable("refresh_tokens");
+                    b.ToTable("user_refresh_tokens");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tenants.Tenant", b =>
@@ -2068,7 +2076,7 @@ namespace OXDesk.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OXDesk.Core.Identity.RefreshToken", b =>
+            modelBuilder.Entity("OXDesk.Core.Identity.UserRefreshToken", b =>
                 {
                     b.HasOne("OXDesk.Core.Identity.ApplicationUser", "User")
                         .WithMany()

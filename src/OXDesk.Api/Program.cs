@@ -221,7 +221,7 @@ builder.Services.AddScoped<IDynamicObjectFieldService, DynamicObjectFieldService
 builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
 
 // Refresh Token Repository
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IUserRefreshTokenRepository, UserRefreshTokenRepository>();
 
 // ValueList Services
 builder.Services.AddScoped<IValueListRepository, ValueListRepository>();

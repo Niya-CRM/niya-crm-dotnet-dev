@@ -72,7 +72,7 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<DynamicObjectField> DynamicObjectFields { get; set; } = null!;
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
-        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<UserRefreshToken> UserRefreshTokens { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
         public DbSet<TicketStatus> TicketStatuses { get; set; } = null!;
         public DbSet<Channel> Channels { get; set; } = null!;
@@ -146,7 +146,7 @@ namespace OXDesk.Infrastructure.Data
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<ChangeHistoryLog>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<RefreshToken>()
+            builder.Entity<UserRefreshToken>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<DynamicObject>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);

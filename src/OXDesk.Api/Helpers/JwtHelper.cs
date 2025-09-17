@@ -20,7 +20,7 @@ namespace OXDesk.Api.Helpers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUserRefreshTokenRepository _refreshTokenRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         
         // Static field to store the generated random key for development
@@ -30,7 +30,7 @@ namespace OXDesk.Api.Helpers
         public JwtHelper(
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IRefreshTokenRepository refreshTokenRepository,
+            IUserRefreshTokenRepository refreshTokenRepository,
             IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
@@ -227,7 +227,7 @@ namespace OXDesk.Api.Helpers
             var refreshTokenRaw = GenerateSecureRefreshToken(64);
             var refreshTokenHash = ComputeSha256Base64(refreshTokenRaw);
 
-            var refreshEntity = new RefreshToken
+            var refreshEntity = new UserRefreshToken
             {
                 Id = Guid.CreateVersion7(),
                 UserId = user.Id,
@@ -260,8 +260,10 @@ namespace OXDesk.Api.Helpers
         }
 
         /// <summary>
-        /// Validates a refresh token, rotates it (single use), and issues a new access and refresh token pair.
-        /// Returns null if the token is invalid or the user is not eligible.
+        /// Validates a refresh token and issues a new access and refresh token pair.
+        /// Marks the token's first use timestamp (UsedAt) and permits reuse within 10 minutes
+        /// without re-updating UsedAt. Does not delete used tokens.
+        /// Returns null if invalid, expired, or beyond the 10-minute reuse window.
         /// </summary>
         public async Task<TokenResponse?> RefreshAsync(string refreshToken)
         {
@@ -284,6 +286,25 @@ namespace OXDesk.Api.Helpers
                 return null;
             }
 
+            // Enforce single-use with 10-minute grace window (do not re-update UsedAt)
+            if (existing.UsedAt == null)
+            {
+                existing.UsedAt = DateTime.UtcNow;
+                existing.UsedCounter += 1;
+                await _refreshTokenRepository.UpdateAsync(existing);
+            }
+            else
+            {
+                var sinceFirstUse = DateTime.UtcNow - existing.UsedAt.Value;
+                if (sinceFirstUse > TimeSpan.FromMinutes(10))
+                {
+                    return null;
+                }
+                // Within grace window: increment counter but do not update UsedAt
+                existing.UsedCounter += 1;
+                await _refreshTokenRepository.UpdateAsync(existing);
+            }
+
             // Load user and ensure active
             var user = await _userManager.FindByIdAsync(existing.UserId.ToString());
             if (user == null || user.IsActive != "Y")
@@ -292,9 +313,6 @@ namespace OXDesk.Api.Helpers
                 await _refreshTokenRepository.DeleteByHashedTokenAsync(hashed);
                 return null;
             }
-
-            // Rotate: delete the used refresh token
-            await _refreshTokenRepository.DeleteByHashedTokenAsync(hashed);
 
             // Build a new token response which also issues a fresh refresh token
             return await BuildTokenResponse(user);

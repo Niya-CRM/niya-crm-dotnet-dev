@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 namespace OXDesk.Core.Identity
 {
     /// <summary>
-    /// Refresh token entity used to issue new access tokens.
+    /// User refresh token entity used to issue new access tokens.
     /// Stores only a hashed representation of the refresh token for security.
     /// </summary>
-    public class RefreshToken
+    public class UserRefreshToken
     {
         /// <summary>
         /// Primary key.
@@ -57,6 +57,16 @@ namespace OXDesk.Core.Identity
         /// Expiration timestamp (UTC). After this time the refresh token is invalid.
         /// </summary>
         public DateTime ExpiresAt { get; set; }
+
+        /// <summary>
+        /// The timestamp (UTC) when this refresh token was first used. Null if never used.
+        /// </summary>
+        public DateTime? UsedAt { get; set; }
+
+        /// <summary>
+        /// Number of times this refresh token has been used to generate new tokens.
+        /// </summary>
+        public int UsedCounter { get; set; } = 0;
 
         /// <summary>
         /// Navigation to ApplicationUser.
