@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.Compliance.Redaction;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,9 +9,11 @@ using OXDesk.Core.Common;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
+using Serilog.Enrichers.Sensitive;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
+using Serilog.Redaction;
 using System;
 
 namespace OXDesk.Infrastructure.Logging.Serilog
@@ -49,6 +52,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.ResponseHeaders.Add("Pragma");
                     logging.ResponseHeaders.Add("Cache-Control");
                     logging.ResponseHeaders.Add("max-age");
+                    logging.ResponseHeaders.Add("X-RequestBody-Log");
 
                     // Explicitly ensure sensitive headers are not logged
                     logging.RequestHeaders.Remove("Authorization");
@@ -70,6 +74,32 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 SetMinimumLogLevel(configuration, minLogLevel);
 
                 OverideMinimumLogLevel(configuration, loggerSettings);
+
+                configuration.Destructure.WithRedaction(sp.GetRequiredService<IRedactorProvider>());
+
+                // Filter out any event logging request bodies for auth paths as defense-in-depth
+                /* configuration.Filter.ByExcluding(logEvent =>
+                {
+                    // Match message-based logs that include the token 'RequestBody'
+                    var template = logEvent.MessageTemplate?.Text ?? string.Empty;
+                    if (!template.Contains("password", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
+                    // Try to read RequestPath property (added by UseSerilogRequestLogging)
+                    if (logEvent.Properties.TryGetValue("RequestPath", out var requestPathProp))
+                    {
+                        var scalar = requestPathProp as global::Serilog.Events.ScalarValue;
+                        var requestPath = scalar?.Value as string ?? string.Empty;
+                        if (requestPath.StartsWith("/api/auth", StringComparison.OrdinalIgnoreCase) ||
+                            requestPath.StartsWith("/auth", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return true; // exclude
+                        }
+                    }
+                    return false;
+                }); */
 
                 ConfigureEnrichers(configuration, applicationName, environment);
 
@@ -115,7 +145,50 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 .Enrich.WithCorrelationId(headerName: "X-Correlation-Id", addValueIfHeaderAbsence: true)
                 .Enrich.WithMachineName()
                 .Enrich.WithProperty("Application", applicationName)
-                .Enrich.WithProperty("Environment", environment);
+                .Enrich.WithProperty("Environment", environment)
+                .Enrich.WithSensitiveDataMasking(
+                    options =>
+                    {
+                        options.MaskingOperators = new List<IMaskingOperator>
+                        {
+                            new EmailAddressMaskingOperator(),
+                            new CreditCardMaskingOperator(),
+                            new PasswordValueMaskingOperator(),
+                            new TokenMaskingOperator(),
+                            new RefreshTokenMaskingOperator()
+                        };
+                        options.MaskProperties.Add(
+                            new MaskProperty 
+                            {
+                                Name = "*email",
+                                Options = new MaskOptions 
+                                {
+                                    WildcardMatch = true
+                                }
+                            }
+                       );
+                        options.MaskProperties.Add(
+                            new MaskProperty 
+                            {
+                                Name = "*password",
+                                Options = new MaskOptions 
+                                {
+                                    WildcardMatch = true
+                                }
+                            }
+                        );
+                        options.MaskProperties.Add(
+                            new MaskProperty 
+                            {
+                                Name = "*token",
+                                Options = new MaskOptions 
+                                {
+                                    WildcardMatch = true
+                                }
+                            }
+                        );
+                    }
+                );
         }
 
         private static void ConfigureConsoleLogging(LoggerConfiguration configuration, bool CompactConsoleLogging, string outputTemplate)
@@ -154,7 +227,9 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                      .MinimumLevel.Override("Microsoft.AspNetCore.Authentication", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreAuthentication ?? CommonConstant.ERROR_LEVEL_WARNING))
                      .MinimumLevel.Override("Microsoft.AspNetCore.Mvc.Infrastructure", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftAspNetCoreMvcInfrastructure ?? CommonConstant.ERROR_LEVEL_WARNING))
                      .MinimumLevel.Override("Microsoft.EntityFrameworkCore", GetLoggingLevel(loggerSettings.LogLevel.MicrosoftEntityFrameworkCore ?? CommonConstant.ERROR_LEVEL_WARNING))
-                     .MinimumLevel.Override("Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware", GetLoggingLevel(CommonConstant.ERROR_LEVEL_INFORMATION));
+                     .MinimumLevel.Override("Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware", GetLoggingLevel(CommonConstant.ERROR_LEVEL_INFORMATION))
+                     // Suppress request body logging coming from our middleware below Warning level
+                     .MinimumLevel.Override("OXDesk.Api.Middleware.RequestBodyRedactionMiddleware", GetLoggingLevel(CommonConstant.ERROR_LEVEL_WARNING));
         }
 
         private static LoggingLevelSwitch GetLoggingLevel(string logLevel)
@@ -168,6 +243,71 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 "fatal" => new LoggingLevelSwitch(LogEventLevel.Fatal),
                 _ => new LoggingLevelSwitch(LogEventLevel.Information)
             };
+        }
+    }
+
+
+    public class PasswordValueMaskingOperator : RegexMaskingOperator
+    {
+        // Match the value between quotes for a JSON password property
+        // Examples matched: "password":"value", "Password" :  "value"
+        private const string Pattern = "(?i)(?<=\\\"password\\\"\\s*:\\s*\\\")[^\\\"]+(?=\\\")";
+
+        public PasswordValueMaskingOperator() : base(Pattern)
+        {
+        }
+
+        protected override string PreprocessInput(string input)
+        {
+            return input;
+        }
+
+        protected override bool ShouldMaskInput(string input)
+        {
+            return input.Contains("password", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public class RefreshTokenMaskingOperator : RegexMaskingOperator
+    {
+        // Combined alternation to support both camelCase and snake_case keys
+        private const string Pattern = "(?i)(?<=\\\"refreshToken\\\"\\s*:\\s*\\\")[^\\\"]+(?=\\\")|(?<=\\\"refresh_token\\\"\\s*:\\s*\\\")[^\\\"]+(?=\\\")";
+
+        public RefreshTokenMaskingOperator() : base(Pattern)
+        {
+        }
+
+        protected override string PreprocessInput(string input)
+        {
+            return input;
+        }
+
+        protected override bool ShouldMaskInput(string input)
+        {
+            return input.Contains("refreshToken", StringComparison.OrdinalIgnoreCase) ||
+                   input.Contains("refresh_token", StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    /// <summary>
+    /// Masks only the value part of JSON property named "token" in free-form text log messages.
+    /// </summary>
+    public class TokenMaskingOperator : RegexMaskingOperator
+    {
+        private const string Pattern = "(?i)(?<=\\\"token\\\"\\s*:\\s*\\\")[^\\\"]+(?=\\\")";
+
+        public TokenMaskingOperator() : base(Pattern)
+        {
+        }
+
+        protected override string PreprocessInput(string input)
+        {
+            return input;
+        }
+
+        protected override bool ShouldMaskInput(string input)
+        {
+            return input.Contains("token", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

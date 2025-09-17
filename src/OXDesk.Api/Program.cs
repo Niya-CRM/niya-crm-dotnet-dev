@@ -12,16 +12,17 @@ using Microsoft.OpenApi.Models;
 
 using OXDesk.Api.Configurations;
 using OXDesk.Api.Conventions;
+using OXDesk.Api.Extension;
 using OXDesk.Api.Factories.AuditLogs;
 using OXDesk.Api.Factories.DynamicObjects;
 using OXDesk.Api.Factories.Identity;
 using OXDesk.Api.Factories.Tenants;
 using OXDesk.Api.Helpers;
 using OXDesk.Api.Middleware;
-using OXDesk.Api.Validators.Tenants;
 using OXDesk.AppInstallation;
 using OXDesk.Application.AuditLogs;
 using OXDesk.Application.AuditLogs.ChangeHistory;
+using OXDesk.Application.Cache;
 using OXDesk.Application.Common;
 using OXDesk.Application.DynamicObjects;
 using OXDesk.Application.DynamicObjects.Fields;
@@ -34,6 +35,7 @@ using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.Auth.Constants;
+using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.Fields;
@@ -42,6 +44,7 @@ using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.ValueLists;
+using OXDesk.Infrastructure.Cache;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Infrastructure.Data.AuditLogs;
 using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
@@ -51,6 +54,7 @@ using OXDesk.Infrastructure.Data.Identity;
 using OXDesk.Infrastructure.Data.Tenants;
 using OXDesk.Infrastructure.Data.ValueLists;
 using OXDesk.Infrastructure.Logging.Serilog;
+using OXDesk.Infrastructure.Redaction;
 
 using Serilog;
 
@@ -65,7 +69,7 @@ builder.AddConfigurations();
 Log.Error("Server Booting Up...");
 
 // HTTP Logging Config (hardened to avoid sensitive data leakage)
-builder.Services.AddHttpLogging(logging =>
+/* builder.Services.AddHttpLogging(logging =>
 {
     // Log request/response properties and headers only. Do NOT log bodies or query strings.
     logging.LoggingFields =
@@ -95,7 +99,7 @@ builder.Services.AddHttpLogging(logging =>
     logging.RequestHeaders.Remove("Authorization");
     logging.RequestHeaders.Remove("Cookie");
     logging.ResponseHeaders.Remove("Set-Cookie");
-});
+}); */
 
 builder.Services.AddControllersWithViews(options =>
 {
@@ -104,11 +108,11 @@ builder.Services.AddControllersWithViews(options =>
     options.Conventions.Add(new ApiControllerRouteConvention());
 });
 
-// Register validator for ActivateDeactivateTenantRequest
-builder.Services.AddScoped<IValidator<ActivateDeactivateTenantRequest>, ActivateDeactivateTenantRequestValidator>();
-// Register validator for ActivateDeactivateUserRequest
-builder.Services.AddScoped<IValidator<ActivateDeactivateUserRequest>, ActivateDeactivateUserRequestValidator>();
+// Register data redaction for sensitive & personal data
+builder.Services.AddOxDeskRedaction();
 
+// Register all FluentValidation validators via extension method
+builder.Services.AddOxDeskValidators();
 
 // For http request context accessing
 builder.Services.AddHttpContextAccessor();
@@ -158,14 +162,19 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
-builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionRepository, OXDesk.Infrastructure.Data.Identity.PermissionRepository>();
-builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionService, OXDesk.Application.Identity.PermissionService>();
-// Register Role Service
-builder.Services.AddScoped<OXDesk.Core.Identity.IRoleClaimRepository, OXDesk.Infrastructure.Data.Identity.RoleClaimRepository>();
-builder.Services.AddScoped<OXDesk.Core.Identity.IRoleService, OXDesk.Application.Identity.RoleService>();
-builder.Services.AddScoped<OXDesk.Core.Identity.IRoleFactory, RolesFactory>();
-builder.Services.AddScoped<OXDesk.Core.Identity.IUserFactory, UserFactory>();
-builder.Services.AddScoped<OXDesk.Core.Identity.IPermissionFactory, PermissionsFactory>();
+// Roles and Permissions
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IPermissionFactory, PermissionsFactory>();
+builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IRoleFactory, RolesFactory>();
+
+// Register User Services
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserFactory, UserFactory>();
+
 
 // Add Authorization policies with global fallback policy using AuthorizationBuilder
 var authBuilder = builder.Services.AddAuthorizationBuilder();
@@ -191,45 +200,35 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped<IAuditLogFactory, AuditLogFactory>();
 
-// Register ChangeHistoryLog Services
+// Cache Services
+builder.Services.AddScoped<ICacheRepository, CacheRepository>();
+builder.Services.AddScoped<ICacheService, CacheService>();
+builder.Services.AddMemoryCache();
+
+// ChangeHistoryLog Services
 builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
 builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
 builder.Services.AddScoped<IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
 
-// Register DynamicObject Services
+// DynamicObject Services
 builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
 builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
 builder.Services.AddScoped<IDynamicObjectFactory, DynamicObjectFactory>();
 
-// Register DynamicObject Field Type Services
+// DynamicObject Field Type Services
 builder.Services.AddScoped<IDynamicObjectFieldRepository, DynamicObjectFieldRepository>();
 builder.Services.AddScoped<IDynamicObjectFieldService, DynamicObjectFieldService>();
 builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
 
-// Register User Services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-
-// Register Refresh Token Repository
+// Refresh Token Repository
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
-// Register ValueList Services
+// ValueList Services
 builder.Services.AddScoped<IValueListRepository, ValueListRepository>();
 builder.Services.AddScoped<IValueListService, ValueListService>();
 builder.Services.AddScoped<IValueListItemRepository, ValueListItemRepository>();
 builder.Services.AddScoped<IValueListItemService, ValueListItemService>();
 
-// Register Cache Services
-builder.Services.AddMemoryCache();
-
-// Register FluentValidation
-builder.Services.AddScoped<IValidator<CreateTenantRequest>, CreateTenantRequestValidator>();
-builder.Services.AddScoped<IValidator<CreatePermissionRequest>, CreatePermissionRequestValidator>();
-builder.Services.AddScoped<IValidator<UpdatePermissionRequest>, UpdatePermissionRequestValidator>();
-builder.Services.AddScoped<IValidator<CreateRoleRequest>, CreateRoleRequestValidator>();
-builder.Services.AddScoped<IValidator<UpdateRoleRequest>, UpdateRoleRequestValidator>();
-builder.Services.AddScoped<OXDesk.Core.Cache.ICacheRepository, OXDesk.Infrastructure.Cache.CacheRepository>();
-builder.Services.AddScoped<OXDesk.Core.Cache.ICacheService, OXDesk.Application.Cache.CacheService>();
 
 // Register Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -274,11 +273,8 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 // Add Domain to log context for all requests
 app.UseMiddleware<DomainMiddleware>();
 
-// Log requests/responses only for non-sensitive paths (exclude /auth/token)
-app.UseWhen(ctx => !ctx.Request.Path.StartsWithSegments("/api/auth/"), branch =>
-{
-    branch.UseHttpLogging();
-});
+// Log requests/responses 
+app.UseHttpLogging();
 
 // Add JWT cookie authentication middleware
 app.UseJwtCookieAuthentication();

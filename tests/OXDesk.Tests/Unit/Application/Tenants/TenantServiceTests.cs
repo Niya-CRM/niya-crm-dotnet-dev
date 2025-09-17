@@ -26,6 +26,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         private readonly Mock<ILogger<TenantService>> _mockLogger;
         private readonly Mock<ICacheService> _mockCacheService;
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+        private readonly Mock<ICurrentTenant> _mockCurrentTenant;
         private readonly Mock<ITenantRepository> _mockTenantRepository;
         private readonly Mock<IAuditLogRepository> _mockAuditLogRepository;
         private readonly TenantService _tenantService;
@@ -36,6 +37,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             _mockLogger = new Mock<ILogger<TenantService>>();
             _mockCacheService = new Mock<ICacheService>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            _mockCurrentTenant = new Mock<ICurrentTenant>();
             _mockTenantRepository = new Mock<ITenantRepository>();
             _mockAuditLogRepository = new Mock<IAuditLogRepository>();
 
@@ -68,6 +70,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,
                 _mockHttpContextAccessor.Object,
+                _mockCurrentTenant.Object,
                 _mockCacheService.Object);
         }
 
