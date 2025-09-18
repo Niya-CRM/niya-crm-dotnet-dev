@@ -34,13 +34,13 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Optional device information (e.g., browser/OS) the token was issued to.
         /// </summary>
-        [MaxLength(100)]
+        [MaxLength(255)]
         public string? Device { get; set; }
 
         /// <summary>
         /// IP address from which the token was created.
         /// </summary>
-        [MaxLength(45)] // supports IPv6
+        [MaxLength(60)] // supports IPv6
         public string? IpAddress { get; set; }
 
         /// <summary>

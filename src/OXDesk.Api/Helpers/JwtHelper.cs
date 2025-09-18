@@ -121,8 +121,7 @@ namespace OXDesk.Api.Helpers
 
         private static string ComputeSha256Base64(string input)
         {
-            using var sha = SHA256.Create();
-            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
             return Convert.ToBase64String(hash);
         }
 
@@ -135,20 +134,20 @@ namespace OXDesk.Api.Helpers
             if (!string.IsNullOrWhiteSpace(fwd))
             {
                 var ip = fwd.Split(',')[0].Trim();
-                return ip.Length > 45 ? ip.Substring(0, 45) : ip;
+                return ip.Length > 45 ? ip[..45] : ip;
             }
 
             var remote = ctx.Connection.RemoteIpAddress?.ToString();
             if (string.IsNullOrWhiteSpace(remote)) return null;
-            return remote.Length > 45 ? remote.Substring(0, 45) : remote;
+            return remote.Length > 45 ? remote[..45] : remote;
         }
 
         private string? GetClientDevice()
         {
             var ctx = _httpContextAccessor.HttpContext;
-            var ua = ctx?.Request?.Headers["User-Agent"].ToString();
+            var ua = ctx?.Request?.Headers.UserAgent.ToString();
             if (string.IsNullOrWhiteSpace(ua)) return null;
-            return ua.Length > 100 ? ua.Substring(0, 100) : ua;
+            return ua.Length > 200 ? ua[..200] : ua;
         }
 
         /// <summary>
