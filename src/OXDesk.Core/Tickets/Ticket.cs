@@ -26,31 +26,34 @@ public class Ticket
     [Required]
     public int TicketNumber { get; set; }
 
+    // Channel
     [Required]
+    public int ChannelId { get; set; }
+
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
-    public string ChannelKey { get; set; } = string.Empty;
+    public string? ChannelName { get; set; }
 
+    // Language
     [StringLength(10)]
     [Column(TypeName = "varchar(10)")]
     public string? Language { get; set; }
 
     // Brand and Product
-    [StringLength(50)]
-    [Column(TypeName = "varchar(50)")]
-    public string? BrandKey { get; set; }
+    [Required]
+    public int BrandId { get; set; }
 
-    [StringLength(50)]
-    [Column(TypeName = "varchar(50)")]
-    public string? BrandText {get; set;}
+    [StringLength(30)]
+    [Column(TypeName = "varchar(30)")]
+    public string? BrandName { get; set; }
+
+    // Product
+    [Required]
+    public int ProductId { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
-    public string? ProductKey { get; set; }
-
-    [StringLength(100)]
-    [Column(TypeName = "varchar(100)")]
-    public string? ProductText { get; set; }
+    public string? ProductName { get; set; }
 
     // Core details
     [Required]
@@ -63,23 +66,22 @@ public class Ticket
 
     // Priority
     [Required]
-    [StringLength(10)]
-    [Column(TypeName = "varchar(10)")]
-    public string PriorityKey { get; set; } = string.Empty;
+    public int PriorityId { get; set; }
+
+    [StringLength(30)]
+    [Column(TypeName = "varchar(30)")]
+    public string? PriorityName { get; set; }
 
     [Required]
     public int PriorityScore { get; set; } = 1;
 
     // Status
     [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string StatusKey { get; set; } = string.Empty;
+    public int StatusId { get; set; }
 
-    [Required]
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
-    public string StatusText { get; set; } = string.Empty;
+    public string? StatusName { get; set; }
 
     // Status Type
     [Required]
@@ -87,13 +89,12 @@ public class Ticket
     [Column(TypeName = "varchar(30)")]
     public string StatusType { get; set; } = string.Empty;
 
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string? WorkFlowStatusKey { get; set; }
+    [Required]
+    public int WorkFlowStatusId { get; set; }
 
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]
-    public string? WorkFlowStatusText { get; set; }
+    public string? WorkFlowStatusName { get; set; }
 
     // Flags
     [Required]

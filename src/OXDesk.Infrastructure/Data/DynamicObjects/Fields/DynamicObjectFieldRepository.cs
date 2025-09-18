@@ -64,12 +64,10 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
         if (obj is null)
             throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found.");
 
-        var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Getting DynamicObjectFields for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
-            objectId, objectKey);
+        _logger.LogDebug("Getting DynamicObjectFields for ObjectId: {ObjectId}", objectId);
 
         return await _dbSetFields.AsNoTracking()
-            .Where(f => f.ObjectKey == objectKey && f.DeletedAt == null)
+            .Where(f => f.ObjectId == objectId && f.DeletedAt == null)
             .OrderBy(f => f.Label)
             .ToListAsync(cancellationToken);
     }
@@ -85,11 +83,9 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
         if (obj is null)
             return null;
 
-        var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Getting DynamicObjectField by ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
-            id, objectId, objectKey);
+        _logger.LogDebug("Getting DynamicObjectField by ID: {Id} for ObjectId: {ObjectId}", id, objectId);
         return await _dbSetFields.AsNoTracking().FirstOrDefaultAsync(
-            f => f.Id == id && f.ObjectKey == objectKey && f.DeletedAt == null,
+            f => f.Id == id && f.ObjectId == objectId && f.DeletedAt == null,
             cancellationToken);
     }
 
@@ -104,8 +100,8 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
         if (obj is null)
             throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found.");
 
-        field.ObjectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId} (ObjectKey: {ObjectKey}), FieldKey: {FieldKey}", objectId, field.ObjectKey, field.FieldKey);
+        field.ObjectId = objectId;
+        _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId}", objectId);
         var entry = await _dbSetFields.AddAsync(field, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Added DynamicObjectField with ID: {Id}", entry.Entity.Id);
@@ -124,9 +120,9 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
         if (obj is null)
             throw new InvalidOperationException($"Dynamic object with ID '{objectId}' not found.");
 
-        field.ObjectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
-            field.Id, objectId, field.ObjectKey);
+        field.ObjectId = objectId;
+        _logger.LogDebug("Updating DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", 
+            field.Id, objectId);
         var entry = _dbSetFields.Update(field);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated DynamicObjectField ID: {Id}", field.Id);
@@ -144,11 +140,10 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
         if (obj is null)
             return false;
 
-        var objectKey = obj.ObjectKey.Trim();
-        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId} (ObjectKey: {ObjectKey})", 
-            fieldId, objectId, objectKey);
+        _logger.LogDebug("Deleting DynamicObjectField ID: {Id} for ObjectId: {ObjectId}", 
+            fieldId, objectId);
 
-        var entity = await _dbSetFields.FirstOrDefaultAsync(f => f.Id == fieldId && f.ObjectKey == objectKey, cancellationToken);
+        var entity = await _dbSetFields.FirstOrDefaultAsync(f => f.Id == fieldId && f.ObjectId == objectId, cancellationToken);
         if (entity is null)
         {
             _logger.LogWarning("DynamicObjectField not found. ID: {Id}, ObjectId: {ObjectId}", 

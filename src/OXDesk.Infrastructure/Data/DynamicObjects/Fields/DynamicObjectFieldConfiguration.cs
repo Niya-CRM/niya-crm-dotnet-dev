@@ -18,12 +18,8 @@ public class DynamicObjectFieldConfiguration : IEntityTypeConfiguration<DynamicO
         builder.HasIndex(x => x.TenantId)
             .HasDatabaseName("ix_dynamic_object_fields_tenant_id");
             
-        // Index on object_key with tenant_id
-        builder.HasIndex(x => new { x.TenantId, x.ObjectKey })
-            .HasDatabaseName("ix_dynamic_object_fields_tenant_id_object_key");
-            
-        // Keep original index for backward compatibility
-        builder.HasIndex(x => x.ObjectKey)
-            .HasDatabaseName("ix_dynamic_object_fields_object_key");
+        // Index on object_id with tenant_id
+        builder.HasIndex(x => new { x.TenantId, x.ObjectId })
+            .HasDatabaseName("ix_dynamic_object_fields_tenant_id_object_id");
     }
 }

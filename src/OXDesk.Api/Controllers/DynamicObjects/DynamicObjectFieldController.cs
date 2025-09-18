@@ -145,7 +145,7 @@ public class DynamicObjectFieldController : ControllerBase
             request.CreatedBy = actor;
             request.UpdatedBy = actor;
 
-            _logger.LogInformation("Creating field '{FieldKey}' for object ID '{ObjectId}'", request.FieldKey, objectId);
+            _logger.LogInformation("Creating field for object ID '{ObjectId}'", objectId);
             var created = await _fieldService.AddFieldAsync(objectId, request, cancellationToken);
             var response = await _fieldFactory.BuildDetailsAsync(created, cancellationToken);
             return CreatedAtAction(nameof(GetFieldById), new { objectId = objectId, fieldId = created.Id }, response);
@@ -198,7 +198,7 @@ public class DynamicObjectFieldController : ControllerBase
         {
             // Enforce identity from route and preserve immutable fields as needed
             request.Id = fieldId;
-            request.ObjectKey = existing.ObjectKey;
+            request.ObjectId = existing.ObjectId;
             request.CreatedBy = existing.CreatedBy; // preserve creator
             request.CreatedAt = existing.CreatedAt; // preserve created timestamp if used
             request.UpdatedBy = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;

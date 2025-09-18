@@ -23,11 +23,6 @@ public class Brand
     [Column(TypeName = "varchar(30)")]
     public string BrandName { get; set; } = string.Empty;
 
-    [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string BrandKey { get; set; } = string.Empty;
-
     [StringLength(1000)]
     [Column(TypeName = "varchar(1000)")]
     public string? Logo { get; set; }

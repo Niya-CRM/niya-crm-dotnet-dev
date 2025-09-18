@@ -24,11 +24,6 @@ public class Channel
     public string ChannelName { get; set; } = string.Empty;
 
     [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string ChannelKey { get; set; } = string.Empty;
-
-    [Required]
     public Guid CreatedBy { get; set; }
 
     [Required]

@@ -78,6 +78,9 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<Channel> Channels { get; set; } = null!;
         public DbSet<Brand> Brands { get; set; } = null!;
         public DbSet<Priority> Priorities { get; set; } = null!;
+        public DbSet<Workflow> Workflows { get; set; } = null!;
+        public DbSet<WorkFlowStatus> WorkFlowStatuses { get; set; } = null!;
+        public DbSet<WorkflowMapping> WorkflowMappings { get; set; } = null!;
 
         /// <summary>
         /// Configures the model and customizes Identity table names.
@@ -163,6 +166,12 @@ namespace OXDesk.Infrastructure.Data
             builder.Entity<Brand>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<Priority>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            builder.Entity<Workflow>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            builder.Entity<WorkFlowStatus>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            builder.Entity<WorkflowMapping>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 

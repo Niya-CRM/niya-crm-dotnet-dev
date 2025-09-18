@@ -25,20 +25,16 @@ public class DynamicObjectField
     public Guid TenantId { get; set; }
 
     /// <summary>
-    /// Object key referring to the owning DynamicObject (by key, not FK to Id).
+    /// Object identifier referring to the owning DynamicObject (FK to Id).
     /// </summary>
     [Required]
-    [StringLength(60)]
-    [Column(TypeName = "varchar(60)")]
-    public string ObjectKey { get; set; } = string.Empty;
+    public int ObjectId { get; set; }    
 
     /// <summary>
-    /// Unique key of the field within the object.
+    /// Field type identifier referencing DynamicObjectFieldType.
     /// </summary>
     [Required]
-    [StringLength(60)]
-    [Column(TypeName = "varchar(60)")]
-    public string FieldKey { get; set; } = string.Empty;
+    public int FieldTypeId { get; set; }
 
     /// <summary>
     /// Display label for the field.
@@ -47,14 +43,6 @@ public class DynamicObjectField
     [StringLength(60)]
     [Column(TypeName = "varchar(60)")]
     public string Label { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Field data type (string representation).
-    /// </summary>
-    [Required]
-    [StringLength(60)]
-    [Column(TypeName = "varchar(60)")]
-    public string FieldType { get; set; } = string.Empty;
 
     /// <summary>
     /// To be indexed or not.
@@ -150,9 +138,9 @@ public class DynamicObjectField
     public int? MaxSelectedItems { get; set; }
 
     /// <summary>
-    /// Whether the field is editable after initial submission.
+    /// Whether the field is editable by the user.
     /// </summary>
-    public bool EditableAfterSubmission { get; set; }
+    public bool Editable { get; set; }
 
     /// <summary>
     /// Visibility flags for UI contexts.

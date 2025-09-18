@@ -4,9 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OXDesk.Core.Tickets;
 
-[Table("priorities")]
-public class Priority
+/// <summary>
+/// Represents a workflow step or definition used for ticket status transitions.
+/// </summary>
+[Table("workflows")]
+public class Workflow
 {
+    /// <summary>
+    /// Primary key.
+    /// </summary>
     [Key]
     [Required]
     public int Id { get; set; }
@@ -18,13 +24,17 @@ public class Priority
     [Required]
     public Guid TenantId { get; set; }
 
+    /// <summary>
+    /// Workflow name.
+    /// </summary>
     [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string PriorityName { get; set; } = string.Empty;
+    [StringLength(60)]
+    [Column(TypeName = "varchar(60)")]
+    public string WorkFlowName { get; set; } = string.Empty;
 
-    public int? IncrementScore { get; set; }
-
+    /// <summary>
+    /// Audit fields.
+    /// </summary>
     [Required]
     public Guid CreatedBy { get; set; }
 
@@ -34,8 +44,8 @@ public class Priority
     [Required]
     public DateTime CreatedAt { get; set; }
 
+    public DateTime? DeletedAt { get; set; }
+
     [Required]
     public DateTime UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
 }

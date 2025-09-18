@@ -8,10 +8,9 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
     public sealed class DynamicObjectFieldResponse
     {
         public int Id { get; set; }
-        public string ObjectKey { get; set; } = string.Empty;
-        public string FieldKey { get; set; } = string.Empty;
+        public int ObjectId { get; set; }
         public string Label { get; set; } = string.Empty;
-        public string FieldType { get; set; } = string.Empty;
+        public int FieldTypeId { get; set; }
         public bool Indexed { get; set; }
         public string? Description { get; set; }
         public string? HelpText { get; set; }
@@ -28,7 +27,7 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
         public Guid? ValueListId { get; set; }
         public int? MinSelectedItems { get; set; }
         public int? MaxSelectedItems { get; set; }
-        public bool EditableAfterSubmission { get; set; }
+        public bool Editable { get; set; }
         public bool VisibleOnCreate { get; set; }
         public bool VisibleOnEdit { get; set; }
         public bool VisibleOnView { get; set; }

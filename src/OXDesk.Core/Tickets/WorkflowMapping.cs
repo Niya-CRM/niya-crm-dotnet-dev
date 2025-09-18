@@ -4,9 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OXDesk.Core.Tickets;
 
-[Table("ticket_statuses")]
-public class TicketStatus
+/// <summary>
+/// Maps a workflow to a Topic/SubTopic for routing and processing.
+/// </summary>
+[Table("workflow_mappings")]
+public class WorkflowMapping
 {
+    /// <summary>
+    /// Primary key.
+    /// </summary>
     [Key]
     [Required]
     public int Id { get; set; }
@@ -18,22 +24,25 @@ public class TicketStatus
     [Required]
     public Guid TenantId { get; set; }
 
+    /// <summary>
+    /// Related workflow identifier.
+    /// </summary>
     [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string StatusName { get; set; } = string.Empty;
+    public int WorkFlowId { get; set; }
 
-    [Required]
-    [StringLength(30)]
-    [Column(TypeName = "varchar(30)")]
-    public string StatusType { get; set; } = string.Empty;
+    /// <summary>
+    /// Topic identifier.
+    /// </summary>
+    public int? TopicId { get; set; }
 
-    [Required]
-    public bool IsDefault { get; set; } = false;
+    /// <summary>
+    /// SubTopic identifier.
+    /// </summary>
+    public int? SubTopicId { get; set; }
 
-    [Required]
-    public int Order { get; set; }
-
+    /// <summary>
+    /// Audit fields.
+    /// </summary>
     [Required]
     public Guid CreatedBy { get; set; }
 

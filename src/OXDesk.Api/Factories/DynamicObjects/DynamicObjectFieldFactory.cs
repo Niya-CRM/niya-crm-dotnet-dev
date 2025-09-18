@@ -25,10 +25,9 @@ namespace OXDesk.Api.Factories.DynamicObjects
         private static DynamicObjectFieldResponse Map(DynamicObjectField entity) => new DynamicObjectFieldResponse
         {
             Id = entity.Id,
-            ObjectKey = entity.ObjectKey,
-            FieldKey = entity.FieldKey,
+            ObjectId = entity.ObjectId,
             Label = entity.Label,
-            FieldType = entity.FieldType,
+            FieldTypeId = entity.FieldTypeId,
             Indexed = entity.Indexed,
             Description = entity.Description,
             HelpText = entity.HelpText,
@@ -45,7 +44,7 @@ namespace OXDesk.Api.Factories.DynamicObjects
             ValueListId = entity.ValueListId,
             MinSelectedItems = entity.MinSelectedItems,
             MaxSelectedItems = entity.MaxSelectedItems,
-            EditableAfterSubmission = entity.EditableAfterSubmission,
+            Editable = entity.Editable,
             VisibleOnCreate = entity.VisibleOnCreate,
             VisibleOnEdit = entity.VisibleOnEdit,
             VisibleOnView = entity.VisibleOnView,
