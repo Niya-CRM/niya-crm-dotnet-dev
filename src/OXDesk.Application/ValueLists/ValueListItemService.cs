@@ -35,8 +35,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
 
         _logger.LogInformation("Creating ValueListItem: {Name} for ValueList: {ListKey}", item.ItemName, item.ListKey);
-        
-        item.Id = item.Id == Guid.Empty ? Guid.CreateVersion7() : item.Id;
+
         item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
         item.CreatedBy = createdBy ?? (item.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.CreatedBy);
@@ -54,7 +53,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
     public async Task<ValueListItem> UpdateAsync(ValueListItem item, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (item.Id == Guid.Empty) throw new ValidationException("Id is required for update.");
+        if (item.Id <= 0) throw new ValidationException("Id must be a positive integer for update.");
         if (string.IsNullOrWhiteSpace(item.ListKey)) throw new ValidationException("ListKey is required.");
         if (string.IsNullOrWhiteSpace(item.ItemName)) throw new ValidationException("ItemName cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
@@ -72,9 +71,9 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return updated;
     }
 
-    public async Task<ValueListItem> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
-        if (id == Guid.Empty) throw new ValidationException("Id is required.");
+        if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Activating ValueListItem: {Id}", id);
         
         var entity = await _repository.ActivateAsync(id, modifiedBy, cancellationToken);
@@ -83,9 +82,9 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
-        if (id == Guid.Empty) throw new ValidationException("Id is required.");
+        if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Deactivating ValueListItem: {Id}", id);
         
         var entity = await _repository.DeactivateAsync(id, modifiedBy, cancellationToken);

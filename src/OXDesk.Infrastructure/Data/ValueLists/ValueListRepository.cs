@@ -21,7 +21,7 @@ public class ValueListRepository : IValueListRepository
         _dbSet = dbContext.Set<ValueList>();
     }
 
-    public async Task<ValueList?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ValueList?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueList by ID: {Id}", id);
         return await _dbSet
@@ -77,7 +77,6 @@ public class ValueListRepository : IValueListRepository
         ArgumentNullException.ThrowIfNull(valueList);
 
         _logger.LogDebug("Adding ValueList: {Name}", valueList.ListName);
-        if (valueList.Id == Guid.Empty) valueList.Id = Guid.NewGuid();
         if (valueList.CreatedAt == default) valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
         if (valueList.CreatedBy == Guid.Empty) valueList.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
@@ -91,7 +90,7 @@ public class ValueListRepository : IValueListRepository
     public async Task<ValueList> UpdateAsync(ValueList valueList, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
-        if (valueList.Id == Guid.Empty) throw new ArgumentException("ValueList Id cannot be empty.", nameof(valueList));
+        if (valueList.Id <= 0) throw new ArgumentException("ValueList Id must be a positive integer.", nameof(valueList));
 
         _logger.LogDebug("Updating ValueList: {Id}", valueList.Id);
         
@@ -112,7 +111,7 @@ public class ValueListRepository : IValueListRepository
         return entry.Entity;
     }
 
-    public async Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -131,7 +130,7 @@ public class ValueListRepository : IValueListRepository
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)

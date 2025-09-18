@@ -7,7 +7,7 @@ namespace OXDesk.Core.ValueLists.DTOs;
 /// </summary>
 public class ValueListItemOption
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string ItemName { get; set; } = string.Empty;
     public string ItemKey { get; set; } = string.Empty;
     public int? Order { get; set; }

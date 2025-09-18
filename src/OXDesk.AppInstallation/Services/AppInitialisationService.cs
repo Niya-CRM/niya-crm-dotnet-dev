@@ -230,9 +230,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (languagesList == null)
                 {
-                    
                     languagesList = new ValueList(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         listName: "Languages",
                         listKey: CommonConstant.ValueListKeys.Languages,
@@ -260,18 +258,16 @@ namespace OXDesk.AppInstallation.Services
                 
                 foreach (var l in languages)
                 {
-                    
                     var item = new ValueListItem(
-                            Guid.CreateVersion7(),
-                            tenantId: _tenantId,
-                            itemName: l.Name,
-                            itemKey: l.Code,
-                            order: l.Order,
-                            listKey: languagesList.ListKey,
-                            isActive: true,
-                            createdBy: defaultUser
-                        );
-                        newItems.Add(item);
+                        tenantId: _tenantId,
+                        itemName: l.Name,
+                        itemKey: l.Code,
+                        listKey: languagesList.ListKey,
+                        isActive: true,
+                        createdBy: defaultUser,
+                        order: l.Order
+                    );
+                    newItems.Add(item);
                 }
                 
                 if (newItems.Count > 0)
@@ -679,9 +675,7 @@ namespace OXDesk.AppInstallation.Services
 
                 if (countriesList == null)
                 {
-                    
                     countriesList = new ValueList(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         listName: "Countries",
                         listKey: CommonConstant.ValueListKeys.Countries,
@@ -708,7 +702,6 @@ namespace OXDesk.AppInstallation.Services
                     .Where(c => !string.IsNullOrWhiteSpace(c.CountryCode))
                     .Where(c => !existingItemKeys.Contains(c.CountryCode))
                     .Select(c => new ValueListItem(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         itemName: c.CountryName,
                         itemKey: c.CountryCode,
@@ -794,9 +787,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (currenciesList == null)
                 {
-                    
                     currenciesList = new ValueList(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         listName: "Currencies",
                         listKey: CommonConstant.ValueListKeys.Currencies,
@@ -822,7 +813,6 @@ namespace OXDesk.AppInstallation.Services
                 var newValueListItems = currencies
                     .Where(c => !existingCurrencyKeys.Contains(c.Code))
                     .Select(c => new ValueListItem(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         itemName: c.Name,
                         itemKey: c.Code,
@@ -859,9 +849,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 if (profilesList == null)
                 {
-                    
                     profilesList = new ValueList(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         listName: "User Profiles",
                         listKey: CommonConstant.ValueListKeys.UserProfiles,
@@ -889,7 +877,6 @@ namespace OXDesk.AppInstallation.Services
                 var newItems = desiredProfiles
                     .Where(p => !existingProfileKeys.Contains(p.Key))
                     .Select(p => new ValueListItem(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         itemName: p.Name,
                         itemKey: p.Key,
@@ -1130,15 +1117,14 @@ namespace OXDesk.AppInstallation.Services
                 {
                     
                     requestTypesList = new ValueList(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         listName: "Request Types",
                         listKey: CommonConstant.ValueListKeys.RequestTypes,
                         description: "List of request types",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
-                        allowModify: true,
-                        allowNewItem: true,
+                        allowModify: false,
+                        allowNewItem: false,
                         createdBy: defaultUser
                     );
                     _dbContext.ValueLists.Add(requestTypesList);
@@ -1166,7 +1152,6 @@ namespace OXDesk.AppInstallation.Services
                 var newItems = desired
                     .Where(d => !existingKeys.Contains(d.Key))
                     .Select(d => new ValueListItem(
-                        Guid.CreateVersion7(),
                         tenantId: _tenantId,
                         itemName: d.Name,
                         itemKey: d.Key,

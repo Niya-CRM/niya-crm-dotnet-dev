@@ -14,7 +14,7 @@ public class ValueListItem
     /// Gets or sets the unique identifier for the value list item.
     /// </summary>
     [Key]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the tenant identifier.
@@ -96,11 +96,9 @@ public class ValueListItem
     public ValueListItem() { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ValueListItem"/> class.
-    /// Constructor for creating new value list item instances with all required properties.
+    /// Overload without Id for identity-based key generation.
     /// </summary>
     public ValueListItem(
-        Guid id,
         Guid tenantId,
         string itemName,
         string itemKey,
@@ -109,7 +107,6 @@ public class ValueListItem
         Guid createdBy,
         int? order = null)
     {
-        Id = id;
         TenantId = tenantId;
         ItemName = itemName;
         ItemKey = itemKey;

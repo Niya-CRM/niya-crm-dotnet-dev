@@ -15,6 +15,11 @@ namespace OXDesk.Infrastructure.Data.ValueLists
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<ValueListItem> builder)
         {
+            // Configure int identity primary key starting at 10001
+            builder.Property(v => v.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
+
             // Composite index with tenant_id and ListKey
             builder.HasIndex(v => new { v.TenantId, v.ListKey })
                 .HasDatabaseName("ix_value_list_items_tenant_id_list_key");

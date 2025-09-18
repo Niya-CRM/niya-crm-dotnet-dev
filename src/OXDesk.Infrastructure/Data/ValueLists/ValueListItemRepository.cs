@@ -36,7 +36,6 @@ public class ValueListItemRepository : IValueListItemRepository
     {
         ArgumentNullException.ThrowIfNull(item);
         _logger.LogDebug("Adding ValueListItem: {Name} to ValueList: {ListKey}", item.ItemName, item.ListKey);
-        if (item.Id == Guid.Empty) item.Id = Guid.NewGuid();
         if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
         if (item.CreatedBy == Guid.Empty) item.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
@@ -50,7 +49,7 @@ public class ValueListItemRepository : IValueListItemRepository
     public async Task<ValueListItem> UpdateAsync(ValueListItem item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (item.Id == Guid.Empty) throw new ArgumentException("ValueListItem Id cannot be empty.", nameof(item));
+        if (item.Id <= 0) throw new ArgumentException("ValueListItem Id must be a positive integer.", nameof(item));
 
         _logger.LogDebug("Updating ValueListItem: {Id}", item.Id);
         
@@ -71,7 +70,7 @@ public class ValueListItemRepository : IValueListItemRepository
         return entry.Entity;
     }
 
-    public async Task<ValueListItem> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -90,7 +89,7 @@ public class ValueListItemRepository : IValueListItemRepository
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)

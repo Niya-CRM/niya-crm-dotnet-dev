@@ -35,7 +35,6 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             throw new ValidationException("ValueList Type cannot be null or empty.");
 
         _logger.LogInformation("Creating ValueList: {Name}", valueList.ListName);
-        valueList.Id = valueList.Id == Guid.Empty ? Guid.CreateVersion7() : valueList.Id;
         valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
         valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.CreatedBy);
@@ -52,8 +51,8 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     public async Task<ValueList> UpdateAsync(ValueList valueList, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
-        if (valueList.Id == Guid.Empty)
-            throw new ValidationException("ValueList Id is required for update.");
+        if (valueList.Id <= 0)
+            throw new ValidationException("ValueList Id must be a positive integer for update.");
         if (string.IsNullOrWhiteSpace(valueList.ListName))
             throw new ValidationException("ValueList ListName cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(valueList.ListKey))
@@ -99,7 +98,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);
     }
 
-    public async Task<ValueList?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ValueList?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueList by ID: {Id}", id);
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(id, cancellationToken);
@@ -125,7 +124,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
     }
 
-    public async Task<ValueList> ActivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, modifiedBy, cancellationToken);
@@ -134,7 +133,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(Guid id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);
