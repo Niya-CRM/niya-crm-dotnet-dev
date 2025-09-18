@@ -248,7 +248,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 // Fetch existing items for this list
                 var existingItems = await _dbContext.ValueListItems
-                    .Where(i => i.ListKey == languagesList.ListKey)
+                    .Where(i => i.ListId == languagesList.Id)
                     .ToListAsync();
                 var existingByKey = existingItems.ToDictionary(i => i.ItemKey, StringComparer.OrdinalIgnoreCase);
                 
@@ -262,7 +262,7 @@ namespace OXDesk.AppInstallation.Services
                         tenantId: _tenantId,
                         itemName: l.Name,
                         itemKey: l.Code,
-                        listKey: languagesList.ListKey,
+                        listId: languagesList.Id,
                         isActive: true,
                         createdBy: defaultUser,
                         order: l.Order
@@ -683,7 +683,7 @@ namespace OXDesk.AppInstallation.Services
 
                 // Existing item keys (country codes) for this list
                 var existingItemKeys = await _dbContext.ValueListItems
-                    .Where(i => i.ListKey == countriesList.ListKey)
+                    .Where(i => i.ListId == countriesList.Id)
                     .Select(i => i.ItemKey)
                     .ToListAsync();
 
@@ -695,7 +695,7 @@ namespace OXDesk.AppInstallation.Services
                         tenantId: _tenantId,
                         itemName: c.CountryName,
                         itemKey: c.CountryCode,
-                        listKey: countriesList.ListKey,
+                        listId: countriesList.Id,
                         isActive: string.Equals(c.IsActive, "Y", StringComparison.OrdinalIgnoreCase),
                         createdBy: defaultUser
                     ))
@@ -773,7 +773,7 @@ namespace OXDesk.AppInstallation.Services
                 var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 
                 var currenciesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Currencies);
+                    .FirstOrDefaultAsync(v => v.ListName == "Currencies");
                 
                 if (currenciesList == null)
                 {
@@ -795,7 +795,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 // Existing item keys (currency codes) for this list
                 var existingCurrencyKeys = await _dbContext.ValueListItems
-                    .Where(i => i.ListKey == currenciesList.ListKey)
+                    .Where(i => i.ListId == currenciesList.Id)
                     .Select(i => i.ItemKey)
                     .ToListAsync();
                 
@@ -806,7 +806,7 @@ namespace OXDesk.AppInstallation.Services
                         tenantId: _tenantId,
                         itemName: c.Name,
                         itemKey: c.Code,
-                        listKey: currenciesList.ListKey,
+                        listId: currenciesList.Id,
                         isActive: true,
                         createdBy: defaultUser
                     ))
@@ -857,7 +857,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 // Existing item values for this list
                 var existingProfileKeys = await _dbContext.ValueListItems
-                    .Where(i => i.ListKey == profilesList.ListKey)
+                    .Where(i => i.ListId == profilesList.Id)
                     .Select(i => i.ItemKey)
                     .ToListAsync();
                 
@@ -870,7 +870,7 @@ namespace OXDesk.AppInstallation.Services
                         tenantId: _tenantId,
                         itemName: p.Name,
                         itemKey: p.Key,
-                        listKey: profilesList.ListKey,
+                        listId: profilesList.Id,
                         isActive: true,
                         createdBy: defaultUser
                     ))
@@ -1124,7 +1124,7 @@ namespace OXDesk.AppInstallation.Services
                 
                 // Existing item keys for this list
                 var existingKeys = await _dbContext.ValueListItems
-                    .Where(i => i.ListKey == requestTypesList.ListKey)
+                    .Where(i => i.ListId == requestTypesList.Id)
                     .Select(i => i.ItemKey)
                     .ToListAsync();
                 
@@ -1145,7 +1145,7 @@ namespace OXDesk.AppInstallation.Services
                         tenantId: _tenantId,
                         itemName: d.Name,
                         itemKey: d.Key,
-                        listKey: requestTypesList.ListKey,
+                        listId: requestTypesList.Id,
                         isActive: true,
                         createdBy: defaultUser
                     ))

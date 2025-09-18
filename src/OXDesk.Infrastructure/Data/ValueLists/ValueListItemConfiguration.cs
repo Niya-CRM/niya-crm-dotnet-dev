@@ -20,16 +20,16 @@ namespace OXDesk.Infrastructure.Data.ValueLists
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
 
-            // Composite index with tenant_id and ListKey
-            builder.HasIndex(v => new { v.TenantId, v.ListKey })
-                .HasDatabaseName("ix_value_list_items_tenant_id_list_key");
+            // Composite index with tenant_id and ListId
+            builder.HasIndex(v => new { v.TenantId, v.ListId })
+                .HasDatabaseName("ix_value_list_items_tenant_id_list_id");
 
-            // Map relationship by ListKey (FK) to ValueList.ListKey (principal key)
+            // Map relationship by ListId (FK) to ValueList.Id (principal key)
             builder
                 .HasOne(vli => vli.ValueList)
                 .WithMany()
-                .HasForeignKey(vli => vli.ListKey)
-                .HasPrincipalKey(vl => vl.ListKey);
+                .HasForeignKey(vli => vli.ListId)
+                .HasPrincipalKey(vl => vl.Id);
         }
     }
 }

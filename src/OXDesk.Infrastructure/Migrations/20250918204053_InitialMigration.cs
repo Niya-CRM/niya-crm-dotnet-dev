@@ -16,7 +16,9 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "app_installation_status",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     pipeline = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
                     version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
@@ -51,10 +53,11 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "brands",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     brand_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    brand_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     logo = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
                     logo_dark = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
                     brand_color = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
@@ -93,10 +96,11 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "channels",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     channel_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    channel_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -109,10 +113,86 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "dynamic_object_field_types",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    field_type_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    min_length = table.Column<int>(type: "integer", nullable: true),
+                    max_length = table.Column<int>(type: "integer", nullable: true),
+                    decimals = table.Column<int>(type: "integer", nullable: true),
+                    max_file_size = table.Column<int>(type: "integer", nullable: true),
+                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    min_file_count = table.Column<int>(type: "integer", nullable: true),
+                    max_file_count = table.Column<int>(type: "integer", nullable: true),
+                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_dynamic_object_field_types", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "dynamic_object_fields",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    field_type_id = table.Column<int>(type: "integer", nullable: false),
+                    label = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    indexed = table.Column<bool>(type: "boolean", nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    help_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    placeholder = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: true),
+                    required = table.Column<bool>(type: "boolean", nullable: false),
+                    unique = table.Column<bool>(type: "boolean", nullable: false),
+                    min_length = table.Column<int>(type: "integer", nullable: true),
+                    max_length = table.Column<int>(type: "integer", nullable: true),
+                    decimals = table.Column<int>(type: "integer", nullable: true),
+                    max_file_size = table.Column<int>(type: "integer", nullable: true),
+                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    min_file_count = table.Column<int>(type: "integer", nullable: true),
+                    max_file_count = table.Column<int>(type: "integer", nullable: true),
+                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
+                    editable = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_create = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_edit = table.Column<bool>(type: "boolean", nullable: false),
+                    visible_on_view = table.Column<bool>(type: "boolean", nullable: false),
+                    audit_changes = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_dynamic_object_fields", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "dynamic_objects",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     object_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     singular_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
@@ -153,10 +233,11 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "priorities",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    priority_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     increment_score = table.Column<int>(type: "integer", nullable: true),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: false),
@@ -189,6 +270,30 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "statuses",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_statuses", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "tenants",
                 columns: table => new
                 {
@@ -212,49 +317,32 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ticket_statuses",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    is_default = table.Column<bool>(type: "boolean", nullable: false),
-                    order = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_ticket_statuses", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "tickets",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10000001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     ticket_number = table.Column<int>(type: "integer", nullable: false),
-                    channel_key = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    channel_id = table.Column<int>(type: "integer", nullable: false),
+                    channel_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     language = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
-                    brand_key = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    brand_text = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    product_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    product_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    brand_id = table.Column<int>(type: "integer", nullable: false),
+                    brand_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    product_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     subject = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    priority_key = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    priority_id = table.Column<int>(type: "integer", nullable: false),
+                    priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     priority_score = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
-                    status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    status_id = table.Column<int>(type: "integer", nullable: false),
+                    status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    work_flow_status_key = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
-                    work_flow_status_text = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
+                    work_flow_id = table.Column<int>(type: "integer", nullable: true),
+                    work_flow_status_id = table.Column<int>(type: "integer", nullable: true),
+                    work_flow_status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     is_escalated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_spam = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     is_archived = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
@@ -278,18 +366,18 @@ namespace OXDesk.Infrastructure.Migrations
                     supplied_email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     supplied_company = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     supplied_phone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    account = table.Column<Guid>(type: "uuid", nullable: true),
+                    account_id = table.Column<int>(type: "integer", nullable: true),
                     account_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     sla_id = table.Column<long>(type: "bigint", nullable: true),
                     milestone_status = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
-                    owner = table.Column<Guid>(type: "uuid", nullable: true),
+                    owner_id = table.Column<int>(type: "integer", nullable: true),
                     owner_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    team = table.Column<Guid>(type: "uuid", nullable: true),
-                    team_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    department = table.Column<Guid>(type: "uuid", nullable: true),
-                    department_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    organisation = table.Column<Guid>(type: "uuid", nullable: true),
-                    organisation_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    team_id = table.Column<int>(type: "integer", nullable: true),
+                    team_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    department_id = table.Column<int>(type: "integer", nullable: true),
+                    department_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    organisation_id = table.Column<int>(type: "integer", nullable: true),
+                    organisation_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     ai_sentiment = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     ai_tone = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     ai_summary = table.Column<string>(type: "text", nullable: true),
@@ -366,7 +454,9 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "value_lists",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     list_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     list_key = table.Column<string>(type: "varchar(50)", maxLength: 60, nullable: false),
@@ -384,6 +474,72 @@ namespace OXDesk.Infrastructure.Migrations
                 {
                     table.PrimaryKey("pk_value_lists", x => x.id);
                     table.UniqueConstraint("ak_value_lists_list_key", x => x.list_key);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "workflow_mappings",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_flow_id = table.Column<int>(type: "integer", nullable: false),
+                    topic_id = table.Column<int>(type: "integer", nullable: true),
+                    sub_topic_id = table.Column<int>(type: "integer", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_workflow_mappings", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "workflow_statuses",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_flow_id = table.Column<int>(type: "integer", nullable: false),
+                    status_id = table.Column<int>(type: "integer", nullable: false),
+                    work_flow_status_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_workflow_statuses", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "workflows",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    work_flow_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_workflows", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -463,8 +619,8 @@ namespace OXDesk.Infrastructure.Migrations
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: true),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     hashed_token = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    device = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    ip_address = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: true),
+                    device = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    ip_address = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -533,91 +689,12 @@ namespace OXDesk.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "dynamic_object_field_types",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    field_type_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    min_length = table.Column<int>(type: "integer", nullable: true),
-                    max_length = table.Column<int>(type: "integer", nullable: true),
-                    decimals = table.Column<int>(type: "integer", nullable: true),
-                    max_file_size = table.Column<int>(type: "integer", nullable: true),
-                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    min_file_count = table.Column<int>(type: "integer", nullable: true),
-                    max_file_count = table.Column<int>(type: "integer", nullable: true),
-                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
-                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_dynamic_object_field_types", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_dynamic_object_field_types_value_lists_value_list_id",
-                        column: x => x.value_list_id,
-                        principalTable: "value_lists",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "dynamic_object_fields",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    object_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    field_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    label = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    field_type = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    indexed = table.Column<bool>(type: "boolean", nullable: false),
-                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    help_text = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    placeholder = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: true),
-                    required = table.Column<bool>(type: "boolean", nullable: false),
-                    unique = table.Column<bool>(type: "boolean", nullable: false),
-                    min_length = table.Column<int>(type: "integer", nullable: true),
-                    max_length = table.Column<int>(type: "integer", nullable: true),
-                    decimals = table.Column<int>(type: "integer", nullable: true),
-                    max_file_size = table.Column<int>(type: "integer", nullable: true),
-                    allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    min_file_count = table.Column<int>(type: "integer", nullable: true),
-                    max_file_count = table.Column<int>(type: "integer", nullable: true),
-                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    min_selected_items = table.Column<int>(type: "integer", nullable: true),
-                    max_selected_items = table.Column<int>(type: "integer", nullable: true),
-                    editable_after_submission = table.Column<bool>(type: "boolean", nullable: false),
-                    visible_on_create = table.Column<bool>(type: "boolean", nullable: false),
-                    visible_on_edit = table.Column<bool>(type: "boolean", nullable: false),
-                    visible_on_view = table.Column<bool>(type: "boolean", nullable: false),
-                    audit_changes = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_dynamic_object_fields", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_dynamic_object_fields_value_lists_value_list_id",
-                        column: x => x.value_list_id,
-                        principalTable: "value_lists",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "value_list_items",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     item_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     item_key = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
@@ -661,9 +738,9 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: new[] { "tenant_id", "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_brands_brand_key",
+                name: "ix_brands_id",
                 table: "brands",
-                column: "brand_key");
+                column: "id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_brands_tenant_id",
@@ -671,9 +748,9 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_brands_tenant_id_brand_key",
+                name: "ix_brands_tenant_id_brand_id",
                 table: "brands",
-                columns: new[] { "tenant_id", "brand_key" });
+                columns: new[] { "tenant_id", "id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_change_history_logs_tenant_id_created_at",
@@ -686,9 +763,9 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: new[] { "tenant_id", "object_key", "object_item_id", "created_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_channels_channel_key",
+                name: "ix_channels_id",
                 table: "channels",
-                column: "channel_key");
+                column: "id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_channels_tenant_id",
@@ -696,19 +773,14 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_channels_tenant_id_channel_key",
+                name: "ix_channels_tenant_id_channel_id",
                 table: "channels",
-                columns: new[] { "tenant_id", "channel_key" });
+                columns: new[] { "tenant_id", "id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_dynamic_object_field_types_value_list_id",
+                name: "ix_dynamic_object_field_types_field_type_key",
                 table: "dynamic_object_field_types",
-                column: "value_list_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_dynamic_object_fields_object_key",
-                table: "dynamic_object_fields",
-                column: "object_key");
+                column: "field_type_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_object_fields_tenant_id",
@@ -716,14 +788,9 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_dynamic_object_fields_tenant_id_object_key",
+                name: "ix_dynamic_object_fields_tenant_id_object_id",
                 table: "dynamic_object_fields",
-                columns: new[] { "tenant_id", "object_key" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_dynamic_object_fields_value_list_id",
-                table: "dynamic_object_fields",
-                column: "value_list_id");
+                columns: new[] { "tenant_id", "object_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_objects_tenant_id",
@@ -748,9 +815,9 @@ namespace OXDesk.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_priorities_priority_key",
+                name: "ix_priorities_id",
                 table: "priorities",
-                column: "priority_key");
+                column: "id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_priorities_tenant_id",
@@ -758,9 +825,9 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_priorities_tenant_id_priority_key",
+                name: "ix_priorities_tenant_id_priority_id",
                 table: "priorities",
-                columns: new[] { "tenant_id", "priority_key" });
+                columns: new[] { "tenant_id", "id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
@@ -795,6 +862,11 @@ namespace OXDesk.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_statuses_tenant_id",
+                table: "statuses",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_tenants_host",
                 table: "tenants",
                 column: "host",
@@ -811,29 +883,19 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "name");
 
             migrationBuilder.CreateIndex(
-                name: "ix_ticket_statuses_status_key",
-                table: "ticket_statuses",
-                column: "status_key");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_ticket_statuses_tenant_id",
-                table: "ticket_statuses",
-                column: "tenant_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_ticket_statuses_tenant_id_status_key",
-                table: "ticket_statuses",
-                columns: new[] { "tenant_id", "status_key" });
-
-            migrationBuilder.CreateIndex(
                 name: "ix_tickets_tenant_id",
                 table: "tickets",
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_tenant_id_brand_key",
+                name: "ix_tickets_tenant_id_brand_id",
                 table: "tickets",
-                columns: new[] { "tenant_id", "brand_key" });
+                columns: new[] { "tenant_id", "brand_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_tickets_tenant_id_channel_id",
+                table: "tickets",
+                columns: new[] { "tenant_id", "channel_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_tickets_tenant_id_created_at",
@@ -846,29 +908,29 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: new[] { "tenant_id", "deleted_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_tenant_id_organisation",
+                name: "ix_tickets_tenant_id_organisation_id",
                 table: "tickets",
-                columns: new[] { "tenant_id", "organisation" });
+                columns: new[] { "tenant_id", "organisation_id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_tenant_id_owner",
+                name: "ix_tickets_tenant_id_owner_id",
                 table: "tickets",
-                columns: new[] { "tenant_id", "owner" });
+                columns: new[] { "tenant_id", "owner_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_tickets_tenant_id_status_created_due_deleted",
                 table: "tickets",
-                columns: new[] { "tenant_id", "status_key", "created_at", "due_at", "deleted_at" });
+                columns: new[] { "tenant_id", "status_id", "created_at", "due_at", "deleted_at" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_tenant_id_status_key",
+                name: "ix_tickets_tenant_id_status_id",
                 table: "tickets",
-                columns: new[] { "tenant_id", "status_key" });
+                columns: new[] { "tenant_id", "status_id" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_tickets_tenant_id_team",
+                name: "ix_tickets_tenant_id_team_id",
                 table: "tickets",
-                columns: new[] { "tenant_id", "team" });
+                columns: new[] { "tenant_id", "team_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_tickets_tenant_id_ticket_number",
@@ -911,6 +973,16 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "ix_user_logins_user_id",
                 table: "user_logins",
                 column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_refresh_tokens_expires_at",
+                table: "user_refresh_tokens",
+                column: "expires_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_refresh_tokens_used_at",
+                table: "user_refresh_tokens",
+                column: "used_at");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_refresh_tokens_user_id",
@@ -996,6 +1068,27 @@ namespace OXDesk.Infrastructure.Migrations
                 table: "value_lists",
                 columns: new[] { "tenant_id", "list_key" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_workflow_mappings_tenant_id",
+                table: "workflow_mappings",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ux_workflow_mappings_tenant_id_topic_id_sub_topic_id",
+                table: "workflow_mappings",
+                columns: new[] { "tenant_id", "topic_id", "sub_topic_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_workflow_statuses_tenant_id",
+                table: "workflow_statuses",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_workflows_tenant_id",
+                table: "workflows",
+                column: "tenant_id");
         }
 
         /// <inheritdoc />
@@ -1035,10 +1128,10 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "role_claims");
 
             migrationBuilder.DropTable(
-                name: "tenants");
+                name: "statuses");
 
             migrationBuilder.DropTable(
-                name: "ticket_statuses");
+                name: "tenants");
 
             migrationBuilder.DropTable(
                 name: "tickets");
@@ -1060,6 +1153,15 @@ namespace OXDesk.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "value_list_items");
+
+            migrationBuilder.DropTable(
+                name: "workflow_mappings");
+
+            migrationBuilder.DropTable(
+                name: "workflow_statuses");
+
+            migrationBuilder.DropTable(
+                name: "workflows");
 
             migrationBuilder.DropTable(
                 name: "roles");

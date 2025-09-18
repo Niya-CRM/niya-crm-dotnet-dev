@@ -16,6 +16,9 @@ public class AppInstallationStatusConfiguration : IEntityTypeConfiguration<AppIn
     public void Configure(EntityTypeBuilder<AppInstallationStatus> builder)
     {
         builder.HasKey(e => e.Id);
+        builder.Property(e => e.Id)
+            .UseIdentityByDefaultColumn()
+            .HasIdentityOptions(startValue: 10001L);
         builder.HasIndex(e => e.Version);
     }
 }

@@ -24,6 +24,19 @@ public class ValueListItem
     public Guid TenantId { get; set; }
 
     /// <summary>
+    /// Gets or sets the list Id this item belongs to.
+    /// </summary>
+    [Required]
+    [Column(TypeName = "int")]
+    public int ListId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value list this item belongs to.
+    /// </summary>
+    [ForeignKey(nameof(ListId))]
+    public ValueList? ValueList { get; set; }
+
+    /// <summary>
     /// Gets or sets the name of the value list item.
     /// </summary>
     [Required]
@@ -38,20 +51,6 @@ public class ValueListItem
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
     public string ItemKey { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the list key this item belongs to.
-    /// </summary>
-    [Required]
-    [StringLength(60)]
-    [Column(TypeName = "varchar(60)")]
-    public string ListKey { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the value list this item belongs to.
-    /// </summary>
-    [ForeignKey(nameof(ListKey))]
-    public ValueList? ValueList { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the value list item is active.
@@ -102,7 +101,7 @@ public class ValueListItem
         Guid tenantId,
         string itemName,
         string itemKey,
-        string listKey,
+        int listId,
         bool isActive,
         Guid createdBy,
         int? order = null)
@@ -110,7 +109,7 @@ public class ValueListItem
         TenantId = tenantId;
         ItemName = itemName;
         ItemKey = itemKey;
-        ListKey = listKey;
+        ListId = listId;
         Order = order;
         IsActive = isActive;
         CreatedAt = DateTime.UtcNow;

@@ -89,8 +89,10 @@ public class Ticket
     [Column(TypeName = "varchar(30)")]
     public string StatusType { get; set; } = string.Empty;
 
-    [Required]
-    public int WorkFlowStatusId { get; set; }
+    // Workflow
+    public int? WorkFlowId { get; set; }
+
+    public int? WorkFlowStatusId { get; set; }
 
     [StringLength(30)]
     [Column(TypeName = "varchar(30)")]

@@ -20,7 +20,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     private readonly IValueListItemService _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
     private readonly ILogger<ValueListService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-    private readonly string _valueListLookupCachePrefix = "valuelist:lookup:";
+    private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
     public async Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
@@ -43,8 +43,8 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         var created = await _unitOfWork.GetRepository<IValueListRepository>().AddAsync(valueList, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Created ValueList with ID: {Id}", created.Id);
-        // Invalidate lookup cache for this list
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{created.ListKey}");
+        // Invalidate lookup cache for this list by id
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{created.Id}");
         return created;
     }
 
@@ -83,12 +83,8 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated ValueList: {Id}", updated.Id);
-        // Invalidate lookup cache for old and new keys (if changed)
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{oldKey}");
-        if (!string.Equals(oldKey, updated.ListKey, System.StringComparison.OrdinalIgnoreCase))
-        {
-            await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{updated.ListKey}");
-        }
+        // Invalidate lookup cache by id
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{updated.Id}");
         return updated;
     }
 
@@ -129,7 +125,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         _logger.LogInformation("Activating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.Id}");
         return entity;
     }
 
@@ -138,34 +134,36 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.Id}");
         return entity;
     }
 
     private async Task<IEnumerable<ValueListItem>> GetItemsByListKeyAsync(string listKey, CancellationToken cancellationToken)
     {
-        // Fetch directly from repository via service to preserve DB ordering.
-        return await _valueListItemService.GetByListKeyAsync(listKey, cancellationToken);
+        // Map key to list name, resolve ValueList, then fetch items by ListId
+        var list = await GetByKeyAsync(listKey, cancellationToken);
+        if (list == null) return Array.Empty<ValueListItem>();
+        return await _valueListItemService.GetByListIdAsync(list.Id, cancellationToken);
     }
 
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(listKey))
             throw new ValidationException("ListKey cannot be null or empty.");
-
-        var cacheKey = $"{_valueListLookupCachePrefix}{listKey}";
-        var cached = await _cacheService.GetAsync<Dictionary<string, ValueListItem>>(cacheKey);
-        if (cached != null)
-            return cached;
-
-        // Populate dictionary directly from repository to avoid circular calls and double caching.
+        // Cache by list id to avoid string key reliance
         var list = await GetByKeyAsync(listKey, cancellationToken);
         if (list == null)
         {
             _logger.LogWarning("ValueList not found: {Key}", listKey);
             return new Dictionary<string, ValueListItem>(capacity: 0, comparer: StringComparer.OrdinalIgnoreCase);
         }
-        var items = await _valueListItemService.GetByListKeyAsync(list.ListKey, cancellationToken);
+        var cacheKey = $"{_valueListLookupCachePrefix}{list.Id}";
+        var cached = await _cacheService.GetAsync<Dictionary<string, ValueListItem>>(cacheKey);
+        if (cached != null)
+            return cached;
+
+        // Populate dictionary directly from repository to avoid circular calls and double caching.
+        var items = await _valueListItemService.GetByListIdAsync(list.Id, cancellationToken);
         var dict = items
             .Where(i => !string.IsNullOrWhiteSpace(i.ItemKey))
             .GroupBy(i => i.ItemKey!, StringComparer.OrdinalIgnoreCase)

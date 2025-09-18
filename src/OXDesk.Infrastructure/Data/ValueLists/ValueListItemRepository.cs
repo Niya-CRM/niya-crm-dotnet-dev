@@ -21,11 +21,11 @@ public class ValueListItemRepository : IValueListItemRepository
         _dbSet = dbContext.Set<ValueListItem>();
     }
 
-    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ValueListItem>> GetByListIdAsync(int listId, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", listKey);
+        _logger.LogDebug("Getting ValueListItems for ListId: {ListId}", listId);
         return await _dbSet
-            .Where(v => v.ListKey == listKey)
+            .Where(v => v.ListId == listId)
             .OrderBy(v => v.Order == null) // non-null first
             .ThenBy(v => v.Order)
             .ThenBy(v => v.ItemName)
@@ -35,7 +35,7 @@ public class ValueListItemRepository : IValueListItemRepository
     public async Task<ValueListItem> AddAsync(ValueListItem item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        _logger.LogDebug("Adding ValueListItem: {Name} to ValueList: {ListKey}", item.ItemName, item.ListKey);
+        _logger.LogDebug("Adding ValueListItem: {Name} to ValueListId: {ListId}", item.ItemName, item.ListId);
         if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
         if (item.CreatedBy == Guid.Empty) item.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;

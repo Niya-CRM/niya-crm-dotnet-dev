@@ -24,10 +24,13 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.AppInstallation.AppInstallationStatus", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("Completed")
                         .IsRequired()
@@ -188,10 +191,13 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.DynamicObject", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -267,10 +273,13 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectField", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("AllowedFileTypes")
                         .HasMaxLength(255)
@@ -302,21 +311,13 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("description");
 
-                    b.Property<bool>("EditableAfterSubmission")
+                    b.Property<bool>("Editable")
                         .HasColumnType("boolean")
-                        .HasColumnName("editable_after_submission");
+                        .HasColumnName("editable");
 
-                    b.Property<string>("FieldKey")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
-                        .HasColumnName("field_key");
-
-                    b.Property<string>("FieldType")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
-                        .HasColumnName("field_type");
+                    b.Property<int>("FieldTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("field_type_id");
 
                     b.Property<string>("HelpText")
                         .HasMaxLength(100)
@@ -361,11 +362,9 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_selected_items");
 
-                    b.Property<string>("ObjectKey")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
-                        .HasColumnName("object_key");
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("integer")
+                        .HasColumnName("object_id");
 
                     b.Property<string>("Placeholder")
                         .HasMaxLength(60)
@@ -411,27 +410,24 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_dynamic_object_fields");
 
-                    b.HasIndex("ObjectKey")
-                        .HasDatabaseName("ix_dynamic_object_fields_object_key");
-
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_dynamic_object_fields_tenant_id");
 
-                    b.HasIndex("ValueListId")
-                        .HasDatabaseName("ix_dynamic_object_fields_value_list_id");
-
-                    b.HasIndex("TenantId", "ObjectKey")
-                        .HasDatabaseName("ix_dynamic_object_fields_tenant_id_object_key");
+                    b.HasIndex("TenantId", "ObjectId")
+                        .HasDatabaseName("ix_dynamic_object_fields_tenant_id_object_id");
 
                     b.ToTable("dynamic_object_fields", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectFieldType", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("AllowedFileTypes")
                         .HasMaxLength(255)
@@ -515,10 +511,10 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_dynamic_object_field_types");
 
-                    b.HasIndex("ValueListId")
-                        .HasDatabaseName("ix_dynamic_object_field_types_value_list_id");
+                    b.HasIndex("FieldTypeKey")
+                        .HasDatabaseName("ix_dynamic_object_field_types_field_type_key");
 
-                    b.ToTable("dynamic_object_field_types");
+                    b.ToTable("dynamic_object_field_types", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRole", b =>
@@ -1019,8 +1015,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("Device")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("device");
 
                     b.Property<DateTime>("ExpiresAt")
@@ -1034,8 +1030,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnName("hashed_token");
 
                     b.Property<string>("IpAddress")
-                        .HasMaxLength(45)
-                        .HasColumnType("character varying(45)")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
                         .HasColumnName("ip_address");
 
                     b.Property<Guid?>("TenantId")
@@ -1061,10 +1057,16 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_user_refresh_tokens");
 
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_user_refresh_tokens_expires_at");
+
+                    b.HasIndex("UsedAt")
+                        .HasDatabaseName("ix_user_refresh_tokens_used_at");
+
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_refresh_tokens_user_id");
 
-                    b.ToTable("user_refresh_tokens");
+                    b.ToTable("user_refresh_tokens", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tenants.Tenant", b =>
@@ -1158,21 +1160,18 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("BrandColor")
                         .HasMaxLength(10)
                         .HasColumnType("varchar(10)")
                         .HasColumnName("brand_color");
-
-                    b.Property<string>("BrandKey")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("brand_key");
 
                     b.Property<string>("BrandName")
                         .IsRequired()
@@ -1222,30 +1221,27 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_brands");
 
-                    b.HasIndex("BrandKey")
-                        .HasDatabaseName("ix_brands_brand_key");
+                    b.HasIndex("Id")
+                        .HasDatabaseName("ix_brands_id");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_brands_tenant_id");
 
-                    b.HasIndex("TenantId", "BrandKey")
-                        .HasDatabaseName("ix_brands_tenant_id_brand_key");
+                    b.HasIndex("TenantId", "Id")
+                        .HasDatabaseName("ix_brands_tenant_id_brand_id");
 
                     b.ToTable("brands", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Channel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    b.Property<string>("ChannelKey")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("channel_key");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("ChannelName")
                         .IsRequired()
@@ -1280,24 +1276,27 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_channels");
 
-                    b.HasIndex("ChannelKey")
-                        .HasDatabaseName("ix_channels_channel_key");
+                    b.HasIndex("Id")
+                        .HasDatabaseName("ix_channels_id");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_channels_tenant_id");
 
-                    b.HasIndex("TenantId", "ChannelKey")
-                        .HasDatabaseName("ix_channels_tenant_id_channel_key");
+                    b.HasIndex("TenantId", "Id")
+                        .HasDatabaseName("ix_channels_tenant_id_channel_id");
 
                     b.ToTable("channels", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Priority", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1314,12 +1313,6 @@ namespace OXDesk.Infrastructure.Migrations
                     b.Property<int?>("IncrementScore")
                         .HasColumnType("integer")
                         .HasColumnName("increment_score");
-
-                    b.Property<string>("PriorityKey")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("priority_key");
 
                     b.Property<string>("PriorityName")
                         .IsRequired()
@@ -1342,28 +1335,98 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_priorities");
 
-                    b.HasIndex("PriorityKey")
-                        .HasDatabaseName("ix_priorities_priority_key");
+                    b.HasIndex("Id")
+                        .HasDatabaseName("ix_priorities_id");
 
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_priorities_tenant_id");
 
-                    b.HasIndex("TenantId", "PriorityKey")
-                        .HasDatabaseName("ix_priorities_tenant_id_priority_key");
+                    b.HasIndex("TenantId", "Id")
+                        .HasDatabaseName("ix_priorities_tenant_id_priority_id");
 
                     b.ToTable("priorities", (string)null);
                 });
 
-            modelBuilder.Entity("OXDesk.Core.Tickets.Ticket", b =>
+            modelBuilder.Entity("OXDesk.Core.Tickets.Status", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    b.Property<Guid?>("Account")
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
-                        .HasColumnName("account");
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("integer")
+                        .HasColumnName("object_id");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_name");
+
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("status_type");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_statuses");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_statuses_tenant_id");
+
+                    b.ToTable("statuses", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.Ticket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10000001L, null, null, null, null, null);
+
+                    b.Property<int?>("AccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("account_id");
 
                     b.Property<string>("AccountName")
                         .HasMaxLength(100)
@@ -1409,21 +1472,23 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("attachment_count");
 
-                    b.Property<string>("BrandKey")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("brand_key");
+                    b.Property<int>("BrandId")
+                        .HasColumnType("integer")
+                        .HasColumnName("brand_id");
 
-                    b.Property<string>("BrandText")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("brand_text");
+                    b.Property<string>("BrandName")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("brand_name");
 
-                    b.Property<string>("ChannelKey")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("channel_key");
+                    b.Property<int>("ChannelId")
+                        .HasColumnType("integer")
+                        .HasColumnName("channel_id");
+
+                    b.Property<string>("ChannelName")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("channel_name");
 
                     b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1475,14 +1540,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("Department")
-                        .HasColumnType("uuid")
-                        .HasColumnName("department");
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("department_id");
 
-                    b.Property<string>("DepartmentText")
+                    b.Property<string>("DepartmentName")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("department_text");
+                        .HasColumnName("department_name");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -1582,18 +1647,18 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("opened_at");
 
-                    b.Property<Guid?>("Organisation")
-                        .HasColumnType("uuid")
-                        .HasColumnName("organisation");
+                    b.Property<int?>("OrganisationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("organisation_id");
 
-                    b.Property<string>("OrganisationText")
+                    b.Property<string>("OrganisationName")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("organisation_text");
+                        .HasColumnName("organisation_name");
 
-                    b.Property<Guid?>("Owner")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner");
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner_id");
 
                     b.Property<string>("OwnerName")
                         .HasMaxLength(100)
@@ -1604,11 +1669,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("parent_ticket_number");
 
-                    b.Property<string>("PriorityKey")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("priority_key");
+                    b.Property<int>("PriorityId")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority_id");
+
+                    b.Property<string>("PriorityName")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("priority_name");
 
                     b.Property<int>("PriorityScore")
                         .ValueGeneratedOnAdd()
@@ -1616,15 +1684,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(1)
                         .HasColumnName("priority_score");
 
-                    b.Property<string>("ProductKey")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("product_key");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
 
-                    b.Property<string>("ProductText")
+                    b.Property<string>("ProductName")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("product_text");
+                        .HasColumnName("product_name");
 
                     b.Property<string>("RequestType")
                         .HasMaxLength(100)
@@ -1656,17 +1723,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sla_start_at");
 
-                    b.Property<string>("StatusKey")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("status_key");
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_id");
 
-                    b.Property<string>("StatusText")
-                        .IsRequired()
+                    b.Property<string>("StatusName")
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)")
-                        .HasColumnName("status_text");
+                        .HasColumnName("status_name");
 
                     b.Property<string>("StatusType")
                         .IsRequired()
@@ -1706,14 +1770,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("task_count");
 
-                    b.Property<Guid?>("Team")
-                        .HasColumnType("uuid")
-                        .HasColumnName("team");
+                    b.Property<int?>("TeamId")
+                        .HasColumnType("integer")
+                        .HasColumnName("team_id");
 
-                    b.Property<string>("TeamText")
+                    b.Property<string>("TeamName")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
-                        .HasColumnName("team_text");
+                        .HasColumnName("team_name");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -1742,15 +1806,18 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.Property<string>("WorkFlowStatusKey")
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("work_flow_status_key");
+                    b.Property<int?>("WorkFlowId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_flow_id");
 
-                    b.Property<string>("WorkFlowStatusText")
+                    b.Property<int?>("WorkFlowStatusId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_flow_status_id");
+
+                    b.Property<string>("WorkFlowStatusName")
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)")
-                        .HasColumnName("work_flow_status_text");
+                        .HasColumnName("work_flow_status_name");
 
                     b.HasKey("Id")
                         .HasName("pk_tickets");
@@ -1758,8 +1825,11 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_tickets_tenant_id");
 
-                    b.HasIndex("TenantId", "BrandKey")
-                        .HasDatabaseName("ix_tickets_tenant_id_brand_key");
+                    b.HasIndex("TenantId", "BrandId")
+                        .HasDatabaseName("ix_tickets_tenant_id_brand_id");
+
+                    b.HasIndex("TenantId", "ChannelId")
+                        .HasDatabaseName("ix_tickets_tenant_id_channel_id");
 
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_tickets_tenant_id_created_at");
@@ -1767,34 +1837,37 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasIndex("TenantId", "DeletedAt")
                         .HasDatabaseName("ix_tickets_tenant_id_deleted_at");
 
-                    b.HasIndex("TenantId", "Organisation")
-                        .HasDatabaseName("ix_tickets_tenant_id_organisation");
+                    b.HasIndex("TenantId", "OrganisationId")
+                        .HasDatabaseName("ix_tickets_tenant_id_organisation_id");
 
-                    b.HasIndex("TenantId", "Owner")
-                        .HasDatabaseName("ix_tickets_tenant_id_owner");
+                    b.HasIndex("TenantId", "OwnerId")
+                        .HasDatabaseName("ix_tickets_tenant_id_owner_id");
 
-                    b.HasIndex("TenantId", "StatusKey")
-                        .HasDatabaseName("ix_tickets_tenant_id_status_key");
+                    b.HasIndex("TenantId", "StatusId")
+                        .HasDatabaseName("ix_tickets_tenant_id_status_id");
 
-                    b.HasIndex("TenantId", "Team")
-                        .HasDatabaseName("ix_tickets_tenant_id_team");
+                    b.HasIndex("TenantId", "TeamId")
+                        .HasDatabaseName("ix_tickets_tenant_id_team_id");
 
                     b.HasIndex("TenantId", "TicketNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_tickets_tenant_id_ticket_number");
 
-                    b.HasIndex("TenantId", "StatusKey", "CreatedAt", "DueAt", "DeletedAt")
+                    b.HasIndex("TenantId", "StatusId", "CreatedAt", "DueAt", "DeletedAt")
                         .HasDatabaseName("ix_tickets_tenant_id_status_created_due_deleted");
 
                     b.ToTable("tickets", (string)null);
                 });
 
-            modelBuilder.Entity("OXDesk.Core.Tickets.TicketStatus", b =>
+            modelBuilder.Entity("OXDesk.Core.Tickets.WorkFlowStatus", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1816,23 +1889,9 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("order");
 
-                    b.Property<string>("StatusKey")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("status_key");
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("status_name");
-
-                    b.Property<string>("StatusType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("varchar(30)")
-                        .HasColumnName("status_type");
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer")
+                        .HasColumnName("status_id");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -1846,27 +1905,142 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
-                    b.HasKey("Id")
-                        .HasName("pk_ticket_statuses");
+                    b.Property<int>("WorkFlowId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_flow_id");
 
-                    b.HasIndex("StatusKey")
-                        .HasDatabaseName("ix_ticket_statuses_status_key");
+                    b.Property<string>("WorkFlowStatusName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("work_flow_status_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workflow_statuses");
 
                     b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_ticket_statuses_tenant_id");
+                        .HasDatabaseName("ix_workflow_statuses_tenant_id");
 
-                    b.HasIndex("TenantId", "StatusKey")
-                        .HasDatabaseName("ix_ticket_statuses_tenant_id_status_key");
+                    b.ToTable("workflow_statuses", (string)null);
+                });
 
-                    b.ToTable("ticket_statuses", (string)null);
+            modelBuilder.Entity("OXDesk.Core.Tickets.Workflow", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("WorkFlowName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("work_flow_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workflows");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_workflows_tenant_id");
+
+                    b.ToTable("workflows", (string)null);
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Tickets.WorkflowMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int?>("SubTopicId")
+                        .HasColumnType("integer")
+                        .HasColumnName("sub_topic_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int?>("TopicId")
+                        .HasColumnType("integer")
+                        .HasColumnName("topic_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("WorkFlowId")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_flow_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workflow_mappings");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_workflow_mappings_tenant_id");
+
+                    b.HasIndex("TenantId", "TopicId", "SubTopicId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_workflow_mappings_tenant_id_topic_id_sub_topic_id");
+
+                    b.ToTable("workflow_mappings", (string)null);
                 });
 
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueList", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<bool>("AllowModify")
                         .HasColumnType("boolean")
@@ -1941,10 +2115,13 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueListItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -2002,24 +2179,6 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDatabaseName("ix_value_list_items_tenant_id_list_key");
 
                     b.ToTable("value_list_items");
-                });
-
-            modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectField", b =>
-                {
-                    b.HasOne("OXDesk.Core.ValueLists.ValueList", "ValueList")
-                        .WithMany()
-                        .HasForeignKey("ValueListId");
-
-                    b.Navigation("ValueList");
-                });
-
-            modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectFieldType", b =>
-                {
-                    b.HasOne("OXDesk.Core.ValueLists.ValueList", "ValueList")
-                        .WithMany()
-                        .HasForeignKey("ValueListId");
-
-                    b.Navigation("ValueList");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRoleClaim", b =>

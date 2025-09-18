@@ -123,11 +123,6 @@ public class DynamicObjectField
     public Guid? ValueListId { get; set; }
 
     /// <summary>
-    /// Navigation to the value list.
-    /// </summary>
-    public ValueList? ValueList { get; set; }
-
-    /// <summary>
     /// Minimum number of items allowed in the list or checkbox or radio.
     /// </summary>
     public int? MinSelectedItems { get; set; }

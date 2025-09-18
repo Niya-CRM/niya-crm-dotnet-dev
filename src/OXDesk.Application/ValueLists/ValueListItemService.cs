@@ -16,25 +16,23 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     private readonly ILogger<ValueListItemService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly string _valueListLookupCachePrefix = "valuelist:lookup:";
+    private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    public async Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ValueListItem>> GetByListIdAsync(int listId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(listKey)) throw new ValidationException("ListKey is required.");
-        var trimmed = listKey.Trim();
-        _logger.LogDebug("Getting ValueListItems for ListKey: {ListKey}", trimmed);
-        
-        return await _repository.GetByListKeyAsync(trimmed, cancellationToken);
+        if (listId <= 0) throw new ValidationException("ListId must be a positive integer.");
+        _logger.LogDebug("Getting ValueListItems for ListId: {ListId}", listId);
+        return await _repository.GetByListIdAsync(listId, cancellationToken);
     }
 
     public async Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (string.IsNullOrWhiteSpace(item.ListKey)) throw new ValidationException("ListKey is required.");
+        if (item.ListId <= 0) throw new ValidationException("ListId is required.");
         if (string.IsNullOrWhiteSpace(item.ItemName)) throw new ValidationException("ItemName cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
 
-        _logger.LogInformation("Creating ValueListItem: {Name} for ValueList: {ListKey}", item.ItemName, item.ListKey);
+        _logger.LogInformation("Creating ValueListItem: {Name} for ValueListId: {ListId}", item.ItemName, item.ListId);
 
         item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
@@ -45,8 +43,8 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         var created = await _repository.AddAsync(item, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Created ValueListItem with ID: {Id}", created.Id);
-        // Invalidate lookup cache for the list key
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{created.ListKey}");
+        // Invalidate lookup cache for the list id
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{created.ListId}");
         return created;
     }
 
@@ -54,7 +52,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.Id <= 0) throw new ValidationException("Id must be a positive integer for update.");
-        if (string.IsNullOrWhiteSpace(item.ListKey)) throw new ValidationException("ListKey is required.");
+        if (item.ListId <= 0) throw new ValidationException("ListId is required.");
         if (string.IsNullOrWhiteSpace(item.ItemName)) throw new ValidationException("ItemName cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(item.ItemKey)) throw new ValidationException("ItemKey cannot be null or empty.");
 
@@ -67,7 +65,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         var updated = await _repository.UpdateAsync(item, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated ValueListItem: {Id}", updated.Id);
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{updated.ListKey}");
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{updated.ListId}");
         return updated;
     }
 
@@ -78,7 +76,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         
         var entity = await _repository.ActivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListId}");
         return entity;
     }
 
@@ -89,7 +87,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         
         var entity = await _repository.DeactivateAsync(id, modifiedBy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListKey}");
+        await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListId}");
         return entity;
     }
 }

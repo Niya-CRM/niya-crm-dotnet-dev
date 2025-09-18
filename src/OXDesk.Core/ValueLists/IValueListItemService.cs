@@ -6,12 +6,12 @@ namespace OXDesk.Core.ValueLists;
 public interface IValueListItemService
 {
     /// <summary>
-    /// Gets value list items by list key.
+    /// Gets value list items by list id.
     /// </summary>
-    /// <param name="listKey">The list key.</param>
+    /// <param name="listId">The list id.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of value list items.</returns>
-    Task<IEnumerable<ValueListItem>> GetByListKeyAsync(string listKey, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ValueListItem>> GetByListIdAsync(int listId, CancellationToken cancellationToken = default);
     /// <summary>
     /// Creates a new value list item.
     /// </summary>

@@ -13,7 +13,7 @@ public class AppInstallationStatus
     /// Gets or sets the unique identifier for the installation status record.
     /// </summary>
     [Key]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the pipeline name or identifier. Eg: Initial, Upgrade
