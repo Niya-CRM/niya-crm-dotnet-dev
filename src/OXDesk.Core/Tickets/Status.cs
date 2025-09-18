@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OXDesk.Core.Tickets;
 
-[Table("ticket_statuses")]
-public class TicketStatus
+[Table("statuses")]
+public class Status
 {
     [Key]
     [Required]
@@ -17,6 +17,12 @@ public class TicketStatus
     [Column("tenant_id")]
     [Required]
     public Guid TenantId { get; set; }
+
+    /// <summary>
+    /// Object identifier referring to the owning DynamicObject.
+    /// </summary>
+    [Required]
+    public int ObjectId { get; set; } 
 
     [Required]
     [StringLength(30)]

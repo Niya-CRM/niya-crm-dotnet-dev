@@ -18,12 +18,12 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.HasIndex(p => p.TenantId)
                 .HasDatabaseName("ix_priorities_tenant_id");
                 
-            // Composite index with tenant_id and PriorityKey
-            builder.HasIndex(p => new { p.TenantId, p.PriorityKey })
-                .HasDatabaseName("ix_priorities_tenant_id_priority_key");
+            // Composite index with tenant_id and PriorityId
+            builder.HasIndex(p => new { p.TenantId, p.Id })
+                .HasDatabaseName("ix_priorities_tenant_id_priority_id");
                 
             // Keep original index for backward compatibility
-            builder.HasIndex(p => p.PriorityKey);
+            builder.HasIndex(p => p.Id);
         }
     }
 }

@@ -464,8 +464,7 @@ namespace OXDesk.AppInstallation.Services
             var dynamicObjects = new List<OXDesk.Core.DynamicObjects.DynamicObject>
             {
                 // User dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.User,
                     "User",
                     "Users",
@@ -476,8 +475,7 @@ namespace OXDesk.AppInstallation.Services
                 ),
                 
                 // Account dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Account,
                     "Account",
                     "Accounts",
@@ -488,8 +486,7 @@ namespace OXDesk.AppInstallation.Services
                 ),
                 
                 // Contact dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Contact,
                     "Contact",
                     "Contacts",
@@ -500,8 +497,7 @@ namespace OXDesk.AppInstallation.Services
                 ),
                 
                 // Ticket dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Ticket,
                     "Ticket",
                     "Tickets",
@@ -512,8 +508,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Tenant dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Tenant,
                     "Tenant",
                     "Tenants",
@@ -524,8 +519,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Brand dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Brand,
                     "Brand",
                     "Brands",
@@ -536,8 +530,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Organisation dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Organisation,
                     "Organisation",
                     "Organisations",
@@ -548,8 +541,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Department dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Department,
                     "Department",
                     "Departments",
@@ -560,8 +552,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Team dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Team,
                     "Team",
                     "Teams",
@@ -572,8 +563,7 @@ namespace OXDesk.AppInstallation.Services
                 )
                 ,
                 // Product dynamic object
-                new(
-                    Guid.CreateVersion7(),
+                new DynamicObject(
                     DynamicObjectConstants.DynamicObjectNames.Product,
                     "Product",
                     "Products",
@@ -913,110 +903,110 @@ namespace OXDesk.AppInstallation.Services
                 {
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Auto Number", FieldTypeKey = "auto-number",
+                        Name = "Auto Number", FieldTypeKey = "auto-number",
                         Description = "Automatically incrementing number",
                         Decimals = 0,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Text (Single Line)", FieldTypeKey = "text",
+                        Name = "Text (Single Line)", FieldTypeKey = "text",
                         Description = "Single-line text",
                         MaxLength = 255,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Text Area (Multi-line)", FieldTypeKey = "textarea",
+                        Name = "Text Area (Multi-line)", FieldTypeKey = "textarea",
                         Description = "Multi-line text",
                         MaxLength = 2000,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Text Area (Large)", FieldTypeKey = "textarea-large",
+                        Name = "Text Area (Large)", FieldTypeKey = "textarea-large",
                         Description = "Large multi-line text",
                         MaxLength = 32768,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Text Area (Rich/Html)", FieldTypeKey = "textarea-rich",
+                        Name = "Text Area (Rich/Html)", FieldTypeKey = "textarea-rich",
                         Description = "Rich text / HTML",
                         MaxLength = 65536,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Number (integer)", FieldTypeKey = "number-int",
+                        Name = "Number (integer)", FieldTypeKey = "number-int",
                         Description = "Integer number",
                         Decimals = 0,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Number Decimal", FieldTypeKey = "number-decimal",
+                        Name = "Number Decimal", FieldTypeKey = "number-decimal",
                         Description = "Decimal number",
                         Decimals = 2,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Currency", FieldTypeKey = "currency",
+                        Name = "Currency", FieldTypeKey = "currency",
                         Description = "Currency with code",
                         Decimals = 2,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Percent", FieldTypeKey = "percent",
+                        Name = "Percent", FieldTypeKey = "percent",
                         Description = "Percentage value",
                         Decimals = 2,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Date", FieldTypeKey = "date",
+                        Name = "Date", FieldTypeKey = "date",
                         Description = "Date picker",
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Date & Time", FieldTypeKey = "date-time",
+                        Name = "Date & Time", FieldTypeKey = "date-time",
                         Description = "Date and time picker",
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Email", FieldTypeKey = "email",
+                        Name = "Email", FieldTypeKey = "email",
                         Description = "Email address",
                         MaxLength = 255,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Phone", FieldTypeKey = "phone",
+                        Name = "Phone", FieldTypeKey = "phone",
                         Description = "Phone number",
                         MaxLength = 30,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Link", FieldTypeKey = "link",
+                        Name = "Link", FieldTypeKey = "link",
                         Description = "URL / hyperlink",
                         MaxLength = 2048,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Credit Card Number", FieldTypeKey = "credit-card",
+                        Name = "Credit Card Number", FieldTypeKey = "credit-card",
                         Description = "Credit card number",
                         MaxLength = 19,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "File", FieldTypeKey = "file",
+                        Name = "File", FieldTypeKey = "file",
                         Description = "File upload",
                         MaxFileSize = 25,
                         AllowedFileTypes = "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,zip,jpg,jpeg,png",
@@ -1026,7 +1016,7 @@ namespace OXDesk.AppInstallation.Services
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Image", FieldTypeKey = "image",
+                        Name = "Image", FieldTypeKey = "image",
                         Description = "Image upload",
                         MaxFileSize = 10,
                         AllowedFileTypes = "jpg,jpeg,png",
@@ -1036,14 +1026,14 @@ namespace OXDesk.AppInstallation.Services
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Dropdown (single select)", FieldTypeKey = "dropdown-single",
+                        Name = "Dropdown (single select)", FieldTypeKey = "dropdown-single",
                         Description = "Dropdown with single selection",
                         MinSelectedItems = 0, MaxSelectedItems = 1,
                         CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Dropdown (multi select)", FieldTypeKey = "dropdown-multi",
+                        Name = "Dropdown (multi select)", FieldTypeKey = "dropdown-multi",
                         Description = "Dropdown with multiple selection",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 50,
@@ -1051,7 +1041,7 @@ namespace OXDesk.AppInstallation.Services
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Checkbox (multi)", FieldTypeKey = "checkbox-multi",
+                        Name = "Checkbox (multi)", FieldTypeKey = "checkbox-multi",
                         Description = "Multiple checkboxes",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 50,
@@ -1059,7 +1049,7 @@ namespace OXDesk.AppInstallation.Services
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Checkbox (Boolean)", FieldTypeKey = "checkbox-boolean",
+                        Name = "Checkbox (Boolean)", FieldTypeKey = "checkbox-boolean",
                         Description = "Single checkbox (true/false)",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 1,
@@ -1067,7 +1057,7 @@ namespace OXDesk.AppInstallation.Services
                     },
                     new()
                     {
-                        Id = Guid.CreateVersion7(), Name = "Radio / varchar(255)", FieldTypeKey = "radio",
+                        Name = "Radio / varchar(255)", FieldTypeKey = "radio",
                         Description = "Radio button (single choice)",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 1,

@@ -180,7 +180,7 @@ public class Ticket
     public string? SuppliedPhone { get; set; }
 
     // Account & product
-    public Guid? Account { get; set; }
+    public int? AccountId { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
@@ -193,29 +193,29 @@ public class Ticket
     public string? MilestoneStatus { get; set; }
 
     // Ownership & org
-    public Guid? Owner { get; set; }
+    public int? OwnerId { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
     public string? OwnerName { get; set; }
 
-    public Guid? Team { get; set; }
+    public int? TeamId { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
-    public string? TeamText { get; set; }
+    public string? TeamName { get; set; }
 
-    public Guid? Department { get; set; }
-
-    [StringLength(100)]
-    [Column(TypeName = "varchar(100)")]
-    public string? DepartmentText { get; set; }
-
-    public Guid? Organisation { get; set; }
+    public int? DepartmentId { get; set; }
 
     [StringLength(100)]
     [Column(TypeName = "varchar(100)")]
-    public string? OrganisationText { get; set; }
+    public string? DepartmentName { get; set; }
+
+    public int? OrganisationId { get; set; }
+
+    [StringLength(100)]
+    [Column(TypeName = "varchar(100)")]
+    public string? OrganisationName { get; set; }
 
     // AI metadata
     [StringLength(30)]

@@ -31,23 +31,23 @@ namespace OXDesk.Infrastructure.Data.Tickets
                 .IsUnique();
             
             // Composite indexes with tenant_id for multi-tenant filtering
-            builder.HasIndex(t => new { t.TenantId, t.BrandKey })
-                .HasDatabaseName("ix_tickets_tenant_id_brand_key");
-            builder.HasIndex(t => new { t.TenantId, t.ChannelKey})
-                .HasDatabaseName("ix_tickets_tenant_id_channel_key");
-            builder.HasIndex(t => new { t.TenantId, t.Owner })
-                .HasDatabaseName("ix_tickets_tenant_id_owner");
-            builder.HasIndex(t => new { t.TenantId, t.Team })
-                .HasDatabaseName("ix_tickets_tenant_id_team");
-            builder.HasIndex(t => new { t.TenantId, t.Organisation })
-                .HasDatabaseName("ix_tickets_tenant_id_organisation");
-            builder.HasIndex(t => new { t.TenantId, t.StatusKey })
-                .HasDatabaseName("ix_tickets_tenant_id_status_key");
+            builder.HasIndex(t => new { t.TenantId, t.BrandId })
+                .HasDatabaseName("ix_tickets_tenant_id_brand_id");
+            builder.HasIndex(t => new { t.TenantId, t.ChannelId})
+                .HasDatabaseName("ix_tickets_tenant_id_channel_id");
+            builder.HasIndex(t => new { t.TenantId, t.OwnerId })
+                .HasDatabaseName("ix_tickets_tenant_id_owner_id");
+            builder.HasIndex(t => new { t.TenantId, t.TeamId })
+                .HasDatabaseName("ix_tickets_tenant_id_team_id");
+            builder.HasIndex(t => new { t.TenantId, t.OrganisationId })
+                .HasDatabaseName("ix_tickets_tenant_id_organisation_id");
+            builder.HasIndex(t => new { t.TenantId, t.StatusId })
+                .HasDatabaseName("ix_tickets_tenant_id_status_id");
             builder.HasIndex(t => new { t.TenantId, t.CreatedAt })
                 .HasDatabaseName("ix_tickets_tenant_id_created_at");
             builder.HasIndex(t => new { t.TenantId, t.DeletedAt })
                 .HasDatabaseName("ix_tickets_tenant_id_deleted_at");
-            builder.HasIndex(t => new { t.TenantId, t.StatusKey, t.CreatedAt, t.DueAt, t.DeletedAt })
+            builder.HasIndex(t => new { t.TenantId, t.StatusId, t.CreatedAt, t.DueAt, t.DeletedAt })
                 .HasDatabaseName("ix_tickets_tenant_id_status_created_due_deleted");
 
             // Defaults for counters and flags (DB-level)

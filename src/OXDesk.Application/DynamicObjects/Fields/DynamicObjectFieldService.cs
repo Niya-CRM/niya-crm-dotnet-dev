@@ -62,7 +62,7 @@ public class DynamicObjectFieldService : IDynamicObjectFieldService
         if (objectId <= 0)
             throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
-        _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId}, FieldKey: {FieldKey}", objectId, field.FieldKey);
+        _logger.LogDebug("Adding DynamicObjectField for ObjectId: {ObjectId}, FieldTypeId: {FieldTypeId}", objectId, field.FieldTypeId);
         return await _repository.AddFieldAsync(objectId, field, cancellationToken);
     }
 

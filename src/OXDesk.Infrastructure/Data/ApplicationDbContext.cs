@@ -74,7 +74,7 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
         public DbSet<UserRefreshToken> UserRefreshTokens { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
-        public DbSet<TicketStatus> TicketStatuses { get; set; } = null!;
+        public DbSet<Status> TicketStatuses { get; set; } = null!;
         public DbSet<Channel> Channels { get; set; } = null!;
         public DbSet<Brand> Brands { get; set; } = null!;
         public DbSet<Priority> Priorities { get; set; } = null!;
@@ -159,7 +159,7 @@ namespace OXDesk.Infrastructure.Data
             // Ticketing
             builder.Entity<Ticket>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<TicketStatus>()
+            builder.Entity<Status>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<Channel>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
