@@ -10,6 +10,9 @@ namespace OXDesk.Infrastructure.Data.Tickets
         {
             builder.ToTable("brands");
             builder.HasKey(b => b.Id);
+            builder.Property(b => b.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
             
             // Index for tenant_id for efficient multi-tenant filtering
             builder.HasIndex(b => b.TenantId)

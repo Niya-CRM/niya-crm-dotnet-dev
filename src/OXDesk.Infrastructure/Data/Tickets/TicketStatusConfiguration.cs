@@ -16,6 +16,9 @@ namespace OXDesk.Infrastructure.Data.Tickets
 
             // Primary key
             builder.HasKey(s => s.Id);
+            builder.Property(s => s.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
 
             // Indexes
             // Index for tenant_id for efficient multi-tenant filtering

@@ -9,7 +9,7 @@ public class TicketStatus
 {
     [Key]
     [Required]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the tenant identifier.

@@ -10,6 +10,9 @@ namespace OXDesk.Infrastructure.Data.Tickets
         {
             builder.ToTable("channels");
             builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
             
             // Index for tenant_id for efficient multi-tenant filtering
             builder.HasIndex(c => c.TenantId)

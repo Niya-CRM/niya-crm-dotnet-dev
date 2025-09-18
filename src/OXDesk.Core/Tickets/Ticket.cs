@@ -13,7 +13,7 @@ public class Ticket
     // Identity
     [Key]
     [Required]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     
     /// <summary>
     /// Gets or sets the tenant identifier.
@@ -27,8 +27,8 @@ public class Ticket
     public int TicketNumber { get; set; }
 
     [Required]
-    [StringLength(10)]
-    [Column(TypeName = "varchar(10)")]
+    [StringLength(30)]
+    [Column(TypeName = "varchar(30)")]
     public string ChannelKey { get; set; } = string.Empty;
 
     [StringLength(10)]

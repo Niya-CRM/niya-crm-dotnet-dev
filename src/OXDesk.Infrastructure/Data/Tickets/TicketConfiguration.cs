@@ -17,6 +17,9 @@ namespace OXDesk.Infrastructure.Data.Tickets
 
             // Primary key
             builder.HasKey(t => t.Id);
+            builder.Property(t => t.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10000001L);
 
             // Index for tenant_id for efficient multi-tenant filtering
             builder.HasIndex(t => t.TenantId)
@@ -30,6 +33,8 @@ namespace OXDesk.Infrastructure.Data.Tickets
             // Composite indexes with tenant_id for multi-tenant filtering
             builder.HasIndex(t => new { t.TenantId, t.BrandKey })
                 .HasDatabaseName("ix_tickets_tenant_id_brand_key");
+            builder.HasIndex(t => new { t.TenantId, t.ChannelKey})
+                .HasDatabaseName("ix_tickets_tenant_id_channel_key");
             builder.HasIndex(t => new { t.TenantId, t.Owner })
                 .HasDatabaseName("ix_tickets_tenant_id_owner");
             builder.HasIndex(t => new { t.TenantId, t.Team })
