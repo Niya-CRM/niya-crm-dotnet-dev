@@ -12,7 +12,7 @@ public interface IDynamicObjectRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found, otherwise null.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<DynamicObject?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<DynamicObject?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all dynamic objects with pagination.
@@ -50,5 +50,5 @@ public interface IDynamicObjectRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a dynamic object exists with the name, otherwise false.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<bool> ExistsByNameAsync(string objectName, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByNameAsync(string objectName, int? excludeId = null, CancellationToken cancellationToken = default);
 }

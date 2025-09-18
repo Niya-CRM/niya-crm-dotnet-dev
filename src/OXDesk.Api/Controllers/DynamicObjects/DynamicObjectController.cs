@@ -89,11 +89,11 @@ public class DynamicObjectController : ControllerBase
     /// <param name="objectId">The dynamic object identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found.</returns>
-    [HttpGet("{objectId:guid}")]
+    [HttpGet("{objectId:int}")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> GetDynamicObjectById(Guid objectId, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> GetDynamicObjectById(int objectId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", objectId);
         
@@ -146,13 +146,13 @@ public class DynamicObjectController : ControllerBase
     /// <param name="request">The dynamic object update request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated dynamic object.</returns>
-    [HttpPut("{objectId:guid}")]
+    [HttpPut("{objectId:int}")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> UpdateDynamicObject(Guid objectId, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<DynamicObjectResponse, DynamicObjectDetailsRelated>>> UpdateDynamicObject(int objectId, [FromBody] DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {

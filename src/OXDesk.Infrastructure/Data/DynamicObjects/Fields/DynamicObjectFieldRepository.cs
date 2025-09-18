@@ -32,7 +32,7 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting DynamicObjectFieldType by ID: {Id}", id);
         // Note: If DynamicObjectFieldType doesn't have TenantId property, we just filter by ID
@@ -54,10 +54,10 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(int objectId, CancellationToken cancellationToken = default)
     {
-        if (objectId == Guid.Empty)
-            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+        if (objectId <= 0)
+            throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
@@ -75,10 +75,10 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField?> GetFieldByIdAsync(int objectId, int id, CancellationToken cancellationToken = default)
     {
-        if (objectId == Guid.Empty)
-            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+        if (objectId <= 0)
+            throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
@@ -94,11 +94,11 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField> AddFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField> AddFieldAsync(int objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(field);
-        if (objectId == Guid.Empty)
-            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+        if (objectId <= 0)
+            throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking().FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
         if (obj is null)
@@ -113,11 +113,11 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
+    public async Task<DynamicObjectField> UpdateFieldAsync(int objectId, DynamicObjectField field, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(field);
-        if (objectId == Guid.Empty)
-            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+        if (objectId <= 0)
+            throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);
@@ -134,10 +134,10 @@ public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteFieldAsync(int objectId, int fieldId, CancellationToken cancellationToken = default)
     {
-        if (objectId == Guid.Empty)
-            throw new ArgumentException("Object ID cannot be empty.", nameof(objectId));
+        if (objectId <= 0)
+            throw new ArgumentException("Object ID must be a positive integer.", nameof(objectId));
 
         var obj = await _dbSetObjects.AsNoTracking()
             .FirstOrDefaultAsync(o => o.Id == objectId && o.DeletedAt == null, cancellationToken);

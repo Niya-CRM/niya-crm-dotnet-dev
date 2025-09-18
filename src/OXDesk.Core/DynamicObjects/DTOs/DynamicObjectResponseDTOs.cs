@@ -4,7 +4,7 @@ namespace OXDesk.Core.DynamicObjects.DTOs
 {
     public sealed class DynamicObjectResponse
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public Guid TenantId { get; set; }
         public string ObjectName { get; set; } = string.Empty;
         public string SingularName { get; set; } = string.Empty;

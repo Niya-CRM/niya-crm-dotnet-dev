@@ -108,7 +108,6 @@ public class DynamicObjectService : IDynamicObjectService
 
         // Create new dynamic object
         var dynamicObject = new DynamicObject(
-            id: Guid.CreateVersion7(),
             objectName: normalizedObjectName,
             singularName: normalizedSingularName,
             pluralName: normalizedPluralName,
@@ -138,7 +137,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject?> GetDynamicObjectByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject?> GetDynamicObjectByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", id);
         var cacheKey = $"{_dynamicObjectCachePrefix}{id}";
@@ -158,7 +157,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating dynamic object {DynamicObjectId} with name: {ObjectName}", id, request.ObjectName);
 

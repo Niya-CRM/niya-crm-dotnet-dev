@@ -7,7 +7,7 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
     /// </summary>
     public sealed class DynamicObjectFieldResponse
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string ObjectKey { get; set; } = string.Empty;
         public string FieldKey { get; set; } = string.Empty;
         public string Label { get; set; } = string.Empty;

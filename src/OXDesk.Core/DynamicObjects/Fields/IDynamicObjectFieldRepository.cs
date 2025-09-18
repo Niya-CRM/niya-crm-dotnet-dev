@@ -14,7 +14,7 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The field type if found; otherwise, null.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<DynamicObjectFieldType?> GetFieldTypeByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all field types.
@@ -31,7 +31,7 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of fields for the object.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(Guid objectId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<DynamicObjectField>> GetFieldsByObjectIdAsync(int objectId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a field by its dynamic object ID and unique identifier.
@@ -41,7 +41,7 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The field if found; otherwise, null.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<DynamicObjectField?> GetFieldByIdAsync(Guid objectId, Guid id, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField?> GetFieldByIdAsync(int objectId, int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a new field for the given dynamic object.
@@ -51,7 +51,7 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created field entity.</returns>
     /// <remarks>TenantId should be set in the field entity before calling this method.</remarks>
-    Task<DynamicObjectField> AddFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField> AddFieldAsync(int objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates an existing field for the given dynamic object.
@@ -61,7 +61,7 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated field entity.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<DynamicObjectField> UpdateFieldAsync(Guid objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
+    Task<DynamicObjectField> UpdateFieldAsync(int objectId, DynamicObjectField field, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Deletes a field by dynamic object ID and field ID.
@@ -71,5 +71,5 @@ public interface IDynamicObjectFieldRepository
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a field was deleted; otherwise, false.</returns>
     /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
-    Task<bool> DeleteFieldAsync(Guid objectId, Guid fieldId, CancellationToken cancellationToken = default);
+    Task<bool> DeleteFieldAsync(int objectId, int fieldId, CancellationToken cancellationToken = default);
 }

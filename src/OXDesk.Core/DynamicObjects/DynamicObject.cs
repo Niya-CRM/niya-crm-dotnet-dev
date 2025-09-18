@@ -14,7 +14,7 @@ public class DynamicObject
     /// Gets or sets the unique identifier for the dynamic object.
     /// </summary>
     [Key]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     
     /// <summary>
     /// Gets or sets the tenant identifier.
@@ -105,7 +105,6 @@ public class DynamicObject
     /// Constructor for creating new dynamic object instances with all required properties.
     /// </summary>
     public DynamicObject(
-        Guid id,
         string objectName,
         string singularName,
         string pluralName,
@@ -114,7 +113,6 @@ public class DynamicObject
         string objectType,
         Guid createdBy)
     {
-        Id = id;
         ObjectName = objectName;
         SingularName = singularName;
         PluralName = pluralName;

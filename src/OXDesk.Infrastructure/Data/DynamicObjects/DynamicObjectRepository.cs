@@ -30,7 +30,7 @@ public class DynamicObjectRepository : IDynamicObjectRepository
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting dynamic object by ID: {DynamicObjectId}", id);
 
@@ -96,7 +96,7 @@ public class DynamicObjectRepository : IDynamicObjectRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> ExistsByNameAsync(string objectName, Guid? excludeId = null, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsByNameAsync(string objectName, int? excludeId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(objectName))
             throw new ArgumentException("Object name cannot be null or empty.", nameof(objectName));

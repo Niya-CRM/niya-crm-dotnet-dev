@@ -15,7 +15,7 @@ public class DynamicObjectField
     /// Primary key.
     /// </summary>
     [Key]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the tenant identifier.

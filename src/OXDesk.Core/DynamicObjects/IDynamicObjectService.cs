@@ -24,7 +24,7 @@ public interface IDynamicObjectService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The dynamic object if found, otherwise null.</returns>
     /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
-    Task<DynamicObject?> GetDynamicObjectByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<DynamicObject?> GetDynamicObjectByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Updates dynamic object information.
@@ -34,7 +34,7 @@ public interface IDynamicObjectService
     /// <param name="modifiedBy">The user updating the dynamic object.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated dynamic object.</returns>
-    Task<DynamicObject> UpdateDynamicObjectAsync(Guid id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default);
+    Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all dynamic objects with pagination.

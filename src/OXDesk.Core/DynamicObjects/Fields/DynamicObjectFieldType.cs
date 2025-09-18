@@ -15,7 +15,7 @@ public class DynamicObjectFieldType
     /// Unique identifier for the field type.
     /// </summary>
     [Key]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Human-friendly display name for the field type.
