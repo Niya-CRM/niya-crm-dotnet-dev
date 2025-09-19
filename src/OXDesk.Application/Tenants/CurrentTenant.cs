@@ -7,16 +7,16 @@ namespace OXDesk.Application.Tenants
     /// </summary>
     public sealed class CurrentTenant : ICurrentTenant
     {
-        private Guid? _id;
+        private int? _id;
 
-        public Guid? Id => _id;
+        public int? Id => _id;
 
-        public void Change(Guid? tenantId)
+        public void Change(int? tenantId)
         {
             _id = tenantId;
         }
 
-        public IDisposable ChangeScoped(Guid? tenantId)
+        public IDisposable ChangeScoped(int? tenantId)
         {
             var previous = _id;
             _id = tenantId;

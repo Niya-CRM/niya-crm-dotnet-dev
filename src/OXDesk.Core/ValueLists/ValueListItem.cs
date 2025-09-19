@@ -21,7 +21,7 @@ public class ValueListItem
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the list Id this item belongs to.
@@ -98,7 +98,7 @@ public class ValueListItem
     /// Overload without Id for identity-based key generation.
     /// </summary>
     public ValueListItem(
-        Guid tenantId,
+        int tenantId,
         string itemName,
         string itemKey,
         int listId,

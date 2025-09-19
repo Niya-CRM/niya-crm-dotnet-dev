@@ -21,7 +21,7 @@ public class ValueList
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the display name of the value list.
@@ -106,7 +106,7 @@ public class ValueList
     /// Overload without Id for identity-based key generation.
     /// </summary>
     public ValueList(
-        Guid tenantId,
+        int tenantId,
         string listName,
         string listKey,
         string description,

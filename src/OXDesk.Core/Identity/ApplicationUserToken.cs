@@ -14,5 +14,5 @@ public class ApplicationUserToken : IdentityUserToken<Guid>
     /// </summary>
     [Column("tenant_id")]
     [System.ComponentModel.DataAnnotations.Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 }

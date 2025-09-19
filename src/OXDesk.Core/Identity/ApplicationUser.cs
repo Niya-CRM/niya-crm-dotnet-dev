@@ -15,7 +15,7 @@ namespace OXDesk.Core.Identity
         /// </summary>
         [Column("tenant_id")]
         [Required]
-        public Guid TenantId { get; set; }
+        public int TenantId { get; set; }
         /// <summary>
         /// Gets or sets the first name of the user.
         /// </summary>

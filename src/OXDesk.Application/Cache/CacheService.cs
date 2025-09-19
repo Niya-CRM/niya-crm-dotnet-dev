@@ -63,7 +63,7 @@ namespace OXDesk.Application.Cache
             var trimmed = key.Trim().ToLowerInvariant();
 
             var tenantPart = _currentTenant?.Id.HasValue == true
-                ? _currentTenant.Id!.Value.ToString("N")
+                ? _currentTenant.Id!.Value.ToString()
                 : "global";
 
             var combined = $"t:{tenantPart}:{trimmed}";

@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250919190752_InitialMigration")]
+    [Migration("20250919211707_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -116,8 +116,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("object_key");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.HasKey("Id")
@@ -176,8 +176,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("old_value");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.HasKey("Id")
@@ -249,8 +249,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(60)")
                         .HasColumnName("singular_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -378,8 +378,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("required");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<bool>("Unique")
@@ -550,8 +550,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("normalized_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -608,8 +608,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("role_id");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -740,8 +740,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<string>("TimeZone")
@@ -806,8 +806,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("claim_value");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<Guid>("UserId")
@@ -843,8 +843,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("provider_display_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<Guid>("UserId")
@@ -888,8 +888,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -930,8 +930,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<string>("Value")
@@ -981,8 +981,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("normalized_name");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1037,8 +1037,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(60)")
                         .HasColumnName("ip_address");
 
-                    b.Property<Guid?>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1074,10 +1074,13 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.Tenants.Tenant", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 100001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1148,6 +1151,9 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_tenants");
 
+                    b.HasIndex("Email")
+                        .HasDatabaseName("ix_tenants_email");
+
                     b.HasIndex("Host")
                         .IsUnique()
                         .HasDatabaseName("ix_tenants_host");
@@ -1204,8 +1210,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("logo_dark");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1264,8 +1270,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1323,8 +1329,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(30)")
                         .HasColumnName("priority_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1396,8 +1402,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(30)")
                         .HasColumnName("status_type");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1782,8 +1788,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("team_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<int>("ThreadCount")
@@ -1902,8 +1908,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status_id");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -1955,8 +1961,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -2008,8 +2014,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("sub_topic_id");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<int?>("TopicId")
@@ -2089,8 +2095,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("list_name");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -2157,8 +2163,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("order");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
                         .HasColumnName("tenant_id");
 
                     b.Property<DateTime>("UpdatedAt")

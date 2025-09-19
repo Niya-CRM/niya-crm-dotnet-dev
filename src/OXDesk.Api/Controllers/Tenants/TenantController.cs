@@ -108,11 +108,11 @@ public class TenantController : ControllerBase
     /// <param name="id">The tenant identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tenant if found.</returns>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> GetTenantById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> GetTenantById(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         
@@ -205,13 +205,13 @@ public class TenantController : ControllerBase
     /// <param name="request">The tenant update request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> UpdateTenant(Guid id, [FromBody] UpdateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> UpdateTenant(int id, [FromBody] UpdateTenantRequest request, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
@@ -274,12 +274,12 @@ public class TenantController : ControllerBase
     /// <param name="request">The activation request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The activated tenant.</returns>
-    [HttpPost("{id:guid}/activate")]
+    [HttpPost("{id:int}/activate")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ActivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ActivateTenant(int id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeTenantActivationStatus(id, request, true, cancellationToken);
     }
@@ -291,12 +291,12 @@ public class TenantController : ControllerBase
     /// <param name="request">The deactivation request.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The deactivated tenant.</returns>
-    [HttpPost("{id:guid}/deactivate")]
+    [HttpPost("{id:int}/deactivate")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> DeactivateTenant(Guid id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> DeactivateTenant(int id, [FromBody] ActivateDeactivateTenantRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeTenantActivationStatus(id, request, false, cancellationToken);
     }
@@ -309,7 +309,7 @@ public class TenantController : ControllerBase
     /// <param name="activate">True to activate, false to deactivate.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>ActionResult with the updated tenant.</returns>
-    private async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ChangeTenantActivationStatus(Guid id, ActivateDeactivateTenantRequest request, bool activate, CancellationToken cancellationToken = default)
+    private async Task<ActionResult<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>>> ChangeTenantActivationStatus(int id, ActivateDeactivateTenantRequest request, bool activate, CancellationToken cancellationToken = default)
     {
         var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)

@@ -103,13 +103,8 @@ public class TenantService : ITenantService
             throw new InvalidOperationException($"A tenant with host '{normalizedHost}' already exists.");
         }
 
-        // Get CurrrentTenant Id from ICurrentTenant
-        var currentTenantId = _tenantContextService.Id ?? Guid.CreateVersion7();
-        
-
-        // Create new tenant
+        // Create new tenant (Id will be database-generated identity starting at configured seed)
         var tenant = new Tenant(
-            id: currentTenantId,
             name: normalizedName,
             host: normalizedHost,
             email: normalizedEmail,
@@ -141,7 +136,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetTenantByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         var cacheKey = $"{_tenantCachePrefix}{id}";
@@ -187,7 +182,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(int id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 
@@ -270,7 +265,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default)
+    public async Task<Tenant> ChangeTenantActivationStatusAsync(int id, string action, string reason, CancellationToken cancellationToken = default)
     {
         bool isActivating = action.Equals(TenantConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
         string actionVerb = isActivating ? "Activating" : "Deactivating";
@@ -318,7 +313,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<bool> IsHostAvailableAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default)
+    public async Task<bool> IsHostAvailableAsync(string host, int? excludeId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(host))
             throw new ArgumentException("Host cannot be null or empty.", nameof(host));

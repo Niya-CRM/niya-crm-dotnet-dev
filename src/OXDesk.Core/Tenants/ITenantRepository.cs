@@ -11,7 +11,7 @@ public interface ITenantRepository
     /// <param name="id">The tenant identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tenant if found, otherwise null.</returns>
-    Task<Tenant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Tenant?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a tenant by its host.
@@ -68,7 +68,7 @@ public interface ITenantRepository
     /// <param name="excludeId">Optional tenant ID to exclude from the check.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a tenant exists with the host, otherwise false.</returns>
-    Task<bool> ExistsByHostAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByHostAsync(string host, int? excludeId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if a tenant exists with the specified email.
@@ -77,5 +77,5 @@ public interface ITenantRepository
     /// <param name="excludeId">Optional tenant ID to exclude from the check.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if a tenant exists with the email, otherwise false.</returns>
-    Task<bool> ExistsByEmailAsync(string email, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task<bool> ExistsByEmailAsync(string email, int? excludeId = null, CancellationToken cancellationToken = default);
 }

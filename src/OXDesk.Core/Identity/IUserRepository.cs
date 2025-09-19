@@ -15,7 +15,7 @@ public interface IUserRepository
     /// <param name="tenantId">The tenant ID to filter users by.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of user responses, paginated if pageNumber and pageSize are provided.</returns>
-    Task<IEnumerable<UserResponse>> GetAllUsersAsync(Guid tenantId, int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<UserResponse>> GetAllUsersAsync(int tenantId, int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Gets a user by their identifier.
@@ -24,5 +24,5 @@ public interface IUserRepository
     /// <param name="tenantId">The tenant ID to filter users by.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user response if found, otherwise null.</returns>
-    Task<UserResponse?> GetUserByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<UserResponse?> GetUserByIdAsync(Guid id, int tenantId, CancellationToken cancellationToken = default);
 }

@@ -16,7 +16,7 @@ public class Status
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 
     /// <summary>
     /// Object identifier referring to the owning DynamicObject.

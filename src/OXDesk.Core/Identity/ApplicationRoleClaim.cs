@@ -20,7 +20,7 @@ public class ApplicationRoleClaim : IdentityRoleClaim<Guid>
     /// </summary>
     [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
     
     /// <summary>
     /// Gets or sets the ID of the user who created this role claim.

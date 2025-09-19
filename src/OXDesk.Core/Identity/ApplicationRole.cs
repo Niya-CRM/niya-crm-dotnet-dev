@@ -14,7 +14,7 @@ public class ApplicationRole : IdentityRole<Guid>
     /// </summary>
     [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
     public ApplicationRole() : base() 
     { 
         CreatedAt = DateTime.UtcNow;

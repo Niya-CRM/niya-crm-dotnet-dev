@@ -4,7 +4,7 @@ namespace OXDesk.Core.Tenants.DTOs;
 
 public class TenantResponse
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Host { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

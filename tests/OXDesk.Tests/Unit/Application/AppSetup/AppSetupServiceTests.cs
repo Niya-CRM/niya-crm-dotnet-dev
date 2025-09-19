@@ -120,7 +120,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
 
             var tenant = new Tenant
             {
-                Id = Guid.CreateVersion7(),
+                Id = 301,
                 Name = "Test Organization",
                 Host = "support.organization.com",
                 Email = "admin@test.com",

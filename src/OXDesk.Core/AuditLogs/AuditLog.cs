@@ -23,7 +23,7 @@ public class AuditLog
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key/entity type that was affected.

@@ -19,7 +19,7 @@ public class Permission
     /// Gets or sets the tenant identifier.
     /// </summary>
     [Column("tenant_id")]
-    public Guid? TenantId { get; set; }
+    public int? TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the permission (e.g., "user:read", "ticket:write").

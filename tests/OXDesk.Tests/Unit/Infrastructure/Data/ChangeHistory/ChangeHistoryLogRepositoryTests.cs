@@ -25,8 +25,8 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            // Set a random tenant for this test context so global filters and ApplyTenantId work consistently
-            var tenantId = Guid.CreateVersion7();
+            // Set a deterministic tenant for this test context so global filters and ApplyTenantId work consistently
+            var tenantId = 1001;
             var services = new ServiceCollection().BuildServiceProvider();
             var currentTenant = new FakeCurrentTenant(tenantId);
             _dbContext = new ApplicationDbContext(options, services, currentTenant);
@@ -135,20 +135,20 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
     // Minimal test double for ICurrentTenant
     internal sealed class FakeCurrentTenant : ICurrentTenant
     {
-        private Guid? _id;
-        public Guid? Id => _id;
+        private int? _id;
+        public int? Id => _id;
 
-        public FakeCurrentTenant(Guid? tenantId)
+        public FakeCurrentTenant(int? tenantId)
         {
             _id = tenantId;
         }
 
-        public void Change(Guid? tenantId)
+        public void Change(int? tenantId)
         {
             _id = tenantId;
         }
 
-        public IDisposable ChangeScoped(Guid? tenantId)
+        public IDisposable ChangeScoped(int? tenantId)
         {
             var previous = _id;
             _id = tenantId;

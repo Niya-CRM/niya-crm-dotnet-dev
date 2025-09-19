@@ -16,7 +16,7 @@ public class Channel
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 
     [Required]
     [StringLength(30)]

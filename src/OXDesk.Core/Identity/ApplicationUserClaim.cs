@@ -15,5 +15,5 @@ public class ApplicationUserClaim : IdentityUserClaim<Guid>
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public Guid TenantId { get; set; }
+    public int TenantId { get; set; }
 }

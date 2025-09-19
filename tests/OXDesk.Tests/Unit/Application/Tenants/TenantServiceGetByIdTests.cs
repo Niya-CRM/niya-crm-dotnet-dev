@@ -74,7 +74,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task GetTenantByIdAsync_ShouldReturnTenant_WhenTenantExists()
         {
             // Arrange
-            var tenantId = Guid.CreateVersion7();
+            var tenantId = 101;
             var tenant = new Tenant
             {
                 Id = tenantId,
@@ -109,7 +109,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task GetTenantByIdAsync_ShouldReturnNull_WhenTenantNotFound()
         {
             // Arrange
-            var tenantId = Guid.CreateVersion7();
+            var tenantId = 102;
 
             _mockTenantRepository
                 .Setup(repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))

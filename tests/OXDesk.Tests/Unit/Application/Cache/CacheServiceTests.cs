@@ -23,10 +23,10 @@ namespace OXDesk.Tests.Unit.Application.Cache
             _mockLogger = new Mock<ILogger<CacheService>>();
             _mockCurrentTenant = new Mock<ICurrentTenant>();
 
-            // Use a deterministic tenant id for assertions: all 'a's
-            var tenantId = System.Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+            // Use a deterministic integer tenant id for assertions
+            var tenantId = 1701;
             _mockCurrentTenant.SetupGet(t => t.Id).Returns(tenantId);
-            _tenantPrefix = $"t:{tenantId:N}:"; // e.g., t:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:
+            _tenantPrefix = $"t:{tenantId}:"; // e.g., t:1701:
 
             _cacheService = new CacheService(_mockCacheRepository.Object, _mockLogger.Object, _mockCurrentTenant.Object);
         }

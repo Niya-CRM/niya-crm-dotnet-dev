@@ -23,7 +23,7 @@ public interface ITenantService
     /// <param name="id">The tenant identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tenant if found, otherwise null.</returns>
-    Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Tenant?> GetTenantByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a tenant by its host.
@@ -41,7 +41,7 @@ public interface ITenantService
     /// <param name="modifiedBy">The user updating the tenant.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
-    Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> UpdateTenantAsync(int id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if any tenants exist in the system.
@@ -58,7 +58,7 @@ public interface ITenantService
     /// <param name="reason">The reason for the status change.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
-    Task<Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default);
+    Task<Tenant> ChangeTenantActivationStatusAsync(int id, string action, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all active tenants.
@@ -83,5 +83,5 @@ public interface ITenantService
     /// <param name="excludeId">Optional tenant ID to exclude from validation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>True if the host is available, otherwise false.</returns>
-    Task<bool> IsHostAvailableAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default);
+    Task<bool> IsHostAvailableAsync(string host, int? excludeId = null, CancellationToken cancellationToken = default);
 }
