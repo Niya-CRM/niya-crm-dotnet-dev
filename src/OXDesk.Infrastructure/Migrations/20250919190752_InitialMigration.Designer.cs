@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250918204053_InitialMigration")]
+    [Migration("20250919190752_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1792,8 +1792,14 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("thread_count");
 
-                    b.Property<int>("TicketNumber")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("TicketKey")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ticket_key");
+
+                    b.Property<string>("TicketNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
                         .HasColumnName("ticket_number");
 
                     b.Property<string>("Topic")
@@ -2073,7 +2079,7 @@ namespace OXDesk.Infrastructure.Migrations
 
                     b.Property<string>("ListKey")
                         .IsRequired()
-                        .HasMaxLength(60)
+                        .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("list_key");
 
@@ -2103,15 +2109,8 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_value_lists");
 
-                    b.HasAlternateKey("ListKey")
-                        .HasName("ak_value_lists_list_key");
-
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_value_lists_tenant_id");
-
-                    b.HasIndex("TenantId", "ListKey")
-                        .IsUnique()
-                        .HasDatabaseName("ix_value_lists_tenant_id_list_key");
 
                     b.ToTable("value_lists");
                 });
@@ -2150,11 +2149,9 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("item_name");
 
-                    b.Property<string>("ListKey")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("varchar(60)")
-                        .HasColumnName("list_key");
+                    b.Property<int>("ListId")
+                        .HasColumnType("int")
+                        .HasColumnName("list_id");
 
                     b.Property<int?>("Order")
                         .HasColumnType("integer")
@@ -2175,11 +2172,11 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_value_list_items");
 
-                    b.HasIndex("ListKey")
-                        .HasDatabaseName("ix_value_list_items_list_key");
+                    b.HasIndex("ListId")
+                        .HasDatabaseName("ix_value_list_items_list_id");
 
-                    b.HasIndex("TenantId", "ListKey")
-                        .HasDatabaseName("ix_value_list_items_tenant_id_list_key");
+                    b.HasIndex("TenantId", "ListId")
+                        .HasDatabaseName("ix_value_list_items_tenant_id_list_id");
 
                     b.ToTable("value_list_items");
                 });
@@ -2250,8 +2247,7 @@ namespace OXDesk.Infrastructure.Migrations
                 {
                     b.HasOne("OXDesk.Core.ValueLists.ValueList", "ValueList")
                         .WithMany()
-                        .HasForeignKey("ListKey")
-                        .HasPrincipalKey("ListKey")
+                        .HasForeignKey("ListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

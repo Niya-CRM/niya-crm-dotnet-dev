@@ -22,9 +22,15 @@ public class Ticket
     [Required]
     public Guid TenantId { get; set; }
 
-    // Auto-increment, human-readable number
+    // Ticket Number with or w/o Suffix and Prefix
     [Required]
-    public int TicketNumber { get; set; }
+    [StringLength(30)]
+    [Column(TypeName = "varchar(30)")]
+    public string TicketNumber { get; set; } = string.Empty;
+    
+    // Ticket Key (UUID) used for public access
+    [Required]
+    public Guid TicketKey{ get; set; } = Guid.CreateVersion7();
 
     // Channel
     [Required]
