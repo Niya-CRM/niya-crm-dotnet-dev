@@ -68,7 +68,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task GetChangeHistoryLogByIdAsync_ShouldReturnLogFromRepository()
         {
             // Arrange
-            var logId = Guid.CreateVersion7();
+            var logId = 123;
             var expectedLog = new ChangeHistoryLog
             {
                 Id = logId,
@@ -110,7 +110,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             var expectedLogs = new List<ChangeHistoryLog>
             {
                 new() {
-                    Id = Guid.CreateVersion7(),
+                    Id = 1,
                     ObjectKey = objectKey,
                     ObjectItemId = objectItemId,
                     FieldName = fieldName,

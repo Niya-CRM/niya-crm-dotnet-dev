@@ -24,7 +24,6 @@ namespace OXDesk.Application.AuditLogs
         public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, string objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default)
         {
             var auditLog = new AuditLog(
-                Guid.CreateVersion7(),
                 objectKey,
                 @event,
                 objectItemId,
@@ -36,7 +35,7 @@ namespace OXDesk.Application.AuditLogs
         }
 
         /// <inheritdoc/>
-        public async Task<AuditLog?> GetAuditLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<AuditLog?> GetAuditLogByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _repository.GetByIdAsync(id, cancellationToken);
         }

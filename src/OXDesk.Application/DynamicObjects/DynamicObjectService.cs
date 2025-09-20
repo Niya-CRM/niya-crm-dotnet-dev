@@ -60,7 +60,6 @@ public class DynamicObjectService : IDynamicObjectService
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
-            id: Guid.CreateVersion7(),
             objectKey: "dynamic_object",
             @event: @event,
             objectItemId: objectItemId,

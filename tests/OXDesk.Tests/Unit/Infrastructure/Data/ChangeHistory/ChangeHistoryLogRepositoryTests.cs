@@ -34,7 +34,6 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
                 new ChangeHistoryLog(
-                    Guid.CreateVersion7(),
                     "User",
                     Guid.CreateVersion7(),
                     "Email",
@@ -43,7 +42,6 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     Guid.CreateVersion7()
                 ),
                 new ChangeHistoryLog(
-                    Guid.CreateVersion7(),
                     "Contact",
                     Guid.CreateVersion7(),
                     "Phone",
@@ -101,7 +99,6 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Arrange
             var newLog = new ChangeHistoryLog(
-                Guid.CreateVersion7(),
                 "Product",
                 Guid.CreateVersion7(),
                 "Price",

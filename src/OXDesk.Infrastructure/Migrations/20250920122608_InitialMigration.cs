@@ -34,7 +34,8 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "audit_logs",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
@@ -77,7 +78,8 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "change_history_logs",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     object_item_id = table.Column<Guid>(type: "uuid", nullable: false),

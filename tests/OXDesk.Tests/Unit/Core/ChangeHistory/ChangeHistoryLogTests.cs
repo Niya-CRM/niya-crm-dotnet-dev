@@ -14,7 +14,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             var changeHistoryLog = new ChangeHistoryLog();
 
             // Assert
-            changeHistoryLog.Id.ShouldBe(Guid.Empty);
+            changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(string.Empty);
             changeHistoryLog.ObjectItemId.ShouldBe(Guid.Empty);
             changeHistoryLog.FieldName.ShouldBe(string.Empty);
@@ -28,7 +28,6 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_ShouldInitializeProperties()
         {
             // Arrange
-            var id = Guid.CreateVersion7();
             var objectKey = "User";
             var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
@@ -38,7 +37,6 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                id,
                 objectKey,
                 objectItemId,
                 fieldName,
@@ -47,7 +45,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
                 createdBy);
 
             // Assert
-            changeHistoryLog.Id.ShouldBe(id);
+            changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
             changeHistoryLog.ObjectItemId.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
@@ -63,7 +61,6 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_WithNullValues_ShouldInitializeProperties()
         {
             // Arrange
-            var id = Guid.CreateVersion7();
             var objectKey = "User";
             var objectItemId = Guid.CreateVersion7();
             var fieldName = "Email";
@@ -73,7 +70,6 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                id,
                 objectKey,
                 objectItemId,
                 fieldName,
@@ -82,7 +78,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
                 createdBy);
 
             // Assert
-            changeHistoryLog.Id.ShouldBe(id);
+            changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
             changeHistoryLog.ObjectItemId.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
@@ -100,7 +96,6 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                Guid.CreateVersion7(),
                 "User",
                 Guid.CreateVersion7(),
                 "Email",

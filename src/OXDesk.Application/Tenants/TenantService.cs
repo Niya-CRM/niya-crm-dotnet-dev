@@ -63,7 +63,6 @@ public class TenantService : ITenantService
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
-            id: Guid.CreateVersion7(),
             objectKey: CommonConstant.MODULE_TENANT,
             @event: @event,
             objectItemId: objectItemId,
