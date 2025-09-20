@@ -120,6 +120,9 @@ builder.Services.AddHttpContextAccessor();
 // Register current tenant holder (scoped per request)
 builder.Services.AddScoped<ICurrentTenant, CurrentTenant>();
 
+// Register current user holder (scoped per request)
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
 // Register ApplicationDbContext with PostgreSQL
 builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
 
@@ -281,6 +284,9 @@ app.UseJwtCookieAuthentication();
 
 // Enable authentication & authorization
 app.UseAuthentication();
+
+// Populate current user from JWT when authenticated
+app.UseCurrentUserMiddleware();
 
 // Add tenant middleware to extract tenant_id from JWT token
 app.UseTenantMiddleware();
