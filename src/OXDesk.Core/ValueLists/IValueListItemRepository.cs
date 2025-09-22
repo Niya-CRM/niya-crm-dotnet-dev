@@ -34,7 +34,7 @@ public interface IValueListItemRepository
     /// <param name="modifiedBy">The user who modified the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The activated value list item.</returns>
-    Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// Deactivates a value list item.
     /// </summary>
@@ -42,5 +42,5 @@ public interface IValueListItemRepository
     /// <param name="modifiedBy">The user who modified the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The deactivated value list item.</returns>
-    Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
 }

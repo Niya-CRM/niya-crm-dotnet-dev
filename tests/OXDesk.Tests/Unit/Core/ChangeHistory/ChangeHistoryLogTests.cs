@@ -16,12 +16,12 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(string.Empty);
-            changeHistoryLog.ObjectItemId.ShouldBe(Guid.Empty);
+            changeHistoryLog.ObjectItemId.ShouldBe(0);
             changeHistoryLog.FieldName.ShouldBe(string.Empty);
             changeHistoryLog.OldValue.ShouldBeNull();
             changeHistoryLog.NewValue.ShouldBeNull();
             changeHistoryLog.CreatedAt.ShouldBe(default(DateTime));
-            changeHistoryLog.CreatedBy.ShouldBe(Guid.Empty);
+            changeHistoryLog.CreatedBy.ShouldBe(0);
         }
 
         [Fact]
@@ -29,11 +29,11 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.CreateVersion7();
+            var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
-            var createdBy = Guid.CreateVersion7();
+            var createdBy = 10001;
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -62,11 +62,11 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.CreateVersion7();
+            var objectItemId = 1002;
             var fieldName = "Email";
             string? oldValue = null;
             string? newValue = null;
-            var createdBy = Guid.CreateVersion7();
+            var createdBy = 10002;
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -97,11 +97,11 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
                 "User",
-                Guid.CreateVersion7(),
+                1003,
                 "Email",
                 "old@example.com",
                 "new@example.com",
-                Guid.CreateVersion7());
+                10003);
             
             var afterCreation = DateTime.UtcNow;
             

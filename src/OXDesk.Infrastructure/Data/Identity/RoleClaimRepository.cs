@@ -21,7 +21,7 @@ public class RoleClaimRepository : IRoleClaimRepository
         _dbContext = dbContext;
     }
 
-    public async Task RemoveRoleClaimsAsync(Guid roleId, string claimType, IEnumerable<string> claimValues, CancellationToken cancellationToken = default)
+    public async Task RemoveRoleClaimsAsync(int roleId, string claimType, IEnumerable<string> claimValues, CancellationToken cancellationToken = default)
     {
         var values = claimValues?.ToArray() ?? Array.Empty<string>();
         if (values.Length == 0) return;
@@ -45,7 +45,7 @@ public class RoleClaimRepository : IRoleClaimRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(Guid roleId, string claimType, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(int roleId, string claimType, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.RoleClaims
             .Where(rc => rc.RoleId == roleId && rc.ClaimType == claimType)

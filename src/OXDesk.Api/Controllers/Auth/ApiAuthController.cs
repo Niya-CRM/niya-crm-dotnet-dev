@@ -173,7 +173,7 @@ namespace OXDesk.Api.Controllers.Auth
         public async Task<IActionResult> Logout()
         {
             var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            if (string.IsNullOrWhiteSpace(sub) || !Guid.TryParse(sub, out var userId))
+            if (string.IsNullOrWhiteSpace(sub) || !int.TryParse(sub, out var userId) || userId <= 0)
             {
                 return Unauthorized();
             }

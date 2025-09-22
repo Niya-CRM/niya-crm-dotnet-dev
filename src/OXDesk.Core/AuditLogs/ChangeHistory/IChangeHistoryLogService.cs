@@ -23,11 +23,11 @@ public interface IChangeHistoryLogService
     /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
     Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
         string objectKey,
-        Guid objectItemId,
+        int objectItemId,
         string fieldName,
         string? oldValue,
         string? newValue,
-        Guid createdBy,
+        int createdBy,
         CancellationToken cancellationToken = default);
 
     /// <summary>

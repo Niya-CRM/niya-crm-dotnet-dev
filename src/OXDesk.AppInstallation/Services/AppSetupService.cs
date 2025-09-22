@@ -99,16 +99,14 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid systemUserId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, int systemUserId)
     {
-        var userId = Guid.CreateVersion7();
 
         // Use the 'agent' profile key directly
         string? agentProfileKey = CommonConstant.UserProfiles.Agent.Key;
 
         var user = new ApplicationUser
         {
-            Id = userId,
             UserName = setupDto.AdminEmail,
             Email = setupDto.AdminEmail,
             FirstName = setupDto.FirstName,
@@ -175,7 +173,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid systemUserId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, int systemUserId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new CreateTenantRequest
         {

@@ -79,7 +79,7 @@ namespace OXDesk.Api.Factories.Identity
             // Batch audit user lookup
             var auditUserIds = list
                 .SelectMany(u => new[] { u.CreatedBy, u.UpdatedBy })
-                .Where(id => id != Guid.Empty)
+                .Where(id => id != 0)
                 .Distinct()
                 .ToArray();
             var auditUsers = await _userService.GetUsersLookupByIdsAsync(auditUserIds, cancellationToken);
@@ -145,7 +145,7 @@ namespace OXDesk.Api.Factories.Identity
                 : null;
 
             // Audit names (batch-friendly even for single)
-            var ids = new[] { dto.CreatedBy, dto.UpdatedBy }.Where(g => g != Guid.Empty).Distinct();
+            var ids = new[] { dto.CreatedBy, dto.UpdatedBy }.Where(g => g != 0).Distinct();
             var lookup = await _userService.GetUsersLookupByIdsAsync(ids, cancellationToken);
             static string BuildDisplayName(ApplicationUser u)
             {

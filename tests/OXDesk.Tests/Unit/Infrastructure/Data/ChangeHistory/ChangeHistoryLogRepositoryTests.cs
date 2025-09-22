@@ -35,19 +35,19 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             {
                 new ChangeHistoryLog(
                     "User",
-                    Guid.CreateVersion7(),
+                    101,
                     "Email",
                     "old@example.com",
                     "new@example.com",
-                    Guid.CreateVersion7()
+                    10001
                 ),
                 new ChangeHistoryLog(
                     "Contact",
-                    Guid.CreateVersion7(),
+                    102,
                     "Phone",
                     "123456789",
                     "987654321",
-                    Guid.CreateVersion7()
+                    10002
                 )
             };
 
@@ -84,7 +84,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             var query = new ChangeHistoryLogQueryDto
             {
                 ObjectKey = objectKey,
-                ObjectItemId = Guid.Empty
+                ObjectItemId = 0
             };
             var result = await _repository.GetChangeHistoryLogsAsync(query);
 
@@ -100,11 +100,11 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             // Arrange
             var newLog = new ChangeHistoryLog(
                 "Product",
-                Guid.CreateVersion7(),
+                201,
                 "Price",
                 "100",
                 "150",
-                Guid.CreateVersion7()
+                10001
             );
 
             // Act

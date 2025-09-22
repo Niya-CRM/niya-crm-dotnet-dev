@@ -38,7 +38,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
 
             if (!string.IsNullOrEmpty(query.ObjectKey))
                 q = q.Where(c => c.ObjectKey == query.ObjectKey);
-            if (query.ObjectItemId != Guid.Empty)
+            if (query.ObjectItemId != 0)
                 q = q.Where(c => c.ObjectItemId == query.ObjectItemId);
             if (!string.IsNullOrEmpty(query.FieldName))
                 q = q.Where(c => c.FieldName == query.FieldName);

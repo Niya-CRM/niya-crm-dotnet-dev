@@ -76,7 +76,7 @@ public class AuditLog
     /// </summary>
     [Column("created_by")]
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
 
     /// <summary>
@@ -96,7 +96,7 @@ public class AuditLog
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, string objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(string objectKey, string @event, string objectItemId, string ip, string? data, int createdBy)
     {
         ObjectKey = objectKey;
         Event = @event;

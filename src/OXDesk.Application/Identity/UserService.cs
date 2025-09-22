@@ -79,9 +79,9 @@ public class UserService : IUserService
     /// <summary>
     /// Gets the current user's unique identifier from claims.
     /// </summary>
-    /// <returns>The current user's Guid.</returns>
+    /// <returns>The current user's int identifier.</returns>
     /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
-    public Guid GetCurrentUserId()
+    public int GetCurrentUserId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
         // Prefer NameIdentifier but fallback to 'sub' commonly used by JWTs
@@ -89,8 +89,8 @@ public class UserService : IUserService
             ?? user?.FindFirst("sub")?.Value;
         if (string.IsNullOrEmpty(userIdStr))
             throw new InvalidOperationException("User id claim not found in current context.");
-        if (!Guid.TryParse(userIdStr, out var userId))
-            throw new InvalidOperationException("User id claim is not a valid Guid.");
+        if (!int.TryParse(userIdStr, out var userId))
+            throw new InvalidOperationException("User id claim is not a valid integer.");
         return userId;
     }
 
@@ -112,7 +112,7 @@ public class UserService : IUserService
     /// <summary>
     /// Gets a user's display name by Id.
     /// </summary>
-    private async Task<string?> GetUserDisplayNameAsync(Guid userId)
+    private async Task<string?> GetUserDisplayNameAsync(int userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         return user == null ? null : BuildUserDisplayName(user);
@@ -151,13 +151,13 @@ public class UserService : IUserService
     /// <param name="userIds">Collection of user IDs to fetch.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A read-only dictionary mapping userId to ApplicationUser.</returns>
-    public async Task<IReadOnlyDictionary<Guid, ApplicationUser>> GetUsersLookupByIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyDictionary<int, ApplicationUser>> GetUsersLookupByIdsAsync(IEnumerable<int> userIds, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(userIds);
-        var idSet = new HashSet<Guid>(userIds.Where(id => id != Guid.Empty));
+        var idSet = new HashSet<int>(userIds.Where(id => id > 0));
         if (idSet.Count == 0)
         {
-            return new Dictionary<Guid, ApplicationUser>();
+            return new Dictionary<int, ApplicationUser>();
         }
 
         // Use the unified cache/DB loader so this works even when cache is cold
@@ -172,9 +172,9 @@ public class UserService : IUserService
     /// <summary>
     /// Gets a single user's display name by Id with caching support.
     /// </summary>
-    public async Task<string?> GetUserNameByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<string?> GetUserNameByIdAsync(int userId, CancellationToken cancellationToken = default)
     {
-        if (userId == Guid.Empty) return null;
+        if (userId <= 0) return null;
 
         // Try the cached/loaded list first
         var allUsers = await GetUsersListCacheAsync(cancellationToken);
@@ -188,7 +188,7 @@ public class UserService : IUserService
     
 
     /// <inheritdoc />
-    public async Task<ApplicationUser?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID: {UserId}", id);
         var user = await _userManager.FindByIdAsync(id.ToString());
@@ -202,7 +202,7 @@ public class UserService : IUserService
     
 
     /// <inheritdoc />
-    public async Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating user with email: {Email}", request.Email);
 
@@ -238,13 +238,12 @@ public class UserService : IUserService
             throw new InvalidOperationException($"A user with username '{request.UserName}' already exists.");
         }
 
-        var userId = Guid.CreateVersion7();
-        var currentUserId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        // Determine actor for audit fields
+        var actorId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         // Create new user (tenant is implicit via global filters / DB policies)
         var user = new ApplicationUser
         {
-            Id = userId,
             UserName = request.UserName,
             Email = request.Email,
             FirstName = request.FirstName,
@@ -255,8 +254,8 @@ public class UserService : IUserService
             Profile = request.Profile,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            CreatedBy = currentUserId,
-            UpdatedBy = currentUserId,
+            CreatedBy = actorId,
+            UpdatedBy = actorId,
             IsActive = "Y",
             EmailConfirmed = true // Auto-confirm email for now
         };
@@ -276,7 +275,7 @@ public class UserService : IUserService
             objectItemId: user.Id.ToString(),
             data: $"User created: {user.FirstName} {user.LastName}",
             ip: GetUserIp(),
-            createdBy: currentUserId,
+            createdBy: actorId,
             cancellationToken: cancellationToken
         );
 
@@ -300,7 +299,7 @@ public class UserService : IUserService
     }
 
     /// <inheritdoc />
-    public async Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, Guid? changedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> ChangeUserActivationStatusAsync(int id, string action, string reason, int? changedBy = null, CancellationToken cancellationToken = default)
     {
         bool isActivating = action.Equals(UserConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
         string actionVerb = isActivating ? "Activating" : "Deactivating";
@@ -364,7 +363,7 @@ public class UserService : IUserService
         return user;
     }
 
-    public async Task<IReadOnlyList<ApplicationRole>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRole>> GetUserRolesAsync(int userId, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -383,7 +382,7 @@ public class UserService : IUserService
         return roles;
     }
 
-    public async Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, Guid? assignedBy = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(int userId, int roleId, int? assignedBy = null, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -431,7 +430,7 @@ public class UserService : IUserService
         return await GetUserRolesAsync(userId, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, Guid? removedBy = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(int userId, int roleId, int? removedBy = null, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -479,7 +478,7 @@ public class UserService : IUserService
         return await GetUserRolesAsync(userId, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(int roleId, CancellationToken cancellationToken = default)
     {
         var role = await _roleManager.FindByIdAsync(roleId.ToString());
         if (role == null)

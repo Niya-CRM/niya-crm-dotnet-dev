@@ -34,7 +34,7 @@ public class Tenant
     /// <summary>
     /// Gets or sets the user identifier associated with this tenant.
     /// </summary>
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the database name for this tenant.
@@ -54,7 +54,7 @@ public class Tenant
     /// <summary>
     /// Gets or sets the date and time when the tenant was last modified.
     /// </summary>
-    public DateTime LastModifiedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the tenant was deleted.
@@ -64,12 +64,12 @@ public class Tenant
     /// <summary>
     /// Gets or sets the user who created the tenant.
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last modified the tenant.
     /// </summary>
-    public Guid LastModifiedBy { get; set; }
+    public int UpdatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Tenant"/> class.
@@ -90,7 +90,7 @@ public class Tenant
     /// <param name="isActive">Whether active.</param>
     /// <param name="createdAt">Creation timestamp.</param>
     /// <param name="createdBy">Creator user id.</param>
-    public Tenant(string name, string host, string email, Guid userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, Guid createdBy)
+    public Tenant(string name, string host, string email, int userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, int createdBy)
     {
         Name = name;
         Host = host;
@@ -101,8 +101,8 @@ public class Tenant
         IsActive = isActive;
         CreatedAt = createdAt;
         CreatedBy = createdBy;
-        LastModifiedAt = createdAt;
-        LastModifiedBy = createdBy;
+        UpdatedAt = createdAt;
+        UpdatedBy = createdBy;
         DeletedAt = null;
     }
 }

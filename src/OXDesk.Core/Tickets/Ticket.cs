@@ -154,10 +154,10 @@ public class Ticket
 
     // Layout
     [Required]
-    public Guid LayoutId { get; set; }
+    public int LayoutId { get; set; }
 
     // Contact fields
-    public Guid? Contact { get; set; }
+    public int? Contact { get; set; }
 
     [StringLength(255)]
     [Column(TypeName = "varchar(255)")]
@@ -251,10 +251,10 @@ public class Ticket
 
     // Audit
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     [Required]
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

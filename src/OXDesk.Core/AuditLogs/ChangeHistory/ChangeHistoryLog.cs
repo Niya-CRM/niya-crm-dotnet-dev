@@ -39,7 +39,7 @@ public class ChangeHistoryLog
     /// </summary>
     [Column("object_item_id")]
     [Required]
-    public Guid ObjectItemId { get; set; }
+    public int ObjectItemId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the field that was changed.
@@ -75,7 +75,7 @@ public class ChangeHistoryLog
     /// </summary>
     [Column("created_by")]
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangeHistoryLog"/> class.
@@ -95,11 +95,11 @@ public class ChangeHistoryLog
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
         string entityType,
-        Guid entityId,
+        int entityId,
         string fieldName,
         string? oldValue,
         string? newValue,
-        Guid changedBy)
+        int changedBy)
     {
         ObjectKey = entityType;
         ObjectItemId = entityId;

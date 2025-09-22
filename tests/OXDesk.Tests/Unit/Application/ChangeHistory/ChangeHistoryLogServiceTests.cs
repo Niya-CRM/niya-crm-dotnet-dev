@@ -29,11 +29,11 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.CreateVersion7();
+            var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
-            var createdBy = Guid.CreateVersion7();
+            var createdBy = 10001;
             
             ChangeHistoryLog? capturedLog = null;
             
@@ -73,12 +73,12 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             {
                 Id = logId,
                 ObjectKey = "User",
-                ObjectItemId = Guid.CreateVersion7(),
+                ObjectItemId = 1002,
                 FieldName = "Email",
                 OldValue = "old@example.com",
                 NewValue = "new@example.com",
                 CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.CreateVersion7()
+                CreatedBy = 10002
             };
 
             _mockRepository
@@ -99,9 +99,9 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = Guid.CreateVersion7();
+            var objectItemId = 1003;
             var fieldName = "Email";
-            var createdBy = Guid.CreateVersion7();
+            var createdBy = 10003;
             var startDate = DateTime.UtcNow.AddDays(-7);
             var endDate = DateTime.UtcNow;
             var pageNumber = 2;

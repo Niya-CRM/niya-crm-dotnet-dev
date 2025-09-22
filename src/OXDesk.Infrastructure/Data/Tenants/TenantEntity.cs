@@ -67,9 +67,9 @@ public class TenantEntity : IEntityTypeConfiguration<Tenant>
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        // LastModifiedAt property
-        builder.Property(t => t.LastModifiedAt)
-            .HasColumnName("last_modified_at")
+        // UpdatedAt property
+        builder.Property(t => t.UpdatedAt)
+            .HasColumnName("updated_at")
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -79,9 +79,9 @@ public class TenantEntity : IEntityTypeConfiguration<Tenant>
             .HasMaxLength(100)
             .IsRequired();
 
-        // LastModifiedBy property
-        builder.Property(t => t.LastModifiedBy)
-            .HasColumnName("last_modified_by")
+        // UpdatedBy property
+        builder.Property(t => t.UpdatedBy)
+            .HasColumnName("updated_by")
             .HasMaxLength(100)
             .IsRequired();
 

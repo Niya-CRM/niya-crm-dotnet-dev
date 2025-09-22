@@ -120,7 +120,7 @@ public class DynamicObjectField
     /// <summary>
     /// Reference to an optional value list backing this field.
     /// </summary>
-    public Guid? ValueListId { get; set; }
+    public int? ValueListId { get; set; }
 
     /// <summary>
     /// Minimum number of items allowed in the list or checkbox or radio.
@@ -164,9 +164,9 @@ public class DynamicObjectField
     /// <summary>
     /// Gets or sets the user who created the dynamic field.
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
     /// <summary>
     /// Gets or sets the user who last updated the dynamic field.
     /// </summary>
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 }

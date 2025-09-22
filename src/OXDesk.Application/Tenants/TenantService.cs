@@ -59,7 +59,7 @@ public class TenantService : ITenantService
         string @event,
         string objectItemId,
         string data,
-        Guid createdBy,
+        int createdBy,
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
@@ -74,7 +74,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", request.Name, request.Host, request.Email);
 
@@ -181,7 +181,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(int id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(int id, UpdateTenantRequest request, int? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 
@@ -242,8 +242,8 @@ public class TenantService : ITenantService
         tenant.UserId = request.UserId;
         tenant.TimeZone = request.TimeZone ?? string.Empty;
         tenant.DatabaseName = normalizedDatabaseName;
-        tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        tenant.UpdatedAt = DateTime.UtcNow;
+        tenant.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         // Save changes
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
@@ -284,8 +284,8 @@ public class TenantService : ITenantService
 
         // Set active status based on action
         tenant.IsActive = isActivating ? "Y" : "N";
-        tenant.LastModifiedAt = DateTime.UtcNow;
-        tenant.LastModifiedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+        tenant.UpdatedAt = DateTime.UtcNow;
+        tenant.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation/deactivation

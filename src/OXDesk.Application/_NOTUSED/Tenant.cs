@@ -4,7 +4,7 @@ namespace OXDesk.Application.MultiTenancy;
 
 public class Tenant
 {
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
     public string Name { get; private set; } = default!;
     public string Identifier { get; private set; } = default!;
     public string? ConnectionString { get; private set; }
@@ -20,7 +20,6 @@ public class Tenant
     {
         return new Tenant
         {
-            Id = Guid.CreateVersion7(),
             Name = name,
             Identifier = identifier,
             Host = host,

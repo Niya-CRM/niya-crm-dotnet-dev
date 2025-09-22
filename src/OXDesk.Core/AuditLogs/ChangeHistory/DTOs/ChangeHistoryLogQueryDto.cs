@@ -8,9 +8,9 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory.DTOs
     public class ChangeHistoryLogQueryDto
     {
         public required string ObjectKey { get; set; }
-        public required Guid ObjectItemId { get; set; }
+        public required int ObjectItemId { get; set; }
         public string? FieldName { get; set; }
-        public Guid? CreatedBy { get; set; }
+        public int? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int PageNumber { get; set; } = CommonConstant.PAGE_NUMBER_DEFAULT;

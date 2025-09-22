@@ -11,8 +11,8 @@ public interface IPermissionRepository
 {
     Task<Permission> AddAsync(Permission permission);
     Task<IEnumerable<Permission>> GetAllAsync();
-    Task<Permission?> GetByIdAsync(Guid id);
+    Task<Permission?> GetByIdAsync(int id);
     Task<Permission?> GetByNameAsync(string normalizedName);
     Task<Permission> UpdateAsync(Permission permission);
-    Task<bool> DeleteAsync(Guid id);
+    Task<bool> DeleteAsync(int id);
 }

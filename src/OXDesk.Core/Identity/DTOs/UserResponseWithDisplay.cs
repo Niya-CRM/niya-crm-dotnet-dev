@@ -10,7 +10,7 @@ public class UserResponseWithDisplay
     /// <summary>
     /// Gets or sets the ID of the user.
     /// </summary>
-    public ValueDisplayPair<Guid> Id { get; set; } = new();
+    public ValueDisplayPair<int> Id { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the email of the user.
@@ -75,10 +75,10 @@ public class UserResponseWithDisplay
     /// <summary>
     /// Gets or sets the ID of the user who created the user.
     /// </summary>
-    public ValueDisplayPair<Guid> CreatedBy { get; set; } = new();
+    public ValueDisplayPair<int> CreatedBy { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the ID of the user who last updated the user.
     /// </summary>
-    public ValueDisplayPair<Guid> UpdatedBy { get; set; } = new();
+    public ValueDisplayPair<int> UpdatedBy { get; set; } = new();
 }

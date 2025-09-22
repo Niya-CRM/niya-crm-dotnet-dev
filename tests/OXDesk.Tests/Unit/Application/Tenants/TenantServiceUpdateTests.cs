@@ -83,7 +83,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -104,7 +104,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -125,7 +125,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -146,7 +146,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -178,7 +178,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = host,
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -238,7 +238,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = host,
                 Email = email,
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -294,7 +294,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var host = "original.domain.com";
             var email = "original@example.com";
             var databaseName = "updated_db";
-            var userId = Guid.CreateVersion7();
+            var userId = 10001;
             
             var updateRequest = new UpdateTenantRequest
             {
@@ -314,7 +314,9 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 DatabaseName = "original_db",
                 IsActive = "Y",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                CreatedBy = Guid.Parse("00000000-0000-0000-0000-000000000001")
+                CreatedBy = 10001,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER
             };
 
             var updatedTenant = new Tenant
@@ -326,9 +328,9 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 DatabaseName = databaseName,
                 IsActive = "Y",
                 CreatedAt = existingTenant.CreatedAt,
-                CreatedBy = existingTenant.CreatedBy,
-                LastModifiedAt = DateTime.UtcNow,
-                LastModifiedBy = CommonConstant.DEFAULT_SYSTEM_USER
+                CreatedBy = 10001,
+                UpdatedAt = DateTime.UtcNow,
+                UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER
             };
 
             _mockTenantRepository

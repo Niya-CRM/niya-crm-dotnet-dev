@@ -11,14 +11,14 @@ namespace OXDesk.Core.ValueLists;
 /// </summary>
 public interface IValueListService
 {
-    Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default);
-    Task<ValueList> UpdateAsync(ValueList valueList, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueList> CreateAsync(ValueList valueList, int? createdBy = null, CancellationToken cancellationToken = default);
+    Task<ValueList> UpdateAsync(ValueList valueList, int? modifiedBy = null, CancellationToken cancellationToken = default);
     Task<IEnumerable<ValueList>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default);
     Task<ValueList?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
-    Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
-    Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueList> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueList> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
 
     // Convenience helpers to retrieve common lists as options (DTOs)
     Task<IEnumerable<ValueListItemOption>> GetCountriesAsync(CancellationToken cancellationToken = default);

@@ -31,7 +31,7 @@ public class PermissionRepository : IPermissionRepository
         return await _dbContext.Permissions.AsQueryable().ToListAsync();
     }
 
-    public async Task<Permission?> GetByIdAsync(Guid id)
+    public async Task<Permission?> GetByIdAsync(int id)
     {
         // Global query filter will ensure tenant isolation
         return await _dbContext.Permissions.Where(p => p.Id == id).FirstOrDefaultAsync();
@@ -51,7 +51,7 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(int id)
     {
         // Global query filter will ensure tenant isolation
         var permission = await _dbContext.Permissions

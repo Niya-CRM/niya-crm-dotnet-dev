@@ -23,7 +23,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// The user this refresh token belongs to.
         /// </summary>
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
 
         /// <summary>
         /// The hashed value of the refresh token. Never store the plaintext token.

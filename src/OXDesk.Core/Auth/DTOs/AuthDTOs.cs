@@ -69,7 +69,7 @@ namespace OXDesk.Core.Auth.DTOs
         public bool Success { get; set; }
         public string? Message { get; set; }
         public string? Token { get; set; }
-        public Guid? UserId { get; set; }
+        public int? UserId { get; set; }
         public string? Email { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

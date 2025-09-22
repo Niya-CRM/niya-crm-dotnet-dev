@@ -60,10 +60,10 @@ public class WorkFlowStatus
     /// Audit fields.
     /// </summary>
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     [Required]
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

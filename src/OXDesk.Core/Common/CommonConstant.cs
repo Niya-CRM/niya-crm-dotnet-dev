@@ -4,7 +4,7 @@ namespace OXDesk.Core.Common;
 
 public static class CommonConstant
 {
-    public static readonly Guid DEFAULT_SYSTEM_USER = Guid.Parse("01986f5e-bce5-7835-be32-7ddc3ecbff4f");
+    public static readonly int DEFAULT_SYSTEM_USER = 10001;
 
     // Message Constants
     public const string MESSAGE_INVALID_REQUEST = "Invalid Request";

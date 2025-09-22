@@ -76,14 +76,14 @@ public static class ControllerExtensions
     }
 
     /// <summary>
-    /// Extracts the current user's ID (Guid) from common JWT claims.
-    /// Looks for "sub", "nameid", or ClaimTypes.NameIdentifier. Returns null if not a valid Guid.
+    /// Extracts the current user's ID (int) from common JWT claims.
+    /// Looks for "sub", "nameid", or ClaimTypes.NameIdentifier. Returns null if not a valid int.
     /// </summary>
-    public static Guid? GetCurrentUserId(this ControllerBase controller)
+    public static int? GetCurrentUserId(this ControllerBase controller)
     {
         var sub = controller.User.FindFirst("sub")?.Value
                   ?? controller.User.FindFirst("nameid")?.Value
                   ?? controller.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return Guid.TryParse(sub, out var id) ? id : null;
+        return int.TryParse(sub, out var id) ? id : (int?)null;
     }
 }

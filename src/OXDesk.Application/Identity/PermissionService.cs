@@ -29,11 +29,11 @@ public class PermissionService : IPermissionService
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    private Guid GetCurrentUserIdOrDefault()
+    private int GetCurrentUserIdOrDefault()
     {
         var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
             ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
+        return int.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
     }
     public async Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default)
     {
@@ -43,13 +43,13 @@ public class PermissionService : IPermissionService
         return entities;
     }
 
-    public async Task<Permission?> GetPermissionByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Permission?> GetPermissionByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var entity = await _permissionRepository.GetByIdAsync(id);
         return entity;
     }
 
-    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Permission name is required.");
         var name = request.Name.Trim();
@@ -64,7 +64,6 @@ public class PermissionService : IPermissionService
 
         var entity = new Permission
         {
-            Id = Guid.CreateVersion7(),
             Name = name,
             NormalizedName = normalized,
             CreatedAt = now,
@@ -77,7 +76,7 @@ public class PermissionService : IPermissionService
         return entity;
     }
 
-    public async Task<Permission> UpdatePermissionAsync(Guid id, UpdatePermissionRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, int? updatedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _permissionRepository.GetByIdAsync(id);
         if (entity == null) throw new InvalidOperationException($"Permission with ID '{id}' was not found.");
@@ -110,12 +109,12 @@ public class PermissionService : IPermissionService
         return permission;
     }
 
-    public async Task<bool> DeletePermissionAsync(Guid id)
+    public async Task<bool> DeletePermissionAsync(int id)
     {
         return await _permissionRepository.DeleteAsync(id);
     }
 
-    public async Task<string[]> GetPermissionRolesAsync(Guid permissionId, CancellationToken cancellationToken = default)
+    public async Task<string[]> GetPermissionRolesAsync(int permissionId, CancellationToken cancellationToken = default)
     {
         var permission = await _permissionRepository.GetByIdAsync(permissionId);
         if (permission == null) throw new InvalidOperationException($"Permission with ID '{permissionId}' was not found in the current tenant.");

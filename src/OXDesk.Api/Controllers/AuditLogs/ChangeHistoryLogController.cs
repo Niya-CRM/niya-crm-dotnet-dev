@@ -67,7 +67,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
                     return this.CreateBadRequestProblem("ObjectKey is required");
                 }
 
-                if (query.ObjectItemId == Guid.Empty)
+                if (query.ObjectItemId == 0)
                 {
                     _logger.LogWarning("Missing required parameter: ObjectItemId");
                     return this.CreateBadRequestProblem("ObjectItemId is required");

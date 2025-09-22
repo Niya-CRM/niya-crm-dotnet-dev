@@ -10,12 +10,12 @@ public interface IPermissionService
 {
     // Entity-centric operations (aligned with RoleService)
     Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default);
-    Task<Permission?> GetPermissionByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default);
-    Task<Permission> UpdatePermissionAsync(Guid id, UpdatePermissionRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default);
-    Task<string[]> GetPermissionRolesAsync(Guid permissionId, CancellationToken cancellationToken = default);
+    Task<Permission?> GetPermissionByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, int? createdBy = null, CancellationToken cancellationToken = default);
+    Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, int? updatedBy = null, CancellationToken cancellationToken = default);
+    Task<string[]> GetPermissionRolesAsync(int permissionId, CancellationToken cancellationToken = default);
 
     // Support for validation and potential maintenance operations
     Task<Permission?> GetPermissionByNameAsync(string normalizedName);
-    Task<bool> DeletePermissionAsync(Guid id);
+    Task<bool> DeletePermissionAsync(int id);
 }

@@ -23,7 +23,7 @@ public class CreateTenantRequest
     /// Gets or sets the user identifier.
     /// </summary>
     [Required]
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the tenant email.

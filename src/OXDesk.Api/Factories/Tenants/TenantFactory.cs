@@ -22,7 +22,7 @@ public class TenantFactory : ITenantFactory
 
         // Collect userIds for enrichment
         var userIds = list
-            .SelectMany(t => new[] { t.CreatedBy, t.LastModifiedBy })
+            .SelectMany(t => new[] { t.CreatedBy, t.UpdatedBy })
             .Distinct()
             .ToArray();
 
@@ -50,12 +50,12 @@ public class TenantFactory : ITenantFactory
                 DatabaseName = t.DatabaseName,
                 IsActive = t.IsActive,
                 CreatedAt = t.CreatedAt,
-                LastModifiedAt = t.LastModifiedAt,
+                UpdatedAt = t.UpdatedAt,
                 DeletedAt = t.DeletedAt,
                 CreatedBy = t.CreatedBy,
-                LastModifiedBy = t.LastModifiedBy,
+                UpdatedBy = t.UpdatedBy,
                 CreatedByText = usersLookup.TryGetValue(t.CreatedBy, out var cu) ? BuildDisplayName(cu) : null,
-                LastModifiedByText = usersLookup.TryGetValue(t.LastModifiedBy, out var mu) ? BuildDisplayName(mu) : null
+                UpdatedByText = usersLookup.TryGetValue(t.UpdatedBy, out var mu) ? BuildDisplayName(mu) : null
             });
         }
 
@@ -71,7 +71,7 @@ public class TenantFactory : ITenantFactory
     public async Task<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>> BuildDetailsAsync(Tenant tenant, CancellationToken cancellationToken = default)
     {
         var createdByText = await _userService.GetUserNameByIdAsync(tenant.CreatedBy, cancellationToken);
-        var modifiedByText = await _userService.GetUserNameByIdAsync(tenant.LastModifiedBy, cancellationToken);
+        var updatedByText = await _userService.GetUserNameByIdAsync(tenant.UpdatedBy, cancellationToken);
 
         var dto = new TenantResponse
         {
@@ -84,12 +84,12 @@ public class TenantFactory : ITenantFactory
             DatabaseName = tenant.DatabaseName,
             IsActive = tenant.IsActive,
             CreatedAt = tenant.CreatedAt,
-            LastModifiedAt = tenant.LastModifiedAt,
+            UpdatedAt = tenant.UpdatedAt,
             DeletedAt = tenant.DeletedAt,
             CreatedBy = tenant.CreatedBy,
-            LastModifiedBy = tenant.LastModifiedBy,
+            UpdatedBy = tenant.UpdatedBy,
             CreatedByText = createdByText,
-            LastModifiedByText = modifiedByText
+            UpdatedByText = updatedByText
         };
 
         return new EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>

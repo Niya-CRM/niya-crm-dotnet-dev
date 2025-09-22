@@ -78,7 +78,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<PermissionResponse, PermissionDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var entity = await _permissionService.GetPermissionByIdAsync(id, cancellationToken);
             if (entity == null) return this.CreateNotFoundProblem($"Permission with ID '{id}' was not found.");
@@ -118,7 +118,7 @@ namespace OXDesk.Api.Controllers.Identity
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdatePermissionRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdatePermissionRequest request, CancellationToken cancellationToken = default)
         {
             var validation = await _updateValidator.ValidateAsync(request, cancellationToken);
             if (!validation.IsValid)
@@ -142,7 +142,7 @@ namespace OXDesk.Api.Controllers.Identity
         [HttpDelete("{id:guid}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status405MethodNotAllowed)]
-        public IActionResult DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        public IActionResult DeleteAsync(int id, CancellationToken cancellationToken = default)
         {
             return this.CreateMethodNotAllowedProblem("Deleting permissions is not allowed.");
         }
@@ -151,7 +151,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<RoleResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPermissionRolesAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetPermissionRolesAsync(int id, CancellationToken cancellationToken = default)
         {
             // Ensure permission exists
             var permission = await _permissionService.GetPermissionByIdAsync(id, cancellationToken);
@@ -178,7 +178,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<UserResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPermissionUsersAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetPermissionUsersAsync(int id, CancellationToken cancellationToken = default)
         {
             // Ensure permission exists
             var permission = await _permissionService.GetPermissionByIdAsync(id, cancellationToken);
@@ -199,7 +199,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             // Accumulate users from all roles, deduplicate by user Id
             var users = new List<ApplicationUser>();
-            var seen = new HashSet<Guid>();
+            var seen = new HashSet<int>();
             foreach (var role in roles)
             {
                 var roleUsers = await _userService.GetUsersByRoleIdAsync(role.Id, cancellationToken);

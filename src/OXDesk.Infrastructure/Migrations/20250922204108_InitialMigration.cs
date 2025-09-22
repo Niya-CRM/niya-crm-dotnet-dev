@@ -43,7 +43,7 @@ namespace OXDesk.Infrastructure.Migrations
                     ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
                     data = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,8 +63,8 @@ namespace OXDesk.Infrastructure.Migrations
                     logo_dark = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
                     brand_color = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
                     website = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -82,12 +82,12 @@ namespace OXDesk.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    object_item_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    object_item_id = table.Column<int>(type: "integer", nullable: false),
                     field_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     old_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     new_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,8 +103,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     channel_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -131,14 +131,14 @@ namespace OXDesk.Infrastructure.Migrations
                     allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     min_file_count = table.Column<int>(type: "integer", nullable: true),
                     max_file_count = table.Column<int>(type: "integer", nullable: true),
-                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    value_list_id = table.Column<int>(type: "integer", nullable: true),
                     min_selected_items = table.Column<int>(type: "integer", nullable: true),
                     max_selected_items = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -169,7 +169,7 @@ namespace OXDesk.Infrastructure.Migrations
                     allowed_file_types = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     min_file_count = table.Column<int>(type: "integer", nullable: true),
                     max_file_count = table.Column<int>(type: "integer", nullable: true),
-                    value_list_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    value_list_id = table.Column<int>(type: "integer", nullable: true),
                     min_selected_items = table.Column<int>(type: "integer", nullable: true),
                     max_selected_items = table.Column<int>(type: "integer", nullable: true),
                     editable = table.Column<bool>(type: "boolean", nullable: false),
@@ -180,8 +180,8 @@ namespace OXDesk.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -205,8 +205,8 @@ namespace OXDesk.Infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -217,13 +217,14 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "permissions",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: true),
                     name = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     normalized_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -241,8 +242,8 @@ namespace OXDesk.Infrastructure.Migrations
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     increment_score = table.Column<int>(type: "integer", nullable: true),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -256,11 +257,13 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "roles",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -284,8 +287,8 @@ namespace OXDesk.Infrastructure.Migrations
                     status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     is_default = table.Column<bool>(type: "boolean", nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -306,14 +309,14 @@ namespace OXDesk.Infrastructure.Migrations
                     host = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     time_zone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
                     database_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     is_active = table.Column<string>(type: "text", nullable: false, defaultValue: "True"),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    last_modified_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    created_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false),
-                    last_modified_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false)
+                    created_by = table.Column<int>(type: "integer", maxLength: 100, nullable: false),
+                    updated_by = table.Column<int>(type: "integer", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -362,8 +365,8 @@ namespace OXDesk.Infrastructure.Migrations
                     sub_topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     request_type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     skills = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    layout_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    contact = table.Column<Guid>(type: "uuid", nullable: true),
+                    layout_id = table.Column<int>(type: "integer", nullable: false),
+                    contact = table.Column<int>(type: "integer", nullable: true),
                     contact_email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     contact_phone = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     contact_mobile = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
@@ -389,8 +392,8 @@ namespace OXDesk.Infrastructure.Migrations
                     ai_topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     ai_subtopic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     ai_language = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -421,7 +424,9 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "users",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     first_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     last_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
@@ -430,10 +435,10 @@ namespace OXDesk.Infrastructure.Migrations
                     profile = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     time_zone = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     is_active = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false),
                     user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -472,8 +477,8 @@ namespace OXDesk.Infrastructure.Migrations
                     allow_new_item = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -491,8 +496,8 @@ namespace OXDesk.Infrastructure.Migrations
                     work_flow_id = table.Column<int>(type: "integer", nullable: false),
                     topic_id = table.Column<int>(type: "integer", nullable: true),
                     sub_topic_id = table.Column<int>(type: "integer", nullable: true),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -515,8 +520,8 @@ namespace OXDesk.Infrastructure.Migrations
                     work_flow_status_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     is_default = table.Column<bool>(type: "boolean", nullable: false),
                     order = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -535,8 +540,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     work_flow_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -553,11 +558,11 @@ namespace OXDesk.Infrastructure.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role_id = table.Column<int>(type: "integer", nullable: false),
                     claim_type = table.Column<string>(type: "text", nullable: true),
                     claim_value = table.Column<string>(type: "text", nullable: true)
                 },
@@ -579,7 +584,7 @@ namespace OXDesk.Infrastructure.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
                     claim_type = table.Column<string>(type: "text", nullable: true),
                     claim_value = table.Column<string>(type: "text", nullable: true)
                 },
@@ -602,7 +607,7 @@ namespace OXDesk.Infrastructure.Migrations
                     provider_key = table.Column<string>(type: "text", nullable: false),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     provider_display_name = table.Column<string>(type: "text", nullable: true),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    user_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -621,7 +626,7 @@ namespace OXDesk.Infrastructure.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     tenant_id = table.Column<int>(type: "integer", nullable: true),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
                     hashed_token = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     device = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     ip_address = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: true),
@@ -646,12 +651,12 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "user_roles",
                 columns: table => new
                 {
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    role_id = table.Column<int>(type: "integer", nullable: false),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -675,7 +680,7 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "user_tokens",
                 columns: table => new
                 {
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
                     login_provider = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
@@ -707,8 +712,8 @@ namespace OXDesk.Infrastructure.Migrations
                     order = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

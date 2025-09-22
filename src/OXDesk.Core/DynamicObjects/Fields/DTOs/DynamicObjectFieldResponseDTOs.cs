@@ -24,7 +24,7 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
         public string? AllowedFileTypes { get; set; }
         public int? MinFileCount { get; set; }
         public int? MaxFileCount { get; set; }
-        public Guid? ValueListId { get; set; }
+        public int? ValueListId { get; set; }
         public int? MinSelectedItems { get; set; }
         public int? MaxSelectedItems { get; set; }
         public bool Editable { get; set; }
@@ -35,8 +35,8 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public Guid CreatedBy { get; set; }
-        public Guid UpdatedBy { get; set; }
+        public int CreatedBy { get; set; }
+        public int UpdatedBy { get; set; }
 
         // Enriched fields
         public string? CreatedByText { get; set; }

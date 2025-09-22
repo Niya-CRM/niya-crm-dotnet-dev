@@ -83,7 +83,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -103,7 +103,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -123,7 +123,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
 
@@ -144,7 +144,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = tenantHost,
                 Email = "test@example.com",
-                UserId = Guid.CreateVersion7(),
+                UserId = 10001,
                 TimeZone = "UTC"
             };
             
@@ -353,7 +353,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var tenantName = "Test Tenant";
             var tenantHost = "test.domain.com";
             var tenantEmail = "test@example.com";
-            var userId = Guid.CreateVersion7();
+            var userId = 10001;
             var createRequest = new CreateTenantRequest
             {
                 Name = tenantName,

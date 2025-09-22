@@ -305,7 +305,6 @@ namespace OXDesk.AppInstallation.Services
                     // Create new permission
                     var permission = new OXDesk.Core.Identity.Permission
                     {
-                        Id = Guid.CreateVersion7(),
                         Name = permissionName,
                         NormalizedName = normalizedName,
                         CreatedBy = defaultUser,
@@ -339,7 +338,6 @@ namespace OXDesk.AppInstallation.Services
                 // Create the system user
                 var systemUser = new OXDesk.Core.Identity.ApplicationUser
                 {
-                    Id = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER,
                     TenantId = _tenantId,
                     UserName = systemUserEmail,
                     Email = systemUserEmail,
@@ -1297,7 +1295,6 @@ namespace OXDesk.AppInstallation.Services
                         
                         permission = new OXDesk.Core.Identity.Permission
                         {
-                            Id = Guid.CreateVersion7(),
                             Name = permissionName,
                             NormalizedName = normalizedName,
                             CreatedBy = defaultUser,

@@ -31,10 +31,10 @@ namespace OXDesk.Application.Identity
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        private Guid GetCurrentUserIdOrDefault() {
+        private int GetCurrentUserIdOrDefault() {
             var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-            return Guid.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
+            return int.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
         }
         public Task<IReadOnlyList<ApplicationRole>> GetAllRolesAsync(CancellationToken cancellationToken = default)
         {
@@ -45,7 +45,7 @@ namespace OXDesk.Application.Identity
             return Task.FromResult<IReadOnlyList<ApplicationRole>>(roles);
         }
 
-        public async Task<ApplicationRole?> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ApplicationRole?> GetRoleByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) return null;
@@ -54,7 +54,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+        public async Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Role name is required.");
 
@@ -70,7 +70,6 @@ namespace OXDesk.Application.Identity
 
             var role = new ApplicationRole
             {
-                Id = Guid.CreateVersion7(),
                 Name = request.Name,
                 NormalizedName = request.Name.ToUpperInvariant(),
                 CreatedAt = now,
@@ -88,7 +87,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<ApplicationRole> UpdateRoleAsync(Guid id, UpdateRoleRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+        public async Task<ApplicationRole> UpdateRoleAsync(int id, UpdateRoleRequest request, int? updatedBy = null, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{id}' not found.");
@@ -120,7 +119,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<bool> DeleteRoleAsync(Guid id, Guid? deletedBy = null, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteRoleAsync(int id, int? deletedBy = null, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) return false;
@@ -138,7 +137,7 @@ namespace OXDesk.Application.Identity
             return true;
         }
 
-        public async Task<string[]> GetRolePermissionsAsync(Guid roleId, CancellationToken cancellationToken = default)
+        public async Task<string[]> GetRolePermissionsAsync(int roleId, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(roleId.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
@@ -148,7 +147,7 @@ namespace OXDesk.Application.Identity
             return claims.Where(c => c.Type == PermissionClaimType).Select(c => c.Value).Distinct().OrderBy(v => v).ToArray();
         }
 
-        public async Task<string[]> SetRolePermissionsAsync(Guid roleId, IEnumerable<string> permissionNames, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+        public async Task<string[]> SetRolePermissionsAsync(int roleId, IEnumerable<string> permissionNames, int? updatedBy = null, CancellationToken cancellationToken = default)
         {
             if (permissionNames == null) permissionNames = Array.Empty<string>();
             var desired = new HashSet<string>(permissionNames.Select(p => p.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)));
@@ -192,7 +191,7 @@ namespace OXDesk.Application.Identity
             return await GetRolePermissionsAsync(roleId, cancellationToken);
         }
 
-        public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(Guid roleId, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(int roleId, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(roleId.ToString()) ?? throw new InvalidOperationException($"Role with ID '{roleId}' not found.");
             

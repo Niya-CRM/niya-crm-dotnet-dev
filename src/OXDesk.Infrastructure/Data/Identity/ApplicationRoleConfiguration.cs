@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Helpers.Naming;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace OXDesk.Infrastructure.Data.Identity;
 
@@ -14,6 +15,11 @@ public class ApplicationRoleConfiguration : IEntityTypeConfiguration<Application
     {
         // Table name
         builder.ToTable("asp_net_roles");
+
+        // Start identity values for role Ids at 10001
+        builder.Property(r => r.Id)
+            .UseIdentityByDefaultColumn()
+            .HasIdentityOptions(startValue: 10001L);
 
         // Primary key is already configured by Identity
 

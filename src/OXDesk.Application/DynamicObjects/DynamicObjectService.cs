@@ -56,7 +56,7 @@ public class DynamicObjectService : IDynamicObjectService
         string @event,
         string objectItemId,
         string data,
-        Guid createdBy,
+        int createdBy,
         CancellationToken cancellationToken)
     {
         var auditLog = new AuditLog(
@@ -71,7 +71,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, int createdBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating dynamic object with name: {ObjectName}", request.ObjectName);
 
@@ -156,7 +156,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, int modifiedBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating dynamic object {DynamicObjectId} with name: {ObjectName}", id, request.ObjectName);
 
