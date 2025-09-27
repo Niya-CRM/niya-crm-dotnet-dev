@@ -272,7 +272,7 @@ public class UserService : IUserService
         await _auditLogService.CreateAuditLogAsync(
             objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            objectItemId: user.Id.ToString(),
+            objectItemId: user.Id,
             data: $"User created: {user.FirstName} {user.LastName}",
             ip: GetUserIp(),
             createdBy: actorId,
@@ -336,7 +336,7 @@ public class UserService : IUserService
         await _auditLogService.CreateAuditLogAsync(
             objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            objectItemId: user.Id.ToString(),
+            objectItemId: user.Id,
             data: $"User {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
             ip: GetUserIp(),
             createdBy: actorId,
@@ -415,7 +415,7 @@ public class UserService : IUserService
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-                objectItemId: user.Id.ToString(),
+                objectItemId: user.Id,
                 data: $"Role assigned to user: {role.Name}",
                 ip: GetUserIp(),
                 createdBy: actorId,
@@ -463,7 +463,7 @@ public class UserService : IUserService
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-                objectItemId: user.Id.ToString(),
+                objectItemId: user.Id,
                 data: $"Role removed from user: {role.Name}",
                 ip: GetUserIp(),
                 createdBy: actorId,

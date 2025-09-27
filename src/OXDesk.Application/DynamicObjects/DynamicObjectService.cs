@@ -54,7 +54,7 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="cancellationToken">Cancellation token.</param>
     private async Task AddDynamicObjectAuditLogAsync(
         string @event,
-        string objectItemId,
+        int objectItemId,
         string data,
         int createdBy,
         CancellationToken cancellationToken)
@@ -122,7 +122,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            createdDynamicObject.Id.ToString(),
+            createdDynamicObject.Id,
             $"Dynamic object created: {{ \"ObjectName\": \"{createdDynamicObject.ObjectName}\", \"ObjectKey\": \"{createdDynamicObject.ObjectKey}\" }}",
             createdBy,
             cancellationToken
@@ -212,7 +212,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log for update
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedDynamicObject.Id.ToString(),
+            updatedDynamicObject.Id,
             $"Dynamic object updated: {{ \"ObjectName\": \"{updatedDynamicObject.ObjectName}\", \"ObjectKey\": \"{updatedDynamicObject.ObjectKey}\" }}",
             modifiedBy,
             cancellationToken

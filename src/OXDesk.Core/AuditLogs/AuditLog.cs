@@ -47,8 +47,7 @@ public class AuditLog
     /// </summary>
     [Column("mapped_id")]
     [Required]
-    [MaxLength(100)]
-    public string ObjectItemId { get; set; } = string.Empty;
+    public int ObjectItemId { get; set; }
 
     /// <summary>
     /// Gets or sets the IP address from which the action was performed.
@@ -96,7 +95,7 @@ public class AuditLog
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, string objectItemId, string ip, string? data, int createdBy)
+    public AuditLog(string objectKey, string @event, int objectItemId, string ip, string? data, int createdBy)
     {
         ObjectKey = objectKey;
         Event = @event;

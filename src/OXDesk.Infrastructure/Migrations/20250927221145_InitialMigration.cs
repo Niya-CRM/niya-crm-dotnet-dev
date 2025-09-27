@@ -35,11 +35,12 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'1000001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
-                    object_item_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    object_item_id = table.Column<int>(type: "integer", nullable: false),
                     ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
                     data = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -79,6 +80,7 @@ namespace OXDesk.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'1000001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     tenant_id = table.Column<int>(type: "integer", nullable: false),
                     object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -732,9 +734,9 @@ namespace OXDesk.Infrastructure.Migrations
                 column: "version");
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_tenant_id",
+                name: "ix_audit_logs_tenant_id_created_at",
                 table: "audit_logs",
-                column: "tenant_id");
+                columns: new[] { "tenant_id", "created_at" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_audit_logs_tenant_id_object_key_created_at",
@@ -765,6 +767,11 @@ namespace OXDesk.Infrastructure.Migrations
                 name: "ix_change_history_logs_tenant_id_created_at",
                 table: "change_history_logs",
                 columns: new[] { "tenant_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_tenant_id_object_key_created_at",
+                table: "change_history_logs",
+                columns: new[] { "tenant_id", "object_key", "created_at" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_change_history_logs_tenant_id_object_key_object_item_id_cre~",

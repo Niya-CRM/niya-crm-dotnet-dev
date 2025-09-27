@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250922204108_InitialMigration")]
+    [Migration("20250927221145_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -80,6 +80,7 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1000001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -106,10 +107,8 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip");
 
-                    b.Property<string>("ObjectItemId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                    b.Property<int>("ObjectItemId")
+                        .HasColumnType("integer")
                         .HasColumnName("object_item_id");
 
                     b.Property<string>("ObjectKey")
@@ -125,8 +124,8 @@ namespace OXDesk.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
-                    b.HasIndex("TenantId")
-                        .HasDatabaseName("ix_audit_logs_tenant_id");
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_tenant_id_created_at");
 
                     b.HasIndex("TenantId", "ObjectKey", "CreatedAt")
                         .HasDatabaseName("ix_audit_logs_tenant_id_object_key_created_at");
@@ -145,6 +144,7 @@ namespace OXDesk.Infrastructure.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1000001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -189,6 +189,9 @@ namespace OXDesk.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_tenant_id_created_at");
+
+                    b.HasIndex("TenantId", "ObjectKey", "CreatedAt")
+                        .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_created_at");
 
                     b.HasIndex("TenantId", "ObjectKey", "ObjectItemId", "CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_object_item_id_cre~");

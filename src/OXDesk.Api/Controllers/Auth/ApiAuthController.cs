@@ -85,7 +85,7 @@ namespace OXDesk.Api.Controllers.Auth
                 await _auditLogService.CreateAuditLogAsync(
                     objectKey: CommonConstant.MODULE_USER,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                    objectItemId: user.Id.ToString(),
+                    objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Login Denied - Account not Active",
                     createdBy: user.Id,
@@ -102,7 +102,7 @@ namespace OXDesk.Api.Controllers.Auth
                 await _auditLogService.CreateAuditLogAsync(
                     objectKey: CommonConstant.MODULE_USER,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                    objectItemId: user.Id.ToString(),
+                    objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Invalid Credential",
                     createdBy: user.Id,
@@ -116,7 +116,7 @@ namespace OXDesk.Api.Controllers.Auth
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                objectItemId: user.Id.ToString(),
+                objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                 data: "Login Successful",
                 createdBy: user.Id,

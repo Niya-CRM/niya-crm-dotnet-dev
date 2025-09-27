@@ -57,7 +57,7 @@ public class TenantService : ITenantService
     /// <param name="cancellationToken">Cancellation token.</param>
     private async Task AddTenantAuditLogAsync(
         string @event,
-        string objectItemId,
+        int objectItemId,
         string data,
         int createdBy,
         CancellationToken cancellationToken)
@@ -121,7 +121,7 @@ public class TenantService : ITenantService
         // Insert audit log
         await AddTenantAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            createdTenant.Id.ToString(),
+            createdTenant.Id,
             $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
             createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken
@@ -251,7 +251,7 @@ public class TenantService : ITenantService
         // Insert audit log for update
         await AddTenantAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedTenant.Id.ToString(),
+            updatedTenant.Id,
             $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
             modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken
@@ -292,7 +292,7 @@ public class TenantService : ITenantService
         string actionPastTense = isActivating ? "activated" : "deactivated";
         await AddTenantAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedTenant.Id.ToString(),
+            updatedTenant.Id,
             $"Tenant {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
             CommonConstant.DEFAULT_SYSTEM_USER,
             cancellationToken

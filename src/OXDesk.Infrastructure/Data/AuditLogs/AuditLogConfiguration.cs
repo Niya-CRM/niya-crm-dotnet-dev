@@ -12,8 +12,13 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
     {
         public void Configure(EntityTypeBuilder<AuditLog> builder)
         {            
+            builder.HasKey(o => o.Id);
+            builder.Property(o => o.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 1000001L);
+
             // Index for tenant_id for efficient multi-tenant filtering
-            builder.HasIndex(a => a.TenantId);
+            builder.HasIndex(a => new { a.TenantId, a.CreatedAt });
 
             // Composite index for efficient filtering
             builder.HasIndex(a => new { a.TenantId, a.ObjectKey, a.ObjectItemId, a.CreatedAt });
