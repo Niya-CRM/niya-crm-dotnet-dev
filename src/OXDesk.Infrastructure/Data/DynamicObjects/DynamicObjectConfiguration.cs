@@ -19,6 +19,7 @@ namespace OXDesk.Infrastructure.Data.DynamicObjects
             builder.Property(o => o.Id)
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
+            
             // Index for tenant_id for efficient multi-tenant filtering
             builder.HasIndex(o => o.TenantId);
             
