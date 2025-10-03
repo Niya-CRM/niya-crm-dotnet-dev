@@ -1,15 +1,21 @@
 namespace OXDesk.Core.Extension;
 
 /// <summary>
-/// Provides common auditing properties for entities that track creation and update metadata.
+/// Provides auditing metadata for creation, updates, and soft deletion of an entity.
 /// </summary>
-public class AuditedEntity : ICreationAudited, IUpdationAudited
+public class AuditedEntityWithSoftDelete : ICreationAudited, IUpdationAudited, ISoftDelete
 {
     /// <inheritdoc />
     public DateTime CreatedAt { get; set; }
 
     /// <inheritdoc />
     public Guid CreatedBy { get; set; }
+
+    /// <inheritdoc />
+    public DateTime? DeletedAt { get; set; }
+
+    /// <inheritdoc />
+    public Guid? DeletedBy { get; set; }
 
     /// <inheritdoc />
     public DateTime UpdatedAt { get; set; }
