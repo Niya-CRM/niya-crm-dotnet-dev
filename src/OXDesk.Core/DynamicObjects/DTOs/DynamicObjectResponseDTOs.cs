@@ -15,8 +15,8 @@ namespace OXDesk.Core.DynamicObjects.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
+        public Guid UpdatedBy { get; set; }
         public string? CreatedByText { get; set; }
         public string? UpdatedByText { get; set; }
     }

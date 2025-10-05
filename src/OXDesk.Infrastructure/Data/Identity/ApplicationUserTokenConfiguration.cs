@@ -14,8 +14,6 @@ public class ApplicationUserTokenConfiguration : IEntityTypeConfiguration<Applic
         // Table name
         builder.ToTable("user_tokens");
 
-        // Primary key is already configured by Identity
-
         // Add tenant_id index
         builder.HasIndex(ut => ut.TenantId)
             .HasDatabaseName("ix_user_tokens_tenant_id");

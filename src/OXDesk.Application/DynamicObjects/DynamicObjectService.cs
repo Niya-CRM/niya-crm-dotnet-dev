@@ -47,18 +47,12 @@ public class DynamicObjectService : IDynamicObjectService
 
     /// <summary>
     /// Adds an audit log entry for dynamic object-related actions.
-    /// </summary>
     /// <param name="event">The event/action type.</param>
     /// <param name="objectItemId">The ID of the affected entity.</param>
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddDynamicObjectAuditLogAsync(
-        string @event,
-        int objectItemId,
-        string data,
-        int createdBy,
-        CancellationToken cancellationToken)
+    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectItemId, string data, Guid createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             objectKey: "dynamic_object",
@@ -72,7 +66,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating dynamic object with name: {ObjectName}", request.ObjectName);
 
@@ -157,7 +151,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, int modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating dynamic object {DynamicObjectId} with name: {ObjectName}", id, request.ObjectName);
 

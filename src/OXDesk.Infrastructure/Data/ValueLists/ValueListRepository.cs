@@ -79,8 +79,8 @@ public class ValueListRepository : IValueListRepository
         _logger.LogDebug("Adding ValueList: {Name}", valueList.ListName);
         if (valueList.CreatedAt == default) valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
-        if (valueList.CreatedBy == 0) valueList.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
-        if (valueList.UpdatedBy == 0) valueList.UpdatedBy = valueList.CreatedBy;
+        if (valueList.CreatedBy == Guid.Empty) valueList.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+        if (valueList.UpdatedBy == Guid.Empty) valueList.UpdatedBy = valueList.CreatedBy;
 
         var entry = await _dbSet.AddAsync(valueList, cancellationToken);
         _logger.LogInformation("Added ValueList with ID: {Id}", entry.Entity.Id);
@@ -111,7 +111,7 @@ public class ValueListRepository : IValueListRepository
         return entry.Entity;
     }
 
-    public async Task<ValueList> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -130,7 +130,7 @@ public class ValueListRepository : IValueListRepository
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)

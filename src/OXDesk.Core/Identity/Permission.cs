@@ -41,7 +41,7 @@ public class Permission
     /// Gets or sets the ID of the user who created this permission.
     /// </summary>
     [Required]
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this permission was created.
@@ -53,7 +53,7 @@ public class Permission
     /// Gets or sets the ID of the user who last updated this permission.
     /// </summary>
     [Required]
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this permission was last updated.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,12 @@ namespace OXDesk.Tests.Helpers;
 
 public static class TestHelpers
 {
+    // Test user IDs
+    public static readonly Guid TestUserId1 = Guid.Parse("10000000-0000-0000-0000-000000010001");
+    public static readonly Guid TestUserId2 = Guid.Parse("10000000-0000-0000-0000-000000010002");
+    public static readonly Guid TestUserId3 = Guid.Parse("10000000-0000-0000-0000-000000010003");
+    
+
     public static UserManager<ApplicationUser> MockUserManager()
     {
         var store = new Mock<IUserPasswordStore<ApplicationUser>>();

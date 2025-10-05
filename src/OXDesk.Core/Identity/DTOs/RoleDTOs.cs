@@ -15,12 +15,12 @@ namespace OXDesk.Core.Identity.DTOs
 
     public sealed class RoleResponse
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string NormalizedName { get; set; } = string.Empty;
-        public int CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
-        public int UpdatedBy { get; set; }
+        public Guid UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         public string? CreatedByText { get; set; }
@@ -41,9 +41,9 @@ namespace OXDesk.Core.Identity.DTOs
     public sealed class RolePermissionResponse
     {
         public string Name { get; set; } = string.Empty; // permission name (claim value)
-        public int CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
-        public int UpdatedBy { get; set; }
+        public Guid UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         // Display text for the creator user, typically the user's full name.

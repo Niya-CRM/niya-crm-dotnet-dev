@@ -22,7 +22,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    public async Task<ValueList> CreateAsync(ValueList valueList, int? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
         if (string.IsNullOrWhiteSpace(valueList.ListName))
@@ -37,7 +37,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         _logger.LogInformation("Creating ValueList: {Name}", valueList.ListName);
         valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
-        valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == 0 ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.CreatedBy);
+        valueList.CreatedBy = createdBy ?? (valueList.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.CreatedBy);
         valueList.UpdatedBy = valueList.CreatedBy;
 
         var created = await _unitOfWork.GetRepository<IValueListRepository>().AddAsync(valueList, cancellationToken);
@@ -48,7 +48,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return created;
     }
 
-    public async Task<ValueList> UpdateAsync(ValueList valueList, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> UpdateAsync(ValueList valueList, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
         if (valueList.Id <= 0)
@@ -79,7 +79,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         existing.AllowModify = valueList.AllowModify;
         existing.AllowNewItem = valueList.AllowNewItem;
         existing.UpdatedAt = DateTime.UtcNow;
-        existing.UpdatedBy = modifiedBy ?? (valueList.UpdatedBy == 0 ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.UpdatedBy);
+        existing.UpdatedBy = modifiedBy ?? (valueList.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : valueList.UpdatedBy);
         var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Updated ValueList: {Id}", updated.Id);
@@ -120,7 +120,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
     }
 
-    public async Task<ValueList> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, modifiedBy, cancellationToken);
@@ -129,7 +129,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, modifiedBy, cancellationToken);

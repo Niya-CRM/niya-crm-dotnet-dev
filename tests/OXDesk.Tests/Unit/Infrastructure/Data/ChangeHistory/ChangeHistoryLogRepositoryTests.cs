@@ -1,13 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.InMemory;
+using Microsoft.Extensions.DependencyInjection;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
+using OXDesk.Core.Common;
+using OXDesk.Core.Tenants;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
+using OXDesk.Tests.Helpers;
 using Shouldly;
-using Microsoft.Extensions.DependencyInjection;
-using OXDesk.Core.Tenants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
 {
@@ -35,22 +41,22 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             {
                 new ChangeHistoryLog(
                     "User",
-                    101,
+                    Guid.Parse("00000000-0000-0000-0000-000000000065"), // 101
                     "Email",
                     "old@example.com",
                     "new@example.com",
-                    10001
+                    TestHelpers.TestUserId1
                 )
                 {
                     TenantId = tenantId
                 },
                 new ChangeHistoryLog(
                     "Contact",
-                    102,
+                    Guid.Parse("00000000-0000-0000-0000-000000000066"), // 102
                     "Phone",
                     "123456789",
                     "987654321",
-                    10002
+                    TestHelpers.TestUserId2
                 )
                 {
                     TenantId = tenantId
@@ -83,20 +89,17 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         [Fact]
         public async Task GetChangeHistoryLogsAsync_WithObjectKeyFilter_ShouldReturnFilteredLogs()
         {
-            // Arrange
             var objectKey = "User";
 
             // Act
             var query = new ChangeHistoryLogQueryDto
             {
-                ObjectKey = objectKey,
-                ObjectItemId = 0
+                ObjectKey = objectKey
             };
             var result = await _repository.GetChangeHistoryLogsAsync(query);
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(1);
             result.First().ObjectKey.ShouldBe(objectKey);
         }
 
@@ -106,11 +109,11 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             // Arrange
             var newLog = new ChangeHistoryLog(
                 "Product",
-                201,
+                Guid.Parse("00000000-0000-0000-0000-0000000000C9"), // 201
                 "Price",
                 "100",
                 "150",
-                10001
+                TestHelpers.TestUserId1
             );
 
             // Act

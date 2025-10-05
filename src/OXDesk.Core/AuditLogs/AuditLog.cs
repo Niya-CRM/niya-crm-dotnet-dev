@@ -42,11 +42,16 @@ public class AuditLog
     public string Event { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the ID of the entity that was affected.
+    /// Gets or sets the UUID of the entity that was affected (for Guid-based entities).
     /// </summary>
-    [Column("mapped_id")]
-    [Required]
-    public Guid ObjectItemId { get; set; }
+    [Column("mapped_id_uuid")]
+    public Guid? ObjectItemIdUuid { get; set; }
+
+    /// <summary>
+    /// Gets or sets the integer ID of the entity that was affected (for int-based entities).
+    /// </summary>
+    [Column("mapped_id_int")]
+    public int? ObjectItemIdInt { get; set; }
 
     /// <summary>
     /// Gets or sets the IP address from which the action was performed.
@@ -74,7 +79,7 @@ public class AuditLog
     /// </summary>
     [Column("created_by")]
     [Required]
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
 
     /// <summary>
@@ -89,16 +94,38 @@ public class AuditLog
     /// </summary>
     /// <param name="objectKey">The object key/entity type.</param>
     /// <param name="event">The event/action type.</param>
-    /// <param name="objectItemId">The affected entity ID.</param>
+    /// <param name="objectItemId">The affected entity ID (Guid).</param>
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, Guid objectItemId, string ip, string? data, int createdBy)
+    public AuditLog(string objectKey, string @event, Guid objectItemId, string ip, string? data, Guid createdBy)
     {
         ObjectKey = objectKey;
         Event = @event;
-        ObjectItemId = objectItemId;
+        ObjectItemIdUuid = objectItemId;
+        IP = ip;
+        Data = data;
+        CreatedAt = DateTime.UtcNow;
+        CreatedBy = createdBy;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuditLog"/> class.
+    /// Constructor for creating new audit log entries with int-based entity ID.
+    /// </summary>
+    /// <param name="objectKey">The object key/entity type.</param>
+    /// <param name="event">The event/action type.</param>
+    /// <param name="objectItemId">The affected entity ID (int).</param>
+    /// <param name="ip">The IP address.</param>
+    /// <param name="data">The audit data.</param>
+    /// <param name="createdBy">The user who performed the action.</param>
+    /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
+    public AuditLog(string objectKey, string @event, int objectItemId, string ip, string? data, Guid createdBy)
+    {
+        ObjectKey = objectKey;
+        Event = @event;
+        ObjectItemIdInt = objectItemId;
         IP = ip;
         Data = data;
         CreatedAt = DateTime.UtcNow;

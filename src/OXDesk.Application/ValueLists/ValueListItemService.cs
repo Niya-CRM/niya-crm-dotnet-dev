@@ -25,7 +25,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return await _repository.GetByListIdAsync(listId, cancellationToken);
     }
 
-    public async Task<ValueListItem> CreateAsync(ValueListItem item, int? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.ListId <= 0) throw new ValidationException("ListId is required.");
@@ -36,7 +36,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
 
         item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
-        item.CreatedBy = createdBy ?? (item.CreatedBy == 0 ? CommonConstant.DEFAULT_SYSTEM_USER : item.CreatedBy);
+        item.CreatedBy = createdBy ?? (item.CreatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.CreatedBy);
         item.UpdatedBy = item.CreatedBy;
 
         // TenantId will be handled by DbContext based on current tenant scope
@@ -48,7 +48,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return created;
     }
 
-    public async Task<ValueListItem> UpdateAsync(ValueListItem item, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> UpdateAsync(ValueListItem item, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.Id <= 0) throw new ValidationException("Id must be a positive integer for update.");
@@ -60,7 +60,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         
         // We trust repository to track entity by key; simply set audit fields here
         item.UpdatedAt = DateTime.UtcNow;
-        item.UpdatedBy = modifiedBy ?? (item.UpdatedBy == 0 ? CommonConstant.DEFAULT_SYSTEM_USER : item.UpdatedBy);
+        item.UpdatedBy = modifiedBy ?? (item.UpdatedBy == Guid.Empty ? CommonConstant.DEFAULT_SYSTEM_USER : item.UpdatedBy);
 
         var updated = await _repository.UpdateAsync(item, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -69,7 +69,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return updated;
     }
 
-    public async Task<ValueListItem> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Activating ValueListItem: {Id}", id);
@@ -80,7 +80,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Deactivating ValueListItem: {Id}", id);

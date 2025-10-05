@@ -80,13 +80,13 @@ public class ValueListItem
     /// Gets or sets the user who created the value list item.
     /// </summary>
     [Required]
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last updated the value list item.
     /// </summary>
     [Required]
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueListItem"/> class.
@@ -103,7 +103,7 @@ public class ValueListItem
         string itemKey,
         int listId,
         bool isActive,
-        int createdBy,
+        Guid createdBy,
         int? order = null)
     {
         TenantId = tenantId;

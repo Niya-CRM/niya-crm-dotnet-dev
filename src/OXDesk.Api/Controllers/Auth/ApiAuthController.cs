@@ -86,7 +86,7 @@ namespace OXDesk.Api.Controllers.Auth
                 await _auditLogService.CreateAuditLogAsync(
                     objectKey: CommonConstant.MODULE_USER,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                    objectItemId: user.Id.ToGuid(),
+                    objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Login Denied - Account not Active",
                     createdBy: user.Id,
@@ -103,7 +103,7 @@ namespace OXDesk.Api.Controllers.Auth
                 await _auditLogService.CreateAuditLogAsync(
                     objectKey: CommonConstant.MODULE_USER,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                    objectItemId: user.Id.ToGuid(),
+                    objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Invalid Credential",
                     createdBy: user.Id,
@@ -117,7 +117,7 @@ namespace OXDesk.Api.Controllers.Auth
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                objectItemId: user.Id.ToGuid(),
+                objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                 data: "Login Successful",
                 createdBy: user.Id,
@@ -174,7 +174,7 @@ namespace OXDesk.Api.Controllers.Auth
         public async Task<IActionResult> Logout()
         {
             var sub = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            if (string.IsNullOrWhiteSpace(sub) || !int.TryParse(sub, out var userId) || userId <= 0)
+            if (string.IsNullOrWhiteSpace(sub) || !Guid.TryParse(sub, out var userId) || userId == Guid.Empty)
             {
                 return Unauthorized();
             }

@@ -8,6 +8,7 @@ using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Tests.Helpers;
 using Shouldly;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -103,7 +104,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -123,7 +124,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -144,7 +145,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = tenantHost,
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
             
@@ -353,7 +354,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var tenantName = "Test Tenant";
             var tenantHost = "test.domain.com";
             var tenantEmail = "test@example.com";
-            var userId = 10001;
+            var userId = TestHelpers.TestUserId1;
             var createRequest = new CreateTenantRequest
             {
                 Name = tenantName,

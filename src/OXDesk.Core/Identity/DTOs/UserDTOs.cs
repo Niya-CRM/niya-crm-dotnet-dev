@@ -82,7 +82,7 @@ public class UserResponse
     /// <summary>
     /// Gets or sets the ID of the user.
     /// </summary>
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Gets or sets the email of the user.
@@ -159,12 +159,12 @@ public class UserResponse
     /// <summary>
     /// Gets or sets the ID of the user who created the user.
     /// </summary>
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the user who last updated the user.
     /// </summary>
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     /// <summary>
     /// Display text for the creator user, typically the user's full name.

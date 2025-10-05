@@ -29,11 +29,11 @@ public class PermissionService : IPermissionService
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    private int GetCurrentUserIdOrDefault()
+    private Guid GetCurrentUserIdOrDefault()
     {
         var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
             ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return int.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
+        return Guid.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
     }
     public async Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default)
     {
@@ -49,7 +49,7 @@ public class PermissionService : IPermissionService
         return entity;
     }
 
-    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Permission name is required.");
         var name = request.Name.Trim();
@@ -60,7 +60,7 @@ public class PermissionService : IPermissionService
         if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists in this tenant.");
 
         var now = DateTime.UtcNow;
-        var userId = createdBy ?? GetCurrentUserIdOrDefault();
+        var userId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         var entity = new Permission
         {
@@ -76,7 +76,7 @@ public class PermissionService : IPermissionService
         return entity;
     }
 
-    public async Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, int? updatedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
     {
         var entity = await _permissionRepository.GetByIdAsync(id);
         if (entity == null) throw new InvalidOperationException($"Permission with ID '{id}' was not found.");
@@ -96,7 +96,7 @@ public class PermissionService : IPermissionService
         entity.Name = newName;
         entity.NormalizedName = newNormalized;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = updatedBy ?? GetCurrentUserIdOrDefault();
+        entity.UpdatedBy = updatedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
 
         entity = await _permissionRepository.UpdateAsync(entity);
         return entity;

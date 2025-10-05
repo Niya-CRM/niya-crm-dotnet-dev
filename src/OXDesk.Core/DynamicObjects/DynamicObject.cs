@@ -87,12 +87,12 @@ public class DynamicObject
     /// <summary>
     /// Gets or sets the user who created the dynamic object.
     /// </summary>
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last updated the dynamic object.
     /// </summary>
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DynamicObject"/> class.
@@ -111,7 +111,7 @@ public class DynamicObject
         string objectKey,
         string description,
         string objectType,
-        int createdBy)
+        Guid createdBy)
     {
         ObjectName = objectName;
         SingularName = singularName;

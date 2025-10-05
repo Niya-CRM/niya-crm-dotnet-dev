@@ -65,7 +65,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
             if (role == null) return this.CreateNotFoundProblem($"Role with ID '{id}' was not found.");
@@ -105,7 +105,7 @@ namespace OXDesk.Api.Controllers.Identity
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateAsync(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken = default)
         {
             var validation = await _updateValidator.ValidateAsync(request, cancellationToken);
             if (!validation.IsValid)
@@ -131,7 +131,7 @@ namespace OXDesk.Api.Controllers.Identity
         [HttpDelete("{id:guid}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status405MethodNotAllowed)]
-        public IActionResult DeleteAsync(int id, CancellationToken cancellationToken = default)
+        public IActionResult DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return this.CreateMethodNotAllowedProblem("Deleting roles is not allowed.");
         }
@@ -140,7 +140,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<RolePermissionResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPermissionsAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -155,11 +155,11 @@ namespace OXDesk.Api.Controllers.Identity
             }
         }
 
-        [HttpDelete("{id:guid}/permissions/{permissionId:guid}")]
+        [HttpDelete("{id:guid}/permissions/{permissionId:int}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeletePermissionAsync(int id, int permissionId, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> DeletePermissionAsync(Guid id, int permissionId, CancellationToken cancellationToken = default)
         {
             // Ensure role exists
             var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
@@ -194,7 +194,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<RoleResponse, RoleDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SetPermissionsAsync(int id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> SetPermissionsAsync(Guid id, [FromBody] UpdateRolePermissionsRequest request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -219,7 +219,7 @@ namespace OXDesk.Api.Controllers.Identity
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<UserResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetRoleUsersAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> GetRoleUsersAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {

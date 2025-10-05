@@ -91,7 +91,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<UserResponse?> GetUserByIdAsync(int id, Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<UserResponse?> GetUserByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID: {UserId}", id);
 

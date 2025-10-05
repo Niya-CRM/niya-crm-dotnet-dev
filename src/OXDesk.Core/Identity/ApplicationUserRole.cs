@@ -7,7 +7,7 @@ namespace OXDesk.Core.Identity;
 /// <summary>
 /// Custom application user role that uses Guid as primary key with audit fields.
 /// </summary>
-public class ApplicationUserRole : IdentityUserRole<int>
+public class ApplicationUserRole : IdentityUserRole<Guid>
 {
     public ApplicationUserRole() : base() 
     { 
@@ -26,7 +26,7 @@ public class ApplicationUserRole : IdentityUserRole<int>
     /// Gets or sets the ID of the user who created this user role.
     /// </summary>
     [Required]
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this user role was created.
@@ -38,7 +38,7 @@ public class ApplicationUserRole : IdentityUserRole<int>
     /// Gets or sets the ID of the user who last updated this user role.
     /// </summary>
     [Required]
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this user role was last updated.

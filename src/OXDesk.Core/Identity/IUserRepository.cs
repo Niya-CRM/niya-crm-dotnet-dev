@@ -24,5 +24,5 @@ public interface IUserRepository
     /// <param name="tenantId">The tenant ID to filter users by.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user response if found, otherwise null.</returns>
-    Task<UserResponse?> GetUserByIdAsync(int id, Guid tenantId, CancellationToken cancellationToken = default);
+    Task<UserResponse?> GetUserByIdAsync(Guid id, Guid tenantId, CancellationToken cancellationToken = default);
 }

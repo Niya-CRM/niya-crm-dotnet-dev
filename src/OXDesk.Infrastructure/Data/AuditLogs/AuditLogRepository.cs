@@ -39,8 +39,10 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
 
             if (!string.IsNullOrEmpty(query.ObjectKey))
                 q = q.Where(a => a.ObjectKey == query.ObjectKey);
-            if (query.ObjectItemId.HasValue)
-                q = q.Where(a => a.ObjectItemId == query.ObjectItemId.Value);
+            if (query.ObjectItemIdUuid.HasValue)
+                q = q.Where(a => a.ObjectItemIdUuid == query.ObjectItemIdUuid.Value);
+            if (query.ObjectItemIdInt.HasValue)
+                q = q.Where(a => a.ObjectItemIdInt == query.ObjectItemIdInt.Value);
             if (query.CreatedBy.HasValue)
                 q = q.Where(a => a.CreatedBy == query.CreatedBy.Value);
             if (query.StartDate.HasValue)

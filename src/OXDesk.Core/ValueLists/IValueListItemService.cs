@@ -20,7 +20,7 @@ public interface IValueListItemService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created value list item.</returns>
     /// <remarks>Tenant context is applied by global query filters; TenantId will be set by the DbContext.</remarks>
-    Task<ValueListItem> CreateAsync(ValueListItem item, int? createdBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// Updates an existing value list item.
     /// </summary>
@@ -28,7 +28,7 @@ public interface IValueListItemService
     /// <param name="modifiedBy">The user who modified the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated value list item.</returns>
-    Task<ValueListItem> UpdateAsync(ValueListItem item, int? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> UpdateAsync(ValueListItem item, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// Activates a value list item.
     /// </summary>
@@ -36,7 +36,7 @@ public interface IValueListItemService
     /// <param name="modifiedBy">The user who modified the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The activated value list item.</returns>
-    Task<ValueListItem> ActivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
     /// <summary>
     /// Deactivates a value list item.
     /// </summary>
@@ -44,5 +44,5 @@ public interface IValueListItemService
     /// <param name="modifiedBy">The user who modified the item.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The deactivated value list item.</returns>
-    Task<ValueListItem> DeactivateAsync(int id, int? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
 }

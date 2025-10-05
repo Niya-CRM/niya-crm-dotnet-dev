@@ -16,13 +16,6 @@ public class ApplicationRoleConfiguration : IEntityTypeConfiguration<Application
         // Table name
         builder.ToTable("asp_net_roles");
 
-        // Start identity values for role Ids at 10001
-        builder.Property(r => r.Id)
-            .UseIdentityByDefaultColumn()
-            .HasIdentityOptions(startValue: 10001L);
-
-        // Primary key is already configured by Identity
-
         // Configure audit fields
         builder.Property(r => r.CreatedBy).IsRequired();
         builder.Property(r => r.CreatedAt).IsRequired();

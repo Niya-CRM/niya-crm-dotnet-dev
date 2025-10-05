@@ -34,7 +34,7 @@ public class Tenant
     /// <summary>
     /// Gets or sets the user identifier associated with this tenant.
     /// </summary>
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the database name for this tenant.
@@ -64,12 +64,12 @@ public class Tenant
     /// <summary>
     /// Gets or sets the user who created the tenant.
     /// </summary>
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last modified the tenant.
     /// </summary>
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Tenant"/> class.
@@ -90,7 +90,7 @@ public class Tenant
     /// <param name="isActive">Whether active.</param>
     /// <param name="createdAt">Creation timestamp.</param>
     /// <param name="createdBy">Creator user id.</param>
-    public Tenant(string name, string host, string email, int userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, int createdBy)
+    public Tenant(string name, string host, string email, Guid userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, Guid createdBy)
     {
         Id = Guid.CreateVersion7();
         Name = name;

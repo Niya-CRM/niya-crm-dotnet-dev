@@ -35,8 +35,8 @@ namespace OXDesk.Core.DynamicObjects.Fields.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public int CreatedBy { get; set; }
-        public int UpdatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
+        public Guid UpdatedBy { get; set; }
 
         // Enriched fields
         public string? CreatedByText { get; set; }

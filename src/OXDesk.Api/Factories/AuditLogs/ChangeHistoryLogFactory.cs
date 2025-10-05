@@ -27,7 +27,8 @@ namespace OXDesk.Api.Factories.AuditLogs
         {
             Id = log.Id,
             ObjectKey = log.ObjectKey,
-            ObjectItemId = log.ObjectItemId,
+            ObjectItemIdUuid = log.ObjectItemIdUuid,
+            ObjectItemIdInt = log.ObjectItemIdInt,
             FieldName = log.FieldName,
             OldValue = log.OldValue,
             NewValue = log.NewValue,

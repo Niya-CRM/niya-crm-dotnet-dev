@@ -49,18 +49,12 @@ public class TenantService : ITenantService
 
     /// <summary>
     /// Adds an audit log entry for tenant-related actions.
-    /// </summary>
     /// <param name="event">The event/action type.</param>
     /// <param name="objectItemId">The ID of the affected entity.</param>
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddTenantAuditLogAsync(
-        string @event,
-        Guid objectItemId,
-        string data,
-        int createdBy,
-        CancellationToken cancellationToken)
+    private async Task AddTenantAuditLogAsync(string @event, Guid objectItemId, string data, Guid createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             objectKey: CommonConstant.MODULE_TENANT,
@@ -74,7 +68,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, int? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", request.Name, request.Host, request.Email);
 
@@ -188,7 +182,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, int? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 

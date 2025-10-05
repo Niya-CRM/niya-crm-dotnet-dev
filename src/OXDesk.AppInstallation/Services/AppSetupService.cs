@@ -102,7 +102,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, int systemUserId, Guid tenantId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid systemUserId, Guid tenantId)
     {
 
         // Use the 'agent' profile key directly
@@ -180,7 +180,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, int systemUserId, Guid? tenantId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid systemUserId, Guid? tenantId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new CreateTenantRequest
         {

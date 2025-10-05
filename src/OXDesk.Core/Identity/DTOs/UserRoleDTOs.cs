@@ -4,6 +4,6 @@ namespace OXDesk.Core.Identity.DTOs
 {
     public sealed class AssignUserRoleRequest
     {
-        public int RoleId { get; set; }
+        public Guid RoleId { get; set; }
     }
 }

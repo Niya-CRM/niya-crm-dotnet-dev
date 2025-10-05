@@ -199,7 +199,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             // Accumulate users from all roles, deduplicate by user Id
             var users = new List<ApplicationUser>();
-            var seen = new HashSet<int>();
+            var seen = new HashSet<Guid>();
             foreach (var role in roles)
             {
                 var roleUsers = await _userService.GetUsersByRoleIdAsync(role.Id, cancellationToken);

@@ -14,14 +14,6 @@ public class ApplicationRoleClaimConfiguration : IEntityTypeConfiguration<Applic
     {
         // Table name
         builder.ToTable("role_claims");
-
-        // Primary key is already configured by Identity
-
-        // Configure audit fields
-        builder.Property(rc => rc.CreatedBy).IsRequired();
-        builder.Property(rc => rc.CreatedAt).IsRequired();
-        builder.Property(rc => rc.UpdatedBy).IsRequired();
-        builder.Property(rc => rc.UpdatedAt).IsRequired();
         
         // Add tenant_id index
         builder.HasIndex(rc => rc.TenantId)

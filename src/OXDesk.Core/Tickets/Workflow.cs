@@ -36,10 +36,10 @@ public class Workflow
     /// Audit fields.
     /// </summary>
     [Required]
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     [Required]
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }

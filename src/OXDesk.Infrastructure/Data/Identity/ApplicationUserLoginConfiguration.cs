@@ -14,8 +14,6 @@ public class ApplicationUserLoginConfiguration : IEntityTypeConfiguration<Applic
         // Table name
         builder.ToTable("user_logins");
 
-        // Primary key is already configured by Identity
-
         // Add tenant_id index
         builder.HasIndex(ul => ul.TenantId)
             .HasDatabaseName("ix_user_logins_tenant_id");

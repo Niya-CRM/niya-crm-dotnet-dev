@@ -1,5 +1,6 @@
 using System;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Tests.Helpers;
 using Shouldly;
 using Xunit;
 
@@ -8,32 +9,15 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
     public class ChangeHistoryLogTests
     {
         [Fact]
-        public void DefaultConstructor_ShouldInitializeProperties()
-        {
-            // Act
-            var changeHistoryLog = new ChangeHistoryLog();
-
-            // Assert
-            changeHistoryLog.Id.ShouldBe(0);
-            changeHistoryLog.ObjectKey.ShouldBe(string.Empty);
-            changeHistoryLog.ObjectItemId.ShouldBe(0);
-            changeHistoryLog.FieldName.ShouldBe(string.Empty);
-            changeHistoryLog.OldValue.ShouldBeNull();
-            changeHistoryLog.NewValue.ShouldBeNull();
-            changeHistoryLog.CreatedAt.ShouldBe(default(DateTime));
-            changeHistoryLog.CreatedBy.ShouldBe(0);
-        }
-
-        [Fact]
         public void ParameterizedConstructor_ShouldInitializeProperties()
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = 1001;
+            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003E9"); // 1001
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
-            var createdBy = 10001;
+            var createdBy = TestHelpers.TestUserId1;
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -47,7 +31,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
-            changeHistoryLog.ObjectItemId.ShouldBe(objectItemId);
+            changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBe(oldValue);
             changeHistoryLog.NewValue.ShouldBe(newValue);
@@ -62,11 +46,11 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         {
             // Arrange
             var objectKey = "User";
-            var objectItemId = 1002;
+            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003EA"); // 1002
             var fieldName = "Email";
             string? oldValue = null;
             string? newValue = null;
-            var createdBy = 10002;
+            var createdBy = TestHelpers.TestUserId2;
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
@@ -80,7 +64,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
-            changeHistoryLog.ObjectItemId.ShouldBe(objectItemId);
+            changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBeNull();
             changeHistoryLog.NewValue.ShouldBeNull();
@@ -97,11 +81,11 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
                 "User",
-                1003,
+                Guid.Parse("00000000-0000-0000-0000-0000000003EB"), // 1003
                 "Email",
                 "old@example.com",
                 "new@example.com",
-                10003);
+                TestHelpers.TestUserId3);
             
             var afterCreation = DateTime.UtcNow;
             

@@ -14,14 +14,6 @@ public class ApplicationUserRoleConfiguration : IEntityTypeConfiguration<Applica
     {
         // Table name
         builder.ToTable("user_roles");
-
-        // Primary key is already configured by Identity
-
-        // Configure audit fields
-        builder.Property(ur => ur.CreatedBy).IsRequired();
-        builder.Property(ur => ur.CreatedAt).IsRequired();
-        builder.Property(ur => ur.UpdatedBy).IsRequired();
-        builder.Property(ur => ur.UpdatedAt).IsRequired();
         
         // Add tenant_id index
         builder.HasIndex(ur => ur.TenantId)

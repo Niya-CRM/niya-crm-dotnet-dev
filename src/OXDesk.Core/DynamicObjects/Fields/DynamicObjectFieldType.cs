@@ -111,10 +111,10 @@ public class DynamicObjectFieldType
     /// <summary>
     /// Gets or sets the user who created the field type.
     /// </summary>
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the user who last updated the field type.
     /// </summary>
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 }

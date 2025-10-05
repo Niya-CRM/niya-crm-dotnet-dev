@@ -164,9 +164,9 @@ public class DynamicObjectField
     /// <summary>
     /// Gets or sets the user who created the dynamic field.
     /// </summary>
-    public int CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
     /// <summary>
     /// Gets or sets the user who last updated the dynamic field.
     /// </summary>
-    public int UpdatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 }

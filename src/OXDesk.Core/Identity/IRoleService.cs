@@ -9,17 +9,17 @@ namespace OXDesk.Core.Identity
     public interface IRoleService
     {
         Task<IReadOnlyList<ApplicationRole>> GetAllRolesAsync(CancellationToken cancellationToken = default);
-        Task<ApplicationRole?> GetRoleByIdAsync(int id, CancellationToken cancellationToken = default);
-        Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, int? createdBy = null, CancellationToken cancellationToken = default);
-        Task<ApplicationRole> UpdateRoleAsync(int id, UpdateRoleRequest request, int? updatedBy = null, CancellationToken cancellationToken = default);
-        Task<bool> DeleteRoleAsync(int id, int? deletedBy = null, CancellationToken cancellationToken = default);
+        Task<ApplicationRole?> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default);
+        Task<ApplicationRole> UpdateRoleAsync(Guid id, UpdateRoleRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default);
+        Task<bool> DeleteRoleAsync(Guid id, Guid? deletedBy = null, CancellationToken cancellationToken = default);
 
-        Task<string[]> GetRolePermissionsAsync(int roleId, CancellationToken cancellationToken = default);
-        Task<string[]> SetRolePermissionsAsync(int roleId, IEnumerable<string> permissionNames, int? updatedBy = null, CancellationToken cancellationToken = default);
+        Task<string[]> GetRolePermissionsAsync(Guid roleId, CancellationToken cancellationToken = default);
+        Task<string[]> SetRolePermissionsAsync(Guid roleId, IEnumerable<string> permissionNames, Guid? updatedBy = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns the underlying permission claims for the role including audit fields.
         /// </summary>
-        Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(int roleId, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<ApplicationRoleClaim>> GetRolePermissionClaimsAsync(Guid roleId, CancellationToken cancellationToken = default);
     }
 }

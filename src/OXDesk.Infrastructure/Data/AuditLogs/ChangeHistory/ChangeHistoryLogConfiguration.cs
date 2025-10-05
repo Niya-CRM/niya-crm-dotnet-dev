@@ -20,8 +20,9 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
             // Index for tenant_id for efficient multi-tenant filtering
             builder.HasIndex(c => new { c.TenantId, c.CreatedAt });
 
-            // Composite index for efficient filtering by entity
-            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemId, c.CreatedAt });
+            // Composite indexes for efficient filtering by entity (separate for UUID and int)
+            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemIdUuid, c.CreatedAt });
+            builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.ObjectItemIdInt, c.CreatedAt });
             builder.HasIndex(c => new { c.TenantId, c.ObjectKey, c.CreatedAt });
         }
     }

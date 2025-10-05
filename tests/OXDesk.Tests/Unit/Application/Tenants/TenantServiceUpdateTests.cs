@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using OXDesk.Application.Common;
 using OXDesk.Application.Tenants;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
@@ -8,6 +9,7 @@ using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Tests.Helpers;
 using Shouldly;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +17,6 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using OXDesk.Application.Common;
 
 namespace OXDesk.Tests.Unit.Application.Tenants
 {
@@ -83,7 +84,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -104,7 +105,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "",
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -125,7 +126,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -146,7 +147,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = "test.domain.com",
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -178,7 +179,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = host,
                 Email = "test@example.com",
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -238,7 +239,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 Name = "Test Tenant",
                 Host = host,
                 Email = email,
-                UserId = 10001,
+                UserId = TestHelpers.TestUserId1,
                 TimeZone = "UTC"
             };
 
@@ -294,7 +295,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var host = "original.domain.com";
             var email = "original@example.com";
             var databaseName = "updated_db";
-            var userId = 10001;
+            var userId = TestHelpers.TestUserId1;
             
             var updateRequest = new UpdateTenantRequest
             {
@@ -314,7 +315,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 DatabaseName = "original_db",
                 IsActive = "Y",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                CreatedBy = 10001,
+                CreatedBy = Guid.Parse("10000000-0000-0000-0000-000000010001"),
                 UpdatedAt = DateTime.UtcNow,
                 UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER
             };
@@ -328,7 +329,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 DatabaseName = databaseName,
                 IsActive = "Y",
                 CreatedAt = existingTenant.CreatedAt,
-                CreatedBy = 10001,
+                CreatedBy = Guid.Parse("10000000-0000-0000-0000-000000010001"),
                 UpdatedAt = DateTime.UtcNow,
                 UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER
             };
