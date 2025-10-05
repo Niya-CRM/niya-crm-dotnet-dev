@@ -14,5 +14,5 @@ public class ApplicationUserLogin : IdentityUserLogin<int>
     /// </summary>
     [Column("tenant_id")]
     [System.ComponentModel.DataAnnotations.Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 }

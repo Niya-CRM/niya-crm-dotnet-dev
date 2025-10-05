@@ -24,7 +24,7 @@ public class ChangeHistoryLog
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key (entity type) that was changed.

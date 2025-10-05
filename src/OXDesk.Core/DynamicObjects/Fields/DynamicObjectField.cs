@@ -22,7 +22,7 @@ public class DynamicObjectField
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Object identifier referring to the owning DynamicObject (FK to Id).

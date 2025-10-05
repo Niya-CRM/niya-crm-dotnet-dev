@@ -18,6 +18,7 @@ using OXDesk.Application.Common.Helpers;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using System;
 using OXDesk.Core.Tenants;
+using OXDesk.Core.Common.Extensions;
 
 namespace OXDesk.Application.Identity;
 
@@ -272,7 +273,7 @@ public class UserService : IUserService
         await _auditLogService.CreateAuditLogAsync(
             objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            objectItemId: user.Id,
+            objectItemId: user.Id.ToGuid(),
             data: $"User created: {user.FirstName} {user.LastName}",
             ip: GetUserIp(),
             createdBy: actorId,
@@ -336,7 +337,7 @@ public class UserService : IUserService
         await _auditLogService.CreateAuditLogAsync(
             objectKey: CommonConstant.MODULE_USER,
             @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            objectItemId: user.Id,
+            objectItemId: user.Id.ToGuid(),
             data: $"User {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
             ip: GetUserIp(),
             createdBy: actorId,
@@ -415,7 +416,7 @@ public class UserService : IUserService
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-                objectItemId: user.Id,
+                objectItemId: user.Id.ToGuid(),
                 data: $"Role assigned to user: {role.Name}",
                 ip: GetUserIp(),
                 createdBy: actorId,
@@ -463,7 +464,7 @@ public class UserService : IUserService
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-                objectItemId: user.Id,
+                objectItemId: user.Id.ToGuid(),
                 data: $"Role removed from user: {role.Name}",
                 ip: GetUserIp(),
                 createdBy: actorId,

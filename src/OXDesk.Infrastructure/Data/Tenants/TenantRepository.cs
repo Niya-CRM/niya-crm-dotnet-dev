@@ -30,7 +30,7 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Tenant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         
@@ -118,7 +118,7 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> ExistsByHostAsync(string host, int? excludeId = null, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsByHostAsync(string host, Guid? excludeId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(host))
             throw new ArgumentException("Host cannot be null or empty.", nameof(host));
@@ -137,7 +137,7 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<bool> ExistsByEmailAsync(string email, int? excludeId = null, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsByEmailAsync(string email, Guid? excludeId = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email cannot be null or empty.", nameof(email));

@@ -7,6 +7,7 @@ using OXDesk.Core.DynamicObjects.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
+using OXDesk.Core.Common.Extensions;
 
 namespace OXDesk.Application.DynamicObjects;
 
@@ -62,7 +63,7 @@ public class DynamicObjectService : IDynamicObjectService
         var auditLog = new AuditLog(
             objectKey: "dynamic_object",
             @event: @event,
-            objectItemId: objectItemId,
+            objectItemId: objectItemId.ToGuid(),
             ip: GetUserIp(),
             data: data,
             createdBy: createdBy

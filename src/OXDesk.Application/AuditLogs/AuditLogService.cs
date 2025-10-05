@@ -21,7 +21,7 @@ namespace OXDesk.Application.AuditLogs
         }
 
         /// <inheritdoc/>
-        public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
+        public async Task<AuditLog> CreateAuditLogAsync(string objectKey, string @event, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
         {
             var auditLog = new AuditLog(
                 objectKey,

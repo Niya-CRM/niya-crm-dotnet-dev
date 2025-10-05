@@ -77,7 +77,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenNameIsEmpty()
         {
             // Arrange
-            var tenantId = 1;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "",
@@ -98,7 +98,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenHostIsEmpty()
         {
             // Arrange
-            var tenantId = 2;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000002");
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
@@ -119,7 +119,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowValidationException_WhenEmailIsEmpty()
         {
             // Arrange
-            var tenantId = 3;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000003");
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
@@ -140,7 +140,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenTenantNotFound()
         {
             // Arrange
-            var tenantId = 4;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000004");
             var updateRequest = new UpdateTenantRequest
             {
                 Name = "Test Tenant",
@@ -170,8 +170,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenHostExistsOnDifferentTenant()
         {
             // Arrange
-            var tenantId = 5;
-            var existingTenantId = 6;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000005");
+            var existingTenantId = Guid.Parse("00000000-0000-0000-0000-000000000006");
             var host = "new.domain.com";
             var updateRequest = new UpdateTenantRequest
             {
@@ -229,8 +229,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldThrowInvalidOperationException_WhenEmailExistsOnDifferentTenant()
         {
             // Arrange
-            var tenantId = 7;
-            var existingTenantId = 8;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000007");
+            var existingTenantId = Guid.Parse("00000000-0000-0000-0000-000000000008");
             var host = "test.domain.com";
             var email = "new@example.com";
             var updateRequest = new UpdateTenantRequest
@@ -289,7 +289,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task UpdateTenantAsync_ShouldNotCheckUniqueness_WhenHostAndEmailUnchanged()
         {
             // Arrange
-            var tenantId = 10;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-00000000000A");
             var name = "Updated Tenant";
             var host = "original.domain.com";
             var email = "original@example.com";

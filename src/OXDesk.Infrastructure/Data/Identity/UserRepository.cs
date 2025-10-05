@@ -27,7 +27,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(int tenantId, int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync(Guid tenantId, int? pageNumber = null, int? pageSize = null, CancellationToken cancellationToken = default)
     {
         // Check if pagination should be applied
         bool usePagination = pageNumber.HasValue && pageSize.HasValue && pageNumber.Value > 0 && pageSize.Value > 0;
@@ -91,7 +91,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<UserResponse?> GetUserByIdAsync(int id, int tenantId, CancellationToken cancellationToken = default)
+    public async Task<UserResponse?> GetUserByIdAsync(int id, Guid tenantId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID: {UserId}", id);
 

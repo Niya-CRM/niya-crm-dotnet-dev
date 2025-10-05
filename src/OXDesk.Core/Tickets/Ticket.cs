@@ -20,7 +20,7 @@ public class Ticket
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     // Ticket Number with or w/o Suffix and Prefix
     [Required]

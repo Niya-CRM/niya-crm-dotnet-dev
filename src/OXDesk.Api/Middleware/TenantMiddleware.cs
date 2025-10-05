@@ -31,7 +31,7 @@ namespace OXDesk.Api.Middleware
                     var tenantClaim = context.User.Claims.FirstOrDefault(c => c.Type == TenantIdKey);
                     
                     if (tenantClaim != null && !string.IsNullOrEmpty(tenantClaim.Value) && 
-                        int.TryParse(tenantClaim.Value, out int tenantId))
+                        Guid.TryParse(tenantClaim.Value, out Guid tenantId))
                     {
                         // Add tenant_id to HttpContext.Items for use throughout the request
                         context.Items[TenantIdKey] = tenantId;

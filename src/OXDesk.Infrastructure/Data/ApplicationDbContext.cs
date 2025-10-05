@@ -29,7 +29,7 @@ namespace OXDesk.Infrastructure.Data
         private readonly ICurrentTenant? _currentTenant;
 
         // Expose current tenant id for EF Core global filters (evaluated per DbContext instance)
-        public int CurrentTenantId => _currentTenant?.Id
+        public Guid CurrentTenantId => _currentTenant?.Id
             ?? throw new InvalidOperationException("Tenant context is required but was not provided.");
 
         /// <summary>
@@ -209,17 +209,18 @@ namespace OXDesk.Infrastructure.Data
                 var tenantProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "TenantId", StringComparison.Ordinal));
                 if (tenantProp == null) continue;
 
-                if (tenantProp.Metadata.ClrType == typeof(int))
+                if (tenantProp.Metadata.ClrType == typeof(Guid))
                 {
-                    var current = (int) (tenantProp.CurrentValue ?? 0);
-                    if (current == 0)
+                    var current = (Guid?)tenantProp.CurrentValue;
+                    if (!current.HasValue || current.Value == Guid.Empty)
                     {
                         tenantProp.CurrentValue = tenantId.Value;
                     }
                 }
-                else if (tenantProp.Metadata.ClrType == typeof(int?))
+                else if (tenantProp.Metadata.ClrType == typeof(Guid?))
                 {
-                    if (tenantProp.CurrentValue == null)
+                    var current = (Guid?)tenantProp.CurrentValue;
+                    if (!current.HasValue || current.Value == Guid.Empty)
                     {
                         tenantProp.CurrentValue = tenantId;
                     }

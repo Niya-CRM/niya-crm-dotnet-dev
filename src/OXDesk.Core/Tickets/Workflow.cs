@@ -22,7 +22,7 @@ public class Workflow
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Workflow name.

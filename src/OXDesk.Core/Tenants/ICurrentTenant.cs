@@ -10,19 +10,19 @@ namespace OXDesk.Core.Tenants
         /// <summary>
         /// Current tenant id for the active scope/request. Null means not set.
         /// </summary>
-        int? Id { get; }
+        Guid? Id { get; }
 
         /// <summary>
         /// Change the current tenant id for this scope.
         /// </summary>
         /// <param name="tenantId">The tenant id to set. Null clears.</param>
-        void Change(int? tenantId);
+        void Change(Guid? tenantId);
 
         /// <summary>
         /// Temporarily change the current tenant id and restore the previous value when disposed.
         /// </summary>
         /// <param name="tenantId">The tenant id to set. Null clears.</param>
         /// <returns>An IDisposable that restores the previous tenant id upon dispose.</returns>
-        IDisposable ChangeScoped(int? tenantId);
+        IDisposable ChangeScoped(Guid? tenantId);
     }
 }

@@ -14,9 +14,6 @@ namespace OXDesk.Infrastructure.Data.Tenants
             builder.ToTable("tenants");
 
             builder.HasKey(t => t.Id);
-            builder.Property(t => t.Id)
-                   .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 100001L);
 
             builder.HasIndex(t => t.Host)
                    .HasDatabaseName("ix_tenants_host")

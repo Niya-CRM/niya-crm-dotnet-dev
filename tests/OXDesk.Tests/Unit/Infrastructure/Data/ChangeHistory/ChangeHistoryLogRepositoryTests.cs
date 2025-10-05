@@ -26,7 +26,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                 .Options;
 
             // Set a deterministic tenant for this test context so global filters and ApplyTenantId work consistently
-            var tenantId = 1001;
+            var tenantId = Guid.CreateVersion7();
             var services = new ServiceCollection().BuildServiceProvider();
             var currentTenant = new FakeCurrentTenant(tenantId);
             _dbContext = new ApplicationDbContext(options, services, currentTenant);
@@ -40,7 +40,10 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     "old@example.com",
                     "new@example.com",
                     10001
-                ),
+                )
+                {
+                    TenantId = tenantId
+                },
                 new ChangeHistoryLog(
                     "Contact",
                     102,
@@ -49,6 +52,9 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     "987654321",
                     10002
                 )
+                {
+                    TenantId = tenantId
+                }
             };
 
             // Add test data to the in-memory database
@@ -132,20 +138,20 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
     // Minimal test double for ICurrentTenant
     internal sealed class FakeCurrentTenant : ICurrentTenant
     {
-        private int? _id;
-        public int? Id => _id;
+        private Guid? _id;
+        public Guid? Id => _id;
 
-        public FakeCurrentTenant(int? tenantId)
+        public FakeCurrentTenant(Guid? tenantId)
         {
             _id = tenantId;
         }
 
-        public void Change(int? tenantId)
+        public void Change(Guid? tenantId)
         {
             _id = tenantId;
         }
 
-        public IDisposable ChangeScoped(int? tenantId)
+        public IDisposable ChangeScoped(Guid? tenantId)
         {
             var previous = _id;
             _id = tenantId;

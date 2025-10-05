@@ -118,9 +118,10 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 LastName = "User"
             };
 
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-00000000012D");
             var tenant = new Tenant
             {
-                Id = 301,
+                Id = tenantId,
                 Name = "Test Organization",
                 Host = "support.organization.com",
                 Email = "admin@test.com",

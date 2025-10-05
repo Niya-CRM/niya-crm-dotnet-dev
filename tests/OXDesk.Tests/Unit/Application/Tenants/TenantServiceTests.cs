@@ -150,7 +150,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             
             var existingTenant = new Tenant
             {
-                Id = 200,
+                Id = Guid.Parse("00000000-0000-0000-0000-0000000000C8"),
                 Name = "Existing Tenant",
                 Host = tenantHost,
                 Email = "existing@example.com",
@@ -185,7 +185,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             // Arrange
             var tenants = new List<Tenant>
             {
-                new() { Id = 201, Name = "Tenant 1" }
+                new() { Id = Guid.Parse("00000000-0000-0000-0000-0000000000C9"), Name = "Tenant 1" }
             };
 
             _mockTenantRepository
@@ -230,7 +230,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task ChangeTenantActivationStatus_Activate_ShouldActivateTenant_AndLogAudit()
         {
             // Arrange
-            var tenantId = 210;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-0000000000D2");
             var reason = "Test activation";
             var tenant = new Tenant
             {
@@ -290,7 +290,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task ChangeTenantActivationStatus_Deactivate_ShouldDeactivateTenant_AndLogAudit()
         {
             // Arrange
-            var tenantId = 211;
+            var tenantId = Guid.Parse("00000000-0000-0000-0000-0000000000D3");
             var reason = "Test deactivation";
             var tenant = new Tenant
             {
@@ -428,7 +428,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var cacheKey = $"tenant:{normalizedHost}";
             var cachedTenant = new Tenant
             {
-                Id = 220,
+                Id = Guid.Parse("00000000-0000-0000-0000-0000000000DC"),
                 Name = "Test Tenant",
                 Host = normalizedHost,
                 Email = "test@example.com",
@@ -462,7 +462,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var cacheKey = $"tenant:{normalizedHost}";
             var tenant = new Tenant
             {
-                Id = 221,
+                Id = Guid.Parse("00000000-0000-0000-0000-0000000000DD"),
                 Name = "Test Tenant",
                 Host = normalizedHost,
                 Email = "test@example.com",

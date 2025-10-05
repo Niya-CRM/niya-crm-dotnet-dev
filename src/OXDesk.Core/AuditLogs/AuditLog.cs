@@ -24,7 +24,7 @@ public class AuditLog
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key/entity type that was affected.
@@ -47,7 +47,7 @@ public class AuditLog
     /// </summary>
     [Column("mapped_id")]
     [Required]
-    public int ObjectItemId { get; set; }
+    public Guid ObjectItemId { get; set; }
 
     /// <summary>
     /// Gets or sets the IP address from which the action was performed.
@@ -95,7 +95,7 @@ public class AuditLog
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, int objectItemId, string ip, string? data, int createdBy)
+    public AuditLog(string objectKey, string @event, Guid objectItemId, string ip, string? data, int createdBy)
     {
         ObjectKey = objectKey;
         Event = @event;

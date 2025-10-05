@@ -32,7 +32,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly IChangeHistoryLogService _changeHistoryLogService;
         private readonly IAppSetupService _appSetupService;
         private readonly ICurrentTenant _currentTenant;
-        private readonly int _tenantId;
+        private readonly Guid _tenantId;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -97,7 +97,7 @@ namespace OXDesk.AppInstallation.Services
             _logger = logger;
 
             // Generate a tenant ID for initialization process
-            _tenantId = 100001;
+            _tenantId = Guid.CreateVersion7();
         }
 
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
@@ -1167,7 +1167,7 @@ namespace OXDesk.AppInstallation.Services
         /// Gets the default tenant ID for system initialization.
         /// </summary>
         /// <returns>The default tenant ID.</returns>
-        private Task<int> Get_tenantIdAsync()
+        private Task<Guid> Get_tenantIdAsync()
         {
             // Use a fixed system tenant ID for initialization
             // This ensures all seeded entities belong to the same tenant

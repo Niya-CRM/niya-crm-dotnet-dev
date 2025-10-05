@@ -21,7 +21,7 @@ public class DynamicObject
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the dynamic object.

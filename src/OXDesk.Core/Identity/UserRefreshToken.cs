@@ -18,7 +18,7 @@ namespace OXDesk.Core.Identity
         /// Gets or sets the tenant identifier.
         /// </summary>
         [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
-        public int? TenantId { get; set; }
+        public Guid? TenantId { get; set; }
 
         /// <summary>
         /// The user this refresh token belongs to.

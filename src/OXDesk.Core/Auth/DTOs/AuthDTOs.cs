@@ -30,7 +30,7 @@ namespace OXDesk.Core.Auth.DTOs
         [Required(ErrorMessage = "Last name is required")]
         public required string LastName { get; set; }
         
-        public int? TenantId { get; set; }
+        public Guid? TenantId { get; set; }
         
         public string? Role { get; set; }
     }

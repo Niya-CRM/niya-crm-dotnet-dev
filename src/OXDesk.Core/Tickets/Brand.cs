@@ -16,7 +16,7 @@ public class Brand
     /// </summary>
     [Column("tenant_id")]
     [Required]
-    public int TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     [Required]
     [StringLength(30)]
