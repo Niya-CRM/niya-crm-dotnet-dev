@@ -23,7 +23,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             _dbSet = dbContext.Set<AuditLog>();
         }
 
-        public async Task<AuditLog?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()

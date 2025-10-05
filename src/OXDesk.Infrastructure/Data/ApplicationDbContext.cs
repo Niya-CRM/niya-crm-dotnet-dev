@@ -206,6 +206,17 @@ namespace OXDesk.Infrastructure.Data
             {
                 if (entry.State != EntityState.Added) continue;
 
+                // Auto-generate Guid primary keys using UUID v7
+                var idProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "Id", StringComparison.Ordinal));
+                if (idProp != null && idProp.Metadata.ClrType == typeof(Guid))
+                {
+                    var currentId = (Guid?)idProp.CurrentValue;
+                    if (!currentId.HasValue || currentId.Value == Guid.Empty)
+                    {
+                        idProp.CurrentValue = Guid.CreateVersion7();
+                    }
+                }
+
                 var tenantProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "TenantId", StringComparison.Ordinal));
                 if (tenantProp == null) continue;
 

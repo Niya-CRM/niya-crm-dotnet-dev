@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251004084155_InitialMigration")]
+    [Migration("20251005095803_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -74,13 +74,10 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.AuditLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1000001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

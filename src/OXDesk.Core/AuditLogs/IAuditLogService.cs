@@ -28,7 +28,7 @@ public interface IAuditLogService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The audit log if found, otherwise null.</returns>
     /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
-    Task<AuditLog?> GetAuditLogByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<AuditLog?> GetAuditLogByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets audit logs by optional filters. All filters are optional and can be combined.

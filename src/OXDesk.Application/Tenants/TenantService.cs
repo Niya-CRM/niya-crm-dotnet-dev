@@ -115,6 +115,13 @@ public class TenantService : ITenantService
             createdBy: createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER
         );
 
+        // If a specific tenant ID was provided, use it instead of the generated one
+        if (request.TenantId.HasValue)
+        {
+            tenant.Id = request.TenantId.Value;
+            _logger.LogInformation("Using provided tenant ID: {TenantId}", request.TenantId.Value);
+        }
+
         // Save tenant
         var createdTenant = await _unitOfWork.GetRepository<ITenantRepository>().AddAsync(tenant, cancellationToken);
 

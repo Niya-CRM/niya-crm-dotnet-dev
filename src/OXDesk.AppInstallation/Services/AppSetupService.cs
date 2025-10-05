@@ -29,6 +29,7 @@ public class AppSetupService : IAppSetupService
     private readonly IValueListItemService _valueListItemService;
     private readonly IChangeHistoryLogService _changeHistoryLogService;
     private readonly ApplicationDbContext _dbContext;
+    private readonly ICurrentTenant _currentTenant;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -47,6 +48,7 @@ public class AppSetupService : IAppSetupService
         IValueListService valueListService,
         IValueListItemService valueListItemService,
         IChangeHistoryLogService changeHistoryLogService,
+        ICurrentTenant currentTenant,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -58,10 +60,11 @@ public class AppSetupService : IAppSetupService
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
         _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
+        _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
     }
 
     /// <inheritdoc/>
-    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, CancellationToken cancellationToken = default)
+    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(setupDto);
 
@@ -79,11 +82,11 @@ public class AppSetupService : IAppSetupService
             // Begin transaction
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             
-            // Create the initial admin user
-            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER);
+            // Create the tenant FIRST to get the actual tenant ID
+            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, tenantId, cancellationToken);
 
-            // Create the tenant
-            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, cancellationToken);
+            // Create the initial admin user with the actual tenant ID
+            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, tenant.Id);
 
             // Commit the transaction
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
@@ -99,81 +102,85 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, int systemUserId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, int systemUserId, Guid tenantId)
     {
 
         // Use the 'agent' profile key directly
         string? agentProfileKey = CommonConstant.UserProfiles.Agent.Key;
 
-        var user = new ApplicationUser
+        // Set the tenant context to the actual tenant ID
+        using (_currentTenant.ChangeScoped(tenantId))
         {
-            UserName = setupDto.AdminEmail,
-            Email = setupDto.AdminEmail,
-            FirstName = setupDto.FirstName,
-            LastName = setupDto.LastName,
-            TimeZone = setupDto.TimeZone,
-            Profile = agentProfileKey,
-            Location = setupDto.Location,
-            CountryCode = setupDto.CountryCode,
-            IsActive = "Y",
-            CreatedBy = systemUserId,
-            UpdatedBy = systemUserId
-        };
-
-        var createResult = await _userManager.CreateAsync(user, setupDto.Password);
-        if (!createResult.Succeeded)
-        {
-            _logger.LogError("Failed to create initial admin user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
-            throw new InvalidOperationException("Failed to create initial admin user");
-        }
-
-        // Add change history log (first creation event)
-        await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-            objectKey: CommonConstant.MODULE_USER,
-            objectItemId: user.Id,
-            fieldName: CommonConstant.ChangeHistoryFields.Created,
-            oldValue: null,
-            newValue: null,
-            createdBy: systemUserId,
-            cancellationToken: default
-        );
-
-        // Assign the Administrator role with audit fields (direct insert like in AppInitialisationService)
-        if (await _roleManager.RoleExistsAsync(CommonConstant.RoleNames.Administrator))
-        {
-            var role = await _roleManager.FindByNameAsync(CommonConstant.RoleNames.Administrator);
-            if (role != null)
+            var user = new ApplicationUser
             {
-                var utcNow = DateTime.UtcNow;
+                UserName = setupDto.AdminEmail,
+                Email = setupDto.AdminEmail,
+                FirstName = setupDto.FirstName,
+                LastName = setupDto.LastName,
+                TimeZone = setupDto.TimeZone,
+                Profile = agentProfileKey,
+                Location = setupDto.Location,
+                CountryCode = setupDto.CountryCode,
+                IsActive = "Y",
+                CreatedBy = systemUserId,
+                UpdatedBy = systemUserId
+            };
 
-                var userRole = new ApplicationUserRole
-                {
-                    UserId = user.Id,
-                    RoleId = role.Id,
-                    CreatedBy = systemUserId,
-                    CreatedAt = utcNow,
-                    UpdatedBy = systemUserId,
-                    UpdatedAt = utcNow
-                };
+            var createResult = await _userManager.CreateAsync(user, setupDto.Password);
+            if (!createResult.Succeeded)
+            {
+                _logger.LogError("Failed to create initial admin user: {Errors}", JsonSerializer.Serialize(createResult.Errors));
+                throw new InvalidOperationException("Failed to create initial admin user");
+            }
 
-                try
+            // Add change history log (first creation event)
+            await _changeHistoryLogService.CreateChangeHistoryLogAsync(
+                objectKey: CommonConstant.MODULE_USER,
+                objectItemId: user.Id,
+                fieldName: CommonConstant.ChangeHistoryFields.Created,
+                oldValue: null,
+                newValue: null,
+                createdBy: systemUserId,
+                cancellationToken: default
+            );
+
+            // Assign the Administrator role with audit fields (direct insert like in AppInitialisationService)
+            if (await _roleManager.RoleExistsAsync(CommonConstant.RoleNames.Administrator))
+            {
+                var role = await _roleManager.FindByNameAsync(CommonConstant.RoleNames.Administrator);
+                if (role != null)
                 {
-                    _dbContext.UserRoles.Add(userRole);
-                    await _dbContext.SaveChangesAsync();
-                    _logger.LogInformation("Assigned Administrator role to initial admin user with audit fields");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical(ex, "Failed to assign Administrator role to initial admin user");
+                    var utcNow = DateTime.UtcNow;
+
+                    var userRole = new ApplicationUserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = role.Id,
+                        CreatedBy = systemUserId,
+                        CreatedAt = utcNow,
+                        UpdatedBy = systemUserId,
+                        UpdatedAt = utcNow
+                    };
+
+                    try
+                    {
+                        _dbContext.UserRoles.Add(userRole);
+                        await _dbContext.SaveChangesAsync();
+                        _logger.LogInformation("Assigned Administrator role to initial admin user with audit fields");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogCritical(ex, "Failed to assign Administrator role to initial admin user");
+                    }
                 }
             }
-        }
 
-        _logger.LogInformation("Created initial admin user with email: {Email}", setupDto.AdminEmail);
+            _logger.LogInformation("Created initial admin user with email: {Email}", setupDto.AdminEmail);
+        }
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, int systemUserId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, int systemUserId, Guid? tenantId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new CreateTenantRequest
         {
@@ -181,7 +188,8 @@ public class AppSetupService : IAppSetupService
             Host = setupDto.Host,
             Email = setupDto.AdminEmail,
             UserId = systemUserId,
-            TimeZone = setupDto.TimeZone
+            TimeZone = setupDto.TimeZone,
+            TenantId = tenantId
         };
 
         var tenant = await _tenantService.CreateTenantAsync(

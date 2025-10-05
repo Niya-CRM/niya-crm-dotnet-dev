@@ -20,6 +20,7 @@ using System.Reflection;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using Microsoft.EntityFrameworkCore;
+using OXDesk.Core.Common;
 
 namespace OXDesk.Tests.Unit.Application.AppSetup
 {
@@ -31,6 +32,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
         private readonly Mock<IValueListService> _mockValueListService;
         private readonly Mock<IValueListItemService> _mockValueListItemService;
         private readonly Mock<IChangeHistoryLogService> _mockChangeHistoryLogService;
+        private readonly Mock<ICurrentTenant> _mockCurrentTenant;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppSetupService _AppSetupService;
@@ -43,8 +45,14 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockValueListService = new Mock<IValueListService>();
             _mockValueListItemService = new Mock<IValueListItemService>();
             _mockChangeHistoryLogService = new Mock<IChangeHistoryLogService>();
+            _mockCurrentTenant = new Mock<ICurrentTenant>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
+
+            // Setup mock current tenant with a test tenant ID
+            var testTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            _mockCurrentTenant.Setup(ct => ct.Id).Returns(testTenantId);
+            _mockCurrentTenant.Setup(ct => ct.ChangeScoped(It.IsAny<Guid?>())).Returns((IDisposable)null!);
 
             // In-memory ApplicationDbContext for constructor requirement
             var dbOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -61,6 +69,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 _mockValueListService.Object,
                 _mockValueListItemService.Object,
                 _mockChangeHistoryLogService.Object,
+                _mockCurrentTenant.Object,
                 _mockLogger.Object);
         }
 

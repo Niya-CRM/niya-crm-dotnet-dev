@@ -16,8 +16,7 @@ public class AuditLog
     [Key]
     [Column("id")]
     [Required]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     
     /// <summary>
     /// Gets or sets the tenant identifier.

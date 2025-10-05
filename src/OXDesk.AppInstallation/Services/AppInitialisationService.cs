@@ -443,8 +443,8 @@ namespace OXDesk.AppInstallation.Services
                     CountryCode = "IN"
                 };
 
-                _logger.LogInformation("Installing application for tenant '{TenantName}' on host '{Host}'", setupDto.TenantName, setupDto.Host);
-                var tenant = await _appSetupService.InstallApplicationAsync(setupDto);
+                _logger.LogInformation("Installing application for tenant '{TenantName}' on host '{Host}' with tenant ID: {TenantId}", setupDto.TenantName, setupDto.Host, _tenantId);
+                var tenant = await _appSetupService.InstallApplicationAsync(setupDto, _tenantId);
                 _logger.LogInformation("Application installed for tenant {TenantId} - {TenantName}", tenant.Id, setupDto.TenantName);
             }
             catch (Exception ex)

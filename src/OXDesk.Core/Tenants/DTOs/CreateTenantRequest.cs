@@ -43,4 +43,9 @@ public class CreateTenantRequest
     /// </summary>
     [Required]
     public string DatabaseName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the tenant ID (optional). If not provided, a new one will be generated.
+    /// </summary>
+    public Guid? TenantId { get; set; }
 }
