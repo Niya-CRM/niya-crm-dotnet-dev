@@ -31,10 +31,11 @@ namespace OXDesk.Application.Identity
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        private Guid GetCurrentUserIdOrDefault() {
+        private Guid GetCurrentUserIdOrDefault()
+        {
             var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-            return Guid.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
+            return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
         }
         public Task<IReadOnlyList<ApplicationRole>> GetAllRolesAsync(CancellationToken cancellationToken = default)
         {
@@ -66,7 +67,9 @@ namespace OXDesk.Application.Identity
             if (existingRole != null) throw new InvalidOperationException($"Role '{request.Name}' already exists in this tenant.");
 
             var now = DateTime.UtcNow;
-            var userId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var userId = createdBy ?? GetCurrentUserIdOrDefault();
+            if (userId == Guid.Empty)
+                throw new InvalidOperationException("Unable to determine current user for audit.");
 
             var role = new ApplicationRole
             {
@@ -108,7 +111,10 @@ namespace OXDesk.Application.Identity
             }
 
             role.UpdatedAt = DateTime.UtcNow;
-            role.UpdatedBy = updatedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var userId = updatedBy ?? GetCurrentUserIdOrDefault();
+            if (userId == Guid.Empty)
+                throw new InvalidOperationException("Unable to determine current user for audit.");
+            role.UpdatedBy = userId;
 
             var result = await _roleManager.UpdateAsync(role);
             if (!result.Succeeded)
@@ -164,7 +170,9 @@ namespace OXDesk.Application.Identity
             var toAdd = desired.Except(current).ToArray();
             var toRemove = current.Except(desired).ToArray();
 
-            var userId = updatedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var userId = updatedBy ?? GetCurrentUserIdOrDefault();
+            if (userId == Guid.Empty)
+                throw new InvalidOperationException("Unable to determine current user for audit.");
             var now = DateTime.UtcNow;
 
             // Remove claims no longer desired

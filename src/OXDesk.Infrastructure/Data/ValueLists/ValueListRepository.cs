@@ -79,8 +79,6 @@ public class ValueListRepository : IValueListRepository
         _logger.LogDebug("Adding ValueList: {Name}", valueList.ListName);
         if (valueList.CreatedAt == default) valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
-        if (valueList.CreatedBy == Guid.Empty) valueList.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
-        if (valueList.UpdatedBy == Guid.Empty) valueList.UpdatedBy = valueList.CreatedBy;
 
         var entry = await _dbSet.AddAsync(valueList, cancellationToken);
         _logger.LogInformation("Added ValueList with ID: {Id}", entry.Entity.Id);
@@ -111,7 +109,7 @@ public class ValueListRepository : IValueListRepository
         return entry.Entity;
     }
 
-    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -125,12 +123,12 @@ public class ValueListRepository : IValueListRepository
 
         entity.IsActive = true;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        entity.UpdatedBy = modifiedBy;
         _logger.LogInformation("Activated ValueList: {Id}", id);
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -144,7 +142,7 @@ public class ValueListRepository : IValueListRepository
 
         entity.IsActive = false;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        entity.UpdatedBy = modifiedBy;
         _logger.LogInformation("Deactivated ValueList: {Id}", id);
         return entity;
     }

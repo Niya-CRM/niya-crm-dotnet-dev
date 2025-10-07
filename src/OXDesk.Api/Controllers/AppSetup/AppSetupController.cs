@@ -100,7 +100,7 @@ public class AppSetupController : Controller
 
         try
         {
-            Tenant tenant = await _AppSetupService.InstallApplicationAsync(setupDto, tenantId: null, cancellationToken);
+            Tenant tenant = await _AppSetupService.InstallApplicationAsync(setupDto, tenantId: null, technicalUserId: null, cancellationToken: cancellationToken);
             _logger.LogInformation("Application installed for tenant {TenantId}", tenant.Id);
             return RedirectToAction(nameof(Success));
         }

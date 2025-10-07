@@ -33,6 +33,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
         private readonly Mock<IValueListItemService> _mockValueListItemService;
         private readonly Mock<IChangeHistoryLogService> _mockChangeHistoryLogService;
         private readonly Mock<ICurrentTenant> _mockCurrentTenant;
+        private readonly Mock<IUserService> _mockUserService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppSetupService _AppSetupService;
@@ -46,6 +47,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockValueListItemService = new Mock<IValueListItemService>();
             _mockChangeHistoryLogService = new Mock<IChangeHistoryLogService>();
             _mockCurrentTenant = new Mock<ICurrentTenant>();
+            _mockUserService = new Mock<IUserService>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
@@ -70,6 +72,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 _mockValueListItemService.Object,
                 _mockChangeHistoryLogService.Object,
                 _mockCurrentTenant.Object,
+                _mockUserService.Object,
                 _mockLogger.Object);
         }
 

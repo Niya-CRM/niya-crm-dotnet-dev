@@ -80,10 +80,9 @@ public class TenantController : ControllerBase
         {
             _logger.LogInformation("Creating tenant with name: {Name}", request.Name);
             
-            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
             var tenant = await _tenantService.CreateTenantAsync(
                 request: request,
-                createdBy: actor,
+                createdBy: this.GetCurrentUserId(),
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created tenant with ID: {TenantId}", tenant.Id);
@@ -239,12 +238,11 @@ public class TenantController : ControllerBase
                 DatabaseName = request.DatabaseName ?? tenant.DatabaseName
             };
             
-            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
             var updatedTenant = await _tenantService.UpdateTenantAsync(
                 id, 
                 updateRequest, 
-                actor, 
-                cancellationToken);
+                modifiedBy: this.GetCurrentUserId(), 
+                cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);
             var response = await _tenantFactory.BuildDetailsAsync(updatedTenant, cancellationToken);

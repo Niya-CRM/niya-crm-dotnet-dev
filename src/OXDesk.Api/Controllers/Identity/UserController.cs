@@ -176,12 +176,6 @@ public class UserController : ControllerBase
             return this.CreateBadRequestProblem(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
         }
 
-        // Deny operation if targeting the default system user
-        if (id == CommonConstant.DEFAULT_SYSTEM_USER)
-        {
-            return this.CreateBadRequestProblem("Operation is not allowed on the system user.");
-        }
-
         // Deny operation if targeting the current authenticated user
         Guid currentUserId = _userService.GetCurrentUserId();
         if (id == currentUserId)

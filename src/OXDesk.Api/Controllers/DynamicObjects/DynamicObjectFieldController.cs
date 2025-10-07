@@ -141,7 +141,7 @@ public class DynamicObjectFieldController : ControllerBase
 
         try
         {
-            var actor = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var actor = this.GetCurrentUserId() ?? throw new UnauthorizedAccessException("User ID not found in claims.");
             request.CreatedBy = actor;
             request.UpdatedBy = actor;
 
@@ -201,7 +201,7 @@ public class DynamicObjectFieldController : ControllerBase
             request.ObjectId = existing.ObjectId;
             request.CreatedBy = existing.CreatedBy; // preserve creator
             request.CreatedAt = existing.CreatedAt; // preserve created timestamp if used
-            request.UpdatedBy = this.GetCurrentUserId() ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            request.UpdatedBy = this.GetCurrentUserId() ?? throw new UnauthorizedAccessException("User ID not found in claims.");
 
             _logger.LogInformation("Updating field '{FieldId}' for object ID '{ObjectId}'", fieldId, objectId);
             var updated = await _fieldService.UpdateFieldAsync(objectId, request, cancellationToken);

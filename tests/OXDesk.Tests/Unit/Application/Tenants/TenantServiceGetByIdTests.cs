@@ -6,6 +6,7 @@ using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
+using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
 using Shouldly;
 using System;
@@ -23,6 +24,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         private readonly Mock<ICacheService> _mockCacheService;
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly Mock<ICurrentTenant> _mockCurrentTenant;
+        private readonly Mock<IUserService> _mockUserService;
         private readonly Mock<ITenantRepository> _mockTenantRepository;
         private readonly Mock<IAuditLogRepository> _mockAuditLogRepository;
         private readonly TenantService _tenantService;
@@ -34,6 +36,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             _mockCacheService = new Mock<ICacheService>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             _mockCurrentTenant = new Mock<ICurrentTenant>();
+            _mockUserService = new Mock<IUserService>();
             _mockTenantRepository = new Mock<ITenantRepository>();
             _mockAuditLogRepository = new Mock<IAuditLogRepository>();
 
@@ -67,7 +70,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 _mockLogger.Object,
                 _mockHttpContextAccessor.Object,
                 _mockCurrentTenant.Object,
-                _mockCacheService.Object);
+                _mockCacheService.Object,
+                _mockUserService.Object);
         }
 
         [Fact]

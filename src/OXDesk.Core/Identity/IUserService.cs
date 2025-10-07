@@ -90,6 +90,13 @@ public interface IUserService
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of user entities in the role.</returns>
     Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the Technical User ID by looking up the user with the technical username.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The Technical User ID if found, otherwise null.</returns>
+    Task<Guid?> GetTechnicalUserIdAsync(CancellationToken cancellationToken = default);
 }
 
 

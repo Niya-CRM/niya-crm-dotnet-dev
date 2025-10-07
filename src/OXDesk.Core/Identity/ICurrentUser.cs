@@ -11,7 +11,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Current user id for the active scope/request. Null means not set.
         /// </summary>
-        int? Id { get; }
+        Guid? Id { get; }
 
         /// <summary>
         /// Display name of the current user, when available.
@@ -41,7 +41,7 @@ namespace OXDesk.Core.Identity
         /// <param name="permissions">Optional set of permissions for the user.</param>
         /// <param name="name">Optional display name for the user.</param>
         /// <param name="email">Optional email for the user.</param>
-        void Change(int? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null);
+        void Change(Guid? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null);
 
         /// <summary>
         /// Temporarily change the current user context and restore the previous values when disposed.
@@ -52,6 +52,6 @@ namespace OXDesk.Core.Identity
         /// <param name="name">Optional display name for the user.</param>
         /// <param name="email">Optional email for the user.</param>
         /// <returns>An IDisposable that restores the previous user context upon dispose.</returns>
-        IDisposable ChangeScoped(int? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null);
+        IDisposable ChangeScoped(Guid? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null);
     }
 }

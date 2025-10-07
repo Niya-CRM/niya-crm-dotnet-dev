@@ -240,7 +240,7 @@ public class UserService : IUserService
         }
 
         // Determine actor for audit fields
-        var actorId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        var actorId = createdBy ?? GetCurrentUserId();
 
         // Create new user (tenant is implicit via global filters / DB policies)
         var user = new ApplicationUser
@@ -315,7 +315,7 @@ public class UserService : IUserService
         }
 
         // Determine actor: changedBy parameter or current user from context
-        var actorId = changedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        var actorId = changedBy ?? GetCurrentUserId();
 
         // Update activation fields
         var oldActive = user.IsActive;
@@ -412,7 +412,7 @@ public class UserService : IUserService
                 throw new InvalidOperationException($"Failed to assign role: {errors}");
             }
 
-            var actorId = assignedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var actorId = assignedBy ?? GetCurrentUserId();
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
@@ -460,7 +460,7 @@ public class UserService : IUserService
                 throw new InvalidOperationException($"Failed to remove role: {errors}");
             }
 
-            var actorId = removedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+            var actorId = removedBy ?? GetCurrentUserId();
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
@@ -494,6 +494,23 @@ public class UserService : IUserService
         // Tenant scope is enforced by global query filters
         var ordered = users.OrderBy(u => u.UserName).ToList();
         return ordered;
+    }
+
+    /// <inheritdoc />
+    public async Task<Guid?> GetTechnicalUserIdAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Getting Technical User ID");
+        
+        var technicalUser = await _userManager.FindByNameAsync(CommonConstant.TECHNICAL_USERNAME);
+        
+        if (technicalUser == null)
+        {
+            _logger.LogWarning("Technical user not found with username: {Username}", CommonConstant.TECHNICAL_USERNAME);
+            return null;
+        }
+        
+        _logger.LogDebug("Found Technical User with ID: {UserId}", technicalUser.Id);
+        return technicalUser.Id;
     }
 }
 

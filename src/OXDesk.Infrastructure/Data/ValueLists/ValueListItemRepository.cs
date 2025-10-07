@@ -38,8 +38,6 @@ public class ValueListItemRepository : IValueListItemRepository
         _logger.LogDebug("Adding ValueListItem: {Name} to ValueListId: {ListId}", item.ItemName, item.ListId);
         if (item.CreatedAt == default) item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
-        if (item.CreatedBy == Guid.Empty) item.CreatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
-        if (item.UpdatedBy == Guid.Empty) item.UpdatedBy = item.CreatedBy;
 
         var entry = await _dbSet.AddAsync(item, cancellationToken);
         _logger.LogInformation("Added ValueListItem with ID: {Id}", entry.Entity.Id);
@@ -70,7 +68,7 @@ public class ValueListItemRepository : IValueListItemRepository
         return entry.Entity;
     }
 
-    public async Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -84,12 +82,12 @@ public class ValueListItemRepository : IValueListItemRepository
 
         entity.IsActive = true;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        entity.UpdatedBy = modifiedBy;
         _logger.LogInformation("Activated ValueListItem: {Id}", id);
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -103,7 +101,7 @@ public class ValueListItemRepository : IValueListItemRepository
 
         entity.IsActive = false;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        entity.UpdatedBy = modifiedBy;
         _logger.LogInformation("Deactivated ValueListItem: {Id}", id);
         return entity;
     }

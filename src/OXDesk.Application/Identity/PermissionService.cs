@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -31,9 +32,9 @@ public class PermissionService : IPermissionService
 
     private Guid GetCurrentUserIdOrDefault()
     {
-        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
             ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdStr, out var id) ? id : CommonConstant.DEFAULT_SYSTEM_USER;
+        return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
     }
     public async Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default)
     {
@@ -60,7 +61,9 @@ public class PermissionService : IPermissionService
         if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists in this tenant.");
 
         var now = DateTime.UtcNow;
-        var userId = createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        var userId = createdBy ?? GetCurrentUserIdOrDefault();
+        if (userId == Guid.Empty)
+            throw new InvalidOperationException("Unable to determine current user for audit.");
 
         var entity = new Permission
         {
@@ -96,7 +99,10 @@ public class PermissionService : IPermissionService
         entity.Name = newName;
         entity.NormalizedName = newNormalized;
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.UpdatedBy = updatedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        var userId = updatedBy ?? GetCurrentUserIdOrDefault();
+        if (userId == Guid.Empty)
+            throw new InvalidOperationException("Unable to determine current user for audit.");
+        entity.UpdatedBy = userId;
 
         entity = await _permissionRepository.UpdateAsync(entity);
         return entity;

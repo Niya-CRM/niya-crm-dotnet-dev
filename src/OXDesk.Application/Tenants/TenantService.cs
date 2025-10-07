@@ -7,6 +7,7 @@ using OXDesk.Core.Tenants.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
+using OXDesk.Core.Identity;
 
 namespace OXDesk.Application.Tenants;
 
@@ -20,6 +21,7 @@ public class TenantService : ITenantService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheService _cacheService;
     private readonly ICurrentTenant _tenantContextService;
+    private readonly IUserService _userService;
     private readonly string _tenantCachePrefix = "tenant:";
 
     /// <summary>
@@ -30,18 +32,21 @@ public class TenantService : ITenantService
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
     /// <param name="tenantContextService">The tenant context service.</param>
     /// <param name="cacheService">The cache service.</param>
+    /// <param name="userService">The user service.</param>
     public TenantService(
         IUnitOfWork unitOfWork, 
         ILogger<TenantService> logger, 
         IHttpContextAccessor httpContextAccessor,
         ICurrentTenant tenantContextService,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        IUserService userService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
     }
 
     private string GetUserIp() =>
@@ -97,6 +102,7 @@ public class TenantService : ITenantService
         }
 
         // Create new tenant (Id will be database-generated identity starting at configured seed)
+        var currentUserId = createdBy ?? _userService.GetCurrentUserId();
         var tenant = new Tenant(
             name: normalizedName,
             host: normalizedHost,
@@ -106,7 +112,7 @@ public class TenantService : ITenantService
             databaseName: normalizedDatabaseName,
             isActive: "Y",
             createdAt: DateTime.UtcNow,
-            createdBy: createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER
+            createdBy: currentUserId
         );
 
         // If a specific tenant ID was provided, use it instead of the generated one
@@ -124,7 +130,7 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
             createdTenant.Id,
             $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
-            createdBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
+            currentUserId,
             cancellationToken
         );
 
@@ -244,7 +250,8 @@ public class TenantService : ITenantService
         tenant.TimeZone = request.TimeZone ?? string.Empty;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.UpdatedAt = DateTime.UtcNow;
-        tenant.UpdatedBy = modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER;
+        var currentUserId = modifiedBy ?? _userService.GetCurrentUserId();
+        tenant.UpdatedBy = currentUserId;
 
         // Save changes
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
@@ -254,7 +261,7 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id,
             $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
-            modifiedBy ?? CommonConstant.DEFAULT_SYSTEM_USER,
+            currentUserId,
             cancellationToken
         );
 
@@ -284,9 +291,10 @@ public class TenantService : ITenantService
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
 
         // Set active status based on action
+        var currentUserId = _userService.GetCurrentUserId();
         tenant.IsActive = isActivating ? "Y" : "N";
         tenant.UpdatedAt = DateTime.UtcNow;
-        tenant.UpdatedBy = CommonConstant.DEFAULT_SYSTEM_USER;
+        tenant.UpdatedBy = currentUserId;
         var updatedTenant = await _unitOfWork.GetRepository<ITenantRepository>().UpdateAsync(tenant, cancellationToken);
 
         // Insert audit log for activation/deactivation
@@ -295,7 +303,7 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id,
             $"Tenant {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
-            CommonConstant.DEFAULT_SYSTEM_USER,
+            currentUserId,
             cancellationToken
         );
 

@@ -33,6 +33,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly IAppSetupService _appSetupService;
         private readonly ICurrentTenant _currentTenant;
         private readonly Guid _tenantId;
+        private readonly Guid _technicalUserId;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -98,6 +99,7 @@ namespace OXDesk.AppInstallation.Services
 
             // Generate a tenant ID for initialization process
             _tenantId = Guid.CreateVersion7();
+            _technicalUserId = Guid.CreateVersion7();
         }
 
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
@@ -143,7 +145,6 @@ namespace OXDesk.AppInstallation.Services
 
         private async Task SeedDefaultRolesAsync()
         {
-            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
             var utcNow = DateTime.UtcNow;
             
             foreach (var role in OXDesk.Core.Common.CommonConstant.RoleNames.All)
@@ -153,8 +154,8 @@ namespace OXDesk.AppInstallation.Services
                     var newRole = new OXDesk.Core.Identity.ApplicationRole(role)
                     {
                         TenantId = _tenantId,
-                        CreatedBy = defaultUser,
-                        UpdatedBy = defaultUser,
+                        CreatedBy = _technicalUserId,
+                        UpdatedBy = _technicalUserId,
                         CreatedAt = utcNow,
                         UpdatedAt = utcNow
                     };
@@ -223,8 +224,6 @@ namespace OXDesk.AppInstallation.Services
                     .ToList();
                 
                 // Create or get ValueList 'Languages' and add/update items
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-                
                 var languagesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Languages);
                 
@@ -239,7 +238,7 @@ namespace OXDesk.AppInstallation.Services
                         isActive: true,
                         allowModify: true,
                         allowNewItem: true,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     );
                     _dbContext.ValueLists.Add(languagesList);
                     await _dbContext.SaveChangesAsync();
@@ -264,7 +263,7 @@ namespace OXDesk.AppInstallation.Services
                         itemKey: l.Code,
                         listId: languagesList.Id,
                         isActive: true,
-                        createdBy: defaultUser,
+                        createdBy: _technicalUserId,
                         order: l.Order
                     );
                     newItems.Add(item);
@@ -291,7 +290,6 @@ namespace OXDesk.AppInstallation.Services
 
         private async Task SeedDefaultPermissionsAsync()
         {
-            var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
             var utcNow = DateTime.UtcNow;
             
             foreach (var permissionName in OXDesk.Core.Common.CommonConstant.PermissionNames.All)
@@ -307,9 +305,9 @@ namespace OXDesk.AppInstallation.Services
                     {
                         Name = permissionName,
                         NormalizedName = normalizedName,
-                        CreatedBy = defaultUser,
+                        CreatedBy = _technicalUserId,
                         CreatedAt = utcNow,
-                        UpdatedBy = defaultUser,
+                        UpdatedBy = _technicalUserId,
                         UpdatedAt = utcNow
                     };
                     
@@ -325,19 +323,19 @@ namespace OXDesk.AppInstallation.Services
         private async Task CreateSystemUserAsync()
         {
             // Check if system user already exists
-            var systemUserEmail = "OXDesk@system.local";
+            var systemUserEmail = CommonConstant.TECHNICAL_USERNAME;
             var existingUser = await _userManager.FindByEmailAsync(systemUserEmail);
             
             if (existingUser == null)
             {
                 // Set profile key for System user directly using the value list item key
                 string? systemProfileKey = CommonConstant.UserProfiles.System.Key;
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 var utcNow = DateTime.UtcNow;
                 
                 // Create the system user
                 var systemUser = new OXDesk.Core.Identity.ApplicationUser
                 {
+                    Id = _technicalUserId,
                     TenantId = _tenantId,
                     UserName = systemUserEmail,
                     Email = systemUserEmail,
@@ -350,9 +348,9 @@ namespace OXDesk.AppInstallation.Services
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,
                     CreatedAt = utcNow,
-                    CreatedBy = defaultUser,
+                    CreatedBy = _technicalUserId,
                     UpdatedAt = utcNow,
-                    UpdatedBy = defaultUser
+                    UpdatedBy = _technicalUserId
                 };
                 
                 // Generate a strong random password
@@ -372,7 +370,7 @@ namespace OXDesk.AppInstallation.Services
                         fieldName: CommonConstant.ChangeHistoryFields.Created,
                         oldValue: null,
                         newValue: null,
-                        createdBy: defaultUser,
+                        createdBy: _technicalUserId,
                         cancellationToken: default
                     );
                     
@@ -389,9 +387,9 @@ namespace OXDesk.AppInstallation.Services
                     {
                         UserId = systemUser.Id,
                         RoleId = role.Id,
-                        CreatedBy = defaultUser,
+                        CreatedBy = _technicalUserId,
                         CreatedAt = utcNow,
-                        UpdatedBy = defaultUser,
+                        UpdatedBy = _technicalUserId,
                         UpdatedAt = utcNow
                     };
                     
@@ -469,7 +467,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.User,
                     "System user entity for authentication and authorization",
                     DynamicObjectConstants.ObjectTypes.Dedicated,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 ),
                 
                 // Account dynamic object
@@ -480,7 +478,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Account,
                     "Business or organization account",
                     DynamicObjectConstants.ObjectTypes.Dedicated,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 ),
                 
                 // Contact dynamic object
@@ -491,7 +489,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Contact,
                     "Individual contact associated with accounts",
                     DynamicObjectConstants.ObjectTypes.Dedicated,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 ),
                 
                 // Ticket dynamic object
@@ -502,7 +500,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Ticket,
                     "Support or service ticket",
                     DynamicObjectConstants.ObjectTypes.Dedicated,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Tenant dynamic object
@@ -513,7 +511,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Tenant,
                     "Tenant entity representing a customer account",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Brand dynamic object
@@ -524,7 +522,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Brand,
                     "Brand entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Organisation dynamic object
@@ -535,7 +533,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Organisation,
                     "Organisation entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Department dynamic object
@@ -546,7 +544,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Department,
                     "Department entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Team dynamic object
@@ -557,7 +555,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Team,
                     "Team entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
                 ,
                 // Product dynamic object
@@ -568,7 +566,7 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Product,
                     "Product entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
-                    CommonConstant.DEFAULT_SYSTEM_USER
+                    _technicalUserId
                 )
             };
             
@@ -656,8 +654,6 @@ namespace OXDesk.AppInstallation.Services
                 }).OrderBy(c => c.CountryName).ToList();
 
                 // Create or get ValueList 'Countries' and add items (Country Code, Country Name)
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-
                 var countriesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Countries);
 
@@ -672,7 +668,7 @@ namespace OXDesk.AppInstallation.Services
                         isActive: true,
                         allowModify: false,
                         allowNewItem: false,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     );
                     _dbContext.ValueLists.Add(countriesList);
                     await _dbContext.SaveChangesAsync();
@@ -695,7 +691,7 @@ namespace OXDesk.AppInstallation.Services
                         itemKey: c.CountryCode,
                         listId: countriesList.Id,
                         isActive: string.Equals(c.IsActive, "Y", StringComparison.OrdinalIgnoreCase),
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     ))
                     .ToList();
 
@@ -768,8 +764,6 @@ namespace OXDesk.AppInstallation.Services
                     .ToList();
                 
                 // Create or get ValueList 'Currencies' and add items (Code, Name)
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-                
                 var currenciesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListName == "Currencies");
                 
@@ -784,7 +778,7 @@ namespace OXDesk.AppInstallation.Services
                         isActive: true,
                         allowModify: false,
                         allowNewItem: false,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     );
                     _dbContext.ValueLists.Add(currenciesList);
                     await _dbContext.SaveChangesAsync();
@@ -806,7 +800,7 @@ namespace OXDesk.AppInstallation.Services
                         itemKey: c.Code,
                         listId: currenciesList.Id,
                         isActive: true,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     ))
                     .ToList();
                 
@@ -829,8 +823,6 @@ namespace OXDesk.AppInstallation.Services
             
             try
             {
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-                
                 // Create or get ValueList 'User Profiles'
                 var profilesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.UserProfiles);
@@ -846,7 +838,7 @@ namespace OXDesk.AppInstallation.Services
                         isActive: true,
                         allowModify: false,
                         allowNewItem: false,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     );
                     _dbContext.ValueLists.Add(profilesList);
                     await _dbContext.SaveChangesAsync();
@@ -870,7 +862,7 @@ namespace OXDesk.AppInstallation.Services
                         itemKey: p.Key,
                         listId: profilesList.Id,
                         isActive: true,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     ))
                     .ToList();
                 
@@ -893,7 +885,6 @@ namespace OXDesk.AppInstallation.Services
             
             try
             {
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                 var now = DateTime.UtcNow;
                 
                 // Define desired field types with recommended configs
@@ -904,103 +895,103 @@ namespace OXDesk.AppInstallation.Services
                         Name = "Auto Number", FieldTypeKey = "auto-number",
                         Description = "Automatically incrementing number",
                         Decimals = 0,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Text (Single Line)", FieldTypeKey = "text",
                         Description = "Single-line text",
                         MaxLength = 255,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Text Area (Multi-line)", FieldTypeKey = "textarea",
                         Description = "Multi-line text",
                         MaxLength = 2000,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Text Area (Large)", FieldTypeKey = "textarea-large",
                         Description = "Large multi-line text",
                         MaxLength = 32768,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Text Area (Rich/Html)", FieldTypeKey = "textarea-rich",
                         Description = "Rich text / HTML",
                         MaxLength = 65536,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Number (integer)", FieldTypeKey = "number-int",
                         Description = "Integer number",
                         Decimals = 0,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Number Decimal", FieldTypeKey = "number-decimal",
                         Description = "Decimal number",
                         Decimals = 2,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Currency", FieldTypeKey = "currency",
                         Description = "Currency with code",
                         Decimals = 2,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Percent", FieldTypeKey = "percent",
                         Description = "Percentage value",
                         Decimals = 2,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Date", FieldTypeKey = "date",
                         Description = "Date picker",
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Date & Time", FieldTypeKey = "date-time",
                         Description = "Date and time picker",
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Email", FieldTypeKey = "email",
                         Description = "Email address",
                         MaxLength = 255,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Phone", FieldTypeKey = "phone",
                         Description = "Phone number",
                         MaxLength = 30,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Link", FieldTypeKey = "link",
                         Description = "URL / hyperlink",
                         MaxLength = 2048,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Credit Card Number", FieldTypeKey = "credit-card",
                         Description = "Credit card number",
                         MaxLength = 19,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1010,7 +1001,7 @@ namespace OXDesk.AppInstallation.Services
                         AllowedFileTypes = "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,zip,jpg,jpeg,png",
                         MinFileCount = 0,
                         MaxFileCount = 1,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1020,14 +1011,14 @@ namespace OXDesk.AppInstallation.Services
                         AllowedFileTypes = "jpg,jpeg,png",
                         MinFileCount = 0,
                         MaxFileCount = 1,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
                         Name = "Dropdown (single select)", FieldTypeKey = "dropdown-single",
                         Description = "Dropdown with single selection",
                         MinSelectedItems = 0, MaxSelectedItems = 1,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1035,7 +1026,7 @@ namespace OXDesk.AppInstallation.Services
                         Description = "Dropdown with multiple selection",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 50,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1043,7 +1034,7 @@ namespace OXDesk.AppInstallation.Services
                         Description = "Multiple checkboxes",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 50,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1051,7 +1042,7 @@ namespace OXDesk.AppInstallation.Services
                         Description = "Single checkbox (true/false)",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 1,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                     new()
                     {
@@ -1059,7 +1050,7 @@ namespace OXDesk.AppInstallation.Services
                         Description = "Radio button (single choice)",
                         MinSelectedItems = 0,
                         MaxSelectedItems = 1,
-                        CreatedAt = now, UpdatedAt = now, CreatedBy = defaultUser, UpdatedBy = defaultUser
+                        CreatedAt = now, UpdatedAt = now, CreatedBy = _technicalUserId, UpdatedBy = _technicalUserId
                     },
                 };
                 
@@ -1095,8 +1086,6 @@ namespace OXDesk.AppInstallation.Services
             
             try
             {
-                var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
-                
                 // Create or get ValueList 'Request Types'
                 var requestTypesList = await _dbContext.ValueLists
                     .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.RequestTypes);
@@ -1113,7 +1102,7 @@ namespace OXDesk.AppInstallation.Services
                         isActive: true,
                         allowModify: false,
                         allowNewItem: false,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     );
                     _dbContext.ValueLists.Add(requestTypesList);
                     await _dbContext.SaveChangesAsync();
@@ -1145,7 +1134,7 @@ namespace OXDesk.AppInstallation.Services
                         itemKey: d.Key,
                         listId: requestTypesList.Id,
                         isActive: true,
-                        createdBy: defaultUser
+                        createdBy: _technicalUserId
                     ))
                     .ToList();
                 
@@ -1289,7 +1278,6 @@ namespace OXDesk.AppInstallation.Services
                         _logger.LogWarning("Permission {PermissionName} not found in dictionary when assigning to role {RoleName}, creating it now", permissionName, roleName);
                         
                         // Create the permission if it doesn't exist
-                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                         var utcNow = DateTime.UtcNow;
                         var normalizedName = permissionName.ToUpperInvariant();
                         
@@ -1297,9 +1285,9 @@ namespace OXDesk.AppInstallation.Services
                         {
                             Name = permissionName,
                             NormalizedName = normalizedName,
-                            CreatedBy = defaultUser,
+                            CreatedBy = _technicalUserId,
                             CreatedAt = utcNow,
-                            UpdatedBy = defaultUser,
+                            UpdatedBy = _technicalUserId,
                             UpdatedAt = utcNow
                         };
                         
@@ -1316,7 +1304,6 @@ namespace OXDesk.AppInstallation.Services
                     if (!existingClaims.Any(c => c.Type == claimType && c.Value == claimValue))
                     {
                         // Create the claim directly with audit fields
-                        var defaultUser = OXDesk.Core.Common.CommonConstant.DEFAULT_SYSTEM_USER;
                         var utcNow = DateTime.UtcNow;
                         
                         // Create a new ApplicationRoleClaim with audit fields
@@ -1325,9 +1312,9 @@ namespace OXDesk.AppInstallation.Services
                             RoleId = role.Id,
                             ClaimType = claimType,
                             ClaimValue = claimValue,
-                            CreatedBy = defaultUser,
+                            CreatedBy = _technicalUserId,
                             CreatedAt = utcNow,
-                            UpdatedBy = defaultUser,
+                            UpdatedBy = _technicalUserId,
                             UpdatedAt = utcNow
                         };
                         

@@ -4,7 +4,9 @@ namespace OXDesk.Core.Common;
 
 public static class CommonConstant
 {
-    public static readonly Guid DEFAULT_SYSTEM_USER = Guid.Parse("00000000-0000-0000-0000-000000010001");
+
+    // Technical Username
+    public const string TECHNICAL_USERNAME = "OXDesk@system.local";
 
     // Message Constants
     public const string MESSAGE_INVALID_REQUEST = "Invalid Request";

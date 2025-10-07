@@ -30,6 +30,7 @@ public class AppSetupService : IAppSetupService
     private readonly IChangeHistoryLogService _changeHistoryLogService;
     private readonly ApplicationDbContext _dbContext;
     private readonly ICurrentTenant _currentTenant;
+    private readonly IUserService _userService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -49,6 +50,7 @@ public class AppSetupService : IAppSetupService
         IValueListItemService valueListItemService,
         IChangeHistoryLogService changeHistoryLogService,
         ICurrentTenant currentTenant,
+        IUserService userService,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -61,10 +63,11 @@ public class AppSetupService : IAppSetupService
         _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
         _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
         _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
     }
 
     /// <inheritdoc/>
-    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, Guid? technicalUserId = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(setupDto);
 
@@ -77,16 +80,24 @@ public class AppSetupService : IAppSetupService
             throw new InvalidOperationException(CommonConstant.MESSAGE_CONFLICT + ": The application is already installed");
         }
 
+        // Get technical user
+        if (technicalUserId == null || technicalUserId == Guid.Empty)
+        {
+            technicalUserId = await _userService.GetTechnicalUserIdAsync(cancellationToken);
+        }
+
+        var technicalUserIdValue = technicalUserId.Value;
+
         try
         {
             // Begin transaction
             await _unitOfWork.BeginTransactionAsync(cancellationToken);
             
             // Create the tenant FIRST to get the actual tenant ID
-            var tenant = await CreateInitialTenantAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, tenantId, cancellationToken);
+            var tenant = await CreateInitialTenantAsync(setupDto, technicalUserIdValue, tenantId, cancellationToken);
 
             // Create the initial admin user with the actual tenant ID
-            await CreateInitialAdminUserAsync(setupDto, CommonConstant.DEFAULT_SYSTEM_USER, tenant.Id);
+            await CreateInitialAdminUserAsync(setupDto, technicalUserIdValue, tenant.Id);
 
             // Commit the transaction
             await _unitOfWork.CommitTransactionAsync(cancellationToken);
