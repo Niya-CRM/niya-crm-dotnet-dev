@@ -76,10 +76,10 @@ public class CreateUserRequest
 
 /// <summary>
 /// Response DTO for user information.
+/// Inherits: Id (Guid), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy from AuditedDtoGuid.
 /// </summary>
 public class UserResponse : AuditedDtoGuid
 {
-    // Inherits: Id (Guid), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy
 
     /// <summary>
     /// Gets or sets the email of the user.

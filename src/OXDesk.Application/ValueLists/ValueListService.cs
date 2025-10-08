@@ -29,6 +29,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
 
+    /// <inheritdoc />
     public async Task<ValueList> CreateAsync(ValueList valueList, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
@@ -57,6 +58,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return created;
     }
 
+    /// <inheritdoc />
     public async Task<ValueList> UpdateAsync(ValueList valueList, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
@@ -98,18 +100,21 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return updated;
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<ValueList>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueLists - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
         return await _unitOfWork.GetRepository<IValueListRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<ValueList?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting ValueList by ID: {Id}", id);
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByIdAsync(id, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -120,6 +125,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByNameAsync(trimmed, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -130,6 +136,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<ValueList> ActivateAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
@@ -140,6 +147,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return entity;
     }
 
+    /// <inheritdoc />
     public async Task<ValueList> DeactivateAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
@@ -158,6 +166,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _valueListItemService.GetByListIdAsync(list.Id, cancellationToken);
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(listKey))
@@ -185,15 +194,19 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return dict;
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetCountriesLookupAsync(CancellationToken cancellationToken = default)
         => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
 
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetCurrenciesLookupAsync(CancellationToken cancellationToken = default)
         => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
 
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetUserProfilesLookupAsync(CancellationToken cancellationToken = default)
         => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
 
+    /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetCountriesAsync(CancellationToken cancellationToken = default)
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
@@ -201,6 +214,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
@@ -208,6 +222,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
+    /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
     {
         var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
@@ -215,6 +230,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<TKey, ValueListItem>> GetLookupAsync<TKey>(
         string listKey,
         Func<ValueListItem, TKey> keySelector,
@@ -234,6 +250,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return dict;
     }
 
+    /// <inheritdoc />
     public IEnumerable<StatusOption> GetStatuses()
     {
         // Static reusable options for boolean statuses

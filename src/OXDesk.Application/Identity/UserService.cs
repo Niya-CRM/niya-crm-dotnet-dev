@@ -80,11 +80,7 @@ public class UserService : IUserService
         _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
-    /// <summary>
-    /// Gets the current user's unique identifier from claims.
-    /// </summary>
-    /// <returns>The current user's Guid identifier.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
+    /// <inheritdoc />
     public Guid GetCurrentUserId()
     {
         var userId = _currentUser.Id;
@@ -143,13 +139,7 @@ public class UserService : IUserService
     
     
 
-    /// <summary>
-    /// Returns a dictionary of users keyed by their Ids for the provided set of userIds.
-    /// This performs a single batched query and is suitable for lookups like CreatedBy/UpdatedBy.
-    /// </summary>
-    /// <param name="userIds">Collection of user IDs to fetch.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A read-only dictionary mapping userId to ApplicationUser.</returns>
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<Guid, ApplicationUser>> GetUsersLookupByIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(userIds);
@@ -168,9 +158,7 @@ public class UserService : IUserService
         return dict;
     }
 
-    /// <summary>
-    /// Gets a single user's display name by Id with caching support.
-    /// </summary>
+    /// <inheritdoc />
     public async Task<string?> GetUserNameByIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         if (userId == Guid.Empty) return null;
