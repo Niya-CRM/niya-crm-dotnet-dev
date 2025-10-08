@@ -1,4 +1,4 @@
-namespace OXDesk.Core.Extension;
+namespace OXDesk.Core.Entities;
 
 /// <summary>
 /// Provides soft deletion properties for an entity.

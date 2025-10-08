@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.DynamicObjects;
 
@@ -8,7 +9,7 @@ namespace OXDesk.Core.DynamicObjects;
 /// Represents a Dynamic Object entity in the CRM system.
 /// </summary>
 [Table("dynamic_objects")]
-public class DynamicObject
+public class DynamicObject : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     /// <summary>
     /// Gets or sets the unique identifier for the dynamic object.
@@ -69,30 +70,8 @@ public class DynamicObject
     [Column(TypeName = "varchar(10)")]
     public string ObjectType { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets or sets the date and time when the dynamic object was created.
-    /// </summary>
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the dynamic object was deleted.
-    /// </summary>
-    public DateTime? DeletedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the dynamic object was last updated.
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who created the dynamic object.
-    /// </summary>
-    public Guid CreatedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who last updated the dynamic object.
-    /// </summary>
-    public Guid UpdatedBy { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DynamicObject"/> class.

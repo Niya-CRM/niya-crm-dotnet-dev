@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Identity;
 
 /// <summary>
 /// Custom application role claim that uses Guid as primary key with audit fields.
 /// </summary>
-public class ApplicationRoleClaim : IdentityRoleClaim<Guid>
+public class ApplicationRoleClaim : IdentityRoleClaim<Guid>, ICreationAudited, IUpdationAudited, ITenantScoped
 {
     public ApplicationRoleClaim() : base() 
     { 

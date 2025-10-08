@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Tickets;
 
@@ -8,7 +9,7 @@ namespace OXDesk.Core.Tickets;
 /// Represents a support ticket/case.
 /// </summary>
 [Table("tickets")]
-public class Ticket
+public class Ticket : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     // Identity
     [Key]
@@ -249,20 +250,8 @@ public class Ticket
     [Column(TypeName = "varchar(10)")]
     public string? AiLanguage { get; set; }
 
-    // Audit
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    [Required]
-    public Guid UpdatedBy { get; set; }
-
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
-
-    [Required]
-    public DateTime UpdatedAt { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 
     // Timeline
     [Required]

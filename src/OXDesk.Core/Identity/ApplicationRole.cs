@@ -1,13 +1,14 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Identity;
 
 /// <summary>
 /// Custom application role that uses Guid as primary key with audit fields.
 /// </summary>
-public class ApplicationRole : IdentityRole<Guid>
+public class ApplicationRole : IdentityRole<Guid>, ICreationAudited, IUpdationAudited, IEntityGuid, ITenantScoped
 {
     /// <summary>
     /// Gets or sets the tenant identifier.

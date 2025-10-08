@@ -1,4 +1,4 @@
-namespace OXDesk.Core.Extension;
+namespace OXDesk.Core.Entities;
 
 /// <summary>
 /// Represents update auditing metadata for an entity.

@@ -1,11 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Tickets;
 
 [Table("brands")]
-public class Brand
+public class Brand : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     [Key]
     [Required]
@@ -39,17 +40,6 @@ public class Brand
     [Column(TypeName = "varchar(100)")]
     public string? Website { get; set; }
 
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    [Required]
-    public Guid UpdatedBy { get; set; }
-
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    [Required]
-    public DateTime UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 }

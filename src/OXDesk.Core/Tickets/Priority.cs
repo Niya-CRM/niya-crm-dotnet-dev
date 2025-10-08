@@ -1,11 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Tickets;
 
 [Table("priorities")]
-public class Priority
+public class Priority : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     [Key]
     [Required]
@@ -25,17 +26,6 @@ public class Priority
 
     public int? IncrementScore { get; set; }
 
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    [Required]
-    public Guid UpdatedBy { get; set; }
-
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    [Required]
-    public DateTime UpdatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 }

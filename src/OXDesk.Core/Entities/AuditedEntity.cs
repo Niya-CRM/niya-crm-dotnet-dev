@@ -1,4 +1,4 @@
-namespace OXDesk.Core.Extension;
+namespace OXDesk.Core.Entities;
 
 /// <summary>
 /// Provides common auditing properties for entities that track creation and update metadata.

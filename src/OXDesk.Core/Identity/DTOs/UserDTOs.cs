@@ -77,12 +77,9 @@ public class CreateUserRequest
 /// <summary>
 /// Response DTO for user information.
 /// </summary>
-public class UserResponse
+public class UserResponse : AuditedDtoGuid
 {
-    /// <summary>
-    /// Gets or sets the ID of the user.
-    /// </summary>
-    public Guid Id { get; set; }
+    // Inherits: Id (Guid), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy
 
     /// <summary>
     /// Gets or sets the email of the user.
@@ -145,26 +142,6 @@ public class UserResponse
     /// Gets or sets a value indicating whether the user is active.
     /// </summary>
     public bool IsActive { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date when the user was created.
-    /// </summary>
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date when the user was last updated.
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ID of the user who created the user.
-    /// </summary>
-    public Guid CreatedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ID of the user who last updated the user.
-    /// </summary>
-    public Guid UpdatedBy { get; set; }
 
     /// <summary>
     /// Display text for the creator user, typically the user's full name.

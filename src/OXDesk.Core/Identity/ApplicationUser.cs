@@ -2,13 +2,14 @@ using System;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Identity
 {
     /// <summary>
     /// Application user entity that extends IdentityUser.
     /// </summary>
-    public class ApplicationUser : IdentityUser<Guid>
+    public class ApplicationUser : IdentityUser<Guid>, ICreationAudited, IUpdationAudited, ISoftDelete, IEntityGuid, ITenantScoped
     {
         /// <summary>
         /// Gets or sets the tenant identifier.
@@ -67,6 +68,11 @@ namespace OXDesk.Core.Identity
         /// Gets or sets the date when the user was deleted.
         /// </summary>
         public DateTime? DeletedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user who deleted the user.
+        /// </summary>
+        public Guid? DeletedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the date when the user was last updated.

@@ -2,14 +2,16 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using OXDesk.Core.ValueLists;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.DynamicObjects.Fields;
 
 /// <summary>
 /// Represents an available field type definition that can be used by dynamic object fields.
+/// NOTE: This is a GLOBAL entity (no TenantId) - field types are shared across all tenants.
 /// </summary>
 [Table("dynamic_object_field_types")]
-public class DynamicObjectFieldType
+public class DynamicObjectFieldType : AuditedEntityWithSoftDelete, IEntity
 {
     /// <summary>
     /// Unique identifier for the field type.
@@ -93,28 +95,6 @@ public class DynamicObjectFieldType
     /// </summary>
     public int? MaxSelectedItems { get; set; }
 
-    /// <summary>
-    /// Gets or sets the date and time when the field type was created.
-    /// </summary>
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the field type was deleted (soft delete).
-    /// </summary>
-    public DateTime? DeletedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the field type was last updated.
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who created the field type.
-    /// </summary>
-    public Guid CreatedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who last updated the field type.
-    /// </summary>
-    public Guid UpdatedBy { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 }

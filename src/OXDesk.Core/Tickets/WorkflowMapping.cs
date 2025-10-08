@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Tickets;
 
@@ -8,7 +9,7 @@ namespace OXDesk.Core.Tickets;
 /// Maps a workflow to a Topic/SubTopic for routing and processing.
 /// </summary>
 [Table("workflow_mappings")]
-public class WorkflowMapping
+public class WorkflowMapping : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     /// <summary>
     /// Primary key.
@@ -40,20 +41,6 @@ public class WorkflowMapping
     /// </summary>
     public int? SubTopicId { get; set; }
 
-    /// <summary>
-    /// Audit fields.
-    /// </summary>
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    [Required]
-    public Guid UpdatedBy { get; set; }
-
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
-
-    [Required]
-    public DateTime UpdatedAt { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 }

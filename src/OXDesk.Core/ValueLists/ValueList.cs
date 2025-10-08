@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.ValueLists;
 
@@ -8,7 +9,7 @@ namespace OXDesk.Core.ValueLists;
 /// Represents a Value List entity in the CRM system.
 /// </summary>
 [Table("value_lists")]
-public class ValueList
+public class ValueList : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     /// <summary>
     /// Gets or sets the unique identifier for the value list.
@@ -72,29 +73,8 @@ public class ValueList
     [Required]
     public bool AllowNewItem { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets the date and time when the value list was created.
-    /// </summary>
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the value list was last updated.
-    /// </summary>
-    [Required]
-    public DateTime UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who created the value list.
-    /// </summary>
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who last updated the value list.
-    /// </summary>
-    [Required]
-    public Guid UpdatedBy { get; set; }
+    // Audit fields inherited from AuditedEntity:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ValueList"/> class.

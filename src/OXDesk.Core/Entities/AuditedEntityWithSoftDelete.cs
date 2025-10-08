@@ -1,4 +1,4 @@
-namespace OXDesk.Core.Extension;
+namespace OXDesk.Core.Entities;
 
 /// <summary>
 /// Provides auditing metadata for creation, updates, and soft deletion of an entity.

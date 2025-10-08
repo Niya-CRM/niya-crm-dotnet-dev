@@ -1,4 +1,4 @@
-namespace OXDesk.Core.Extension;
+namespace OXDesk.Core.Entities;
 
 /// <summary>
 /// Provides creation auditing properties for an entity.

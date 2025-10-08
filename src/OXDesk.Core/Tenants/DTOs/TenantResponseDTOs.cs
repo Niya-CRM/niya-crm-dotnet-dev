@@ -1,10 +1,10 @@
 using OXDesk.Core.Common;
+using OXDesk.Core.Common.DTOs;
 
 namespace OXDesk.Core.Tenants.DTOs;
 
-public class TenantResponse
+public class TenantResponse : AuditedDtoGuid
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Host { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -12,17 +12,13 @@ public class TenantResponse
     public Guid UserId { get; set; }
     public string? DatabaseName { get; set; }
     public string IsActive { get; set; } = "Y";
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
-    public Guid CreatedBy { get; set; }
-    public Guid UpdatedBy { get; set; }
+    // Inherits: Id (Guid), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy
 
     // Enriched
     public string? CreatedByText { get; set; }
     public string? UpdatedByText { get; set; }
 }
-
 public class TenantDetailsRelated
 {
 }

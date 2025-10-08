@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Tickets;
 
@@ -8,7 +9,7 @@ namespace OXDesk.Core.Tickets;
 /// Represents a status within a workflow.
 /// </summary>
 [Table("workflow_statuses")]
-public class WorkFlowStatus
+public class WorkFlowStatus : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
 {
     /// <summary>
     /// Primary key.
@@ -56,20 +57,6 @@ public class WorkFlowStatus
     [Required]
     public int Order { get; set; }
 
-    /// <summary>
-    /// Audit fields.
-    /// </summary>
-    [Required]
-    public Guid CreatedBy { get; set; }
-
-    [Required]
-    public Guid UpdatedBy { get; set; }
-
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime? DeletedAt { get; set; }
-
-    [Required]
-    public DateTime UpdatedAt { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 }

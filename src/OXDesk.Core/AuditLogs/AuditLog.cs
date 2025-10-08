@@ -1,14 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.AuditLogs;
 
 /// <summary>
 /// Represents an audit log entry in the CRM system.
 /// Pure domain entity for tracking system activities.
+/// Append-only entity - no updates or soft deletes.
 /// </summary>
 [Table("audit_logs")]
-public class AuditLog
+public class AuditLog : CreationAuditedEntity, IEntityGuid, ITenantScoped
 {
     /// <summary>
     /// Gets or sets the unique identifier for the audit log entry.
@@ -67,19 +69,8 @@ public class AuditLog
     [MaxLength(1000)]
     public string? Data { get; set; }
 
-    /// <summary>
-    /// Gets or sets the date and time when the audit log was created.
-    /// </summary>
-    [Column("created_at")]
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who performed the action.
-    /// </summary>
-    [Column("created_by")]
-    [Required]
-    public Guid CreatedBy { get; set; }
+    // Audit fields inherited from CreationAuditedEntity:
+    // - CreatedAt, CreatedBy (append-only, no updates)
 
 
     /// <summary>

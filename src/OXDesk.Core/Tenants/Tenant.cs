@@ -1,10 +1,13 @@
+using OXDesk.Core.Entities;
+
 namespace OXDesk.Core.Tenants;
 
 /// <summary>
 /// Represents a tenant in the multi-tenant CRM system.
 /// Pure domain entity with minimal business logic.
+/// NOTE: Tenant itself is not ITenantScoped as it represents the tenant entity itself.
 /// </summary>
-public class Tenant
+public class Tenant : AuditedEntityWithSoftDelete, IEntityGuid
 {
     /// <summary>
     /// Gets or sets the unique identifier for the tenant.
@@ -46,30 +49,8 @@ public class Tenant
     /// </summary>
     public string IsActive { get; set; } = "Y";
 
-    /// <summary>
-    /// Gets or sets the date and time when the tenant was created.
-    /// </summary>
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the tenant was last modified.
-    /// </summary>
-    public DateTime UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the date and time when the tenant was deleted.
-    /// </summary>
-    public DateTime? DeletedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who created the tenant.
-    /// </summary>
-    public Guid CreatedBy { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who last modified the tenant.
-    /// </summary>
-    public Guid UpdatedBy { get; set; }
+    // Audit fields inherited from AuditedEntityWithSoftDelete:
+    // - CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, DeletedAt, DeletedBy
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Tenant"/> class.

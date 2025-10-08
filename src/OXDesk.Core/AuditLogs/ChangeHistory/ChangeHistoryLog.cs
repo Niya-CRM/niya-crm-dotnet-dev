@@ -1,14 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.AuditLogs.ChangeHistory;
 
 /// <summary>
 /// Represents a change history log entry in the CRM system.
 /// Tracks field-level changes to entities for maintaining history.
+/// Append-only entity - no updates or soft deletes.
 /// </summary>
 [Table("change_history_logs")]
-public class ChangeHistoryLog
+public class ChangeHistoryLog : CreationAuditedEntity, IEntity, ITenantScoped
 {
     /// <summary>
     /// Gets or sets the unique identifier for the change history log entry.
@@ -68,19 +70,8 @@ public class ChangeHistoryLog
     [MaxLength(1000)]
     public string? NewValue { get; set; }
 
-    /// <summary>
-    /// Gets or sets the date and time when the change was created.
-    /// </summary>
-    [Column("created_at")]
-    [Required]
-    public DateTime CreatedAt { get; set; }
-
-    /// <summary>
-    /// Gets or sets the user who performed the action.
-    /// </summary>
-    [Column("created_by")]
-    [Required]
-    public Guid CreatedBy { get; set; }
+    // Audit fields inherited from CreationAuditedEntity:
+    // - CreatedAt, CreatedBy (append-only, no updates)
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangeHistoryLog"/> class.

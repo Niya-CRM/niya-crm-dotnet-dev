@@ -1,13 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Identity;
 
 /// <summary>
 /// Represents a permission/claim in the system.
+/// NOTE: Has nullable TenantId - does not implement ITenantScoped.
 /// </summary>
-public class Permission
+public class Permission : ICreationAudited, IUpdationAudited, IEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier for the permission.
