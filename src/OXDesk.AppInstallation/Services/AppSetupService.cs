@@ -205,7 +205,6 @@ public class AppSetupService : IAppSetupService
 
         var tenant = await _tenantService.CreateTenantAsync(
             request: createTenantRequest,
-            createdBy: systemUserId,
             cancellationToken: cancellationToken
         );
 

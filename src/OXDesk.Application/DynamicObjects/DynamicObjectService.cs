@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Common.Extensions;
+using OXDesk.Core.Identity;
 
 namespace OXDesk.Application.DynamicObjects;
 
@@ -20,6 +21,7 @@ public class DynamicObjectService : IDynamicObjectService
     private readonly ILogger<DynamicObjectService> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheService _cacheService;
+    private readonly ICurrentUser _currentUser;
 
     private readonly string _dynamicObjectCachePrefix = "dynamic_object:";
 
@@ -30,20 +32,28 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="logger">The logger.</param>
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
     /// <param name="cacheService">The cache service.</param>
+    /// <param name="currentUser">The current user.</param>
     public DynamicObjectService(
         IUnitOfWork unitOfWork, 
         ILogger<DynamicObjectService> logger, 
         IHttpContextAccessor httpContextAccessor, 
-        ICacheService cacheService)
+        ICacheService cacheService,
+        ICurrentUser currentUser)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
+        _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
+
+    private Guid GetCurrentUserId()
+    {
+        return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
+    }
 
     /// <summary>
     /// Adds an audit log entry for dynamic object-related actions.
@@ -66,7 +76,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, Guid createdBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating dynamic object with name: {ObjectName}", request.ObjectName);
 
@@ -101,6 +111,8 @@ public class DynamicObjectService : IDynamicObjectService
         }
 
         // Create new dynamic object
+        var createdBy = GetCurrentUserId();
+        
         var dynamicObject = new DynamicObject(
             objectName: normalizedObjectName,
             singularName: normalizedSingularName,
@@ -151,7 +163,7 @@ public class DynamicObjectService : IDynamicObjectService
     }
 
     /// <inheritdoc />
-    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<DynamicObject> UpdateDynamicObjectAsync(int id, DynamicObjectRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating dynamic object {DynamicObjectId} with name: {ObjectName}", id, request.ObjectName);
 
@@ -194,6 +206,8 @@ public class DynamicObjectService : IDynamicObjectService
         await _cacheService.RemoveAsync($"{_dynamicObjectCachePrefix}{dynamicObject.Id}");
 
         // Update dynamic object properties
+        var modifiedBy = GetCurrentUserId();
+        
         dynamicObject.ObjectName = normalizedObjectName;
         dynamicObject.SingularName = normalizedSingularName;
         dynamicObject.PluralName = normalizedPluralName;

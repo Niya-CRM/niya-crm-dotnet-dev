@@ -82,7 +82,6 @@ public class TenantController : ControllerBase
             
             var tenant = await _tenantService.CreateTenantAsync(
                 request: request,
-                createdBy: this.GetCurrentUserId(),
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created tenant with ID: {TenantId}", tenant.Id);
@@ -241,7 +240,6 @@ public class TenantController : ControllerBase
             var updatedTenant = await _tenantService.UpdateTenantAsync(
                 id, 
                 updateRequest, 
-                modifiedBy: this.GetCurrentUserId(), 
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully updated tenant: {TenantId}", id);

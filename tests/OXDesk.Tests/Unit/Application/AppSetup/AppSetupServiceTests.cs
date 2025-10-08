@@ -147,7 +147,6 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                         req.Name == setupDto.TenantName && 
                         req.Host == setupDto.Host && 
                         req.Email == setupDto.AdminEmail),
-                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tenant);
 
@@ -179,7 +178,6 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockTenantService.Verify(
                 service => service.CreateTenantAsync(
                     It.Is<CreateTenantRequest>(req => true),
-                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()),
                 Times.Once);
         }
@@ -201,7 +199,6 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
                     It.Is<CreateTenantRequest>(req => true),
-                    It.IsAny<Guid?>(),
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Test exception"));
 

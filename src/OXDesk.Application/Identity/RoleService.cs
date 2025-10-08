@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
@@ -19,23 +17,21 @@ namespace OXDesk.Application.Identity
 
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IRoleClaimRepository _roleClaimRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICurrentUser _currentUser;
 
         public RoleService(
             RoleManager<ApplicationRole> roleManager,
             IRoleClaimRepository roleClaimRepository,
-            IHttpContextAccessor httpContextAccessor)
+            ICurrentUser currentUser)
         {
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
             _roleClaimRepository = roleClaimRepository ?? throw new ArgumentNullException(nameof(roleClaimRepository));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
         }
 
-        private Guid GetCurrentUserIdOrDefault()
+        private Guid GetCurrentUserId()
         {
-            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-            return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
+            return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
         }
         public Task<IReadOnlyList<ApplicationRole>> GetAllRolesAsync(CancellationToken cancellationToken = default)
         {
@@ -55,7 +51,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+        public async Task<ApplicationRole> CreateRoleAsync(CreateRoleRequest request, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Role name is required.");
 
@@ -67,9 +63,7 @@ namespace OXDesk.Application.Identity
             if (existingRole != null) throw new InvalidOperationException($"Role '{request.Name}' already exists in this tenant.");
 
             var now = DateTime.UtcNow;
-            var userId = createdBy ?? GetCurrentUserIdOrDefault();
-            if (userId == Guid.Empty)
-                throw new InvalidOperationException("Unable to determine current user for audit.");
+            var userId = GetCurrentUserId();
 
             var role = new ApplicationRole
             {
@@ -90,7 +84,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<ApplicationRole> UpdateRoleAsync(Guid id, UpdateRoleRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+        public async Task<ApplicationRole> UpdateRoleAsync(Guid id, UpdateRoleRequest request, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) throw new InvalidOperationException($"Role with ID '{id}' not found.");
@@ -111,9 +105,7 @@ namespace OXDesk.Application.Identity
             }
 
             role.UpdatedAt = DateTime.UtcNow;
-            var userId = updatedBy ?? GetCurrentUserIdOrDefault();
-            if (userId == Guid.Empty)
-                throw new InvalidOperationException("Unable to determine current user for audit.");
+            var userId = GetCurrentUserId();
             role.UpdatedBy = userId;
 
             var result = await _roleManager.UpdateAsync(role);
@@ -125,7 +117,7 @@ namespace OXDesk.Application.Identity
             return role;
         }
 
-        public async Task<bool> DeleteRoleAsync(Guid id, Guid? deletedBy = null, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteRoleAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var role = await _roleManager.FindByIdAsync(id.ToString());
             if (role == null) return false;
@@ -153,7 +145,7 @@ namespace OXDesk.Application.Identity
             return claims.Where(c => c.Type == PermissionClaimType).Select(c => c.Value).Distinct().OrderBy(v => v).ToArray();
         }
 
-        public async Task<string[]> SetRolePermissionsAsync(Guid roleId, IEnumerable<string> permissionNames, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+        public async Task<string[]> SetRolePermissionsAsync(Guid roleId, IEnumerable<string> permissionNames, CancellationToken cancellationToken = default)
         {
             if (permissionNames == null) permissionNames = Array.Empty<string>();
             var desired = new HashSet<string>(permissionNames.Select(p => p.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)));
@@ -170,9 +162,7 @@ namespace OXDesk.Application.Identity
             var toAdd = desired.Except(current).ToArray();
             var toRemove = current.Except(desired).ToArray();
 
-            var userId = updatedBy ?? GetCurrentUserIdOrDefault();
-            if (userId == Guid.Empty)
-                throw new InvalidOperationException("Unable to determine current user for audit.");
+            var userId = GetCurrentUserId();
             var now = DateTime.UtcNow;
 
             // Remove claims no longer desired

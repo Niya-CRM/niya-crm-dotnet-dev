@@ -37,6 +37,7 @@ public class UserService : IUserService
     private readonly ICacheService _cacheService;
     private readonly IValueListService _valueListService;
     private readonly ICurrentTenant _currentTenant;
+    private readonly ICurrentUser _currentUser;
     
     // Cache key prefix for users
     private const string USER_CACHE_KEY_PREFIX = "user_";
@@ -63,7 +64,8 @@ public class UserService : IUserService
         IUserRepository userRepository,
         ICacheService cacheService,
         IValueListService valueListService,
-        ICurrentTenant currentTenant)
+        ICurrentTenant currentTenant,
+        ICurrentUser currentUser)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -75,6 +77,7 @@ public class UserService : IUserService
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
+        _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
     /// <summary>
@@ -84,15 +87,10 @@ public class UserService : IUserService
     /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
     public Guid GetCurrentUserId()
     {
-        var user = _httpContextAccessor.HttpContext?.User;
-        // Prefer NameIdentifier but fallback to 'sub' commonly used by JWTs
-        var userIdStr = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
-            ?? user?.FindFirst("sub")?.Value;
-        if (string.IsNullOrEmpty(userIdStr))
+        var userId = _currentUser.Id;
+        if (!userId.HasValue)
             throw new InvalidOperationException("User id claim not found in current context.");
-        if (!Guid.TryParse(userIdStr, out var userId))
-            throw new InvalidOperationException("User id claim is not a valid Guid.");
-        return userId;
+        return userId.Value;
     }
 
     private string GetUserIp() =>
@@ -203,7 +201,7 @@ public class UserService : IUserService
     
 
     /// <inheritdoc />
-    public async Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating user with email: {Email}", request.Email);
 
@@ -240,7 +238,7 @@ public class UserService : IUserService
         }
 
         // Determine actor for audit fields
-        var actorId = createdBy ?? GetCurrentUserId();
+        var actorId = GetCurrentUserId();
 
         // Create new user (tenant is implicit via global filters / DB policies)
         var user = new ApplicationUser
@@ -300,7 +298,7 @@ public class UserService : IUserService
     }
 
     /// <inheritdoc />
-    public async Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, Guid? changedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default)
     {
         bool isActivating = action.Equals(UserConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
         string actionVerb = isActivating ? "Activating" : "Deactivating";
@@ -314,8 +312,8 @@ public class UserService : IUserService
             throw new InvalidOperationException($"User with ID '{id}' not found.");
         }
 
-        // Determine actor: changedBy parameter or current user from context
-        var actorId = changedBy ?? GetCurrentUserId();
+        // Determine actor: current user from context
+        var actorId = GetCurrentUserId();
 
         // Update activation fields
         var oldActive = user.IsActive;
@@ -383,7 +381,7 @@ public class UserService : IUserService
         return roles;
     }
 
-    public async Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, Guid? assignedBy = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -412,7 +410,7 @@ public class UserService : IUserService
                 throw new InvalidOperationException($"Failed to assign role: {errors}");
             }
 
-            var actorId = assignedBy ?? GetCurrentUserId();
+            var actorId = GetCurrentUserId();
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
@@ -431,7 +429,7 @@ public class UserService : IUserService
         return await GetUserRolesAsync(userId, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, Guid? removedBy = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -460,7 +458,7 @@ public class UserService : IUserService
                 throw new InvalidOperationException($"Failed to remove role: {errors}");
             }
 
-            var actorId = removedBy ?? GetCurrentUserId();
+            var actorId = GetCurrentUserId();
             await _auditLogService.CreateAuditLogAsync(
                 objectKey: CommonConstant.MODULE_USER,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,

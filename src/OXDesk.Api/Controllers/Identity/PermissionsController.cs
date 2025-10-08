@@ -101,7 +101,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             try
             {
-                var entity = await _permissionService.CreatePermissionAsync(request, createdBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var entity = await _permissionService.CreatePermissionAsync(request, cancellationToken);
                 var response = await _permissionFactory.BuildDetailsAsync(entity, cancellationToken);
                 return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, response);
             }
@@ -127,7 +127,7 @@ namespace OXDesk.Api.Controllers.Identity
             }
             try
             {
-                var entity = await _permissionService.UpdatePermissionAsync(id, request, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var entity = await _permissionService.UpdatePermissionAsync(id, request, cancellationToken);
                 var response = await _permissionFactory.BuildDetailsAsync(entity, cancellationToken);
                 return Ok(response);
             }

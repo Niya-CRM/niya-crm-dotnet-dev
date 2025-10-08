@@ -13,10 +13,9 @@ public interface IUserService
     /// Creates a new user.
     /// </summary>
     /// <param name="request">The user creation request.</param>
-    /// <param name="createdBy">The user creating the user.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created user entity.</returns>
-    Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default);
+    Task<ApplicationUser> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a user entity by their identifier.
@@ -46,10 +45,9 @@ public interface IUserService
     /// <param name="id">The user identifier.</param>
     /// <param name="action">The action to perform (activate or deactivate).</param>
     /// <param name="reason">The reason for the status change.</param>
-    /// <param name="changedBy">The user performing the change.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user entity.</returns>
-    Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, Guid? changedBy = null, CancellationToken cancellationToken = default);
+    Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns a dictionary of users keyed by their Ids for the provided set of userIds.
@@ -76,12 +74,12 @@ public interface IUserService
     /// <summary>
     /// Adds the specified role to the user. Returns the updated set of roles. No-ops if already assigned.
     /// </summary>
-    Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, Guid? assignedBy = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes the specified role from the user. Returns the updated set of roles. No-ops if not assigned.
     /// </summary>
-    Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, Guid? removedBy = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all users that are assigned to the specified role.

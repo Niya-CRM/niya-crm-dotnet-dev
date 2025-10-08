@@ -1,31 +1,28 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 using OXDesk.Core;
 using OXDesk.Core.Cache;
+using OXDesk.Core.Identity;
 
 namespace OXDesk.Application.ValueLists;
 
 /// <summary>
 /// Service implementation for ValueListItem business operations.
 /// </summary>
-public class ValueListItemService(IValueListItemRepository repository, IUnitOfWork unitOfWork, ICacheService cacheService, IHttpContextAccessor httpContextAccessor, ILogger<ValueListItemService> logger) : IValueListItemService
+public class ValueListItemService(IValueListItemRepository repository, IUnitOfWork unitOfWork, ICacheService cacheService, ICurrentUser currentUser, ILogger<ValueListItemService> logger) : IValueListItemService
 {
     private readonly IValueListItemRepository _repository = repository ?? throw new ArgumentNullException(nameof(repository));
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    private readonly ICurrentUser _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     private readonly ILogger<ValueListItemService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    private Guid GetCurrentUserIdOrDefault()
+    private Guid GetCurrentUserId()
     {
-        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
+        return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
 
     public async Task<IEnumerable<ValueListItem>> GetByListIdAsync(int listId, CancellationToken cancellationToken = default)
@@ -35,7 +32,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return await _repository.GetByListIdAsync(listId, cancellationToken);
     }
 
-    public async Task<ValueListItem> CreateAsync(ValueListItem item, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> CreateAsync(ValueListItem item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.ListId <= 0) throw new ValidationException("ListId is required.");
@@ -44,9 +41,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
 
         _logger.LogInformation("Creating ValueListItem: {Name} for ValueListId: {ListId}", item.ItemName, item.ListId);
 
-        var currentUserId = createdBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         item.CreatedAt = DateTime.UtcNow;
         item.UpdatedAt = DateTime.UtcNow;
         item.CreatedBy = currentUserId;
@@ -61,7 +56,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return created;
     }
 
-    public async Task<ValueListItem> UpdateAsync(ValueListItem item, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> UpdateAsync(ValueListItem item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);
         if (item.Id <= 0) throw new ValidationException("Id must be a positive integer for update.");
@@ -71,9 +66,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
 
         _logger.LogInformation("Updating ValueListItem: {Id}", item.Id);
         
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         // We trust repository to track entity by key; simply set audit fields here
         item.UpdatedAt = DateTime.UtcNow;
         item.UpdatedBy = currentUserId;
@@ -85,28 +78,24 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         return updated;
     }
 
-    public async Task<ValueListItem> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, CancellationToken cancellationToken = default)
     {
         if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Activating ValueListItem: {Id}", id);
         
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         var entity = await _repository.ActivateAsync(id, currentUserId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListId}");
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, CancellationToken cancellationToken = default)
     {
         if (id <= 0) throw new ValidationException("Id must be a positive integer.");
         _logger.LogInformation("Deactivating ValueListItem: {Id}", id);
         
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         var entity = await _repository.DeactivateAsync(id, currentUserId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.ListId}");

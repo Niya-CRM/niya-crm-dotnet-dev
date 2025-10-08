@@ -32,6 +32,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly IChangeHistoryLogService _changeHistoryLogService;
         private readonly IAppSetupService _appSetupService;
         private readonly ICurrentTenant _currentTenant;
+        private readonly ICurrentUser _currentUser;
         private readonly Guid _tenantId;
         private readonly Guid _technicalUserId;
         
@@ -85,6 +86,7 @@ namespace OXDesk.AppInstallation.Services
             IChangeHistoryLogService changeHistoryLogService,
             IAppSetupService appSetupService,
             ICurrentTenant currentTenant,
+            ICurrentUser currentUser,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -95,6 +97,7 @@ namespace OXDesk.AppInstallation.Services
             _changeHistoryLogService = changeHistoryLogService;
             _appSetupService = appSetupService;
             _currentTenant = currentTenant;
+            _currentUser = currentUser;
             _logger = logger;
 
             // Generate a tenant ID for initialization process
@@ -105,8 +108,9 @@ namespace OXDesk.AppInstallation.Services
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
         {
 
-            // Seed using a scoped tenant context
+            // Seed using a scoped tenant and user context
             using (_currentTenant.ChangeScoped(_tenantId))
+            using (_currentUser.ChangeScoped(_technicalUserId))
             {
                 _logger.LogInformation("Generated initialization tenant ID: {TenantId}", _tenantId);
 

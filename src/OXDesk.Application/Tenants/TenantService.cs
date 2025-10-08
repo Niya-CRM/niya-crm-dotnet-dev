@@ -21,7 +21,7 @@ public class TenantService : ITenantService
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICacheService _cacheService;
     private readonly ICurrentTenant _tenantContextService;
-    private readonly IUserService _userService;
+    private readonly ICurrentUser _currentUser;
     private readonly string _tenantCachePrefix = "tenant:";
 
     /// <summary>
@@ -32,34 +32,38 @@ public class TenantService : ITenantService
     /// <param name="httpContextAccessor">The HTTP context accessor.</param>
     /// <param name="tenantContextService">The tenant context service.</param>
     /// <param name="cacheService">The cache service.</param>
-    /// <param name="userService">The user service.</param>
+    /// <param name="currentUser">The current user.</param>
     public TenantService(
         IUnitOfWork unitOfWork, 
         ILogger<TenantService> logger, 
         IHttpContextAccessor httpContextAccessor,
         ICurrentTenant tenantContextService,
         ICacheService cacheService,
-        IUserService userService)
+        ICurrentUser currentUser)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
+
+    private Guid GetCurrentUserId()
+    {
+        return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
+    }
 
     /// <summary>
     /// Adds an audit log entry for tenant-related actions.
     /// <param name="event">The event/action type.</param>
     /// <param name="objectItemId">The ID of the affected entity.</param>
     /// <param name="data">The data/details of the action.</param>
-    /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddTenantAuditLogAsync(string @event, Guid objectItemId, string data, Guid createdBy, CancellationToken cancellationToken = default)
+    private async Task AddTenantAuditLogAsync(string @event, Guid objectItemId, string data, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             objectKey: CommonConstant.MODULE_TENANT,
@@ -67,13 +71,13 @@ public class TenantService : ITenantService
             objectItemId: objectItemId,
             ip: GetUserIp(),
             data: data,
-            createdBy: createdBy
+            createdBy: GetCurrentUserId()
         );
         await _unitOfWork.GetRepository<IAuditLogRepository>().AddAsync(auditLog, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", request.Name, request.Host, request.Email);
 
@@ -101,8 +105,8 @@ public class TenantService : ITenantService
             throw new InvalidOperationException($"A tenant with host '{normalizedHost}' already exists.");
         }
 
-        // Create new tenant (Id will be database-generated identity starting at configured seed)
-        var currentUserId = createdBy ?? _userService.GetCurrentUserId();
+        // Create new tenant
+        var currentUserId = GetCurrentUserId();
         var tenant = new Tenant(
             name: normalizedName,
             host: normalizedHost,
@@ -130,7 +134,6 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
             createdTenant.Id,
             $"Tenant created: {{ \"Name\": \"{createdTenant.Name}\", \"Host\": \"{createdTenant.Host}\", \"Email\": \"{createdTenant.Email}\" }}",
-            currentUserId,
             cancellationToken
         );
 
@@ -188,7 +191,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 
@@ -250,7 +253,7 @@ public class TenantService : ITenantService
         tenant.TimeZone = request.TimeZone ?? string.Empty;
         tenant.DatabaseName = normalizedDatabaseName;
         tenant.UpdatedAt = DateTime.UtcNow;
-        var currentUserId = modifiedBy ?? _userService.GetCurrentUserId();
+        var currentUserId = GetCurrentUserId();
         tenant.UpdatedBy = currentUserId;
 
         // Save changes
@@ -261,7 +264,6 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id,
             $"Tenant updated: {{ \"Name\": \"{updatedTenant.Name}\", \"Host\": \"{updatedTenant.Host}\", \"Email\": \"{updatedTenant.Email}\" }}",
-            currentUserId,
             cancellationToken
         );
 
@@ -291,7 +293,7 @@ public class TenantService : ITenantService
         await _cacheService.RemoveAsync($"{_tenantCachePrefix}{tenant.Host}");
 
         // Set active status based on action
-        var currentUserId = _userService.GetCurrentUserId();
+        var currentUserId = GetCurrentUserId();
         tenant.IsActive = isActivating ? "Y" : "N";
         tenant.UpdatedAt = DateTime.UtcNow;
         tenant.UpdatedBy = currentUserId;
@@ -303,7 +305,6 @@ public class TenantService : ITenantService
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             updatedTenant.Id,
             $"Tenant {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
-            currentUserId,
             cancellationToken
         );
 

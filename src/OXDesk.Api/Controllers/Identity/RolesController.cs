@@ -88,7 +88,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             try
             {
-                var entity = await _roleService.CreateRoleAsync(request, createdBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var entity = await _roleService.CreateRoleAsync(request, cancellationToken);
                 var response = await _roleFactory.BuildDetailsAsync(entity, cancellationToken);
                 return CreatedAtAction(nameof(GetByIdAsync), new { id = entity.Id }, response);
             }
@@ -115,7 +115,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             try
             {
-                var entity = await _roleService.UpdateRoleAsync(id, request, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                var entity = await _roleService.UpdateRoleAsync(id, request, cancellationToken);
                 var response = await _roleFactory.BuildDetailsAsync(entity, cancellationToken);
                 return Ok(response);
             }
@@ -182,7 +182,7 @@ namespace OXDesk.Api.Controllers.Identity
             // Only call service if change is needed
             if (updated.Length != current.Length)
             {
-                await _roleService.SetRolePermissionsAsync(id, updated, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                await _roleService.SetRolePermissionsAsync(id, updated, cancellationToken);
             }
 
             // Return updated role details with related permissions via factory
@@ -198,7 +198,7 @@ namespace OXDesk.Api.Controllers.Identity
         {
             try
             {
-                await _roleService.SetRolePermissionsAsync(id, request.Permissions, updatedBy: this.GetCurrentUserId(), cancellationToken: cancellationToken);
+                await _roleService.SetRolePermissionsAsync(id, request.Permissions, cancellationToken);
 
                 var role = await _roleService.GetRoleByIdAsync(id, cancellationToken);
                 if (role is null)

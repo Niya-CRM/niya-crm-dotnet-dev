@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
@@ -16,25 +14,23 @@ public class PermissionService : IPermissionService
 {
     private readonly IPermissionRepository _permissionRepository;
     private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICurrentUser _currentUser;
 
     private const string PermissionClaimType = "permission";
 
     public PermissionService(
         IPermissionRepository permissionRepository,
         RoleManager<ApplicationRole> roleManager,
-        IHttpContextAccessor httpContextAccessor)
+        ICurrentUser currentUser)
     {
         _permissionRepository = permissionRepository ?? throw new ArgumentNullException(nameof(permissionRepository));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
-    private Guid GetCurrentUserIdOrDefault()
+    private Guid GetCurrentUserId()
     {
-        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
+        return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
     public async Task<IReadOnlyList<Permission>> GetAllPermissionsAsync(CancellationToken cancellationToken = default)
     {
@@ -50,7 +46,7 @@ public class PermissionService : IPermissionService
         return entity;
     }
 
-    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> CreatePermissionAsync(CreatePermissionRequest request, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(request.Name)) throw new InvalidOperationException("Permission name is required.");
         var name = request.Name.Trim();
@@ -61,9 +57,7 @@ public class PermissionService : IPermissionService
         if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists in this tenant.");
 
         var now = DateTime.UtcNow;
-        var userId = createdBy ?? GetCurrentUserIdOrDefault();
-        if (userId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var userId = GetCurrentUserId();
 
         var entity = new Permission
         {
@@ -79,7 +73,7 @@ public class PermissionService : IPermissionService
         return entity;
     }
 
-    public async Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, Guid? updatedBy = null, CancellationToken cancellationToken = default)
+    public async Task<Permission> UpdatePermissionAsync(int id, UpdatePermissionRequest request, CancellationToken cancellationToken = default)
     {
         var entity = await _permissionRepository.GetByIdAsync(id);
         if (entity == null) throw new InvalidOperationException($"Permission with ID '{id}' was not found.");
@@ -99,9 +93,7 @@ public class PermissionService : IPermissionService
         entity.Name = newName;
         entity.NormalizedName = newNormalized;
         entity.UpdatedAt = DateTime.UtcNow;
-        var userId = updatedBy ?? GetCurrentUserIdOrDefault();
-        if (userId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var userId = GetCurrentUserId();
         entity.UpdatedBy = userId;
 
         entity = await _permissionRepository.UpdateAsync(entity);

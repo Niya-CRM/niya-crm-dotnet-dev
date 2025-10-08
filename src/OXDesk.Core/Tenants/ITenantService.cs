@@ -12,10 +12,9 @@ public interface ITenantService
     /// Creates a new tenant.
     /// </summary>
     /// <param name="request">The tenant creation request.</param>
-    /// <param name="createdBy">The user creating the tenant.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created tenant.</returns>
-    Task<Tenant> CreateTenantAsync(CreateTenantRequest request, Guid? createdBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> CreateTenantAsync(CreateTenantRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a tenant by its identifier.
@@ -38,10 +37,9 @@ public interface ITenantService
     /// </summary>
     /// <param name="id">The tenant identifier.</param>
     /// <param name="request">The tenant update request.</param>
-    /// <param name="modifiedBy">The user updating the tenant.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated tenant.</returns>
-    Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, Guid? modifiedBy = null, CancellationToken cancellationToken = default);
+    Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if any tenants exist in the system.

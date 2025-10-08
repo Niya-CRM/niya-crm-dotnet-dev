@@ -64,7 +64,6 @@ public class DynamicObjectController : ControllerBase
             
             var dynamicObject = await _dynamicObjectService.CreateDynamicObjectAsync(
                 request: request,
-                createdBy: this.GetCurrentUserId() ?? throw new UnauthorizedAccessException("User ID not found in claims."),
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Successfully created dynamic object with ID: {DynamicObjectId}", dynamicObject.Id);
@@ -173,7 +172,6 @@ public class DynamicObjectController : ControllerBase
             var updatedDynamicObject = await _dynamicObjectService.UpdateDynamicObjectAsync(
                 objectId, 
                 request, 
-                this.GetCurrentUserId() ?? throw new UnauthorizedAccessException("User ID not found in claims."), 
                 cancellationToken);
 
             _logger.LogInformation("Successfully updated dynamic object: {DynamicObjectId}", objectId);

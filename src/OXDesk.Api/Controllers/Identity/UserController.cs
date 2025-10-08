@@ -69,12 +69,8 @@ public class UserController : ControllerBase
             _logger.LogInformation("Creating user with email: {Email}", request.Email);
             
             // Get the current user ID from the claims
-            var currentUserId = User.FindFirst("sub")?.Value;
-            Guid? createdBy = Guid.TryParse(currentUserId, out var userId) ? userId : null;
-            
             var entity = await _userService.CreateUserAsync(
                 request: request,
-                createdBy: createdBy,
                 cancellationToken: cancellationToken);
 
             var response = await _userFactory.BuildDetailsAsync(entity, cancellationToken);
@@ -187,7 +183,7 @@ public class UserController : ControllerBase
             string actionVerb = activate ? "Activating" : "Deactivating";
             _logger.LogInformation("{ActionVerb} user: {UserId}", actionVerb, id);
 
-            var entity = await _userService.ChangeUserActivationStatusAsync(id, action, request.Reason, cancellationToken: cancellationToken);
+            var entity = await _userService.ChangeUserActivationStatusAsync(id, action, request.Reason, cancellationToken);
             var response = await _userFactory.BuildDetailsAsync(entity, cancellationToken);
 
             string completedAction = activate ? "activated" : "deactivated";
@@ -240,7 +236,7 @@ public class UserController : ControllerBase
 
         try
         {
-            var roles = await _userService.AddRoleToUserAsync(id, request.RoleId, cancellationToken: cancellationToken);
+            var roles = await _userService.AddRoleToUserAsync(id, request.RoleId, cancellationToken);
             var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }
@@ -264,7 +260,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var roles = await _userService.RemoveRoleFromUserAsync(id, roleId, cancellationToken: cancellationToken);
+            var roles = await _userService.RemoveRoleFromUserAsync(id, roleId, cancellationToken);
             var response = await _roleFactory.BuildListAsync(roles, cancellationToken);
             return Ok(response);
         }

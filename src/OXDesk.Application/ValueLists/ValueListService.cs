@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core;
 using OXDesk.Core.Common;
@@ -7,32 +6,30 @@ using OXDesk.Core.Cache;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.ValueLists.DTOs;
+using OXDesk.Core.Identity;
 
 namespace OXDesk.Application.ValueLists;
 
 /// <summary>
 /// Service implementation for ValueList business operations.
 /// </summary>
-public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valueListItemService, IHttpContextAccessor httpContextAccessor, ILogger<ValueListService> logger, ICacheService cacheService) : IValueListService
+public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valueListItemService, ICurrentUser currentUser, ILogger<ValueListService> logger, ICacheService cacheService) : IValueListService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     private readonly IValueListItemService _valueListItemService = valueListItemService ?? throw new ArgumentNullException(nameof(valueListItemService));
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    private readonly ICurrentUser _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     private readonly ILogger<ValueListService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    private Guid GetCurrentUserIdOrDefault()
+    private Guid GetCurrentUserId()
     {
-        var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-            ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub")?.Value;
-        return Guid.TryParse(userIdStr, out var id) ? id : Guid.Empty;
+        return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
 
-    public async Task<ValueList> CreateAsync(ValueList valueList, Guid? createdBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> CreateAsync(ValueList valueList, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
         if (string.IsNullOrWhiteSpace(valueList.ListName))
@@ -46,9 +43,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
 
         _logger.LogInformation("Creating ValueList: {Name}", valueList.ListName);
         
-        var currentUserId = createdBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         valueList.CreatedAt = DateTime.UtcNow;
         valueList.UpdatedAt = DateTime.UtcNow;
         valueList.CreatedBy = currentUserId;
@@ -62,7 +57,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return created;
     }
 
-    public async Task<ValueList> UpdateAsync(ValueList valueList, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> UpdateAsync(ValueList valueList, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(valueList);
         if (valueList.Id <= 0)
@@ -93,9 +88,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         existing.AllowModify = valueList.AllowModify;
         existing.AllowNewItem = valueList.AllowNewItem;
         existing.UpdatedAt = DateTime.UtcNow;
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         existing.UpdatedBy = currentUserId;
         var updated = await _unitOfWork.GetRepository<IValueListRepository>().UpdateAsync(existing, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -137,24 +130,20 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
     }
 
-    public async Task<ValueList> ActivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> ActivateAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().ActivateAsync(id, currentUserId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.Id}");
         return entity;
     }
 
-    public async Task<ValueList> DeactivateAsync(int id, Guid? modifiedBy = null, CancellationToken cancellationToken = default)
+    public async Task<ValueList> DeactivateAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Deactivating ValueList: {Id}", id);
-        var currentUserId = modifiedBy ?? GetCurrentUserIdOrDefault();
-        if (currentUserId == Guid.Empty)
-            throw new InvalidOperationException("Unable to determine current user for audit.");
+        var currentUserId = GetCurrentUserId();
         var entity = await _unitOfWork.GetRepository<IValueListRepository>().DeactivateAsync(id, currentUserId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _cacheService.RemoveAsync($"{_valueListLookupCachePrefix}{entity.Id}");
