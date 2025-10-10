@@ -4,8 +4,13 @@ using OXDesk.Core.Tickets;
 
 namespace OXDesk.Infrastructure.Data.Tickets
 {
+    /// <summary>
+    /// Entity Framework configuration for the Channel entity.
+    /// Configures database table and column mappings.
+    /// </summary>
     public class ChannelConfiguration : IEntityTypeConfiguration<Channel>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Channel> builder)
         {
             builder.ToTable("channels");

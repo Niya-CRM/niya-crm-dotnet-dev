@@ -5,10 +5,12 @@ using OXDesk.Core.Tickets;
 namespace OXDesk.Infrastructure.Data.Tickets
 {
     /// <summary>
-    /// EF Core configuration for TicketStatus.
+    /// Entity Framework configuration for the Status entity.
+    /// Configures database table and column mappings.
     /// </summary>
     public class StatusConfiguration : IEntityTypeConfiguration<Status>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Status> builder)
         {
             // Table mapping

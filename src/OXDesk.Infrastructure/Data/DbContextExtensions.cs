@@ -12,14 +12,28 @@ using System.Threading.Tasks;
 
 namespace OXDesk.Infrastructure.Data
 {
+    /// <summary>
+    /// Extension methods for database context operations.
+    /// </summary>
     public static class DbContextExtensions
     {
-
+        /// <summary>
+        /// Result class for lock operations.
+        /// </summary>
         public class LockResult
         {
+            /// <summary>
+            /// Gets or sets a value indicating whether the lock was acquired.
+            /// </summary>
             public bool Locked { get; set; }
         }
 
+        /// <summary>
+        /// Attempts to acquire a PostgreSQL advisory lock.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="lockId">The lock identifier.</param>
+        /// <returns>True if the lock was acquired; otherwise, false.</returns>
         public static async Task<bool> TryAcquireAdvisoryLock(ApplicationDbContext dbContext, long lockId)
         {
             // EF Core expects a column named "Value" for primitive projections; alias accordingly

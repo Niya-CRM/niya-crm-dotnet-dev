@@ -15,11 +15,16 @@ namespace OXDesk.Infrastructure.Data.Identity
     {
         private readonly ApplicationDbContext _dbContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserRefreshTokenRepository"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
         public UserRefreshTokenRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
+        /// <inheritdoc/>
         public async Task<UserRefreshToken> AddAsync(UserRefreshToken token, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(token);
@@ -35,6 +40,7 @@ namespace OXDesk.Infrastructure.Data.Identity
             return token;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<UserRefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.UserRefreshTokens
@@ -44,6 +50,7 @@ namespace OXDesk.Infrastructure.Data.Identity
                 .ToListAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<UserRefreshToken?> GetByHashedTokenAsync(string hashedToken, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(hashedToken))
@@ -54,6 +61,7 @@ namespace OXDesk.Infrastructure.Data.Identity
                 .FirstOrDefaultAsync(rt => rt.HashedToken == hashedToken, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<UserRefreshToken> UpdateAsync(UserRefreshToken token, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(token);
@@ -63,6 +71,7 @@ namespace OXDesk.Infrastructure.Data.Identity
             return token;
         }
 
+        /// <inheritdoc/>
         public async Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             var tokens = await _dbContext.UserRefreshTokens
@@ -75,6 +84,7 @@ namespace OXDesk.Infrastructure.Data.Identity
             return await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<bool> DeleteByHashedTokenAsync(string hashedToken, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(hashedToken))

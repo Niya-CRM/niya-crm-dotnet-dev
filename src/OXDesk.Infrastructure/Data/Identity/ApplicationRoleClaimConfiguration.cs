@@ -10,6 +10,7 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class ApplicationRoleClaimConfiguration : IEntityTypeConfiguration<ApplicationRoleClaim>
 {
+    /// <inheritdoc/>
     public void Configure(EntityTypeBuilder<ApplicationRoleClaim> builder)
     {
         // Table name

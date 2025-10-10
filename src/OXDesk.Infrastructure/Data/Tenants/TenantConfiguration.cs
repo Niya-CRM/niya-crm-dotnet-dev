@@ -5,10 +5,12 @@ using OXDesk.Core.Tenants;
 namespace OXDesk.Infrastructure.Data.Tenants
 {
     /// <summary>
-    /// EF Core configuration for Tenant entity.
+    /// Entity Framework configuration for the Tenant entity.
+    /// Configures database table and column mappings.
     /// </summary>
-    public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
+    public class TenantConfiguration : IEntityTypeConfiguration<Tenant>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Tenant> builder)
         {
             builder.ToTable("tenants");

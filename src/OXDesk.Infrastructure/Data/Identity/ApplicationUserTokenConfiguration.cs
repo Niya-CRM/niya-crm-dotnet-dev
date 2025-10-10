@@ -9,6 +9,7 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class ApplicationUserTokenConfiguration : IEntityTypeConfiguration<ApplicationUserToken>
 {
+    /// <inheritdoc/>
     public void Configure(EntityTypeBuilder<ApplicationUserToken> builder)
     {
         // Table name

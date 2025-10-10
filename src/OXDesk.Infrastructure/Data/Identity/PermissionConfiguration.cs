@@ -10,6 +10,7 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
+    /// <inheritdoc/>
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
         // Table name

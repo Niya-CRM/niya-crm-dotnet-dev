@@ -14,11 +14,16 @@ public class PermissionRepository : IPermissionRepository
 {
     private readonly ApplicationDbContext _dbContext;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PermissionRepository"/> class.
+    /// </summary>
+    /// <param name="dbContext">The database context.</param>
     public PermissionRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc/>
     public async Task<Permission> AddAsync(Permission permission)
     {
         _dbContext.Permissions.Add(permission);
@@ -26,17 +31,20 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Permission>> GetAllAsync()
     {
         return await _dbContext.Permissions.AsQueryable().ToListAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<Permission?> GetByIdAsync(int id)
     {
         // Global query filter will ensure tenant isolation
         return await _dbContext.Permissions.Where(p => p.Id == id).FirstOrDefaultAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<Permission?> GetByNameAsync(string normalizedName)
     {
         return await _dbContext.Permissions
@@ -44,6 +52,7 @@ public class PermissionRepository : IPermissionRepository
             .FirstOrDefaultAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<Permission> UpdateAsync(Permission permission)
     {
         _dbContext.Permissions.Update(permission);
@@ -51,6 +60,7 @@ public class PermissionRepository : IPermissionRepository
         return permission;
     }
 
+    /// <inheritdoc/>
     public async Task<bool> DeleteAsync(int id)
     {
         // Global query filter will ensure tenant isolation

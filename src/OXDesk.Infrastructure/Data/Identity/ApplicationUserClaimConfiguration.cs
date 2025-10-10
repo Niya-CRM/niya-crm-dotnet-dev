@@ -9,6 +9,7 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class ApplicationUserClaimConfiguration : IEntityTypeConfiguration<ApplicationUserClaim>
 {
+    /// <inheritdoc/>
     public void Configure(EntityTypeBuilder<ApplicationUserClaim> builder)
     {
         // Table name

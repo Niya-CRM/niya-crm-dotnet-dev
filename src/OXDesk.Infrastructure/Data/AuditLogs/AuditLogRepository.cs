@@ -12,17 +12,25 @@ using System.Threading.Tasks;
 
 namespace OXDesk.Infrastructure.Data.AuditLogs
 {
+    /// <summary>
+    /// Repository implementation for audit log data access operations.
+    /// </summary>
     public class AuditLogRepository : IAuditLogRepository
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly DbSet<AuditLog> _dbSet;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuditLogRepository"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
         public AuditLogRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = dbContext.Set<AuditLog>();
         }
 
+        /// <inheritdoc/>
         public async Task<AuditLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
@@ -30,6 +38,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                 .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<AuditLog>> GetAuditLogsAsync(
             AuditLogQueryDto query,
             CancellationToken cancellationToken = default)
@@ -57,6 +66,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                 .ToListAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<AuditLog> AddAsync(AuditLog auditLog, CancellationToken cancellationToken = default)
         {
             if (auditLog.CreatedAt == default)

@@ -16,11 +16,16 @@ public class RoleClaimRepository : IRoleClaimRepository
 {
     private readonly ApplicationDbContext _dbContext;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RoleClaimRepository"/> class.
+    /// </summary>
+    /// <param name="dbContext">The database context.</param>
     public RoleClaimRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc/>
     public async Task RemoveRoleClaimsAsync(Guid roleId, string claimType, IEnumerable<string> claimValues, CancellationToken cancellationToken = default)
     {
         var values = claimValues?.ToArray() ?? Array.Empty<string>();
@@ -36,6 +41,7 @@ public class RoleClaimRepository : IRoleClaimRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task AddRoleClaimsAsync(IEnumerable<ApplicationRoleClaim> claims, CancellationToken cancellationToken = default)
     {
         var list = claims?.ToList() ?? new List<ApplicationRoleClaim>();
@@ -45,6 +51,7 @@ public class RoleClaimRepository : IRoleClaimRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(Guid roleId, string claimType, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.RoleClaims

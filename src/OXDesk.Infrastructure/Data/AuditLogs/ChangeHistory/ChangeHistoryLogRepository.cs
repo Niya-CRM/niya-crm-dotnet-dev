@@ -11,17 +11,25 @@ using System.Threading.Tasks;
 
 namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
 {
+    /// <summary>
+    /// Repository implementation for change history log data access operations.
+    /// </summary>
     public class ChangeHistoryLogRepository : IChangeHistoryLogRepository
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly DbSet<ChangeHistoryLog> _dbSet;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChangeHistoryLogRepository"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
         public ChangeHistoryLogRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = dbContext.Set<ChangeHistoryLog>();
         }
 
+        /// <inheritdoc/>
         public async Task<ChangeHistoryLog?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
@@ -29,6 +37,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
                 .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<ChangeHistoryLog>> GetChangeHistoryLogsAsync(
             ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken = default)
@@ -58,6 +67,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
                 .ToListAsync(cancellationToken);
         }
 
+        /// <inheritdoc/>
         public async Task<ChangeHistoryLog> AddAsync(ChangeHistoryLog changeHistoryLog, CancellationToken cancellationToken = default)
         {
             if (changeHistoryLog.CreatedAt == default)

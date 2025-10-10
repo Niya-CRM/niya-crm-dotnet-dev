@@ -10,6 +10,7 @@ namespace OXDesk.Infrastructure.Data.Identity
     /// </summary>
     public class ApplicationUserConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
 

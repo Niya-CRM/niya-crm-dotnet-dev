@@ -4,8 +4,13 @@ using OXDesk.Core.Tickets;
 
 namespace OXDesk.Infrastructure.Data.Tickets
 {
+    /// <summary>
+    /// Entity Framework configuration for the Priority entity.
+    /// Configures database table and column mappings.
+    /// </summary>
     public class PriorityConfiguration : IEntityTypeConfiguration<Priority>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Priority> builder)
         {
             builder.ToTable("priorities");

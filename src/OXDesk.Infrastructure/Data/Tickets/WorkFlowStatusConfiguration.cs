@@ -5,10 +5,12 @@ using OXDesk.Core.Tickets;
 namespace OXDesk.Infrastructure.Data.Tickets
 {
     /// <summary>
-    /// EF Core configuration for WorkFlowStatus entity.
+    /// Entity Framework configuration for the WorkFlowStatus entity.
+    /// Configures database table and column mappings.
     /// </summary>
     public sealed class WorkFlowStatusConfiguration : IEntityTypeConfiguration<WorkFlowStatus>
     {
+        /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<WorkFlowStatus> builder)
         {
             builder.ToTable("workflow_statuses");
