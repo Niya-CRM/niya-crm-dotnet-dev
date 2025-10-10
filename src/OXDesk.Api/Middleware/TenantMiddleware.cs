@@ -9,18 +9,34 @@ using OXDesk.Core.Tenants;
 
 namespace OXDesk.Api.Middleware
 {
+    /// <summary>
+    /// Middleware that extracts and sets the tenant context from JWT claims or X-Forwarded-Host header.
+    /// </summary>
     public class TenantMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<TenantMiddleware> _logger;
+        
+        /// <summary>
+        /// The key used to store tenant ID in HttpContext.Items and JWT claims.
+        /// </summary>
         public const string TenantIdKey = "tenant_id";
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TenantMiddleware"/> class.
+        /// </summary>
+        /// <param name="next">The next middleware in the pipeline.</param>
+        /// <param name="logger">The logger.</param>
         public TenantMiddleware(RequestDelegate next, ILogger<TenantMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
         
+        /// <summary>
+        /// Invokes the middleware to extract and set tenant context.
+        /// </summary>
+        /// <param name="context">The HTTP context.</param>
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -97,9 +113,16 @@ namespace OXDesk.Api.Middleware
         }
     }
     
-    // Extension method for easy registration in Startup
+    /// <summary>
+    /// Extension methods for registering TenantMiddleware.
+    /// </summary>
     public static class TenantMiddlewareExtensions
     {
+        /// <summary>
+        /// Adds the TenantMiddleware to the application pipeline.
+        /// </summary>
+        /// <param name="builder">The application builder.</param>
+        /// <returns>The application builder for chaining.</returns>
         public static IApplicationBuilder UseTenantMiddleware(
             this IApplicationBuilder builder)
         {

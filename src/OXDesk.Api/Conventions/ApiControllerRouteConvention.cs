@@ -7,6 +7,7 @@ namespace OXDesk.Api.Conventions
     /// </summary>
     public class ApiControllerRouteConvention : IControllerModelConvention
     {
+        /// <inheritdoc/>
         public void Apply(ControllerModel controller)
         {
             // Skip Auth and Setup controllers - they should be served directly

@@ -18,12 +18,21 @@ namespace OXDesk.Api.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<CurrentUserMiddleware> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CurrentUserMiddleware"/> class.
+        /// </summary>
+        /// <param name="next">The next middleware in the pipeline.</param>
+        /// <param name="logger">The logger.</param>
         public CurrentUserMiddleware(RequestDelegate next, ILogger<CurrentUserMiddleware> logger)
         {
             _next = next;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Invokes the middleware to populate current user context from JWT claims.
+        /// </summary>
+        /// <param name="context">The HTTP context.</param>
         public async Task InvokeAsync(HttpContext context)
         {
             try
@@ -83,8 +92,16 @@ namespace OXDesk.Api.Middleware
         private static string JwtRegisteredClaimNamesSub => "sub"; // fallback if ClaimTypes.NameIdentifier not present
     }
 
+    /// <summary>
+    /// Extension methods for registering CurrentUserMiddleware.
+    /// </summary>
     public static class CurrentUserMiddlewareExtensions
     {
+        /// <summary>
+        /// Adds the CurrentUserMiddleware to the application pipeline.
+        /// </summary>
+        /// <param name="builder">The application builder.</param>
+        /// <returns>The application builder for chaining.</returns>
         public static IApplicationBuilder UseCurrentUserMiddleware(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<CurrentUserMiddleware>();

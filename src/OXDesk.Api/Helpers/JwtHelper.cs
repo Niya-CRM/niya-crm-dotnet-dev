@@ -16,6 +16,9 @@ using System.Linq;
 
 namespace OXDesk.Api.Helpers
 {
+    /// <summary>
+    /// Helper class for JWT token generation, validation, and refresh token management.
+    /// </summary>
     public class JwtHelper
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -27,6 +30,13 @@ namespace OXDesk.Api.Helpers
         private static byte[]? _devSigningKey = null;
         private static readonly object _lockObject = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JwtHelper"/> class.
+        /// </summary>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="roleManager">The role manager.</param>
+        /// <param name="refreshTokenRepository">The refresh token repository.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         public JwtHelper(
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
@@ -111,6 +121,11 @@ namespace OXDesk.Api.Helpers
             return Base64UrlEncode(bytes);
         }
 
+        /// <summary>
+        /// Encodes bytes to Base64 URL-safe format.
+        /// </summary>
+        /// <param name="bytes">The bytes to encode.</param>
+        /// <returns>Base64 URL-safe encoded string.</returns>
         private static string Base64UrlEncode(byte[] bytes)
         {
             return Convert.ToBase64String(bytes)
@@ -119,12 +134,21 @@ namespace OXDesk.Api.Helpers
                 .Replace('/', '_');
         }
 
+        /// <summary>
+        /// Computes SHA256 hash of input and returns Base64 encoded string.
+        /// </summary>
+        /// <param name="input">The input string to hash.</param>
+        /// <returns>Base64 encoded SHA256 hash.</returns>
         private static string ComputeSha256Base64(string input)
         {
             var hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
             return Convert.ToBase64String(hash);
         }
 
+        /// <summary>
+        /// Gets the client IP address from the HTTP context.
+        /// </summary>
+        /// <returns>The client IP address or null.</returns>
         private string? GetClientIp()
         {
             var ctx = _httpContextAccessor.HttpContext;
@@ -142,6 +166,10 @@ namespace OXDesk.Api.Helpers
             return remote.Length > 45 ? remote[..45] : remote;
         }
 
+        /// <summary>
+        /// Gets the client device information from User-Agent header.
+        /// </summary>
+        /// <returns>The client device string or null.</returns>
         private string? GetClientDevice()
         {
             var ctx = _httpContextAccessor.HttpContext;

@@ -21,6 +21,10 @@ using OXDesk.Core.Tenants;
 
 namespace OXDesk.AppInstallation.Services
 {
+    /// <summary>
+    /// Service implementation for application initialization operations.
+    /// Handles seeding of default data, roles, permissions, and initial setup.
+    /// </summary>
     public class AppInitialisationService : IAppInitialisationService
     {
         private readonly ApplicationDbContext _dbContext;
@@ -78,6 +82,19 @@ namespace OXDesk.AppInstallation.Services
             }),
         ];
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppInitialisationService"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
+        /// <param name="roleManager">The role manager.</param>
+        /// <param name="permissionRepository">The permission repository.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="valueListService">The value list service.</param>
+        /// <param name="changeHistoryLogService">The change history log service.</param>
+        /// <param name="appSetupService">The app setup service.</param>
+        /// <param name="currentTenant">The current tenant accessor.</param>
+        /// <param name="currentUser">The current user accessor.</param>
+        /// <param name="logger">The logger.</param>
         public AppInitialisationService(ApplicationDbContext dbContext, 
             RoleManager<OXDesk.Core.Identity.ApplicationRole> roleManager, 
             OXDesk.Core.Identity.IPermissionRepository permissionRepository,
@@ -105,6 +122,7 @@ namespace OXDesk.AppInstallation.Services
             _technicalUserId = Guid.CreateVersion7();
         }
 
+        /// <inheritdoc/>
         public async Task InitialiseAppAsync(CancellationToken cancellationToken = default)
         {
 
@@ -147,6 +165,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
 
+        /// <summary>
+        /// Seeds default roles into the system.
+        /// </summary>
         private async Task SeedDefaultRolesAsync()
         {
             var utcNow = DateTime.UtcNow;
@@ -169,6 +190,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes languages from JSON file into the value list.
+        /// </summary>
         private async Task InitializeLanguagesAsync()
         {
             _logger.LogInformation("Starting to initialize languages from JSON file");
@@ -292,6 +316,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
 
+        /// <summary>
+        /// Seeds default permissions into the system.
+        /// </summary>
         private async Task SeedDefaultPermissionsAsync()
         {
             var utcNow = DateTime.UtcNow;
@@ -321,9 +348,8 @@ namespace OXDesk.AppInstallation.Services
         }
 
         /// <summary>
-        /// Create System User
+        /// Creates the technical system user for internal operations.
         /// </summary>
-        /// <returns></returns>
         private async Task CreateSystemUserAsync()
         {
             // Check if system user already exists
@@ -418,7 +444,7 @@ namespace OXDesk.AppInstallation.Services
         }
         
         /// <summary>
-        /// Setup initial tenant and admin user account using AppSetupService.
+        /// Sets up the initial tenant and admin user account using AppSetupService.
         /// </summary>
         private async Task SetupTenantAndAdminAsync()
         {
@@ -456,6 +482,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
 
+        /// <summary>
+        /// Defines and creates dynamic objects in the system.
+        /// </summary>
         private async Task DefineDynamicObjectsAsync()
         {
             _logger.LogInformation("Starting to define dynamic objects");
@@ -604,6 +633,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes countries from JSON file into the value list.
+        /// </summary>
         private async Task InitializeCountriesAsync()
         {
             _logger.LogInformation("Starting to initialize countries from JSON file");
@@ -712,6 +744,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes currencies from JSON file into the value list.
+        /// </summary>
         private async Task InitializeCurrenciesAsync()
         {
             _logger.LogInformation("Starting to initialize currencies from JSON file");
@@ -821,6 +856,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes user profiles into the value list.
+        /// </summary>
         private async Task InitializeUserProfile()
         {
             _logger.LogInformation("Starting to initialize user profiles");
@@ -883,6 +921,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes dynamic object field types.
+        /// </summary>
         private async Task InitializeFieldTypesAsync()
         {
             _logger.LogInformation("Starting to initialize dynamic object field types");
@@ -1084,6 +1125,9 @@ namespace OXDesk.AppInstallation.Services
             }
         }
         
+        /// <summary>
+        /// Initializes request types into the value list.
+        /// </summary>
         private async Task InitializeRequestTypesAsync()
         {
             _logger.LogInformation("Starting to initialize request types");
@@ -1167,7 +1211,9 @@ namespace OXDesk.AppInstallation.Services
             return Task.FromResult(_tenantId);
         }
         
-        // Model class for deserializing the JSON country data
+        /// <summary>
+        /// Model class for deserializing country data from JSON.
+        /// </summary>
         private sealed class CountryJsonModel
         {
             public string? Country_Name { get; init; }
@@ -1176,14 +1222,18 @@ namespace OXDesk.AppInstallation.Services
             public string? Active { get; init; }
         }
         
-        // Model class for deserializing the JSON currency data
+        /// <summary>
+        /// Model class for deserializing currency data from JSON.
+        /// </summary>
         private sealed class CurrencyJsonModel
         {
             public string? code { get; init; }
             public string? name { get; init; }
         }
         
-        // Model class for deserializing the JSON language data
+        /// <summary>
+        /// Model class for deserializing language data from JSON.
+        /// </summary>
         private sealed class LanguageJsonModel
         {
             public int? order { get; init; }
@@ -1191,6 +1241,9 @@ namespace OXDesk.AppInstallation.Services
             public string? name { get; init; }
         }
         
+        /// <summary>
+        /// Assigns permissions to roles based on predefined mappings.
+        /// </summary>
         private async Task AssignPermissionsToRolesAsync()
         {
             // Define role-based permissions

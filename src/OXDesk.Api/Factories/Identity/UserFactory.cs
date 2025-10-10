@@ -20,12 +20,22 @@ namespace OXDesk.Api.Factories.Identity
         private readonly IUserService _userService;
         private readonly IValueListService _valueListService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserFactory"/> class.
+        /// </summary>
+        /// <param name="userService">The user service.</param>
+        /// <param name="valueListService">The value list service.</param>
         public UserFactory(IUserService userService, IValueListService valueListService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         }
 
+        /// <summary>
+        /// Maps an ApplicationUser entity to a UserResponse DTO.
+        /// </summary>
+        /// <param name="user">The user entity.</param>
+        /// <returns>The user response DTO.</returns>
         private static UserResponse MapToUserResponse(ApplicationUser user) => new UserResponse
         {
             Id = user.Id,
@@ -46,6 +56,7 @@ namespace OXDesk.Api.Factories.Identity
             UpdatedBy = user.UpdatedBy
         };
 
+        /// <inheritdoc/>
         public async Task<PagedListWithRelatedResponse<UserResponse>> BuildListAsync(IEnumerable<ApplicationUser> users, CancellationToken cancellationToken = default)
         {
             var list = users.Select(MapToUserResponse).ToList();
@@ -129,6 +140,7 @@ namespace OXDesk.Api.Factories.Identity
             };
         }
 
+        /// <inheritdoc/>
         public async Task<UserResponse> BuildItemAsync(ApplicationUser user, CancellationToken cancellationToken = default)
         {
             var dto = MapToUserResponse(user);
@@ -168,6 +180,7 @@ namespace OXDesk.Api.Factories.Identity
             return dto;
         }
 
+        /// <inheritdoc/>
         public async Task<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>> BuildDetailsAsync(ApplicationUser user, CancellationToken cancellationToken = default)
         {
             var dto = await BuildItemAsync(user, cancellationToken);

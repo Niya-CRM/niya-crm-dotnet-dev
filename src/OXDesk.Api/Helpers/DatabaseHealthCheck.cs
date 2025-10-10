@@ -10,14 +10,16 @@ namespace OXDesk.Api.Helpers
     {
         private readonly ApplicationDbContext _dbContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseHealthCheck"/> class.
+        /// </summary>
+        /// <param name="dbContext">The database context.</param>
         public DatabaseHealthCheck(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        /// <summary>
-        /// Checks if the database connection is available
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
             try
