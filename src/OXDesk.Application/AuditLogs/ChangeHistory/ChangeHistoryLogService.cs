@@ -50,7 +50,7 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
         }
 
         /// <inheritdoc/>
-        public async Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(int id, CancellationToken cancellationToken = default)
+        public async Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _repository.GetByIdAsync(id, cancellationToken);
         }

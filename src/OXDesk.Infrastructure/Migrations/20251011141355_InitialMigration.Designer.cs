@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251008214224_InitialMigration")]
+    [Migration("20251011141355_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -142,13 +142,10 @@ namespace OXDesk.Infrastructure.Migrations
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.ChangeHistory.ChangeHistoryLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1000001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -197,9 +194,6 @@ namespace OXDesk.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_tenant_id_created_at");
-
-                    b.HasIndex("TenantId", "ObjectKey", "CreatedAt")
-                        .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_created_at");
 
                     b.HasIndex("TenantId", "ObjectKey", "ObjectItemIdInt", "CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_tenant_id_object_key_object_item_id_int~");

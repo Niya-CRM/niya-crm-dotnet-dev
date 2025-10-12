@@ -37,7 +37,7 @@ public interface IChangeHistoryLogService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The change history log if found, otherwise null.</returns>
     /// <remarks>TenantId is automatically retrieved from the current context.</remarks>
-    Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<ChangeHistoryLog?> GetChangeHistoryLogByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets change history logs by query parameters.

@@ -14,7 +14,7 @@ public interface IChangeHistoryLogRepository
     /// <param name="id">The change history log identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The change history log if found, otherwise null.</returns>
-    Task<ChangeHistoryLog?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<ChangeHistoryLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets change history logs by optional filters. All filters are optional and can be combined.
