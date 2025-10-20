@@ -13,11 +13,13 @@ namespace OXDesk.Api.Controllers.AuditLogs
     {
         private readonly IAuditLogService _auditLogService;
         private readonly IAuditLogFactory _auditLogFactory;
+        private readonly ILogger<AuditLogController> _logger;
 
-        public AuditLogController(IAuditLogService auditLogService, IAuditLogFactory auditLogFactory)
+        public AuditLogController(IAuditLogService auditLogService, IAuditLogFactory auditLogFactory, ILogger<AuditLogController> logger)
         {
             _auditLogService = auditLogService;
             _auditLogFactory = auditLogFactory;
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,6 +35,13 @@ namespace OXDesk.Api.Controllers.AuditLogs
             {
                 return BadRequest(ModelState);
             }
+
+            if (!query.ObjectItemIdUuid.HasValue && !query.ObjectItemIdInt.HasValue)
+            {
+                _logger.LogWarning("Missing required parameter: ObjectItemId (UUID or Int)");
+                return this.CreateBadRequestProblem("ObjectItemId (UUID or Int) is required");
+            }
+
             var logs = await _auditLogService.GetAuditLogsAsync(
                 query,
                 cancellationToken);

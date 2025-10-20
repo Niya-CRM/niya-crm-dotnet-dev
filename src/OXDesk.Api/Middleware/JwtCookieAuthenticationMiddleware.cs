@@ -19,7 +19,7 @@ namespace OXDesk.Api.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             // Check if the request has the access_token cookie
-            if (context.Request.Cookies.TryGetValue("access_token", out string? token) && !string.IsNullOrEmpty(token))
+            if (context.Request.Cookies.TryGetValue("oxd_api_token", out string? token) && !string.IsNullOrEmpty(token))
             {
                 try
                 {
