@@ -460,7 +460,7 @@ namespace OXDesk.AppInstallation.Services
                 var setupDto = new AppSetupDto
                 {
                     TenantName = "NP Photography",
-                    Host = "localhost",
+                    Host = "support.oxdesk.com",
                     FirstName = "Nithin",
                     LastName = "Prathapan",
                     AdminEmail = "nithinp89@gmail.com",
