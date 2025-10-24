@@ -65,8 +65,10 @@ namespace OXDesk.Api.Middleware
                 }
                 else
                 {
-                    // Fallback for unauthenticated requests: resolve tenant from X-Forwarded-Host
+                    // Fallback for unauthenticated requests: resolve tenant from X-Forwarded-Host or current Host
                     var forwardedHostHeader = context.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
+                    string? hostToResolve = null;
+
                     if (!string.IsNullOrWhiteSpace(forwardedHostHeader))
                     {
                         // Some proxies may send multiple hosts separated by comma, take the first
@@ -74,30 +76,42 @@ namespace OXDesk.Api.Middleware
                         if (!string.IsNullOrWhiteSpace(firstHost))
                         {
                             // Strip port if present (host:port)
-                            var hostWithoutPort = firstHost.Split(':').FirstOrDefault() ?? firstHost;
+                            hostToResolve = firstHost.Split(':').FirstOrDefault() ?? firstHost;
+                        }
+                    }
+                    else
+                    {
+                        // Fallback to current request host if X-Forwarded-Host is not present
+                        var currentHost = context.Request.Host.Host;
+                        if (!string.IsNullOrWhiteSpace(currentHost))
+                        {
+                            hostToResolve = currentHost;
+                        }
+                    }
 
-                            try
+                    if (!string.IsNullOrWhiteSpace(hostToResolve))
+                    {
+                        try
+                        {
+                            var tenantService = context.RequestServices.GetRequiredService<ITenantService>();
+                            var tenant = await tenantService.GetTenantByHostAsync(hostToResolve);
+                            if (tenant != null)
                             {
-                                var tenantService = context.RequestServices.GetRequiredService<ITenantService>();
-                                var tenant = await tenantService.GetTenantByHostAsync(hostWithoutPort);
-                                if (tenant != null)
-                                {
-                                    context.Items[TenantIdKey] = tenant.Id;
+                                context.Items[TenantIdKey] = tenant.Id;
 
-                                    var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
-                                    currentTenant?.Change(tenant.Id);
+                                var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
+                                currentTenant?.Change(tenant.Id);
 
-                                    _logger.LogDebug("Resolved tenant {TenantId} from X-Forwarded-Host: {Host}", tenant.Id, hostWithoutPort);
-                                }
-                                else
-                                {
-                                    _logger.LogWarning("No tenant found for X-Forwarded-Host: {Host}", hostWithoutPort);
-                                }
+                                _logger.LogDebug("Resolved tenant {TenantId} from host: {Host}", tenant.Id, hostToResolve);
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                _logger.LogError(ex, "Error resolving tenant from X-Forwarded-Host header");
+                                _logger.LogWarning("No tenant found for host: {Host}", hostToResolve);
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error resolving tenant from host header: {Host}", hostToResolve);
                         }
                     }
                 }
