@@ -102,7 +102,7 @@ namespace OXDesk.Api.Middleware
                                 var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
                                 currentTenant?.Change(tenant.Id);
 
-                                _logger.LogWarning("Resolved tenant {TenantId} from host: {Host}", tenant.Id, hostToResolve);
+                                _logger.LogDebug("Resolved tenant {TenantId} from host: {Host}", tenant.Id, hostToResolve);
                             }
                             else
                             {
