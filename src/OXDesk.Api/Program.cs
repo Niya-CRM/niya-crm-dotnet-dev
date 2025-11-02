@@ -285,11 +285,11 @@ app.UseJwtCookieAuthentication();
 // Enable authentication & authorization
 app.UseAuthentication();
 
-// Populate current user from JWT when authenticated
-app.UseCurrentUserMiddleware();
-
 // Add tenant middleware to extract tenant_id from JWT token
 app.UseTenantMiddleware();
+
+// Populate current user from JWT when authenticated
+app.UseCurrentUserMiddleware();
 
 app.UseAuthorization();
 
