@@ -86,20 +86,22 @@ public static class CommonConstant
 
     public static class RoleNames
     {
+        public const string AccountOwner = "Account Owner";
         public const string Administrator = "Administrator";
         public const string PowerUser = "Power User";
         public const string SupportAgent = "Support Agent";
         public const string LightAgent = "Light Agent";
-        public const string ExternalUser = "External User";
+        public const string EndUser = "End User";
         public const string System = "System";
         
         public static readonly string[] All = 
         {
+            AccountOwner,
             Administrator,
             PowerUser,
             SupportAgent,
             LightAgent,
-            ExternalUser,
+            EndUser,
             System
         };
     }
@@ -155,7 +157,7 @@ public static class CommonConstant
         public static class Agent { public const string Name = "Agent"; public const string Key = "agent"; }
         public static class AIAgent { public const string Name = "AI Agent"; public const string Key = "ai-agent"; }
         public static class LightAgent { public const string Name = "Light Agent"; public const string Key = "light-agent"; }
-        public static class ExternalUser { public const string Name = "External User"; public const string Key = "external-user"; }
+        public static class EndUser { public const string Name = "End User"; public const string Key = "end-user"; }
         public static class System { public const string Name = "System"; public const string Key = "system"; }
 
         public static readonly (string Name, string Key)[] All =
@@ -163,7 +165,7 @@ public static class CommonConstant
             (Agent.Name, Agent.Key),
             (AIAgent.Name, AIAgent.Key),
             (LightAgent.Name, LightAgent.Key),
-            (ExternalUser.Name, ExternalUser.Key),
+            (EndUser.Name, EndUser.Key),
             (System.Name, System.Key)
         ];
     }

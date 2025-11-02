@@ -1291,8 +1291,8 @@ namespace OXDesk.AppInstallation.Services
                     OXDesk.Core.Common.CommonConstant.PermissionNames.AccountRead
                 ],
                 
-                // External User has minimal permissions
-                [OXDesk.Core.Common.CommonConstant.RoleNames.ExternalUser] = 
+                // End User has minimal permissions
+                [OXDesk.Core.Common.CommonConstant.RoleNames.EndUser] = 
                 [
                     OXDesk.Core.Common.CommonConstant.PermissionNames.TicketRead
                 ]
