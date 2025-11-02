@@ -68,7 +68,7 @@ namespace OXDesk.Api.Middleware
                     // Fallback for unauthenticated requests: resolve tenant from X-Forwarded-Host or current Host
                     var forwardedHostHeader = context.Request.Headers["X-Forwarded-Host"].FirstOrDefault();
                     string? hostToResolve = null;
-
+_logger.LogWarning("No tenant found for host: {Host}", forwardedHostHeader);
                     if (!string.IsNullOrWhiteSpace(forwardedHostHeader))
                     {
                         // Some proxies may send multiple hosts separated by comma, take the first
@@ -78,6 +78,7 @@ namespace OXDesk.Api.Middleware
                             // Strip port if present (host:port)
                             hostToResolve = firstHost.Split(':').FirstOrDefault() ?? firstHost;
                         }
+                        _logger.LogWarning("No tenant found for host: {Host}", firstHost);
                     }
                     else
                     {
@@ -87,6 +88,7 @@ namespace OXDesk.Api.Middleware
                         {
                             hostToResolve = currentHost;
                         }
+                        _logger.LogWarning("No tenant found for host: {Host}", currentHost);
                     }
 
                     if (!string.IsNullOrWhiteSpace(hostToResolve))
@@ -95,6 +97,7 @@ namespace OXDesk.Api.Middleware
                         {
                             var tenantService = context.RequestServices.GetRequiredService<ITenantService>();
                             var tenant = await tenantService.GetTenantByHostAsync(hostToResolve);
+                            _logger.LogWarning("GetTenantByHostAsync - No tenant found for host: {Host}", hostToResolve);
                             if (tenant != null)
                             {
                                 context.Items[TenantIdKey] = tenant.Id;
