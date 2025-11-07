@@ -279,11 +279,11 @@ app.UseMiddleware<DomainMiddleware>();
 // Log requests/responses 
 app.UseHttpLogging();
 
-// Add JWT cookie authentication middleware
-app.UseJwtCookieAuthentication();
-
 // Enable authentication & authorization
 app.UseAuthentication();
+
+// Add JWT cookie authentication middleware
+app.UseJwtCookieAuthentication();
 
 // Add tenant middleware to extract tenant_id from JWT token
 app.UseTenantMiddleware();

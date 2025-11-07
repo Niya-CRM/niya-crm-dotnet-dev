@@ -6,7 +6,7 @@
     "ElasticSearchUrl": null,
     "S3Bucket": null,
     "LogLevel": {
-      "Default": "Information",
+      "Default": "Debug",
       "Microsoft": "Information",
       "Microsoft.AspNetCore": "Information",
       "Microsoft.Hosting.Lifetime": "Information",
