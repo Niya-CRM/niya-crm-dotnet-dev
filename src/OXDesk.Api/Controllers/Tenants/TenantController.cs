@@ -24,6 +24,7 @@ public class TenantController : ControllerBase
     private readonly IValidator<ActivateDeactivateTenantRequest> _activateDeactivateTenantRequestValidator;
     private readonly IValidator<CreateTenantRequest> _createTenantRequestValidator;
     private readonly ITenantFactory _tenantFactory;
+    private readonly ICurrentTenant _currentTenant;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TenantController"/> class.
@@ -33,18 +34,54 @@ public class TenantController : ControllerBase
     /// <param name="activateDeactivateTenantRequestValidator">The validator for activate/deactivate tenant requests.</param>
     /// <param name="createTenantRequestValidator">The validator for create tenant requests.</param>
     /// <param name="tenantFactory">The tenant factory for building response DTOs.</param>
+    /// <param name="currentTenant">The current tenant context.</param>
     public TenantController(
         ITenantService tenantService, 
         ILogger<TenantController> logger, 
         IValidator<ActivateDeactivateTenantRequest> activateDeactivateTenantRequestValidator,
         IValidator<CreateTenantRequest> createTenantRequestValidator,
-        ITenantFactory tenantFactory)
+        ITenantFactory tenantFactory,
+        ICurrentTenant currentTenant)
     {
         _tenantService = tenantService ?? throw new ArgumentNullException(nameof(tenantService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _activateDeactivateTenantRequestValidator = activateDeactivateTenantRequestValidator ?? throw new ArgumentNullException(nameof(activateDeactivateTenantRequestValidator));
         _createTenantRequestValidator = createTenantRequestValidator ?? throw new ArgumentNullException(nameof(createTenantRequestValidator));
         _tenantFactory = tenantFactory ?? throw new ArgumentNullException(nameof(tenantFactory));
+        _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
+    }
+
+    /// <summary>
+    /// Gets the current tenant based on the request context.
+    /// Returns only public information without personal data.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The current tenant public information if found.</returns>
+    [HttpGet("current")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(TenantPublicResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<TenantPublicResponse>> GetCurrentTenant(CancellationToken cancellationToken = default)
+    {
+        var tenantId = _currentTenant.Id;
+        
+        if (tenantId == null)
+        {
+            _logger.LogWarning("No current tenant context available");
+            return this.CreateNotFoundProblem("No current tenant context available.");
+        }
+
+        _logger.LogDebug("Getting current tenant: {TenantId}", tenantId);
+        
+        var tenant = await _tenantService.GetTenantByIdAsync(tenantId.Value, cancellationToken);
+        if (tenant == null)
+        {
+            _logger.LogWarning("Current tenant not found: {TenantId}", tenantId);
+            return this.CreateNotFoundProblem($"Tenant with ID '{tenantId}' was not found.");
+        }
+        
+        var response = _tenantFactory.BuildPublicResponse(tenant);
+        return Ok(response);
     }
 
     // <summary>

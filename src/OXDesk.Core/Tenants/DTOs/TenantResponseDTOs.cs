@@ -29,3 +29,16 @@ public class TenantResponse : AuditedDtoGuid
 public class TenantDetailsRelated
 {
 }
+
+/// <summary>
+/// Public response DTO for tenant information without personal data.
+/// Contains only essential public information.
+/// </summary>
+public class TenantPublicResponse
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Host { get; set; } = string.Empty;
+    public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;
+    public string IsActive { get; set; } = "Y";
+}

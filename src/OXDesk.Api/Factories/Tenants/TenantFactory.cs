@@ -98,4 +98,16 @@ public class TenantFactory : ITenantFactory
             Related = new TenantDetailsRelated()
         };
     }
+
+    public TenantPublicResponse BuildPublicResponse(Tenant tenant)
+    {
+        return new TenantPublicResponse
+        {
+            Id = tenant.Id,
+            Name = tenant.Name,
+            Host = tenant.Host,
+            TimeZone = tenant.TimeZone,
+            IsActive = tenant.IsActive
+        };
+    }
 }
