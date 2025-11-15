@@ -11,9 +11,9 @@ namespace OXDesk.Core.Auth.DTOs
         public required string Token { get; set; }
 
         /// <summary>
-        /// Token expiration time in seconds
+        /// Token expiration timestamp in UTC
         /// </summary>
-        public int ExpiresIn { get; set; }
+        public DateTime TokenExpiresAt { get; set; }
 
         /// <summary>
         /// Type of token (e.g. "Bearer")
@@ -24,6 +24,11 @@ namespace OXDesk.Core.Auth.DTOs
         /// The refresh token issued alongside the access token.
         /// </summary>
         public required string RefreshToken { get; set; }
+
+        /// <summary>
+        /// Refresh token expiry timestamp (buffered for network delays)
+        /// </summary>
+        public DateTime RefreshTokenExpiresAt { get; set; }
 
         /// <summary>
         /// The unique identifier of the authenticated user
@@ -39,6 +44,11 @@ namespace OXDesk.Core.Auth.DTOs
         /// Email address of the user
         /// </summary>
         public required string Email { get; set; }
+
+        /// <summary>
+        /// Profile key associated with the user (value list item key)
+        /// </summary>
+        public string? Profile { get; set; }
 
         /// <summary>
         /// Roles assigned to the user

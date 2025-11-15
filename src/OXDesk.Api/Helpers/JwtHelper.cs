@@ -254,6 +254,8 @@ namespace OXDesk.Api.Helpers
             var refreshTokenRaw = GenerateSecureRefreshToken(64);
             var refreshTokenHash = ComputeSha256Base64(refreshTokenRaw);
 
+            var refreshTokenExpiry = DateTime.UtcNow.AddHours(AuthConstants.Refresh.RefreshTokenExpiryHours);
+
             var refreshEntity = new UserRefreshToken
             {
                 Id = Guid.CreateVersion7(),
@@ -263,7 +265,7 @@ namespace OXDesk.Api.Helpers
                 IpAddress = GetClientIp(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.Refresh.RefreshTokenExpiryHours)
+                ExpiresAt = refreshTokenExpiry
             };
             await _refreshTokenRepository.AddAsync(refreshEntity);
 
@@ -276,13 +278,15 @@ namespace OXDesk.Api.Helpers
             return new TokenResponse
             {
                 Token = token,
-                ExpiresIn = (int)(AuthConstants.Jwt.TokenExpiryHours * 3600),
+                TokenExpiresAt = DateTime.UtcNow.AddHours(AuthConstants.Jwt.TokenExpiryHours),
                 TokenType = AuthConstants.Jwt.TokenType,
                 RefreshToken = refreshTokenRaw,
+                RefreshTokenExpiresAt = refreshTokenExpiry.AddMinutes(-5),
                 Id = user.Id,
                 Name = name,
                 Email = user.Email ?? string.Empty,
-                Roles = roles
+                Roles = roles,
+                Profile = user.Profile
             };
         }
 
