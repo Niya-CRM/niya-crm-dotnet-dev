@@ -47,7 +47,6 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
         item.CreatedBy = currentUserId;
         item.UpdatedBy = currentUserId;
 
-        // TenantId will be handled by DbContext based on current tenant scope
         var created = await _repository.AddAsync(item, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Created ValueListItem with ID: {Id}", created.Id);

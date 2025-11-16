@@ -54,7 +54,7 @@ public class PermissionService : IPermissionService
         
         var existing = await _permissionRepository.GetByNameAsync(normalized);
             
-        if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists in this tenant.");
+        if (existing != null) throw new InvalidOperationException($"A permission with the same name already exists.");
 
         var now = DateTime.UtcNow;
         var userId = GetCurrentUserId();
@@ -82,12 +82,12 @@ public class PermissionService : IPermissionService
         if (string.IsNullOrWhiteSpace(newName)) throw new InvalidOperationException("Permission name is required.");
         var newNormalized = newName.ToUpperInvariant();
 
-        // uniqueness check within tenant
+        // uniqueness check
         var dup = await _permissionRepository.GetByNameAsync(newNormalized);
             
         if (dup != null && dup.Id != entity.Id)
         {
-            throw new InvalidOperationException("A permission with the same name already exists in this tenant.");
+            throw new InvalidOperationException("A permission with the same name already exists.");
         }
 
         entity.Name = newName;
@@ -115,7 +115,7 @@ public class PermissionService : IPermissionService
     public async Task<string[]> GetPermissionRolesAsync(int permissionId, CancellationToken cancellationToken = default)
     {
         var permission = await _permissionRepository.GetByIdAsync(permissionId);
-        if (permission == null) throw new InvalidOperationException($"Permission with ID '{permissionId}' was not found in the current tenant.");
+        if (permission == null) throw new InvalidOperationException($"Permission with ID '{permissionId}' was not found.");
 
 
         // Roles are filtered by global query filters
