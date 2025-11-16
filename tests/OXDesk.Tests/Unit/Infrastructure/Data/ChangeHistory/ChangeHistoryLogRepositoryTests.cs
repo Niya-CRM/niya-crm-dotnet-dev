@@ -31,7 +31,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            // Set a deterministic tenant for this test context so global filters and ApplyTenantId work consistently
+            // Set up test context with a fake tenant (for ApplicationUser and UserRefreshToken which still have TenantId)
             var tenantId = Guid.CreateVersion7();
             var services = new ServiceCollection().BuildServiceProvider();
             var currentTenant = new FakeCurrentTenant(tenantId);
@@ -46,10 +46,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     "old@example.com",
                     "new@example.com",
                     TestHelpers.TestUserId1
-                )
-                {
-                    TenantId = tenantId
-                },
+                ),
                 new ChangeHistoryLog(
                     "Contact",
                     Guid.Parse("00000000-0000-0000-0000-000000000066"), // 102
@@ -58,9 +55,6 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     "987654321",
                     TestHelpers.TestUserId2
                 )
-                {
-                    TenantId = tenantId
-                }
             };
 
             // Add test data to the in-memory database

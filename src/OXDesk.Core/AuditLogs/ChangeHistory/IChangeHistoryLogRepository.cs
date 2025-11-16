@@ -32,7 +32,6 @@ public interface IChangeHistoryLogRepository
     /// <param name="changeHistoryLog">The change history log to add.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The added change history log.</returns>
-    /// <remarks>TenantId should be set in the changeHistoryLog entity before calling this method.</remarks>
     Task<ChangeHistoryLog> AddAsync(ChangeHistoryLog changeHistoryLog, CancellationToken cancellationToken = default);
 }
 
