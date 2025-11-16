@@ -18,13 +18,5 @@ public class DynamicObjectFieldConfiguration : IEntityTypeConfiguration<DynamicO
         builder.Property(x => x.Id)
                .UseIdentityByDefaultColumn()
                .HasIdentityOptions(startValue: 10001L);
-
-        // Index for tenant_id for efficient multi-tenant filtering
-        builder.HasIndex(x => x.TenantId)
-            .HasDatabaseName("ix_dynamic_object_fields_tenant_id");
-            
-        // Index on object_id with tenant_id
-        builder.HasIndex(x => new { x.TenantId, x.ObjectId })
-            .HasDatabaseName("ix_dynamic_object_fields_tenant_id_object_id");
     }
 }

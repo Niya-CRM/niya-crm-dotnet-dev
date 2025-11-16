@@ -21,35 +21,6 @@ namespace OXDesk.Infrastructure.Data.Tickets
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10000001L);
 
-            // Index for tenant_id for efficient multi-tenant filtering
-            builder.HasIndex(t => t.TenantId)
-                .HasDatabaseName("ix_tickets_tenant_id");
-            
-            // Composite index with tenant_id and TicketNumber
-            builder.HasIndex(t => new { t.TenantId, t.TicketNumber })
-                .HasDatabaseName("ix_tickets_tenant_id_ticket_number")
-                .IsUnique();
-            
-            // Composite indexes with tenant_id for multi-tenant filtering
-            builder.HasIndex(t => new { t.TenantId, t.BrandId })
-                .HasDatabaseName("ix_tickets_tenant_id_brand_id");
-            builder.HasIndex(t => new { t.TenantId, t.ChannelId})
-                .HasDatabaseName("ix_tickets_tenant_id_channel_id");
-            builder.HasIndex(t => new { t.TenantId, t.OwnerId })
-                .HasDatabaseName("ix_tickets_tenant_id_owner_id");
-            builder.HasIndex(t => new { t.TenantId, t.TeamId })
-                .HasDatabaseName("ix_tickets_tenant_id_team_id");
-            builder.HasIndex(t => new { t.TenantId, t.OrganisationId })
-                .HasDatabaseName("ix_tickets_tenant_id_organisation_id");
-            builder.HasIndex(t => new { t.TenantId, t.StatusId })
-                .HasDatabaseName("ix_tickets_tenant_id_status_id");
-            builder.HasIndex(t => new { t.TenantId, t.CreatedAt })
-                .HasDatabaseName("ix_tickets_tenant_id_created_at");
-            builder.HasIndex(t => new { t.TenantId, t.DeletedAt })
-                .HasDatabaseName("ix_tickets_tenant_id_deleted_at");
-            builder.HasIndex(t => new { t.TenantId, t.StatusId, t.CreatedAt, t.DueAt, t.DeletedAt })
-                .HasDatabaseName("ix_tickets_tenant_id_status_created_due_deleted");
-
             // Defaults for counters and flags (DB-level)
             builder.Property(t => t.PriorityScore).HasDefaultValue(1);
             builder.Property(t => t.AttachmentCount).HasDefaultValue(0);

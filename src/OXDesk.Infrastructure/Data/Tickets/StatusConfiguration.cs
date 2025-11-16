@@ -23,9 +23,6 @@ namespace OXDesk.Infrastructure.Data.Tickets
                    .HasIdentityOptions(startValue: 10001L);
 
             // Indexes
-            // Index for tenant_id for efficient multi-tenant filtering
-            builder.HasIndex(s => s.TenantId)
-                .HasDatabaseName("ix_statuses_tenant_id");
         }
     }
 }

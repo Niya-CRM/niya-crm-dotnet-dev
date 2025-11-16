@@ -132,46 +132,10 @@ namespace OXDesk.Infrastructure.Data
                 }
             }
 
-            // Global query filters for multi-tenancy (strict: require tenant to be present)
+            // Global query filters for multi-tenancy (only for entities with TenantId)
             builder.Entity<ApplicationUser>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<ApplicationRole>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-
-            // Core entities with TenantId
-            builder.Entity<Permission>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<ValueList>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<ValueListItem>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<AuditLog>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<ChangeHistoryLog>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
             builder.Entity<UserRefreshToken>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<DynamicObject>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<DynamicObjectField>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-
-            // Ticketing
-            builder.Entity<Ticket>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<Status>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<Channel>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<Brand>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<Priority>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<Workflow>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<WorkFlowStatus>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<WorkflowMapping>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 

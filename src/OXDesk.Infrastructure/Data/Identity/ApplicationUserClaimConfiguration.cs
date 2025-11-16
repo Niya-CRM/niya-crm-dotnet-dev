@@ -16,13 +16,5 @@ public class ApplicationUserClaimConfiguration : IEntityTypeConfiguration<Applic
         builder.ToTable("user_claims");
 
         // Primary key is already configured by Identity
-
-        // Add tenant_id index
-        builder.HasIndex(uc => uc.TenantId)
-            .HasDatabaseName("ix_user_claims_tenant_id");
-            
-        // Add composite index with tenant_id and UserId
-        builder.HasIndex(uc => new { uc.TenantId, uc.UserId })
-            .HasDatabaseName("ix_user_claims_tenant_id_user_id");
     }
 }

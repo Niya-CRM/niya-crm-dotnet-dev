@@ -15,14 +15,5 @@ public class ApplicationUserRoleConfiguration : IEntityTypeConfiguration<Applica
     {
         // Table name
         builder.ToTable("user_roles");
-        
-        // Add tenant_id index
-        builder.HasIndex(ur => ur.TenantId)
-            .HasDatabaseName("ix_user_roles_tenant_id");
-            
-        // Add composite index with tenant_id, UserId, and RoleId
-        builder.HasIndex(ur => new { ur.TenantId, ur.UserId, ur.RoleId })
-            .HasDatabaseName("ix_user_roles_tenant_id_user_id_role_id")
-            .IsUnique();
     }
 }

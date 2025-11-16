@@ -15,13 +15,5 @@ public class ApplicationRoleClaimConfiguration : IEntityTypeConfiguration<Applic
     {
         // Table name
         builder.ToTable("role_claims");
-        
-        // Add tenant_id index
-        builder.HasIndex(rc => rc.TenantId)
-            .HasDatabaseName("ix_role_claims_tenant_id");
-            
-        // Add composite index with tenant_id and RoleId
-        builder.HasIndex(rc => new { rc.TenantId, rc.RoleId })
-            .HasDatabaseName("ix_role_claims_tenant_id_role_id");
     }
 }

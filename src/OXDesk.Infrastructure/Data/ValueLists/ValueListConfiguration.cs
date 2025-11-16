@@ -20,10 +20,6 @@ namespace OXDesk.Infrastructure.Data.ValueLists
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
 
-            // Index for tenant_id for efficient multi-tenant filtering
-            builder.HasIndex(v => v.TenantId)
-                .HasDatabaseName("ix_value_lists_tenant_id");
-
             // Optional: explicit property configuration (attributes already set types)
             builder.Property(v => v.ListName)
                    .IsRequired()

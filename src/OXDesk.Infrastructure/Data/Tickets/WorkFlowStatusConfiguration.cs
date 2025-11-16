@@ -19,10 +19,6 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.Property(x => x.Id)
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
-
-            // Basic tenant index per project pattern
-            builder.HasIndex(x => x.TenantId)
-                   .HasDatabaseName("ix_workflow_statuses_tenant_id");
         }
     }
 }

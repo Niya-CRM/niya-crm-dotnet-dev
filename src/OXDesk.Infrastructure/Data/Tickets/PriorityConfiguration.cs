@@ -18,17 +18,6 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.Property(p => p.Id)
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
-            
-            // Index for tenant_id for efficient multi-tenant filtering
-            builder.HasIndex(p => p.TenantId)
-                .HasDatabaseName("ix_priorities_tenant_id");
-                
-            // Composite index with tenant_id and PriorityId
-            builder.HasIndex(p => new { p.TenantId, p.Id })
-                .HasDatabaseName("ix_priorities_tenant_id_priority_id");
-                
-            // Keep original index for backward compatibility
-            builder.HasIndex(p => p.Id);
         }
     }
 }
