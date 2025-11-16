@@ -39,7 +39,7 @@ namespace OXDesk.Infrastructure.Data
         /// <param name="serviceProvider">The service provider to resolve services.</param>
         /// <param name="currentTenant">The current tenant accessor.</param>
         public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options,
+            DbContextOptions options,
             IServiceProvider serviceProvider,
             ICurrentTenant currentTenant)
             : base(options)
@@ -52,7 +52,7 @@ namespace OXDesk.Infrastructure.Data
         /// Test-only convenience constructor allowing creation with just options (e.g., InMemory provider).
         /// Multi-tenant features that rely on ICurrentTenant will be inactive when using this overload.
         /// </summary>
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions options)
             : base(options)
         {
             _serviceProvider = null;
