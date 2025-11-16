@@ -5,9 +5,9 @@ namespace OXDesk.Core.DynamicObjects.DTOs
 {
     /// <summary>
     /// Response DTO for dynamic object information.
-    /// Inherits: Id (int), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy from TenantScopedAuditedDto.
+    /// Inherits: Id (int), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy from AuditedDto.
     /// </summary>
-    public sealed class DynamicObjectResponse : TenantScopedAuditedDto
+    public sealed class DynamicObjectResponse : AuditedDto
     {
         public string ObjectName { get; set; } = string.Empty;
         public string SingularName { get; set; } = string.Empty;

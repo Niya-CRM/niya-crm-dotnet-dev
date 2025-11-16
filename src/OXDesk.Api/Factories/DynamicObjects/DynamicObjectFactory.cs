@@ -25,7 +25,6 @@ namespace OXDesk.Api.Factories.DynamicObjects
         private static DynamicObjectResponse Map(DynamicObject entity) => new DynamicObjectResponse
         {
             Id = entity.Id,
-            TenantId = entity.TenantId,
             ObjectName = entity.ObjectName,
             SingularName = entity.SingularName,
             PluralName = entity.PluralName,
