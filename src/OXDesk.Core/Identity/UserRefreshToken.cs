@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using OXDesk.Core.Entities;
 
 namespace OXDesk.Core.Identity
 {
@@ -7,7 +8,7 @@ namespace OXDesk.Core.Identity
     /// User refresh token entity used to issue new access tokens.
     /// Stores only a hashed representation of the refresh token for security.
     /// </summary>
-    public class UserRefreshToken
+    public class UserRefreshToken : IEntityGuid, ITenantScoped
     {
         /// <summary>
         /// Primary key.
@@ -18,7 +19,7 @@ namespace OXDesk.Core.Identity
         /// Gets or sets the tenant identifier.
         /// </summary>
         [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
-        public Guid? TenantId { get; set; }
+        public Guid TenantId { get; set; }
 
         /// <summary>
         /// The user this refresh token belongs to.

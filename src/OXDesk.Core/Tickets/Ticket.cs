@@ -9,19 +9,12 @@ namespace OXDesk.Core.Tickets;
 /// Represents a support ticket/case.
 /// </summary>
 [Table("tickets")]
-public class Ticket : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class Ticket : AuditedEntityWithSoftDelete, IEntity
 {
     // Identity
     [Key]
     [Required]
     public int Id { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     // Ticket Number with or w/o Suffix and Prefix
     [Required]

@@ -8,14 +8,8 @@ namespace OXDesk.Core.Identity;
 /// <summary>
 /// Custom application role that uses Guid as primary key with audit fields.
 /// </summary>
-public class ApplicationRole : IdentityRole<Guid>, ICreationAudited, IUpdationAudited, IEntityGuid, ITenantScoped
+public class ApplicationRole : IdentityRole<Guid>, ICreationAudited, IUpdationAudited, IEntityGuid
 {
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [System.ComponentModel.DataAnnotations.Schema.Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
     public ApplicationRole() : base() 
     { 
         CreatedAt = DateTime.UtcNow;

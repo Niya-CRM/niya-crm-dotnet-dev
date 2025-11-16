@@ -10,7 +10,7 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory;
 /// Append-only entity - no updates or soft deletes.
 /// </summary>
 [Table("change_history_logs")]
-public class ChangeHistoryLog : CreationAuditedEntity, IEntityGuid, ITenantScoped
+public class ChangeHistoryLog : CreationAuditedEntity, IEntityGuid
 {
     /// <summary>
     /// Gets or sets the unique identifier for the change history log entry.
@@ -19,13 +19,6 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntityGuid, ITenantScope
     [Column("id")]
     [Required]
     public Guid Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key (entity type) that was changed.

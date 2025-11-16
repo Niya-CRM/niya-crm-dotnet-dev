@@ -10,20 +10,13 @@ namespace OXDesk.Core.DynamicObjects.Fields;
 /// Represents a field definition for a Dynamic Object.
 /// </summary>
 [Table("dynamic_object_fields")]
-public class DynamicObjectField : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class DynamicObjectField : AuditedEntityWithSoftDelete, IEntity
 {
     /// <summary>
     /// Primary key.
     /// </summary>
     [Key]
     public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Object identifier referring to the owning DynamicObject (FK to Id).

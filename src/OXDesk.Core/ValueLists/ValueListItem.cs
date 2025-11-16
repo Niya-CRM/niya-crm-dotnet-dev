@@ -9,20 +9,13 @@ namespace OXDesk.Core.ValueLists;
 /// Represents a Value List Item entity in the CRM system.
 /// </summary>
 [Table("value_list_items")]
-public class ValueListItem : AuditedEntity, IEntity, ITenantScoped
+public class ValueListItem : AuditedEntity, IEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier for the value list item.
     /// </summary>
     [Key]
     public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the list Id this item belongs to.
@@ -78,7 +71,6 @@ public class ValueListItem : AuditedEntity, IEntity, ITenantScoped
     /// Overload without Id for identity-based key generation.
     /// </summary>
     public ValueListItem(
-        Guid tenantId,
         string itemName,
         string itemKey,
         int listId,
@@ -86,7 +78,6 @@ public class ValueListItem : AuditedEntity, IEntity, ITenantScoped
         Guid createdBy,
         int? order = null)
     {
-        TenantId = tenantId;
         ItemName = itemName;
         ItemKey = itemKey;
         ListId = listId;

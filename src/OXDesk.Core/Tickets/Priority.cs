@@ -6,18 +6,11 @@ using OXDesk.Core.Entities;
 namespace OXDesk.Core.Tickets;
 
 [Table("priorities")]
-public class Priority : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class Priority : AuditedEntityWithSoftDelete, IEntity
 {
     [Key]
     [Required]
     public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     [Required]
     [StringLength(30)]

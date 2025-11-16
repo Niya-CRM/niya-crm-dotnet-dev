@@ -16,12 +16,6 @@ public class Permission : ICreationAudited, IUpdationAudited, IEntity
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    public Guid? TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the permission (e.g., "user:read", "ticket:write").

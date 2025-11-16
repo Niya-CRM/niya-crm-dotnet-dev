@@ -6,18 +6,11 @@ using OXDesk.Core.Entities;
 namespace OXDesk.Core.Tickets;
 
 [Table("statuses")]
-public class Status : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class Status : AuditedEntityWithSoftDelete, IEntity
 {
     [Key]
     [Required]
     public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Object identifier referring to the owning DynamicObject.

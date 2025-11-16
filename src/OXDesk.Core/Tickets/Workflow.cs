@@ -9,7 +9,7 @@ namespace OXDesk.Core.Tickets;
 /// Represents a workflow step or definition used for ticket status transitions.
 /// </summary>
 [Table("workflows")]
-public class Workflow : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class Workflow : AuditedEntityWithSoftDelete, IEntity
 {
     /// <summary>
     /// Primary key.
@@ -17,13 +17,6 @@ public class Workflow : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
     [Key]
     [Required]
     public int Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Workflow name.

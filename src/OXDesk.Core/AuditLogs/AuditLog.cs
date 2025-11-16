@@ -10,7 +10,7 @@ namespace OXDesk.Core.AuditLogs;
 /// Append-only entity - no updates or soft deletes.
 /// </summary>
 [Table("audit_logs")]
-public class AuditLog : CreationAuditedEntity, IEntityGuid, ITenantScoped
+public class AuditLog : CreationAuditedEntity, IEntityGuid
 {
     /// <summary>
     /// Gets or sets the unique identifier for the audit log entry.
@@ -19,13 +19,6 @@ public class AuditLog : CreationAuditedEntity, IEntityGuid, ITenantScoped
     [Column("id")]
     [Required]
     public Guid Id { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the object key/entity type that was affected.

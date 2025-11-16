@@ -9,20 +9,13 @@ namespace OXDesk.Core.DynamicObjects;
 /// Represents a Dynamic Object entity in the CRM system.
 /// </summary>
 [Table("dynamic_objects")]
-public class DynamicObject : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class DynamicObject : AuditedEntityWithSoftDelete, IEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier for the dynamic object.
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the dynamic object.

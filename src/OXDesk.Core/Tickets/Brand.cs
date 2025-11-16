@@ -9,7 +9,7 @@ namespace OXDesk.Core.Tickets;
 /// Represents a brand entity in the ticketing system.
 /// </summary>
 [Table("brands")]
-public class Brand : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
+public class Brand : AuditedEntityWithSoftDelete, IEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier.
@@ -17,13 +17,6 @@ public class Brand : AuditedEntityWithSoftDelete, IEntity, ITenantScoped
     [Key]
     [Required]
     public int Id { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the tenant identifier.
-    /// </summary>
-    [Column("tenant_id")]
-    [Required]
-    public Guid TenantId { get; set; }
 
     /// <summary>
     /// Gets or sets the brand name.
