@@ -5,6 +5,11 @@ namespace OXDesk.Core.Common;
 public static class CommonConstant
 {
 
+    // Hosting Model
+    public const string HOSTING_MODEL_OS = "opensource";
+    public const string HOSTING_MODEL_OS_PRO = "opensourcepro";
+    public const string HOSTING_MODEL_CLOUD = "cloud";
+
     // Technical Username
     public const string TECHNICAL_USERNAME = "OXDesk@system.local";
 
