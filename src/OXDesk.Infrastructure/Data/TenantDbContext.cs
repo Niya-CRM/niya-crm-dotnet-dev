@@ -13,20 +13,6 @@ namespace OXDesk.Infrastructure.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="TenantDbContext"/> class.
         /// </summary>
-        /// <param name="options">The context configuration options.</param>
-        /// <param name="serviceProvider">The current service provider.</param>
-        /// <param name="currentTenant">Provides the tenant identifier for filters.</param>
-        public TenantDbContext(
-            DbContextOptions options,
-            IServiceProvider serviceProvider,
-            ICurrentTenant currentTenant)
-            : base(options, serviceProvider, currentTenant)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance using typed DbContext options for <see cref="TenantDbContext"/>.
-        /// </summary>
         /// <param name="options">Typed options specific to the tenant context.</param>
         /// <param name="serviceProvider">The current service provider.</param>
         /// <param name="currentTenant">Provides the tenant identifier for filters.</param>
@@ -35,7 +21,7 @@ namespace OXDesk.Infrastructure.Data
             DbContextOptions<TenantDbContext> options,
             IServiceProvider serviceProvider,
             ICurrentTenant currentTenant)
-            : this((DbContextOptions)options, serviceProvider, currentTenant)
+            : base(options, serviceProvider, currentTenant)
         {
         }
     }

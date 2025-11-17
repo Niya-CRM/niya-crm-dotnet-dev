@@ -36,10 +36,27 @@ namespace OXDesk.Infrastructure.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.
         /// </summary>
-        /// <param name="options">The options for the database context.</param>
+        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
         /// <param name="serviceProvider">The service provider to resolve services.</param>
         /// <param name="currentTenant">The current tenant accessor.</param>
+        [ActivatorUtilitiesConstructor]
         public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IServiceProvider serviceProvider,
+            ICurrentTenant currentTenant)
+            : base(options)
+        {
+            _serviceProvider = serviceProvider;
+            _currentTenant = currentTenant;
+        }
+
+        /// <summary>
+        /// Protected constructor for derived contexts (e.g., TenantDbContext).
+        /// </summary>
+        /// <param name="options">Non-generic DbContext options.</param>
+        /// <param name="serviceProvider">The service provider to resolve services.</param>
+        /// <param name="currentTenant">The current tenant accessor.</param>
+        protected ApplicationDbContext(
             DbContextOptions options,
             IServiceProvider serviceProvider,
             ICurrentTenant currentTenant)
@@ -50,38 +67,15 @@ namespace OXDesk.Infrastructure.Data
         }
 
         /// <summary>
-        /// Initializes a new instance using typed DbContext options for the application context.
-        /// </summary>
-        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
-        /// <param name="serviceProvider">The service provider to resolve services.</param>
-        /// <param name="currentTenant">The current tenant accessor.</param>
-        [ActivatorUtilitiesConstructor]
-        public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options,
-            IServiceProvider serviceProvider,
-            ICurrentTenant currentTenant)
-            : this((DbContextOptions)options, serviceProvider, currentTenant)
-        {
-        }
-
-        /// <summary>
-        /// Test-only convenience constructor allowing creation with just options (e.g., InMemory provider).
+        /// Test-only constructor accepting typed DbContext options for <see cref="ApplicationDbContext"/>.
         /// Multi-tenant features that rely on ICurrentTenant will be inactive when using this overload.
         /// </summary>
-        public ApplicationDbContext(DbContextOptions options)
+        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
             _serviceProvider = null;
             _currentTenant = null;
-        }
-
-        /// <summary>
-        /// Test-only constructor accepting typed DbContext options for <see cref="ApplicationDbContext"/>.
-        /// </summary>
-        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : this((DbContextOptions)options)
-        {
         }
 
         /// <summary>
