@@ -5,8 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using OXDesk.Core.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using OXDesk.Core.Identity;
 using OXDesk.Core.Helpers.Naming;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.ChangeHistory;
@@ -49,6 +50,21 @@ namespace OXDesk.Infrastructure.Data
         }
 
         /// <summary>
+        /// Initializes a new instance using typed DbContext options for the application context.
+        /// </summary>
+        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
+        /// <param name="serviceProvider">The service provider to resolve services.</param>
+        /// <param name="currentTenant">The current tenant accessor.</param>
+        [ActivatorUtilitiesConstructor]
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IServiceProvider serviceProvider,
+            ICurrentTenant currentTenant)
+            : this((DbContextOptions)options, serviceProvider, currentTenant)
+        {
+        }
+
+        /// <summary>
         /// Test-only convenience constructor allowing creation with just options (e.g., InMemory provider).
         /// Multi-tenant features that rely on ICurrentTenant will be inactive when using this overload.
         /// </summary>
@@ -57,6 +73,15 @@ namespace OXDesk.Infrastructure.Data
         {
             _serviceProvider = null;
             _currentTenant = null;
+        }
+
+        /// <summary>
+        /// Test-only constructor accepting typed DbContext options for <see cref="ApplicationDbContext"/>.
+        /// </summary>
+        /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : this((DbContextOptions)options)
+        {
         }
 
         /// <summary>

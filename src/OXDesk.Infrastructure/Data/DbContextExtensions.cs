@@ -56,7 +56,7 @@ namespace OXDesk.Infrastructure.Data
             var postgreSqlSettings = new PostgreSqlSettings();
             configuration.GetSection("PostgreSQL").Bind(postgreSqlSettings);
 
-            _ = services.AddDbContext<ApplicationDbContext>(options =>
+            void ConfigureDbContext(DbContextOptionsBuilder options)
             {
                 options.UseNpgsql(postgreSqlSettings.ConnectionString);
 
@@ -73,7 +73,10 @@ namespace OXDesk.Infrastructure.Data
                         LogLevel.Information,
                         DbContextLoggerOptions.DefaultWithUtcTime);
                 }
-            });
+            }
+
+            _ = services.AddDbContext<ApplicationDbContext>(ConfigureDbContext);
+            _ = services.AddDbContext<TenantDbContext>(ConfigureDbContext);
 
             return services;
         }
@@ -92,32 +95,35 @@ namespace OXDesk.Infrastructure.Data
                 
                 using (var scope = app.ApplicationServices.CreateScope())
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    var tenantDbContext = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
 
-                    var gotLock = await TryAcquireAdvisoryLock(dbContext, 241022467);
+                    var gotLock = await TryAcquireAdvisoryLock(applicationDbContext, 241022467);
                     
                     if (gotLock)
                     {
                         try
                         {
-                            logger.Information("Applying pending database migrations");
-                            
-                            await dbContext.Database.MigrateAsync();
-                            
-                            logger.Information("Database migrations applied successfully");
+                            logger.Information("Applying pending migrations for ApplicationDbContext");
+                            await applicationDbContext.Database.MigrateAsync();
+                            logger.Information("ApplicationDbContext migrations applied successfully");
+
+                            logger.Information("Applying pending migrations for TenantDbContext");
+                            await tenantDbContext.Database.MigrateAsync();
+                            logger.Information("TenantDbContext migrations applied successfully");
                             
                             logger.Information("Applying tenant policies");
                             
                             string sqlFilePath = Path.Combine(AppContext.BaseDirectory, "Scripts", "ApplyTenantPolicy.sql");
                             var sql = File.ReadAllText(sqlFilePath);
                             
-                            await dbContext.Database.ExecuteSqlRawAsync(sql);
+                            await applicationDbContext.Database.ExecuteSqlRawAsync(sql);
                             
                             logger.Information("Tenant policies applied successfully");
                         }
                         finally
                         {
-                            await dbContext.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock(241022467)");
+                            await applicationDbContext.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock(241022467)");
                         }
                     }
                 }
