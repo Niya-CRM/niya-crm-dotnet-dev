@@ -14,13 +14,13 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class RoleClaimRepository : IRoleClaimRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RoleClaimRepository"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    public RoleClaimRepository(ApplicationDbContext dbContext)
+    /// <param name="dbContext">The tenant database context.</param>
+    public RoleClaimRepository(TenantDbContext dbContext)
     {
         _dbContext = dbContext;
     }

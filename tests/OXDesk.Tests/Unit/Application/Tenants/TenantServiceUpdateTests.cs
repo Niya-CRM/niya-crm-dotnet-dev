@@ -69,6 +69,15 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             mockHttpContext.Setup(c => c.User).Returns(user);
         
             _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
+            
+            // Setup current user with test user ID - use SetupGet for properties
+            var testUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            _mockCurrentUser.SetupGet(u => u.Id).Returns(testUserId);
+            _mockCurrentUser.SetupGet(u => u.Name).Returns("testuser");
+            _mockCurrentUser.SetupGet(u => u.Email).Returns("test@example.com");
+            _mockCurrentUser.SetupGet(u => u.Roles).Returns(new System.Collections.Generic.List<string>());
+            _mockCurrentUser.SetupGet(u => u.Permissions).Returns(new System.Collections.Generic.List<string>());
+            
             _tenantService = new TenantService(
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,

@@ -3,132 +3,66 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using OXDesk.Core.Identity;
 using OXDesk.Core.Helpers.Naming;
-using OXDesk.Core.AuditLogs;
-using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.Tenants;
-using OXDesk.Core.DynamicObjects;
-using OXDesk.Core.DynamicObjects.Fields;
-using OXDesk.Core.ValueLists;
-using OXDesk.Core.AppInstallation;
-using OXDesk.Core.Tickets;
-using Npgsql;
 
 namespace OXDesk.Infrastructure.Data
 {
     /// <summary>
-    /// Application database context.
+    /// Application database context for global (non-tenant-specific) entities.
     /// </summary>
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
+    public class ApplicationDbContext : DbContext
     {
         private readonly IServiceProvider? _serviceProvider;
-        private readonly ICurrentTenant? _currentTenant;
-
-        // Expose current tenant id for EF Core global filters (evaluated per DbContext instance)
-        public Guid CurrentTenantId => _currentTenant?.Id
-            ?? throw new InvalidOperationException("Tenant context is required but was not provided.");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ApplicationDbContext" /> class.
         /// </summary>
         /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
         /// <param name="serviceProvider">The service provider to resolve services.</param>
-        /// <param name="currentTenant">The current tenant accessor.</param>
         [ActivatorUtilitiesConstructor]
         public ApplicationDbContext(
             DbContextOptions<ApplicationDbContext> options,
-            IServiceProvider serviceProvider,
-            ICurrentTenant currentTenant)
+            IServiceProvider serviceProvider)
             : base(options)
         {
             _serviceProvider = serviceProvider;
-            _currentTenant = currentTenant;
-        }
-
-        /// <summary>
-        /// Protected constructor for derived contexts (e.g., TenantDbContext).
-        /// </summary>
-        /// <param name="options">Non-generic DbContext options.</param>
-        /// <param name="serviceProvider">The service provider to resolve services.</param>
-        /// <param name="currentTenant">The current tenant accessor.</param>
-        protected ApplicationDbContext(
-            DbContextOptions options,
-            IServiceProvider serviceProvider,
-            ICurrentTenant currentTenant)
-            : base(options)
-        {
-            _serviceProvider = serviceProvider;
-            _currentTenant = currentTenant;
         }
 
         /// <summary>
         /// Test-only constructor accepting typed DbContext options for <see cref="ApplicationDbContext"/>.
-        /// Multi-tenant features that rely on ICurrentTenant will be inactive when using this overload.
         /// </summary>
         /// <param name="options">Typed DbContext options specific to <see cref="ApplicationDbContext"/>.</param>
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
             _serviceProvider = null;
-            _currentTenant = null;
         }
 
         /// <summary>
-        /// Gets or sets the DbSet.
+        /// Gets or sets the Tenant DbSet (non-tenant-scoped entity).
         /// </summary>
         public DbSet<Tenant> Tenants { get; set; } = null!;
-        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
-        public DbSet<DynamicObject> DynamicObjects { get; set; } = null!;
-        public DbSet<ValueList> ValueLists { get; set; } = null!;
-        public DbSet<ValueListItem> ValueListItems { get; set; } = null!;
-        public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
-        public DbSet<AppInstallationStatus> AppInstallationStatus { get; set; } = null!;
-        public DbSet<Permission> Permissions { get; set; } = null!;
-        public DbSet<DynamicObjectField> DynamicObjectFields { get; set; } = null!;
-        public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
-        public DbSet<UserRefreshToken> UserRefreshTokens { get; set; } = null!;
-        public DbSet<Ticket> Tickets { get; set; } = null!;
-        public DbSet<Status> TicketStatuses { get; set; } = null!;
-        public DbSet<Channel> Channels { get; set; } = null!;
-        public DbSet<Brand> Brands { get; set; } = null!;
-        public DbSet<Priority> Priorities { get; set; } = null!;
-        public DbSet<Workflow> Workflows { get; set; } = null!;
-        public DbSet<WorkFlowStatus> WorkFlowStatuses { get; set; } = null!;
-        public DbSet<WorkflowMapping> WorkflowMappings { get; set; } = null!;
 
         /// <summary>
-        /// Configures the model and customizes Identity table names.
+        /// Configures the model for global entities only.
         /// </summary>
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             
-            // Apply all entity configurations from the current assembly
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            // Apply entity configurations for global entities only
+            builder.ApplyConfigurationsFromAssembly(
+                Assembly.GetExecutingAssembly(),
+                t => t.Namespace != null && t.Namespace.Contains(".Data.Tenants"));
 
             // Apply snake_case naming convention to all tables, columns, keys and indexes
             foreach (var entity in builder.Model.GetEntityTypes())
             {
                 // table names – default snake_case
                 var defaultTableName = entity.GetTableName()!.ToSnakeCase();
-
-                // For ASP.NET Identity tables, override to concise names (users, roles, etc.)
-                defaultTableName = entity.ClrType switch
-                {
-                    Type t when t == typeof(ApplicationUser)              => "users",
-                    Type t when t == typeof(ApplicationRole)            => "roles",
-                    Type t when t == typeof(ApplicationUserRole)        => "user_roles",
-                    Type t when t == typeof(ApplicationUserClaim)       => "user_claims",
-                    Type t when t == typeof(ApplicationUserLogin)       => "user_logins",
-                    Type t when t == typeof(ApplicationRoleClaim)       => "role_claims",
-                    Type t when t == typeof(ApplicationUserToken)       => "user_tokens",
-                    _                                                     => defaultTableName
-                };
 
                 entity.SetTableName(defaultTableName);
 
@@ -150,76 +84,25 @@ namespace OXDesk.Infrastructure.Data
                     index.SetDatabaseName(index.GetDatabaseName()!.ToSnakeCase());
                 }
             }
-
-            // Global query filters for multi-tenancy (only for entities with TenantId)
-            builder.Entity<ApplicationUser>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            builder.Entity<UserRefreshToken>()
-                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
         /// <summary>
-        /// Automatically sets TenantId for new entities based on ICurrentTenant.
+        /// Can be overridden by derived contexts (future requirements)
         /// </summary>
         /// <returns>Number of affected rows.</returns>
         public override int SaveChanges()
         {
-            ApplyTenantId();
             return base.SaveChanges();
         }
 
         /// <summary>
-        /// Automatically sets TenantId for new entities based on ICurrentTenant.
+        /// Can be overridden by derived contexts (future requirements)
         /// </summary>
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            ApplyTenantId();
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        private void ApplyTenantId()
-        {
-            var tenantId = _currentTenant?.Id;
-            if (!tenantId.HasValue)
-            {
-                throw new InvalidOperationException("Tenant context is required but was not provided.");
-            }
-
-            foreach (var entry in ChangeTracker.Entries())
-            {
-                if (entry.State != EntityState.Added) continue;
-
-                // Auto-generate Guid primary keys using UUID v7
-                var idProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "Id", StringComparison.Ordinal));
-                if (idProp != null && idProp.Metadata.ClrType == typeof(Guid))
-                {
-                    var currentId = (Guid?)idProp.CurrentValue;
-                    if (!currentId.HasValue || currentId.Value == Guid.Empty)
-                    {
-                        idProp.CurrentValue = Guid.CreateVersion7();
-                    }
-                }
-
-                var tenantProp = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "TenantId", StringComparison.Ordinal));
-                if (tenantProp == null) continue;
-
-                if (tenantProp.Metadata.ClrType == typeof(Guid))
-                {
-                    var current = (Guid?)tenantProp.CurrentValue;
-                    if (!current.HasValue || current.Value == Guid.Empty)
-                    {
-                        tenantProp.CurrentValue = tenantId.Value;
-                    }
-                }
-                else if (tenantProp.Metadata.ClrType == typeof(Guid?))
-                {
-                    var current = (Guid?)tenantProp.CurrentValue;
-                    if (!current.HasValue || current.Value == Guid.Empty)
-                    {
-                        tenantProp.CurrentValue = tenantId;
-                    }
-                }
-            }
-        }
+        
     }
 }

@@ -21,6 +21,8 @@ using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.Common;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OXDesk.Tests.Unit.Application.AppSetup
 {
@@ -54,13 +56,24 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             // Setup mock current tenant with a test tenant ID
             var testTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
             _mockCurrentTenant.Setup(ct => ct.Id).Returns(testTenantId);
-            _mockCurrentTenant.Setup(ct => ct.ChangeScoped(It.IsAny<Guid?>())).Returns((IDisposable)null!);
+            _mockCurrentTenant.Setup(ct => ct.Schema).Returns((string?)null);
+            _mockCurrentTenant.Setup(ct => ct.ChangeScoped(It.IsAny<Guid?>(), It.IsAny<string?>())).Returns((IDisposable)null!);
 
-            // In-memory ApplicationDbContext for constructor requirement
-            var dbOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
+            // In-memory TenantDbContext for constructor requirement
+            var dbOptions = new DbContextOptionsBuilder<TenantDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-            var dbContext = new ApplicationDbContext(dbOptions);
+            
+            // Create fake configuration for hosting model
+            var configurationData = new Dictionary<string, string?>
+            {
+                { "HostingModel", "opensource" }
+            };
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(configurationData)
+                .Build();
+            
+            var dbContext = new TenantDbContext(dbOptions, _mockCurrentTenant.Object, configuration);
 
             _AppSetupService = new AppSetupService(
                 _mockUnitOfWork.Object,
@@ -140,6 +153,17 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 IsActive = "Y"
             };
 
+            // Setup IsApplicationInstalledAsync to return false
+            _mockTenantService
+                .Setup(service => service.AnyTenantsExistAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            // Setup technical user ID
+            var technicalUserId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+            _mockUserService
+                .Setup(service => service.GetTechnicalUserIdAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(technicalUserId);
+
             // Setup with explicit matcher to avoid optional parameters in expression trees
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(
@@ -195,6 +219,17 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 FirstName = "Admin",
                 LastName = "User"
             };
+
+            // Setup IsApplicationInstalledAsync to return false
+            _mockTenantService
+                .Setup(service => service.AnyTenantsExistAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            // Setup technical user ID
+            var technicalUserId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+            _mockUserService
+                .Setup(service => service.GetTechnicalUserIdAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(technicalUserId);
 
             _mockTenantService
                 .Setup(service => service.CreateTenantAsync(

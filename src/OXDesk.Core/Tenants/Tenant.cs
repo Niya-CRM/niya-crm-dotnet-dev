@@ -45,6 +45,11 @@ public class Tenant : AuditedEntityWithSoftDelete, IEntityGuid
     public string? DatabaseName { get; set; }
 
     /// <summary>
+    /// Gets or sets the database schema for this tenant (used in cloud hosting model).
+    /// </summary>
+    public string? Schema { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the tenant is active.
     /// </summary>
     public string IsActive { get; set; } = "Y";

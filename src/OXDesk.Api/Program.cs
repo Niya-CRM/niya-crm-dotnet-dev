@@ -142,7 +142,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
     // User settings
     options.User.RequireUniqueEmail = true;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddEntityFrameworkStores<TenantDbContext>()
 .AddDefaultTokenProviders();
 
 // Configure JWT Authentication

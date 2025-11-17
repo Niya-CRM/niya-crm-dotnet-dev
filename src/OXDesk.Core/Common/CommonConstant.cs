@@ -10,6 +10,9 @@ public static class CommonConstant
     public const string HOSTING_MODEL_OS_PRO = "opensourcepro";
     public const string HOSTING_MODEL_CLOUD = "cloud";
 
+    // Schema
+    public const string SCHEMA_PUBLIC = "public";
+
     // Technical Username
     public const string TECHNICAL_USERNAME = "OXDesk@system.local";
 

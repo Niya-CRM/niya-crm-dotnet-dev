@@ -23,6 +23,11 @@ namespace OXDesk.Api.Middleware
         public const string TenantIdKey = "tenant_id";
         
         /// <summary>
+        /// The key used to store tenant schema in HttpContext.Items and JWT claims.
+        /// </summary>
+        public const string TenantSchemaKey = "tenant_schema";
+        
+        /// <summary>
         /// Initializes a new instance of the <see cref="TenantMiddleware"/> class.
         /// </summary>
         /// <param name="next">The next middleware in the pipeline.</param>
@@ -52,11 +57,32 @@ namespace OXDesk.Api.Middleware
                         // Add tenant_id to HttpContext.Items for use throughout the request
                         context.Items[TenantIdKey] = tenantId;
                         
-                        // Set the current tenant via ICurrentTenant
-                        var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
-                        currentTenant?.Change(tenantId);
-                        
-                        _logger.LogDebug("Tenant ID {TenantId} added to HttpContext", tenantId);
+                        // Fetch tenant schema from database (not from JWT for security)
+                        try
+                        {
+                            var tenantService = context.RequestServices.GetRequiredService<ITenantService>();
+                            var tenant = await tenantService.GetTenantByIdAsync(tenantId);
+                            
+                            string? tenantSchema = tenant?.Schema;
+                            if (!string.IsNullOrEmpty(tenantSchema))
+                            {
+                                context.Items[TenantSchemaKey] = tenantSchema;
+                            }
+                            
+                            // Set the current tenant via ICurrentTenant
+                            var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
+                            currentTenant?.Change(tenantId, tenantSchema);
+                            
+                            _logger.LogDebug("Tenant ID {TenantId} and Schema {Schema} added to HttpContext", tenantId, tenantSchema ?? "public");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error fetching tenant schema for tenant {TenantId}", tenantId);
+                            
+                            // Set tenant without schema as fallback
+                            var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
+                            currentTenant?.Change(tenantId, null);
+                        }
                     }
                     else
                     {
@@ -98,11 +124,16 @@ namespace OXDesk.Api.Middleware
                             if (tenant != null)
                             {
                                 context.Items[TenantIdKey] = tenant.Id;
+                                
+                                if (!string.IsNullOrEmpty(tenant.Schema))
+                                {
+                                    context.Items[TenantSchemaKey] = tenant.Schema;
+                                }
 
                                 var currentTenant = context.RequestServices.GetService(typeof(ICurrentTenant)) as ICurrentTenant;
-                                currentTenant?.Change(tenant.Id);
+                                currentTenant?.Change(tenant.Id, tenant.Schema);
 
-                                _logger.LogDebug("Resolved tenant {TenantId} from host: {Host}", tenant.Id, hostToResolve);
+                                _logger.LogDebug("Resolved tenant {TenantId} with schema {Schema} from host: {Host}", tenant.Id, tenant.Schema ?? "public", hostToResolve);
                             }
                             else
                             {

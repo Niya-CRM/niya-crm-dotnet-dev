@@ -27,7 +27,7 @@ namespace OXDesk.AppInstallation.Services
     /// </summary>
     public class AppInitialisationService : IAppInitialisationService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
         private readonly RoleManager<OXDesk.Core.Identity.ApplicationRole> _roleManager;
         private readonly OXDesk.Core.Identity.IPermissionRepository _permissionRepository;
         private readonly UserManager<OXDesk.Core.Identity.ApplicationUser> _userManager;
@@ -95,7 +95,7 @@ namespace OXDesk.AppInstallation.Services
         /// <param name="currentTenant">The current tenant accessor.</param>
         /// <param name="currentUser">The current user accessor.</param>
         /// <param name="logger">The logger.</param>
-        public AppInitialisationService(ApplicationDbContext dbContext, 
+        public AppInitialisationService(TenantDbContext dbContext, 
             RoleManager<OXDesk.Core.Identity.ApplicationRole> roleManager, 
             OXDesk.Core.Identity.IPermissionRepository permissionRepository,
             UserManager<OXDesk.Core.Identity.ApplicationUser> userManager,
@@ -469,7 +469,7 @@ namespace OXDesk.AppInstallation.Services
                 };
 
                 _logger.LogInformation("Installing application for tenant '{TenantName}' on host '{Host}' with tenant ID: {TenantId}", setupDto.TenantName, setupDto.Host, _tenantId);
-                var tenant = await _appSetupService.InstallApplicationAsync(setupDto, _tenantId);
+                var tenant = await _appSetupService.InstallApplicationAsync(setupDto, _tenantId, _technicalUserId);
                 _logger.LogInformation("Application installed for tenant {TenantId} - {TenantName}", tenant.Id, setupDto.TenantName);
             }
             catch (Exception ex)

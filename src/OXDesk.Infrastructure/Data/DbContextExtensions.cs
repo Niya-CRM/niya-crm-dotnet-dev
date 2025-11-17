@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using OXDesk.Core.Common;
 using OXDesk.Core.Configurations;
+using OXDesk.Core.Tenants;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -61,7 +63,7 @@ namespace OXDesk.Infrastructure.Data
                 options.UseNpgsql(postgreSqlSettings.ConnectionString);
 
                 // Only enable detailed logging in development environment
-                if (true) //environment.IsDevelopment())
+                if (environment.IsDevelopment())
                 {
                     options.EnableSensitiveDataLogging();
                     options.EnableDetailedErrors();
@@ -95,36 +97,59 @@ namespace OXDesk.Infrastructure.Data
                 
                 using (var scope = app.ApplicationServices.CreateScope())
                 {
-                    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    var tenantDbContext = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
-
-                    var gotLock = await TryAcquireAdvisoryLock(applicationDbContext, 241022467);
+                    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
                     
-                    if (gotLock)
-                    {
-                        try
-                        {
-                            logger.Information("Applying pending migrations for ApplicationDbContext");
-                            await applicationDbContext.Database.MigrateAsync();
-                            logger.Information("ApplicationDbContext migrations applied successfully");
+                    // Get hosting model to determine migration strategy
+                    var hostingModel = configuration["HostingModel"] ?? CommonConstant.HOSTING_MODEL_OS;
+                    logger.Information("Hosting model: {HostingModel}", hostingModel);
 
-                            logger.Information("Applying pending migrations for TenantDbContext");
-                            await tenantDbContext.Database.MigrateAsync();
-                            logger.Information("TenantDbContext migrations applied successfully");
-                            
-                            logger.Information("Applying tenant policies");
-                            
-                            string sqlFilePath = Path.Combine(AppContext.BaseDirectory, "Scripts", "ApplyTenantPolicy.sql");
-                            var sql = File.ReadAllText(sqlFilePath);
-                            
-                            await applicationDbContext.Database.ExecuteSqlRawAsync(sql);
-                            
-                            logger.Information("Tenant policies applied successfully");
-                        }
-                        finally
+                    // Only run migrations and policies for non-cloud hosting models
+                    if (hostingModel != CommonConstant.HOSTING_MODEL_CLOUD)
+                    {
+                        var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                        var gotLock = await TryAcquireAdvisoryLock(applicationDbContext, 241022467);
+                        
+                        if (gotLock)
                         {
-                            await applicationDbContext.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock(241022467)");
+                            try
+                            {
+                                // Migrate ApplicationDbContext (global tables in public schema)
+                                logger.Information("Non-cloud mode: Applying pending migrations for ApplicationDbContext");
+                                await applicationDbContext.Database.MigrateAsync();
+                                logger.Information("ApplicationDbContext migrations applied successfully");
+
+                                // Migrate TenantDbContext (tenant tables in public schema)
+                                logger.Information("Non-cloud mode: Applying pending migrations for TenantDbContext");
+                                
+                                // Create a temporary tenant context for migrations
+                                var currentTenant = scope.ServiceProvider.GetRequiredService<ICurrentTenant>();
+                                
+                                // Use a scoped temporary tenant ID for migrations
+                                using (currentTenant.ChangeScoped(Guid.Parse("00000000-0000-0000-0000-000000000001"), CommonConstant.SCHEMA_PUBLIC))
+                                {
+                                    var tenantDbContext = scope.ServiceProvider.GetRequiredService<TenantDbContext>();
+                                    await tenantDbContext.Database.MigrateAsync();
+                                    logger.Information("TenantDbContext migrations applied successfully");
+                                }
+                                
+                                logger.Information("Applying tenant policies");
+                                
+                                string sqlFilePath = Path.Combine(AppContext.BaseDirectory, "Scripts", "ApplyTenantPolicy.sql");
+                                var sql = File.ReadAllText(sqlFilePath);
+                                
+                                await applicationDbContext.Database.ExecuteSqlRawAsync(sql);
+                                
+                                logger.Information("Tenant policies applied successfully");
+                            }
+                            finally
+                            {
+                                await applicationDbContext.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock(241022467)");
+                            }
                         }
+                    }
+                    else
+                    {
+                        logger.Information("Cloud mode: Skipping all migrations and policies at startup. Database schemas must be managed separately per tenant.");
                     }
                 }
                 

@@ -7,13 +7,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialTenantDbMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "public");
+
             migrationBuilder.CreateTable(
                 name: "app_installation_status",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -32,6 +36,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "audit_logs",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -51,6 +56,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "brands",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -75,6 +81,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "change_history_logs",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -94,6 +101,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "channels",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -114,6 +122,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "dynamic_object_field_types",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -146,6 +155,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "dynamic_object_fields",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -189,6 +199,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "dynamic_objects",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -214,6 +225,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "permissions",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -232,6 +244,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "priorities",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -253,6 +266,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "roles",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -271,6 +285,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "statuses",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -294,31 +309,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tenants",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    host = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    time_zone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    database_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    is_active = table.Column<string>(type: "text", nullable: false, defaultValue: "True"),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    created_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_tenants", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "tickets",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -416,6 +408,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "users",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -455,6 +448,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "value_lists",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -481,6 +475,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "workflow_mappings",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -503,6 +498,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "workflow_statuses",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -527,6 +523,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "workflows",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -547,6 +544,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "role_claims",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -565,6 +563,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_role_claims_roles_role_id",
                         column: x => x.role_id,
+                        principalSchema: "public",
                         principalTable: "roles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -572,6 +571,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "user_claims",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -586,6 +586,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_user_claims_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "public",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -593,6 +594,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "user_logins",
+                schema: "public",
                 columns: table => new
                 {
                     login_provider = table.Column<string>(type: "text", nullable: false),
@@ -606,6 +608,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_user_logins_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "public",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -613,6 +616,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "user_refresh_tokens",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -633,6 +637,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_user_refresh_tokens_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "public",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -640,6 +645,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "user_roles",
+                schema: "public",
                 columns: table => new
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -655,12 +661,14 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_user_roles_roles_role_id",
                         column: x => x.role_id,
+                        principalSchema: "public",
                         principalTable: "roles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_user_roles_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "public",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -668,6 +676,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "user_tokens",
+                schema: "public",
                 columns: table => new
                 {
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -681,6 +690,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_user_tokens_users_user_id",
                         column: x => x.user_id,
+                        principalSchema: "public",
                         principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -688,6 +698,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateTable(
                 name: "value_list_items",
+                schema: "public",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -709,6 +720,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     table.ForeignKey(
                         name: "FK_value_list_items_value_lists_list_id",
                         column: x => x.list_id,
+                        principalSchema: "public",
                         principalTable: "value_lists",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -716,105 +728,100 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.CreateIndex(
                 name: "ix_app_installation_status_version",
+                schema: "public",
                 table: "app_installation_status",
                 column: "version");
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_object_field_types_field_type_key",
+                schema: "public",
                 table: "dynamic_object_field_types",
                 column: "field_type_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
+                schema: "public",
                 table: "role_claims",
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
                 name: "role_name_index",
+                schema: "public",
                 table: "roles",
                 column: "normalized_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_tenants_email",
-                table: "tenants",
-                column: "email");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_tenants_host",
-                table: "tenants",
-                column: "host",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_tenants_is_active",
-                table: "tenants",
-                column: "is_active");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_tenants_name",
-                table: "tenants",
-                column: "name");
-
-            migrationBuilder.CreateIndex(
                 name: "ix_user_claims_user_id",
+                schema: "public",
                 table: "user_claims",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_logins_user_id",
+                schema: "public",
                 table: "user_logins",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_refresh_tokens_expires_at",
+                schema: "public",
                 table: "user_refresh_tokens",
                 column: "expires_at");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_refresh_tokens_used_at",
+                schema: "public",
                 table: "user_refresh_tokens",
                 column: "used_at");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_refresh_tokens_user_id",
+                schema: "public",
                 table: "user_refresh_tokens",
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_roles_role_id",
+                schema: "public",
                 table: "user_roles",
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
                 name: "email_index",
+                schema: "public",
                 table: "users",
                 column: "normalized_email");
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_users_tenant_id",
+                schema: "public",
                 table: "users",
                 column: "tenant_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_users_tenant_id_normalized_email",
+                schema: "public",
                 table: "users",
                 columns: new[] { "tenant_id", "normalized_email" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_asp_net_users_tenant_id_normalized_user_name",
+                schema: "public",
                 table: "users",
                 columns: new[] { "tenant_id", "normalized_user_name" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "user_name_index",
+                schema: "public",
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_value_list_items_list_id",
+                schema: "public",
                 table: "value_list_items",
                 column: "list_id");
         }
@@ -823,82 +830,104 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "app_installation_status");
+                name: "app_installation_status",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "audit_logs");
+                name: "audit_logs",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "brands");
+                name: "brands",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "change_history_logs");
+                name: "change_history_logs",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "channels");
+                name: "channels",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "dynamic_object_field_types");
+                name: "dynamic_object_field_types",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "dynamic_object_fields");
+                name: "dynamic_object_fields",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "dynamic_objects");
+                name: "dynamic_objects",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "permissions");
+                name: "permissions",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "priorities");
+                name: "priorities",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "role_claims");
+                name: "role_claims",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "statuses");
+                name: "statuses",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "tenants");
+                name: "tickets",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "tickets");
+                name: "user_claims",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "user_claims");
+                name: "user_logins",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "user_logins");
+                name: "user_refresh_tokens",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "user_refresh_tokens");
+                name: "user_roles",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "user_roles");
+                name: "user_tokens",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "user_tokens");
+                name: "value_list_items",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "value_list_items");
+                name: "workflow_mappings",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "workflow_mappings");
+                name: "workflow_statuses",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "workflow_statuses");
+                name: "workflows",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "workflows");
+                name: "roles",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "roles");
+                name: "users",
+                schema: "public");
 
             migrationBuilder.DropTable(
-                name: "users");
-
-            migrationBuilder.DropTable(
-                name: "value_lists");
+                name: "value_lists",
+                schema: "public");
         }
     }
 }

@@ -12,13 +12,13 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class PermissionRepository : IPermissionRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PermissionRepository"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    public PermissionRepository(ApplicationDbContext dbContext)
+    /// <param name="dbContext">The tenant database context.</param>
+    public PermissionRepository(TenantDbContext dbContext)
     {
         _dbContext = dbContext;
     }

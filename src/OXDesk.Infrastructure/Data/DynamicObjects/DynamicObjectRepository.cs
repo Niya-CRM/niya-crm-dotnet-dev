@@ -10,16 +10,16 @@ namespace OXDesk.Infrastructure.Data.DynamicObjects;
 /// </summary>
 public class DynamicObjectRepository : IDynamicObjectRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
     private readonly ILogger<DynamicObjectRepository> _logger;
     private readonly DbSet<DynamicObject> _dbSet;
 
     /// <summary>
     /// Initializes a new instance of the DynamicObjectRepository.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
+    /// <param name="dbContext">The tenant database context.</param>
     /// <param name="logger">The logger.</param>
-    public DynamicObjectRepository(ApplicationDbContext dbContext, ILogger<DynamicObjectRepository> logger)
+    public DynamicObjectRepository(TenantDbContext dbContext, ILogger<DynamicObjectRepository> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(logger);

@@ -10,16 +10,16 @@ namespace OXDesk.Infrastructure.Data.Identity;
 /// </summary>
 public class UserRepository : IUserRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
     private readonly ILogger<UserRepository> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserRepository"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
+    /// <param name="dbContext">The tenant database context.</param>
     /// <param name="logger">The logger.</param>
     public UserRepository(
-        ApplicationDbContext dbContext,
+        TenantDbContext dbContext,
         ILogger<UserRepository> logger)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));

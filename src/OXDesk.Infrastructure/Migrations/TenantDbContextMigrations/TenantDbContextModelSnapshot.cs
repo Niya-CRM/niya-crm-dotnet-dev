@@ -66,7 +66,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("Version")
                         .HasDatabaseName("ix_app_installation_status_version");
 
-                    b.ToTable("app_installation_status");
+                    b.ToTable("app_installation_status", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.AuditLog", b =>
@@ -118,7 +118,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
-                    b.ToTable("audit_logs");
+                    b.ToTable("audit_logs", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.ChangeHistory.ChangeHistoryLog", b =>
@@ -169,7 +169,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_change_history_logs");
 
-                    b.ToTable("change_history_logs");
+                    b.ToTable("change_history_logs", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.DynamicObject", b =>
@@ -244,7 +244,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_dynamic_objects");
 
-                    b.ToTable("dynamic_objects");
+                    b.ToTable("dynamic_objects", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectField", b =>
@@ -386,7 +386,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_dynamic_object_fields");
 
-                    b.ToTable("dynamic_object_fields", (string)null);
+                    b.ToTable("dynamic_object_fields", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.DynamicObjects.Fields.DynamicObjectFieldType", b =>
@@ -488,7 +488,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("FieldTypeKey")
                         .HasDatabaseName("ix_dynamic_object_field_types_field_type_key");
 
-                    b.ToTable("dynamic_object_field_types", (string)null);
+                    b.ToTable("dynamic_object_field_types", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRole", b =>
@@ -536,7 +536,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .IsUnique()
                         .HasDatabaseName("role_name_index");
 
-                    b.ToTable("roles", (string)null);
+                    b.ToTable("roles", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRoleClaim", b =>
@@ -582,7 +582,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_role_claims_role_id");
 
-                    b.ToTable("role_claims", (string)null);
+                    b.ToTable("role_claims", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUser", b =>
@@ -740,7 +740,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .IsUnique()
                         .HasDatabaseName("ix_asp_net_users_tenant_id_normalized_user_name");
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserClaim", b =>
@@ -770,7 +770,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_claims_user_id");
 
-                    b.ToTable("user_claims", (string)null);
+                    b.ToTable("user_claims", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserLogin", b =>
@@ -797,7 +797,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_logins_user_id");
 
-                    b.ToTable("user_logins", (string)null);
+                    b.ToTable("user_logins", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserRole", b =>
@@ -832,7 +832,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_user_roles_role_id");
 
-                    b.ToTable("user_roles", (string)null);
+                    b.ToTable("user_roles", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserToken", b =>
@@ -856,7 +856,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("UserId", "LoginProvider", "Name")
                         .HasName("pk_user_tokens");
 
-                    b.ToTable("user_tokens", (string)null);
+                    b.ToTable("user_tokens", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.Permission", b =>
@@ -899,7 +899,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_permissions");
 
-                    b.ToTable("permissions", (string)null);
+                    b.ToTable("permissions", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.UserRefreshToken", b =>
@@ -965,103 +965,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_refresh_tokens_user_id");
 
-                    b.ToTable("user_refresh_tokens", (string)null);
-                });
-
-            modelBuilder.Entity("OXDesk.Core.Tenants.Tenant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("DatabaseName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("database_name");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Host")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("host");
-
-                    b.Property<string>("IsActive")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("True")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("TimeZone")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("time_zone");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<Guid>("UpdatedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_tenants");
-
-                    b.HasIndex("Email")
-                        .HasDatabaseName("ix_tenants_email");
-
-                    b.HasIndex("Host")
-                        .IsUnique()
-                        .HasDatabaseName("ix_tenants_host");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("ix_tenants_is_active");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_tenants_name");
-
-                    b.ToTable("tenants", (string)null);
+                    b.ToTable("user_refresh_tokens", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
@@ -1127,7 +1031,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_brands");
 
-                    b.ToTable("brands", (string)null);
+                    b.ToTable("brands", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Channel", b =>
@@ -1173,7 +1077,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_channels");
 
-                    b.ToTable("channels", (string)null);
+                    b.ToTable("channels", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Priority", b =>
@@ -1223,7 +1127,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_priorities");
 
-                    b.ToTable("priorities", (string)null);
+                    b.ToTable("priorities", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Status", b =>
@@ -1287,7 +1191,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_statuses");
 
-                    b.ToTable("statuses", (string)null);
+                    b.ToTable("statuses", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Ticket", b =>
@@ -1704,7 +1608,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_tickets");
 
-                    b.ToTable("tickets", (string)null);
+                    b.ToTable("tickets", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.WorkFlowStatus", b =>
@@ -1766,7 +1670,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_workflow_statuses");
 
-                    b.ToTable("workflow_statuses", (string)null);
+                    b.ToTable("workflow_statuses", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Workflow", b =>
@@ -1812,7 +1716,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_workflows");
 
-                    b.ToTable("workflows", (string)null);
+                    b.ToTable("workflows", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.WorkflowMapping", b =>
@@ -1864,7 +1768,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_workflow_mappings");
 
-                    b.ToTable("workflow_mappings", (string)null);
+                    b.ToTable("workflow_mappings", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueList", b =>
@@ -1939,7 +1843,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_value_lists");
 
-                    b.ToTable("value_lists");
+                    b.ToTable("value_lists", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.ValueLists.ValueListItem", b =>
@@ -1998,7 +1902,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("ListId")
                         .HasDatabaseName("ix_value_list_items_list_id");
 
-                    b.ToTable("value_list_items");
+                    b.ToTable("value_list_items", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRoleClaim", b =>

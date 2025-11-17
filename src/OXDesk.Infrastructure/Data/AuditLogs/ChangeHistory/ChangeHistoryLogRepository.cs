@@ -16,14 +16,14 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
     /// </summary>
     public class ChangeHistoryLogRepository : IChangeHistoryLogRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
         private readonly DbSet<ChangeHistoryLog> _dbSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeHistoryLogRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The database context.</param>
-        public ChangeHistoryLogRepository(ApplicationDbContext dbContext)
+        /// <param name="dbContext">The tenant database context.</param>
+        public ChangeHistoryLogRepository(TenantDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = dbContext.Set<ChangeHistoryLog>();

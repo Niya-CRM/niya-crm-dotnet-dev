@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
@@ -19,23 +20,32 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
 {
     public class ChangeHistoryLogRepositoryTests : IDisposable
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
         private readonly ChangeHistoryLogRepository _repository;
         private readonly List<ChangeHistoryLog> _changeHistoryLogs;
 
         public ChangeHistoryLogRepositoryTests()
         {
             // Create in-memory database for testing
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            var options = new DbContextOptionsBuilder<TenantDbContext>()
                 .UseInMemoryDatabase(databaseName: $"ChangeHistoryLogDb_{Guid.CreateVersion7()}")
                 .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            // Set up test context with a fake tenant (for ApplicationUser and UserRefreshToken which still have TenantId)
+            // Set up test context with a fake tenant
             var tenantId = Guid.CreateVersion7();
-            var services = new ServiceCollection().BuildServiceProvider();
             var currentTenant = new FakeCurrentTenant(tenantId);
-            _dbContext = new ApplicationDbContext(options, services, currentTenant);
+            
+            // Create fake configuration for hosting model
+            var configurationData = new Dictionary<string, string?>
+            {
+                { "HostingModel", "opensource" }
+            };
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(configurationData)
+                .Build();
+            
+            _dbContext = new TenantDbContext(options, currentTenant, configuration);
             
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
@@ -136,23 +146,34 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
     internal sealed class FakeCurrentTenant : ICurrentTenant
     {
         private Guid? _id;
+        private string? _schema;
+        
         public Guid? Id => _id;
+        public string? Schema => _schema;
 
         public FakeCurrentTenant(Guid? tenantId)
         {
             _id = tenantId;
+            _schema = null;
         }
 
-        public void Change(Guid? tenantId)
+        public void Change(Guid? tenantId, string? schema = null)
         {
             _id = tenantId;
+            _schema = schema;
         }
 
-        public IDisposable ChangeScoped(Guid? tenantId)
+        public IDisposable ChangeScoped(Guid? tenantId, string? schema = null)
         {
-            var previous = _id;
+            var previousId = _id;
+            var previousSchema = _schema;
             _id = tenantId;
-            return new Restore(() => _id = previous);
+            _schema = schema;
+            return new Restore(() =>
+            {
+                _id = previousId;
+                _schema = previousSchema;
+            });
         }
 
         private sealed class Restore : IDisposable

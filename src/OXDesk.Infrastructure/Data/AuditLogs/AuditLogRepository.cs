@@ -17,14 +17,14 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
     /// </summary>
     public class AuditLogRepository : IAuditLogRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
         private readonly DbSet<AuditLog> _dbSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuditLogRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The database context.</param>
-        public AuditLogRepository(ApplicationDbContext dbContext)
+        /// <param name="dbContext">The tenant database context.</param>
+        public AuditLogRepository(TenantDbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = dbContext.Set<AuditLog>();

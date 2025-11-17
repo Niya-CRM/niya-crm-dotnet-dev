@@ -28,7 +28,7 @@ public class AppSetupService : IAppSetupService
     private readonly IValueListService _valueListService;
     private readonly IValueListItemService _valueListItemService;
     private readonly IChangeHistoryLogService _changeHistoryLogService;
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
     private readonly ICurrentTenant _currentTenant;
     private readonly IUserService _userService;
 
@@ -43,7 +43,7 @@ public class AppSetupService : IAppSetupService
     public AppSetupService(
         IUnitOfWork unitOfWork,
         ITenantService tenantService,
-        ApplicationDbContext dbContext,
+        TenantDbContext dbContext,
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IValueListService valueListService,
@@ -133,6 +133,7 @@ public class AppSetupService : IAppSetupService
                 Location = setupDto.Location,
                 CountryCode = setupDto.CountryCode,
                 IsActive = "Y",
+                TenantId = tenantId, // Explicitly set tenant ID
                 CreatedBy = systemUserId,
                 UpdatedBy = systemUserId
             };

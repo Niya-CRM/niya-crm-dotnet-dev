@@ -11,14 +11,19 @@ namespace OXDesk.Infrastructure.Data.DynamicObjects.Fields;
 /// </summary>
 public class DynamicObjectFieldRepository : IDynamicObjectFieldRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
     private readonly ILogger<DynamicObjectFieldRepository> _logger;
     private readonly DbSet<DynamicObjectFieldType> _dbSetFieldTypes;
     private readonly DbSet<DynamicObjectField> _dbSetFields;
     private readonly DbSet<DynamicObject> _dbSetObjects;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DynamicObjectFieldRepository"/> class.
+    /// </summary>
+    /// <param name="dbContext">The tenant database context.</param>
+    /// <param name="logger">The logger instance.</param>
     public DynamicObjectFieldRepository(
-        ApplicationDbContext dbContext,
+        TenantDbContext dbContext,
         ILogger<DynamicObjectFieldRepository> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);

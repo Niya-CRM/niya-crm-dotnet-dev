@@ -13,13 +13,13 @@ namespace OXDesk.Infrastructure.Data.Identity
     /// </summary>
     public class UserRefreshTokenRepository : IUserRefreshTokenRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserRefreshTokenRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The database context.</param>
-        public UserRefreshTokenRepository(ApplicationDbContext dbContext)
+        /// <param name="dbContext">The tenant database context.</param>
+        public UserRefreshTokenRepository(TenantDbContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
