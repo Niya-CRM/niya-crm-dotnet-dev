@@ -16,7 +16,7 @@ namespace OXDesk.Infrastructure.Data
     /// </summary>
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly TenantDbContext _dbContext;
         private readonly IServiceProvider _serviceProvider;
         private readonly Dictionary<Type, object> _repositories = new();
         private IDbContextTransaction? _transaction;
@@ -24,10 +24,10 @@ namespace OXDesk.Infrastructure.Data
         /// <summary>
         /// Initializes a new instance of the <see cref="UnitOfWork"/> class.
         /// </summary>
-        /// <param name="dbContext">The application database context.</param>
+        /// <param name="dbContext">The tenant database context.</param>
         /// <param name="serviceProvider">The service provider for repository resolution.</param>
         public UnitOfWork(
-            ApplicationDbContext dbContext,
+            TenantDbContext dbContext,
             IServiceProvider serviceProvider)
         {
             _dbContext = dbContext;

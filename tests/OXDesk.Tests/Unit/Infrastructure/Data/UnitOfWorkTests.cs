@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OXDesk.Core;
+using OXDesk.Core.Common;
 using OXDesk.Core.Tenants;
 using OXDesk.Infrastructure.Data;
 using Shouldly;
@@ -15,14 +17,22 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data
 {
     public class UnitOfWorkTests
     {
-        private readonly Mock<ApplicationDbContext> _mockDbContext;
+        private readonly Mock<TenantDbContext> _mockDbContext;
         private readonly Mock<IServiceProvider> _mockServiceProvider;
         private readonly UnitOfWork _unitOfWork;
 
         public UnitOfWorkTests()
         {
-            // Setup ApplicationDbContext mock
-            _mockDbContext = new Mock<ApplicationDbContext>(MockBehavior.Loose, new DbContextOptions<ApplicationDbContext>());
+            // Setup TenantDbContext mock with required dependencies
+            var mockCurrentTenant = new Mock<ICurrentTenant>();
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c["HostingModel"]).Returns(CommonConstant.HOSTING_MODEL_OS);
+            
+            _mockDbContext = new Mock<TenantDbContext>(
+                MockBehavior.Loose,
+                new DbContextOptions<TenantDbContext>(),
+                mockCurrentTenant.Object,
+                mockConfiguration.Object);
             _mockServiceProvider = new Mock<IServiceProvider>();
             
             // Create UnitOfWork with the mocked DbContext
