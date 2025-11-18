@@ -13,7 +13,7 @@ public class ValueListRepository : IValueListRepository
     private readonly ILogger<ValueListRepository> _logger;
     private readonly DbSet<ValueList> _dbSet;
 
-    public ValueListRepository(ApplicationDbContext dbContext, ILogger<ValueListRepository> logger)
+    public ValueListRepository(TenantDbContext dbContext, ILogger<ValueListRepository> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(logger);
