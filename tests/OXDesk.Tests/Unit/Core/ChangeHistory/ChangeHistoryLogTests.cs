@@ -29,7 +29,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
                 createdBy);
 
             // Assert
-            changeHistoryLog.Id.ShouldBe(Guid.Empty);
+            changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
             changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
@@ -62,7 +62,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
                 createdBy);
 
             // Assert
-            changeHistoryLog.Id.ShouldBe(Guid.Empty);
+            changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectKey.ShouldBe(objectKey);
             changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);

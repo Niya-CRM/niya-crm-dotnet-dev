@@ -30,7 +30,7 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
         }
 
         /// <inheritdoc/>
-        public async Task<ChangeHistoryLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ChangeHistoryLog?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _dbSet
                 .AsNoTracking()

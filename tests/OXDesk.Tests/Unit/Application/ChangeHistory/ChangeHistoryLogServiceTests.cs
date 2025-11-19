@@ -68,7 +68,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task GetChangeHistoryLogByIdAsync_ShouldReturnLogFromRepository()
         {
             // Arrange
-            var logId = Guid.CreateVersion7();
+            var logId = 123;
             var expectedLog = new ChangeHistoryLog(
                 "User",
                 Guid.Parse("00000000-0000-0000-0000-0000000003EA"),
@@ -76,10 +76,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
                 "old@example.com",
                 "new@example.com",
                 TestHelpers.TestUserId2
-            )
-            {
-                Id = logId
-            };
+            );
 
             _mockRepository
                 .Setup(r => r.GetByIdAsync(logId, It.IsAny<CancellationToken>()))
@@ -110,7 +107,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             var expectedLogs = new List<ChangeHistoryLog>
             {
                 new(objectKey, objectItemId, fieldName, null, null, createdBy) {
-                    Id = Guid.CreateVersion7(),
+                    Id = 456,
                     CreatedAt = DateTime.UtcNow.AddDays(-3)
                 }
             };
