@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251117223945_InitialAppDbMigration")]
+    [Migration("20251119115838_InitialAppDbMigration")]
     partial class InitialAppDbMigration
     {
         /// <inheritdoc />
@@ -33,19 +33,15 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("created_at");
 
                     b.Property<Guid>("CreatedBy")
-                        .HasMaxLength(100)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<string>("DatabaseName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("database_name");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -58,27 +54,22 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("email");
 
                     b.Property<string>("Host")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("host");
 
                     b.Property<string>("IsActive")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("text")
-                        .HasDefaultValue("True")
                         .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("Schema")
@@ -87,18 +78,14 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
 
                     b.Property<string>("TimeZone")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("text")
                         .HasColumnName("time_zone");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnName("updated_at");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasMaxLength(100)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
@@ -109,20 +96,7 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_tenants");
 
-                    b.HasIndex("Email")
-                        .HasDatabaseName("ix_tenants_email");
-
-                    b.HasIndex("Host")
-                        .IsUnique()
-                        .HasDatabaseName("ix_tenants_host");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("ix_tenants_is_active");
-
-                    b.HasIndex("Name")
-                        .HasDatabaseName("ix_tenants_name");
-
-                    b.ToTable("tenants", (string)null);
+                    b.ToTable("tenants");
                 });
 #pragma warning restore 612, 618
         }

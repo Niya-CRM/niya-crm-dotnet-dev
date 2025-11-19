@@ -50,7 +50,6 @@ namespace OXDesk.Infrastructure.Data
         {
             base.OnConfiguring(optionsBuilder);
 
-            // In cloud hosting model, use tenant-specific schema if available
             var tenantSchema = _currentTenant?.Schema;
             if (_hostingModel == CommonConstant.HOSTING_MODEL_CLOUD && !string.IsNullOrEmpty(tenantSchema))
             {
@@ -87,16 +86,16 @@ namespace OXDesk.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
-            // Apply entity configurations for tenant-scoped entities only
-            // Exclude Tenant configuration (that's in ApplicationDbContext)
-            builder.ApplyConfigurationsFromAssembly(
-                Assembly.GetExecutingAssembly(),
-                t => t.Namespace != null && !t.Namespace.Contains(".Data.Tenants"));
-
             // Determine schema based on hosting model
             var tenantSchema = _currentTenant?.Schema;
             string schema = "public";
-            if (_hostingModel == CommonConstant.HOSTING_MODEL_CLOUD && !string.IsNullOrEmpty(tenantSchema))
+            
+            if (_hostingModel == CommonConstant.HOSTING_MODEL_CLOUD && string.IsNullOrEmpty(tenantSchema))
+            {
+                throw new Exception("Tenant schema is not set");
+            }
+
+            if (!string.IsNullOrEmpty(tenantSchema))
             {
                 schema = tenantSchema;
             }
