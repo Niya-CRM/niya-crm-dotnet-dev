@@ -35,7 +35,7 @@ namespace OXDesk.Application.AuditLogs
         }
 
         /// <inheritdoc/>
-        public async Task<AuditLog?> GetAuditLogByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<AuditLog?> GetAuditLogByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _repository.GetByIdAsync(id, cancellationToken);
         }

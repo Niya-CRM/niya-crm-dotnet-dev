@@ -10,7 +10,7 @@ namespace OXDesk.Core.AuditLogs;
 /// Append-only entity - no updates or soft deletes.
 /// </summary>
 [Table("audit_logs")]
-public class AuditLog : CreationAuditedEntity, IEntityGuid
+public class AuditLog : CreationAuditedEntity, IEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier for the audit log entry.
@@ -18,7 +18,7 @@ public class AuditLog : CreationAuditedEntity, IEntityGuid
     [Key]
     [Column("id")]
     [Required]
-    public Guid Id { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Gets or sets the object key/entity type that was affected.

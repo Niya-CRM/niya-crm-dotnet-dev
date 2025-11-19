@@ -13,6 +13,15 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
         public void Configure(EntityTypeBuilder<AuditLog> builder)
         {            
             builder.HasKey(o => o.Id);
+            builder.Property(o => o.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
+
+            builder.HasIndex(a => new { a.ObjectKey, a.ObjectItemIdUuid, a.ObjectItemIdInt })
+                   .HasDatabaseName("ix_audit_logs_object_key_object_item_ids");
+
+            builder.HasIndex(a => new { a.ObjectKey, a.CreatedAt })
+                   .HasDatabaseName("ix_audit_logs_object_key_created_at");
         }
     }
 }

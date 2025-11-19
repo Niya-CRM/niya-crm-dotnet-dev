@@ -53,10 +53,10 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// <summary>
         /// Gets a specific audit log by its ID.
         /// </summary>
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>>> GetById(Guid id, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<EntityWithRelatedResponse<AuditLogResponse, EmptyRelated>>> GetById(int id, CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid)
             {
