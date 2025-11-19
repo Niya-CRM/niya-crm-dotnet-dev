@@ -67,10 +67,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.AuditLog", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -97,6 +99,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip");
 
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("integer")
+                        .HasColumnName("object_id");
+
                     b.Property<int?>("ObjectItemIdInt")
                         .HasColumnType("integer")
                         .HasColumnName("object_item_id_int");
@@ -104,12 +110,6 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.Property<Guid?>("ObjectItemIdUuid")
                         .HasColumnType("uuid")
                         .HasColumnName("object_item_id_uuid");
-
-                    b.Property<string>("ObjectKey")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("object_key");
 
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
@@ -119,10 +119,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.AuditLogs.ChangeHistory.ChangeHistoryLog", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -143,6 +145,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("new_value");
 
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("integer")
+                        .HasColumnName("object_id");
+
                     b.Property<int?>("ObjectItemIdInt")
                         .HasColumnType("integer")
                         .HasColumnName("object_item_id_int");
@@ -150,12 +156,6 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.Property<Guid?>("ObjectItemIdUuid")
                         .HasColumnType("uuid")
                         .HasColumnName("object_item_id_uuid");
-
-                    b.Property<string>("ObjectKey")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("object_key");
 
                     b.Property<string>("OldValue")
                         .HasMaxLength(1000)

@@ -38,8 +38,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 schema: "public",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
@@ -82,8 +83,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 schema: "public",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    object_key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
                     field_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
