@@ -19,7 +19,7 @@ using System.Reflection;
 namespace OXDesk.Infrastructure.Data
 {
     /// <summary>
-    /// Database context dedicated to tenant-scoped entities (tables with tenant_id).
+    /// Database context dedicated to tenant-scoped entities.
     /// </summary>
     public class TenantDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
     {
@@ -85,6 +85,13 @@ namespace OXDesk.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Exclude Tenant configuration (that's in ApplicationDbContext)
+            builder.ApplyConfigurationsFromAssembly(
+                Assembly.GetExecutingAssembly(),
+                t => t.Namespace != null && !t.Namespace.Contains(".Data.Tenants"));
+
+
 
             // Determine schema based on hosting model
             var tenantSchema = _currentTenant?.Schema;

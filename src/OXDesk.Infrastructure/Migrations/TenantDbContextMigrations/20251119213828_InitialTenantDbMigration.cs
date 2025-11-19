@@ -21,6 +21,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     pipeline = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: false),
                     version = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
@@ -39,6 +40,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
@@ -60,6 +62,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     brand_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     logo = table.Column<string>(type: "varchar(1000)", maxLength: 1000, nullable: true),
@@ -84,6 +87,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
@@ -105,6 +109,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     channel_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -125,6 +130,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     field_type_key = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
@@ -157,6 +163,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
                     field_type_id = table.Column<int>(type: "integer", nullable: false),
@@ -200,7 +207,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'1001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     object_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     singular_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     plural_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
@@ -244,6 +252,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     increment_score = table.Column<int>(type: "integer", nullable: true),
@@ -284,6 +293,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
                     status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
@@ -308,6 +318,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10000001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ticket_number = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     ticket_key = table.Column<Guid>(type: "uuid", nullable: false),
@@ -322,23 +333,23 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     description = table.Column<string>(type: "text", nullable: true),
                     priority_id = table.Column<int>(type: "integer", nullable: false),
                     priority_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
-                    priority_score = table.Column<int>(type: "integer", nullable: false),
+                    priority_score = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
                     status_id = table.Column<int>(type: "integer", nullable: false),
                     status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
                     status_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     work_flow_id = table.Column<int>(type: "integer", nullable: true),
                     work_flow_status_id = table.Column<int>(type: "integer", nullable: true),
                     work_flow_status_name = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: true),
-                    is_escalated = table.Column<bool>(type: "boolean", nullable: false),
-                    is_spam = table.Column<bool>(type: "boolean", nullable: false),
-                    is_archived = table.Column<bool>(type: "boolean", nullable: false),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    is_auto_closed = table.Column<bool>(type: "boolean", nullable: false),
-                    is_read = table.Column<bool>(type: "boolean", nullable: false),
-                    has_scheduled_reply = table.Column<bool>(type: "boolean", nullable: false),
-                    is_response_overdue = table.Column<bool>(type: "boolean", nullable: false),
-                    is_overdue = table.Column<bool>(type: "boolean", nullable: false),
-                    is_reopened = table.Column<bool>(type: "boolean", nullable: false),
+                    is_escalated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_spam = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_archived = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_auto_closed = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    has_scheduled_reply = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_response_overdue = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_overdue = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    is_reopened = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     sub_topic = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     request_type = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
@@ -383,10 +394,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     customer_responded_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     on_hold_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     parent_ticket_number = table.Column<int>(type: "integer", nullable: true),
-                    attachment_count = table.Column<int>(type: "integer", nullable: false),
-                    comment_count = table.Column<int>(type: "integer", nullable: false),
-                    task_count = table.Column<int>(type: "integer", nullable: false),
-                    thread_count = table.Column<int>(type: "integer", nullable: false),
+                    attachment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    comment_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    task_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    thread_count = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -408,7 +419,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     first_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     last_name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
-                    location = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    location = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false, defaultValue: ""),
                     country_code = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
                     profile = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     time_zone = table.Column<string>(type: "text", nullable: false),
@@ -445,6 +456,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     list_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     list_key = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
@@ -471,6 +483,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     work_flow_id = table.Column<int>(type: "integer", nullable: false),
                     topic_id = table.Column<int>(type: "integer", nullable: true),
@@ -493,6 +506,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     work_flow_id = table.Column<int>(type: "integer", nullable: false),
                     status_id = table.Column<int>(type: "integer", nullable: false),
@@ -517,6 +531,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     work_flow_name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -691,6 +706,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     list_id = table.Column<int>(type: "int", nullable: false),
                     item_name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
@@ -713,6 +729,36 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_app_installation_status_version",
+                schema: "public",
+                table: "app_installation_status",
+                column: "version");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_audit_logs_object_id_created_at",
+                schema: "public",
+                table: "audit_logs",
+                columns: new[] { "object_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_audit_logs_object_id_object_item_ids",
+                schema: "public",
+                table: "audit_logs",
+                columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_object_id_object_item_ids",
+                schema: "public",
+                table: "change_history_logs",
+                columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_dynamic_object_field_types_field_type_key",
+                schema: "public",
+                table: "dynamic_object_field_types",
+                column: "field_type_key");
 
             migrationBuilder.CreateIndex(
                 name: "ix_role_claims_role_id",
@@ -740,6 +786,18 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_user_refresh_tokens_expires_at",
+                schema: "public",
+                table: "user_refresh_tokens",
+                column: "expires_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_refresh_tokens_used_at",
+                schema: "public",
+                table: "user_refresh_tokens",
+                column: "used_at");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_user_refresh_tokens_user_id",
                 schema: "public",
                 table: "user_refresh_tokens",
@@ -756,6 +814,25 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 schema: "public",
                 table: "users",
                 column: "normalized_email");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_tenant_id",
+                schema: "public",
+                table: "users",
+                column: "tenant_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_tenant_id_normalized_email",
+                schema: "public",
+                table: "users",
+                columns: new[] { "tenant_id", "normalized_email" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_tenant_id_normalized_user_name",
+                schema: "public",
+                table: "users",
+                columns: new[] { "tenant_id", "normalized_user_name" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "user_name_index",

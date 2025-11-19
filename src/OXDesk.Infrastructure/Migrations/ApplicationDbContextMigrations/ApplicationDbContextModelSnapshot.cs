@@ -30,15 +30,19 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                         .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("CreatedBy")
+                        .HasMaxLength(100)
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
                     b.Property<string>("DatabaseName")
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("database_name");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -51,22 +55,27 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("email");
 
                     b.Property<string>("Host")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("host");
 
                     b.Property<string>("IsActive")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("text")
+                        .HasDefaultValue("True")
                         .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<string>("Schema")
@@ -75,14 +84,18 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
 
                     b.Property<string>("TimeZone")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("time_zone");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<Guid>("UpdatedBy")
+                        .HasMaxLength(100)
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
@@ -93,7 +106,20 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_tenants");
 
-                    b.ToTable("tenants");
+                    b.HasIndex("Email")
+                        .HasDatabaseName("ix_tenants_email");
+
+                    b.HasIndex("Host")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenants_host");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_tenants_is_active");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("ix_tenants_name");
+
+                    b.ToTable("tenants", (string)null);
                 });
 #pragma warning restore 612, 618
         }

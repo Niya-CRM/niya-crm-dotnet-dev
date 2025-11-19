@@ -53,6 +53,11 @@ namespace OXDesk.Infrastructure.Data
         {
             base.OnModelCreating(builder);
 
+            // Apply entity configurations for global entities only
+            builder.ApplyConfigurationsFromAssembly(
+                Assembly.GetExecutingAssembly(),
+                t => t.Namespace != null && t.Namespace.Contains(".Data.Tenants"));
+
             // Apply snake_case naming convention to all tables, columns, keys and indexes
             foreach (var entity in builder.Model.GetEntityTypes())
             {

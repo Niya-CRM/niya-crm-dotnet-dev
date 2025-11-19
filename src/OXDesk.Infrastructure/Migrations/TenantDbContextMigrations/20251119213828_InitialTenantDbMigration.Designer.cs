@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20251119200920_InitialTenantDbMigration")]
+    [Migration("20251119213828_InitialTenantDbMigration")]
     partial class InitialTenantDbMigration
     {
         /// <inheritdoc />
@@ -33,6 +33,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("Completed")
                         .IsRequired()
@@ -65,6 +66,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_app_installation_status");
 
+                    b.HasIndex("Version")
+                        .HasDatabaseName("ix_app_installation_status_version");
+
                     b.ToTable("app_installation_status", "public");
                 });
 
@@ -76,6 +80,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -117,6 +122,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
+                    b.HasIndex("ObjectId", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_object_id_created_at");
+
+                    b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
+                        .HasDatabaseName("ix_audit_logs_object_id_object_item_ids");
+
                     b.ToTable("audit_logs", "public");
                 });
 
@@ -128,6 +139,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -168,6 +180,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_change_history_logs");
 
+                    b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
+                        .HasDatabaseName("ix_change_history_logs_object_id_object_item_ids");
+
                     b.ToTable("change_history_logs", "public");
                 });
 
@@ -178,7 +193,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -253,6 +269,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("AllowedFileTypes")
                         .HasMaxLength(255)
@@ -394,6 +411,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("AllowedFileTypes")
                         .HasMaxLength(255)
@@ -480,6 +498,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
                     b.HasKey("Id")
                         .HasName("pk_dynamic_object_field_types");
+
+                    b.HasIndex("FieldTypeKey")
+                        .HasDatabaseName("ix_dynamic_object_field_types_field_type_key");
 
                     b.ToTable("dynamic_object_field_types", "public");
                 });
@@ -642,8 +663,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
                     b.Property<string>("Location")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(60)
-                        .HasColumnType("character varying(60)")
+                        .HasColumnType("varchar(60)")
+                        .HasDefaultValue("")
                         .HasColumnName("location");
 
                     b.Property<bool>("LockoutEnabled")
@@ -720,6 +743,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("user_name_index");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_asp_net_users_tenant_id");
+
+                    b.HasIndex("TenantId", "NormalizedEmail")
+                        .HasDatabaseName("ix_asp_net_users_tenant_id_normalized_email");
+
+                    b.HasIndex("TenantId", "NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_asp_net_users_tenant_id_normalized_user_name");
 
                     b.ToTable("users", "public");
                 });
@@ -937,6 +970,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.HasKey("Id")
                         .HasName("pk_user_refresh_tokens");
 
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_user_refresh_tokens_expires_at");
+
+                    b.HasIndex("UsedAt")
+                        .HasDatabaseName("ix_user_refresh_tokens_used_at");
+
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_refresh_tokens_user_id");
 
@@ -951,6 +990,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("BrandColor")
                         .HasMaxLength(10)
@@ -1016,6 +1056,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("ChannelName")
                         .IsRequired()
@@ -1061,6 +1102,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1110,6 +1152,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1173,6 +1216,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10000001L, null, null, null, null, null);
 
                     b.Property<int?>("AccountId")
                         .HasColumnType("integer")
@@ -1217,7 +1261,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("assigned_at");
 
                     b.Property<int>("AttachmentCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("attachment_count");
 
                     b.Property<int>("BrandId")
@@ -1243,7 +1289,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("closed_at");
 
                     b.Property<int>("CommentCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("comment_count");
 
                     b.Property<int?>("Contact")
@@ -1316,43 +1364,63 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("first_resolution_due_at");
 
                     b.Property<bool>("HasScheduledReply")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("has_scheduled_reply");
 
                     b.Property<bool>("IsArchived")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_archived");
 
                     b.Property<bool>("IsAutoClosed")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_auto_closed");
 
                     b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_deleted");
 
                     b.Property<bool>("IsEscalated")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_escalated");
 
                     b.Property<bool>("IsOverdue")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_overdue");
 
                     b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_read");
 
                     b.Property<bool>("IsReopened")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_reopened");
 
                     b.Property<bool>("IsResponseOverdue")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_response_overdue");
 
                     b.Property<bool>("IsSpam")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
+                        .HasDefaultValue(false)
                         .HasColumnName("is_spam");
 
                     b.Property<string>("Language")
@@ -1409,7 +1477,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("priority_name");
 
                     b.Property<int>("PriorityScore")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(1)
                         .HasColumnName("priority_score");
 
                     b.Property<int>("ProductId")
@@ -1493,7 +1563,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("supplied_phone");
 
                     b.Property<int>("TaskCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("task_count");
 
                     b.Property<int?>("TeamId")
@@ -1506,7 +1578,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("team_name");
 
                     b.Property<int>("ThreadCount")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("thread_count");
 
                     b.Property<Guid>("TicketKey")
@@ -1559,6 +1633,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1620,6 +1695,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1665,6 +1741,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1716,6 +1793,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<bool>("AllowModify")
                         .HasColumnType("boolean")
@@ -1790,6 +1868,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

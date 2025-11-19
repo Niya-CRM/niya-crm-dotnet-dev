@@ -17,8 +17,8 @@ namespace OXDesk.Infrastructure.Data.DynamicObjects
         {
             builder.HasKey(o => o.Id);
             builder.Property(o => o.Id)
-                   .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .UseIdentityAlwaysColumn()
+                   .HasIdentityOptions(startValue: 1001L);
         }
     }
 }
