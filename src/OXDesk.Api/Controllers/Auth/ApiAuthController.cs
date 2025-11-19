@@ -13,6 +13,7 @@ using OXDesk.Core.Identity;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Common;
 using OXDesk.Core.Common.Extensions;
+using OXDesk.Core.DynamicObjects;
 
 namespace OXDesk.Api.Controllers.Auth
 {
@@ -33,12 +34,14 @@ namespace OXDesk.Api.Controllers.Auth
         private readonly ILogger<ApiAuthController> _logger;
         private readonly IUserRefreshTokenRepository _refreshTokenRepository;
         private readonly IAuditLogService _auditLogService;
+        private readonly IDynamicObjectService _dynamicObjectService;
 
         public ApiAuthController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             JwtHelper jwtHelper,
             IAuditLogService auditLogService,
+            IDynamicObjectService dynamicObjectService,
             ILogger<ApiAuthController> logger,
             IUserRefreshTokenRepository refreshTokenRepository)
         {
@@ -46,6 +49,7 @@ namespace OXDesk.Api.Controllers.Auth
             _signInManager = signInManager;
             _jwtHelper = jwtHelper;
             _auditLogService = auditLogService;
+            _dynamicObjectService = dynamicObjectService;
             _logger = logger;
             _refreshTokenRepository = refreshTokenRepository;
         }
@@ -79,12 +83,15 @@ namespace OXDesk.Api.Controllers.Auth
                 return Unauthorized(new { Message = "Invalid email or password." });
             }
 
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+                DynamicObjectConstants.DynamicObjectKeys.User);
+
             if (user.IsActive != "Y")
             {
                 _logger.LogWarning("User account is deactivated: {Email}", model.Email);
                 // Audit: Login denied due to inactive account
                 await _auditLogService.CreateAuditLogAsync(
-                    objectKey: CommonConstant.MODULE_USER,
+                    objectId: userObjectId,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
                     objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
@@ -101,7 +108,7 @@ namespace OXDesk.Api.Controllers.Auth
                 _logger.LogWarning("Invalid password for user: {Email}", model.Email);
                 // Audit: Invalid credential attempt
                 await _auditLogService.CreateAuditLogAsync(
-                    objectKey: CommonConstant.MODULE_USER,
+                    objectId: userObjectId,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
                     objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
@@ -115,7 +122,7 @@ namespace OXDesk.Api.Controllers.Auth
             _logger.LogInformation("User authenticated successfully: {Email}", model.Email);
             // Audit: Successful login
             await _auditLogService.CreateAuditLogAsync(
-                objectKey: CommonConstant.MODULE_USER,
+                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
                 objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,

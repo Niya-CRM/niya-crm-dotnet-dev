@@ -40,6 +40,19 @@ public class DynamicObjectRepository : IDynamicObjectRepository
     }
 
     /// <inheritdoc />
+    public async Task<DynamicObject?> GetByKeyAsync(string objectKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(objectKey))
+            throw new ArgumentException("Object key cannot be null or empty.", nameof(objectKey));
+
+        _logger.LogDebug("Getting dynamic object by key: {ObjectKey}", objectKey);
+
+        return await _dbSet
+            .Where(o => o.ObjectKey == objectKey)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<IEnumerable<DynamicObject>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         if (pageNumber < CommonConstant.PAGE_NUMBER_DEFAULT)

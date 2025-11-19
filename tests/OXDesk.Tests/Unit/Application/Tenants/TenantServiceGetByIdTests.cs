@@ -8,6 +8,7 @@ using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
+using OXDesk.Core.DynamicObjects;
 using Shouldly;
 using System;
 using System.Security.Claims;
@@ -25,6 +26,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly Mock<ICurrentTenant> _mockCurrentTenant;
         private readonly Mock<ICurrentUser> _mockCurrentUser;
+        private readonly Mock<IDynamicObjectService> _mockDynamicObjectService;
         private readonly Mock<ITenantRepository> _mockTenantRepository;
         private readonly Mock<IAuditLogRepository> _mockAuditLogRepository;
         private readonly TenantService _tenantService;
@@ -39,6 +41,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             _mockCurrentUser = new Mock<ICurrentUser>();
             _mockTenantRepository = new Mock<ITenantRepository>();
             _mockAuditLogRepository = new Mock<IAuditLogRepository>();
+            _mockDynamicObjectService = new Mock<IDynamicObjectService>();
 
             // Setup repository factory pattern
             _mockUnitOfWork
@@ -65,13 +68,19 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             mockHttpContext.Setup(c => c.User).Returns(user);
         
             _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
+
+            _mockDynamicObjectService
+                .Setup(s => s.GetDynamicObjectIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
             _tenantService = new TenantService(
                 _mockUnitOfWork.Object,
                 _mockLogger.Object,
                 _mockHttpContextAccessor.Object,
                 _mockCurrentTenant.Object,
                 _mockCacheService.Object,
-                _mockCurrentUser.Object);
+                _mockCurrentUser.Object,
+                _mockDynamicObjectService.Object);
         }
 
         [Fact]

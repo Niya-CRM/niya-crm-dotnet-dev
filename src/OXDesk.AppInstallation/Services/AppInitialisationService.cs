@@ -37,6 +37,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly IAppSetupService _appSetupService;
         private readonly ICurrentTenant _currentTenant;
         private readonly ICurrentUser _currentUser;
+        private readonly IDynamicObjectService _dynamicObjectService;
         private readonly Guid _tenantId;
         private readonly Guid _technicalUserId;
         
@@ -104,6 +105,7 @@ namespace OXDesk.AppInstallation.Services
             IAppSetupService appSetupService,
             ICurrentTenant currentTenant,
             ICurrentUser currentUser,
+            IDynamicObjectService dynamicObjectService,
             ILogger<AppInitialisationService> logger)
         {
             _dbContext = dbContext;
@@ -116,6 +118,7 @@ namespace OXDesk.AppInstallation.Services
             _currentTenant = currentTenant;
             _currentUser = currentUser;
             _logger = logger;
+            _dynamicObjectService = dynamicObjectService;
 
             // Generate a tenant ID for initialization process
             _tenantId = Guid.CreateVersion7();
@@ -391,8 +394,12 @@ namespace OXDesk.AppInstallation.Services
                     // Instead of using UserManager.AddToRoleAsync, we'll create the user role directly
 
                     // Add change history log for creation (first change event)
+                    var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+                        DynamicObjectConstants.DynamicObjectKeys.User,
+                        CancellationToken.None);
+
                     await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-                        objectKey: CommonConstant.MODULE_USER,
+                        objectId: userObjectId,
                         objectItemId: systemUser.Id,
                         fieldName: CommonConstant.ChangeHistoryFields.Created,
                         oldValue: null,

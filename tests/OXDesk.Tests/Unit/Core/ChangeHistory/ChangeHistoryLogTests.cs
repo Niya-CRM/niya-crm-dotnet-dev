@@ -12,7 +12,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_ShouldInitializeProperties()
         {
             // Arrange
-            var objectKey = "User";
+            var objectId = 1;
             var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003E9"); // 1001
             var fieldName = "Email";
             var oldValue = "old@example.com";
@@ -21,7 +21,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                objectKey,
+                objectId,
                 objectItemId,
                 fieldName,
                 oldValue,
@@ -30,7 +30,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
-            changeHistoryLog.ObjectKey.ShouldBe(objectKey);
+            changeHistoryLog.ObjectId.ShouldBe(objectId);
             changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBe(oldValue);
@@ -45,7 +45,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         public void ParameterizedConstructor_WithNullValues_ShouldInitializeProperties()
         {
             // Arrange
-            var objectKey = "User";
+            var objectId = 1;
             var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003EA"); // 1002
             var fieldName = "Email";
             string? oldValue = null;
@@ -54,7 +54,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                objectKey,
+                objectId,
                 objectItemId,
                 fieldName,
                 oldValue,
@@ -63,7 +63,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
 
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
-            changeHistoryLog.ObjectKey.ShouldBe(objectKey);
+            changeHistoryLog.ObjectId.ShouldBe(objectId);
             changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBeNull();
@@ -80,7 +80,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
-                "User",
+                1,
                 Guid.Parse("00000000-0000-0000-0000-0000000003EB"), // 1003
                 "Email",
                 "old@example.com",

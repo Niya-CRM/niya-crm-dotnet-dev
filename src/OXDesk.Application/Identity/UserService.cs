@@ -19,6 +19,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using System;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Common.Extensions;
+using OXDesk.Core.DynamicObjects;
 
 namespace OXDesk.Application.Identity;
 
@@ -38,6 +39,7 @@ public class UserService : IUserService
     private readonly IValueListService _valueListService;
     private readonly ICurrentTenant _currentTenant;
     private readonly ICurrentUser _currentUser;
+    private readonly IDynamicObjectService _dynamicObjectService;
     
     // Cache key prefix for users
     private const string USER_CACHE_KEY_PREFIX = "user_";
@@ -65,7 +67,8 @@ public class UserService : IUserService
         ICacheService cacheService,
         IValueListService valueListService,
         ICurrentTenant currentTenant,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IDynamicObjectService dynamicObjectService)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -78,6 +81,7 @@ public class UserService : IUserService
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
         _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
         _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
+        _dynamicObjectService = dynamicObjectService ?? throw new ArgumentNullException(nameof(dynamicObjectService));
     }
 
     /// <inheritdoc />
@@ -256,8 +260,12 @@ public class UserService : IUserService
         }
 
         // Add audit log
+        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+            DynamicObjectConstants.DynamicObjectKeys.User,
+            cancellationToken);
+
         await _auditLogService.CreateAuditLogAsync(
-            objectKey: CommonConstant.MODULE_USER,
+            objectId: userObjectId,
             @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
             objectItemId: user.Id,
             data: $"User created: {user.FirstName} {user.LastName}",
@@ -320,8 +328,13 @@ public class UserService : IUserService
 
         // Audit log
         string actionPastTense = isActivating ? "activated" : "deactivated";
+
+        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+            DynamicObjectConstants.DynamicObjectKeys.User,
+            cancellationToken);
+
         await _auditLogService.CreateAuditLogAsync(
-            objectKey: CommonConstant.MODULE_USER,
+            objectId: userObjectId,
             @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
             objectItemId: user.Id,
             data: $"User {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
@@ -332,7 +345,7 @@ public class UserService : IUserService
 
         // Change history log for activation status change
         await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-            objectKey: CommonConstant.MODULE_USER,
+            objectId: userObjectId,
             objectItemId: user.Id,
             fieldName: "isActive",
             oldValue: oldActive,
@@ -399,8 +412,12 @@ public class UserService : IUserService
             }
 
             var actorId = GetCurrentUserId();
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+                DynamicObjectConstants.DynamicObjectKeys.User,
+                cancellationToken);
+
             await _auditLogService.CreateAuditLogAsync(
-                objectKey: CommonConstant.MODULE_USER,
+                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
                 objectItemId: user.Id,
                 data: $"Role assigned to user: {role.Name}",
@@ -447,8 +464,12 @@ public class UserService : IUserService
             }
 
             var actorId = GetCurrentUserId();
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+                DynamicObjectConstants.DynamicObjectKeys.User,
+                cancellationToken);
+
             await _auditLogService.CreateAuditLogAsync(
-                objectKey: CommonConstant.MODULE_USER,
+                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
                 objectItemId: user.Id,
                 data: $"Role removed from user: {role.Name}",

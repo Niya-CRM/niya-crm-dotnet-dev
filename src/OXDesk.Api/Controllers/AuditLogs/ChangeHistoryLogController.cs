@@ -61,10 +61,10 @@ namespace OXDesk.Api.Controllers.AuditLogs
             try
             {
                 // Validate required parameters
-                if (string.IsNullOrEmpty(query.ObjectKey))
+                if (!query.ObjectId.HasValue)
                 {
-                    _logger.LogWarning("Missing required parameter: ObjectKey");
-                    return this.CreateBadRequestProblem("ObjectKey is required");
+                    _logger.LogWarning("Missing required parameter: ObjectId");
+                    return this.CreateBadRequestProblem("ObjectId is required");
                 }
 
                 if (!query.ObjectItemIdUuid.HasValue && !query.ObjectItemIdInt.HasValue)

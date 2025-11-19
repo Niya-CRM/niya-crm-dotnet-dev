@@ -25,6 +25,15 @@ public interface IDynamicObjectRepository
     Task<IEnumerable<DynamicObject>> GetAllAsync(int pageNumber = 1, int pageSize = 50, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets a dynamic object by its object key.
+    /// </summary>
+    /// <param name="objectKey">The dynamic object key.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The dynamic object if found, otherwise null.</returns>
+    /// <remarks>Tenant scoping is enforced by EF Core global query filters.</remarks>
+    Task<DynamicObject?> GetByKeyAsync(string objectKey, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Adds a new dynamic object.
     /// </summary>
     /// <param name="dynamicObject">The dynamic object to add.</param>

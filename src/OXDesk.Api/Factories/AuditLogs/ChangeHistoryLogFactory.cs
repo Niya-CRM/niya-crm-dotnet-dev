@@ -26,7 +26,7 @@ namespace OXDesk.Api.Factories.AuditLogs
         private static ChangeHistoryLogResponse Map(ChangeHistoryLog log) => new()
         {
             Id = log.Id,
-            ObjectKey = log.ObjectKey,
+            ObjectId = log.ObjectId,
             ObjectItemIdUuid = log.ObjectItemIdUuid,
             ObjectItemIdInt = log.ObjectItemIdInt,
             FieldName = log.FieldName,

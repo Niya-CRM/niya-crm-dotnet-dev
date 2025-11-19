@@ -21,13 +21,12 @@ public class AuditLog : CreationAuditedEntity, IEntity
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the object key/entity type that was affected.
+    /// Gets or sets the object ID.
     /// </summary>
-    [Column("module")]
+    [Column("object_id")]
     [Required]
-    [MaxLength(100)]
-    public string ObjectKey { get; set; } = string.Empty;
-
+    public int ObjectId { get; set; }
+    
     /// <summary>
     /// Gets or sets the event/action that occurred.
     /// </summary>
@@ -83,9 +82,9 @@ public class AuditLog : CreationAuditedEntity, IEntity
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, Guid objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(int objectId, string @event, Guid objectItemId, string ip, string? data, Guid createdBy)
     {
-        ObjectKey = objectKey;
+        ObjectId = objectId;
         Event = @event;
         ObjectItemIdUuid = objectItemId;
         IP = ip;
@@ -105,9 +104,9 @@ public class AuditLog : CreationAuditedEntity, IEntity
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(string objectKey, string @event, int objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(int objectId, string @event, int objectItemId, string ip, string? data, Guid createdBy)
     {
-        ObjectKey = objectKey;
+        ObjectId = objectId;
         Event = @event;
         ObjectItemIdInt = objectItemId;
         IP = ip;

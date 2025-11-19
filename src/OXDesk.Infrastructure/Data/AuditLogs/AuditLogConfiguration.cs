@@ -17,11 +17,11 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
 
-            builder.HasIndex(a => new { a.ObjectKey, a.ObjectItemIdUuid, a.ObjectItemIdInt })
-                   .HasDatabaseName("ix_audit_logs_object_key_object_item_ids");
+            builder.HasIndex(a => new { a.ObjectId, a.ObjectItemIdUuid, a.ObjectItemIdInt })
+                   .HasDatabaseName("ix_audit_logs_object_id_object_item_ids");
 
-            builder.HasIndex(a => new { a.ObjectKey, a.CreatedAt })
-                   .HasDatabaseName("ix_audit_logs_object_key_created_at");
+            builder.HasIndex(a => new { a.ObjectId, a.CreatedAt })
+                   .HasDatabaseName("ix_audit_logs_object_id_created_at");
         }
     }
 }

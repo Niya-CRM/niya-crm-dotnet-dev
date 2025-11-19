@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Identity;
+using OXDesk.Core.DynamicObjects;
 
 namespace OXDesk.Application.Tenants;
 
@@ -22,6 +23,7 @@ public class TenantService : ITenantService
     private readonly ICacheService _cacheService;
     private readonly ICurrentTenant _tenantContextService;
     private readonly ICurrentUser _currentUser;
+    private readonly IDynamicObjectService _dynamicObjectService;
     private readonly string _tenantCachePrefix = "tenant:";
 
     /// <summary>
@@ -39,7 +41,8 @@ public class TenantService : ITenantService
         IHttpContextAccessor httpContextAccessor,
         ICurrentTenant tenantContextService,
         ICacheService cacheService,
-        ICurrentUser currentUser)
+        ICurrentUser currentUser,
+        IDynamicObjectService dynamicObjectService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -47,6 +50,7 @@ public class TenantService : ITenantService
         _tenantContextService = tenantContextService ?? throw new ArgumentNullException(nameof(tenantContextService));
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
         _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
+        _dynamicObjectService = dynamicObjectService ?? throw new ArgumentNullException(nameof(dynamicObjectService));
     }
 
     private string GetUserIp() =>
@@ -65,8 +69,12 @@ public class TenantService : ITenantService
     /// <param name="cancellationToken">Cancellation token.</param>
     private async Task AddTenantAuditLogAsync(string @event, Guid objectItemId, string data, CancellationToken cancellationToken = default)
     {
+        var tenantObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+            DynamicObjectConstants.DynamicObjectKeys.Tenant,
+            cancellationToken);
+
         var auditLog = new AuditLog(
-            objectKey: CommonConstant.MODULE_TENANT,
+            objectId: tenantObjectId,
             @event: @event,
             objectItemId: objectItemId,
             ip: GetUserIp(),

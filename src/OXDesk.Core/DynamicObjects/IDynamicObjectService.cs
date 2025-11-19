@@ -17,6 +17,14 @@ public interface IDynamicObjectService
     Task<DynamicObject> CreateDynamicObjectAsync(DynamicObjectRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets a dynamic object's identifier by its object key.
+    /// </summary>
+    /// <param name="objectKey">The dynamic object key.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The dynamic object identifier.</returns>
+    Task<int> GetDynamicObjectIdAsync(string objectKey, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets a dynamic object by its identifier.
     /// </summary>
     /// <param name="id">The dynamic object identifier.</param>

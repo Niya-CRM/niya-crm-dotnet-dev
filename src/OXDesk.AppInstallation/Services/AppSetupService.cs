@@ -12,6 +12,7 @@ using OXDesk.Core.ValueLists;
 using System.Linq;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Core.DynamicObjects;
 
 namespace OXDesk.AppInstallation.Services;
 
@@ -31,6 +32,7 @@ public class AppSetupService : IAppSetupService
     private readonly TenantDbContext _dbContext;
     private readonly ICurrentTenant _currentTenant;
     private readonly IUserService _userService;
+    private readonly IDynamicObjectService _dynamicObjectService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AppSetupService"/> class.
@@ -51,6 +53,7 @@ public class AppSetupService : IAppSetupService
         IChangeHistoryLogService changeHistoryLogService,
         ICurrentTenant currentTenant,
         IUserService userService,
+        IDynamicObjectService dynamicObjectService,
         ILogger<AppSetupService> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -64,6 +67,7 @@ public class AppSetupService : IAppSetupService
         _changeHistoryLogService = changeHistoryLogService ?? throw new ArgumentNullException(nameof(changeHistoryLogService));
         _currentTenant = currentTenant ?? throw new ArgumentNullException(nameof(currentTenant));
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        _dynamicObjectService = dynamicObjectService ?? throw new ArgumentNullException(nameof(dynamicObjectService));
     }
 
     /// <inheritdoc/>
@@ -146,8 +150,12 @@ public class AppSetupService : IAppSetupService
             }
 
             // Add change history log (first creation event)
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
+                DynamicObjectConstants.DynamicObjectKeys.User,
+                CancellationToken.None);
+
             await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-                objectKey: CommonConstant.MODULE_USER,
+                objectId: userObjectId,
                 objectItemId: user.Id,
                 fieldName: CommonConstant.ChangeHistoryFields.Created,
                 oldValue: null,

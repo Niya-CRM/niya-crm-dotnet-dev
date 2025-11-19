@@ -28,7 +28,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task CreateChangeHistoryLogAsync_ShouldCreateAndReturnLog()
         {
             // Arrange
-            var objectKey = "User";
+            var objectId = 1;
             var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003E9"); // 1001
             var fieldName = "Email";
             var oldValue = "old@example.com";
@@ -44,7 +44,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             // Act
             var result = await _service.CreateChangeHistoryLogAsync(
-                objectKey,
+                objectId,
                 objectItemId,
                 fieldName,
                 oldValue,
@@ -54,7 +54,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Assert
             result.ShouldNotBeNull();
             capturedLog.ShouldNotBeNull();
-            capturedLog!.ObjectKey.ShouldBe(objectKey);
+            capturedLog!.ObjectId.ShouldBe(objectId);
             capturedLog.ObjectItemIdUuid.ShouldBe(objectItemId);
             capturedLog.FieldName.ShouldBe(fieldName);
             capturedLog.OldValue.ShouldBe(oldValue);
@@ -70,7 +70,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Arrange
             var logId = 123;
             var expectedLog = new ChangeHistoryLog(
-                "User",
+                1,
                 Guid.Parse("00000000-0000-0000-0000-0000000003EA"),
                 "Email",
                 "old@example.com",
@@ -95,7 +95,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task GetChangeHistoryLogsAsync_ShouldPassFiltersToRepository()
         {
             // Arrange
-            var objectKey = "User";
+            var objectId = 1;
             var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003EB"); // 1003
             var fieldName = "Email";
             var createdBy = TestHelpers.TestUserId3;
@@ -106,7 +106,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             var expectedLogs = new List<ChangeHistoryLog>
             {
-                new(objectKey, objectItemId, fieldName, null, null, createdBy) {
+                new(objectId, objectItemId, fieldName, null, null, createdBy) {
                     Id = 456,
                     CreatedAt = DateTime.UtcNow.AddDays(-3)
                 }
@@ -115,7 +115,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             _mockRepository
                 .Setup(r => r.GetChangeHistoryLogsAsync(
                     It.Is<ChangeHistoryLogQueryDto>(q =>
-                        q.ObjectKey == objectKey &&
+                        q.ObjectId == objectId &&
                         q.ObjectItemIdUuid == objectItemId &&
                         q.FieldName == fieldName &&
                         q.CreatedBy == createdBy &&
@@ -129,7 +129,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Act
             var query = new ChangeHistoryLogQueryDto
             {
-                ObjectKey = objectKey,
+                ObjectId = objectId,
                 ObjectItemIdUuid = objectItemId,
                 FieldName = fieldName,
                 CreatedBy = createdBy,
@@ -144,14 +144,14 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             result.ShouldNotBeNull();
             result.Count().ShouldBe(expectedLogs.Count);
             var entity = result.First();
-            entity.ObjectKey.ShouldBe(objectKey);
+            entity.ObjectId.ShouldBe(objectId);
             entity.ObjectItemIdUuid.ShouldBe(objectItemId);
             entity.FieldName.ShouldBe(fieldName);
             entity.CreatedBy.ShouldBe(createdBy);
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 It.Is<ChangeHistoryLogQueryDto>(q =>
-                    q.ObjectKey == objectKey &&
+                    q.ObjectId == objectId &&
                     q.ObjectItemIdUuid == objectItemId &&
                     q.FieldName == fieldName &&
                     q.CreatedBy == createdBy &&

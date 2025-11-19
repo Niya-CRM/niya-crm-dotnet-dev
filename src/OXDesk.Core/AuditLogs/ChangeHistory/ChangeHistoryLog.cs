@@ -21,12 +21,10 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the object key (entity type) that was changed.
+    /// Gets or sets the object ID.
     /// </summary>
-    [Column("object_key")]
-    [Required]
-    [MaxLength(100)]
-    public string ObjectKey { get; set; } = string.Empty;
+    [Column("object_id")]
+    public int ObjectId { get; set; }
 
     /// <summary>
     /// Gets or sets the UUID of the object item (entity) that was changed (for Guid-based entities).
@@ -84,14 +82,14 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     /// <param name="newValue">The new value of the field.</param>
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
-        string entityType,
+        int objectId,
         Guid entityId,
         string fieldName,
         string? oldValue,
         string? newValue,
         Guid changedBy)
     {
-        ObjectKey = entityType;
+        ObjectId = objectId;
         ObjectItemIdUuid = entityId;
         FieldName = fieldName;
         OldValue = oldValue;
@@ -111,14 +109,14 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     /// <param name="newValue">The new value of the field.</param>
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
-        string entityType,
+        int objectId,
         int entityId,
         string fieldName,
         string? oldValue,
         string? newValue,
         Guid changedBy)
     {
-        ObjectKey = entityType;
+        ObjectId = objectId;
         ObjectItemIdInt = entityId;
         FieldName = fieldName;
         OldValue = oldValue;

@@ -19,6 +19,7 @@ using Xunit;
 using System.Reflection;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Core.DynamicObjects;
 using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.Common;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
         private readonly Mock<IChangeHistoryLogService> _mockChangeHistoryLogService;
         private readonly Mock<ICurrentTenant> _mockCurrentTenant;
         private readonly Mock<IUserService> _mockUserService;
+        private readonly Mock<IDynamicObjectService> _mockDynamicObjectService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly AppSetupService _AppSetupService;
@@ -50,6 +52,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             _mockChangeHistoryLogService = new Mock<IChangeHistoryLogService>();
             _mockCurrentTenant = new Mock<ICurrentTenant>();
             _mockUserService = new Mock<IUserService>();
+            _mockDynamicObjectService = new Mock<IDynamicObjectService>();
             _userManager = TestHelpers.MockUserManager();
             _roleManager = TestHelpers.MockRoleManager();
 
@@ -75,6 +78,10 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             
             var dbContext = new TenantDbContext(dbOptions, _mockCurrentTenant.Object, configuration);
 
+            _mockDynamicObjectService
+                .Setup(s => s.GetDynamicObjectIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(1);
+
             _AppSetupService = new AppSetupService(
                 _mockUnitOfWork.Object,
                 _mockTenantService.Object,
@@ -86,6 +93,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 _mockChangeHistoryLogService.Object,
                 _mockCurrentTenant.Object,
                 _mockUserService.Object,
+                _mockDynamicObjectService.Object,
                 _mockLogger.Object);
         }
 

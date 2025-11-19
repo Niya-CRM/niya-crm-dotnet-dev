@@ -46,8 +46,8 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
             var q = _dbSet.AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(query.ObjectKey))
-                q = q.Where(a => a.ObjectKey == query.ObjectKey);
+            if (query.ObjectId.HasValue)
+                q = q.Where(a => a.ObjectId == query.ObjectId.Value);
             if (query.ObjectItemIdUuid.HasValue)
                 q = q.Where(a => a.ObjectItemIdUuid == query.ObjectItemIdUuid.Value);
             if (query.ObjectItemIdInt.HasValue)

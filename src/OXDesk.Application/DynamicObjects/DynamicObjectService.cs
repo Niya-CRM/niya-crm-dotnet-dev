@@ -55,6 +55,34 @@ public class DynamicObjectService : IDynamicObjectService
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
 
+    /// <inheritdoc />
+    public async Task<int> GetDynamicObjectIdAsync(string objectKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(objectKey))
+            throw new ValidationException("Object key cannot be null or empty.");
+
+        var normalizedKey = objectKey.Trim();
+        var cacheKey = $"{_dynamicObjectCachePrefix}key:{normalizedKey}";
+
+        var cachedId = await _cacheService.GetAsync<int?>(cacheKey);
+        if (cachedId.HasValue && cachedId.Value > 0)
+        {
+            _logger.LogDebug("Dynamic object id for key {ObjectKey} found in cache: {ObjectId}", normalizedKey, cachedId.Value);
+            return cachedId.Value;
+        }
+        
+        var dynamicObject = await _unitOfWork.GetRepository<IDynamicObjectRepository>().GetByKeyAsync(normalizedKey, cancellationToken);
+        if (dynamicObject == null)
+        {
+            _logger.LogWarning("Dynamic object not found for key: {ObjectKey}", normalizedKey);
+            throw new InvalidOperationException($"Dynamic object with key '{normalizedKey}' not found.");
+        }
+
+        await _cacheService.SetAsync(cacheKey, dynamicObject.Id);
+        _logger.LogDebug("Cached dynamic object id {ObjectId} for key {ObjectKey}", dynamicObject.Id, normalizedKey);
+        return dynamicObject.Id;
+    }
+
     /// <summary>
     /// Adds an audit log entry for dynamic object-related actions.
     /// <param name="event">The event/action type.</param>
@@ -65,7 +93,7 @@ public class DynamicObjectService : IDynamicObjectService
     private async Task AddDynamicObjectAuditLogAsync(string @event, int objectItemId, string data, Guid createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
-            objectKey: "dynamic_object",
+            objectId: objectItemId,
             @event: @event,
             objectItemId: objectItemId.ToGuid(),
             ip: GetUserIp(),

@@ -7,7 +7,7 @@ namespace OXDesk.Core.AuditLogs.DTOs
     /// </summary>
     public class AuditLogQueryDto
     {
-        public string? ObjectKey { get; set; }
+        public int? ObjectId { get; set; }
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
         public Guid? CreatedBy { get; set; }

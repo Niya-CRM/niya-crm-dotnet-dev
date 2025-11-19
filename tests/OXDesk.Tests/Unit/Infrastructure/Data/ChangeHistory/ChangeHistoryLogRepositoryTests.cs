@@ -50,7 +50,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
                 new ChangeHistoryLog(
-                    "User",
+                    1,
                     Guid.Parse("00000000-0000-0000-0000-000000000065"), // 101
                     "Email",
                     "old@example.com",
@@ -58,7 +58,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     TestHelpers.TestUserId1
                 ),
                 new ChangeHistoryLog(
-                    "Contact",
+                    2,
                     Guid.Parse("00000000-0000-0000-0000-000000000066"), // 102
                     "Phone",
                     "123456789",
@@ -86,25 +86,25 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             // Assert
             result.ShouldNotBeNull();
             result.Id.ShouldBe(targetLog.Id);
-            result.ObjectKey.ShouldBe(targetLog.ObjectKey);
+            result.ObjectId.ShouldBe(targetLog.ObjectId);
             result.FieldName.ShouldBe(targetLog.FieldName);
         }
 
         [Fact]
-        public async Task GetChangeHistoryLogsAsync_WithObjectKeyFilter_ShouldReturnFilteredLogs()
+        public async Task GetChangeHistoryLogsAsync_WithObjectIdFilter_ShouldReturnFilteredLogs()
         {
-            var objectKey = "User";
+            var objectId = 1;
 
             // Act
             var query = new ChangeHistoryLogQueryDto
             {
-                ObjectKey = objectKey
+                ObjectId = objectId
             };
             var result = await _repository.GetChangeHistoryLogsAsync(query);
 
             // Assert
             result.ShouldNotBeNull();
-            result.First().ObjectKey.ShouldBe(objectKey);
+            result.First().ObjectId.ShouldBe(objectId);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Arrange
             var newLog = new ChangeHistoryLog(
-                "Product",
+                3,
                 Guid.Parse("00000000-0000-0000-0000-0000000000C9"), // 201
                 "Price",
                 "100",
