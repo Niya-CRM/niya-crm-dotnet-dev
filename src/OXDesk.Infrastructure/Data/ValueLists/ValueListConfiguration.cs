@@ -15,15 +15,13 @@ namespace OXDesk.Infrastructure.Data.ValueLists
         /// <param name="builder">The entity type builder.</param>
         public void Configure(EntityTypeBuilder<ValueList> builder)
         {
-            // Configure int identity primary key starting at 10001
+            // Configure int identity primary key starting at 101
             builder.Property(v => v.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
 
-            // Optional: explicit property configuration (attributes already set types)
-            builder.Property(v => v.ListName)
-                   .IsRequired()
-                   .HasMaxLength(50);
+            builder.HasIndex(x => x.ListName)
+                   .HasDatabaseName("ix_value_lists_list_name");
         }
     }
 }

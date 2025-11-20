@@ -24,14 +24,6 @@ public interface IValueListRepository
     Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a value list by its unique list key.
-    /// </summary>
-    /// <param name="key">The value list key.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The value list if found; otherwise, null.</returns>
-    Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Gets all value lists with pagination.
     /// </summary>
     /// <param name="pageNumber">The page number.</param>

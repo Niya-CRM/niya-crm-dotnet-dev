@@ -41,18 +41,6 @@ public class ValueListRepository : IValueListRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("ValueList key cannot be null or empty.", nameof(key));
-
-        var trimmed = key.Trim();
-        _logger.LogDebug("Getting ValueList by Key: {Key}", trimmed);
-        return await _dbSet
-            .Where(v => v.ListKey == trimmed)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
     public async Task<IEnumerable<ValueList>> GetAllAsync(
         int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT,
         int pageSize = CommonConstant.PAGE_SIZE_DEFAULT,

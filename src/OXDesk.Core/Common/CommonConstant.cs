@@ -148,13 +148,13 @@ public static class CommonConstant
     /// <summary>
     /// Centralized names for commonly used value lists.
     /// </summary>
-    public static class ValueListKeys
+    public static class ValueListNames
     {
-        public const string Countries = "countries";
-        public const string Currencies = "currencies";
-        public const string Languages = "languages";
-        public const string RequestTypes = "request-types";
-        public const string UserProfiles = "user-profiles";
+        public const string Countries = "Countries";
+        public const string Currencies = "Currencies";
+        public const string Languages = "Languages";
+        public const string RequestTypes = "Request Types";
+        public const string UserProfiles = "User Profiles";
     }
     
     /// <summary>

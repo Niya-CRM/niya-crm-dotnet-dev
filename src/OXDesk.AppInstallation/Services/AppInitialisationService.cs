@@ -255,13 +255,12 @@ namespace OXDesk.AppInstallation.Services
                 
                 // Create or get ValueList 'Languages' and add/update items
                 var languagesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Languages);
+                    .FirstOrDefaultAsync(v => v.ListName == CommonConstant.ValueListNames.Languages);
                 
                 if (languagesList == null)
                 {
                     languagesList = new ValueList(
-                        listName: "Languages",
-                        listKey: CommonConstant.ValueListKeys.Languages,
+                        listName: CommonConstant.ValueListNames.Languages,
                         description: "List of languages",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -695,13 +694,12 @@ namespace OXDesk.AppInstallation.Services
 
                 // Create or get ValueList 'Countries' and add items (Country Code, Country Name)
                 var countriesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.Countries);
+                    .FirstOrDefaultAsync(v => v.ListName == CommonConstant.ValueListNames.Countries);
 
                 if (countriesList == null)
                 {
                     countriesList = new ValueList(
-                        listName: "Countries",
-                        listKey: CommonConstant.ValueListKeys.Countries,
+                        listName: CommonConstant.ValueListNames.Countries,
                         description: "List of countries",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -811,8 +809,7 @@ namespace OXDesk.AppInstallation.Services
                 if (currenciesList == null)
                 {
                     currenciesList = new ValueList(
-                        listName: "Currencies",
-                        listKey: CommonConstant.ValueListKeys.Currencies,
+                        listName: CommonConstant.ValueListNames.Currencies,
                         description: "List of currencies",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -867,13 +864,12 @@ namespace OXDesk.AppInstallation.Services
             {
                 // Create or get ValueList 'User Profiles'
                 var profilesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.UserProfiles);
+                    .FirstOrDefaultAsync(v => v.ListName == CommonConstant.ValueListNames.UserProfiles);
                 
                 if (profilesList == null)
                 {
                     profilesList = new ValueList(
-                        listName: "User Profiles",
-                        listKey: CommonConstant.ValueListKeys.UserProfiles,
+                        listName: CommonConstant.ValueListNames.UserProfiles,
                         description: "List of user profiles",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,
@@ -1134,14 +1130,13 @@ namespace OXDesk.AppInstallation.Services
             {
                 // Create or get ValueList 'Request Types'
                 var requestTypesList = await _dbContext.ValueLists
-                    .FirstOrDefaultAsync(v => v.ListKey == CommonConstant.ValueListKeys.RequestTypes);
+                    .FirstOrDefaultAsync(v => v.ListName == CommonConstant.ValueListNames.RequestTypes);
                 
                 if (requestTypesList == null)
                 {
                     
                     requestTypesList = new ValueList(
-                        listName: "Request Types",
-                        listKey: CommonConstant.ValueListKeys.RequestTypes,
+                        listName: CommonConstant.ValueListNames.RequestTypes,
                         description: "List of request types",
                         valueListTypeId: ValueListConstants.ValueListTypes.Standard,
                         isActive: true,

@@ -26,14 +26,6 @@ public class ValueList : AuditedEntityWithSoftDelete, IEntity
     public string ListName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the unique key of the value list (e.g., "countries").
-    /// </summary>
-    [Required]
-    [StringLength(50)]
-    [Column(TypeName = "varchar(50)")]
-    public string ListKey { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the description of the value list.
     /// </summary>
     [Required]
@@ -80,7 +72,6 @@ public class ValueList : AuditedEntityWithSoftDelete, IEntity
     /// </summary>
     public ValueList(
         string listName,
-        string listKey,
         string description,
         string valueListTypeId,
         bool isActive,
@@ -89,7 +80,6 @@ public class ValueList : AuditedEntityWithSoftDelete, IEntity
         Guid createdBy)
     {
         ListName = listName;
-        ListKey = listKey;
         Description = description;
         ValueListType = valueListTypeId;
         IsActive = isActive;

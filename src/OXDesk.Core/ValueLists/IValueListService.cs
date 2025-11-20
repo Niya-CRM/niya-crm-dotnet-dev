@@ -37,11 +37,6 @@ public interface IValueListService
     Task<ValueList?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Gets a value list by its key.
-    /// </summary>
-    Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
-    
-    /// <summary>
     /// Activates a value list.
     /// </summary>
     Task<ValueList> ActivateAsync(int id, CancellationToken cancellationToken = default);
@@ -67,9 +62,9 @@ public interface IValueListService
     Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a dictionary lookup (ItemKey -> ValueListItem) for the specified list key with caching.
+    /// Gets a dictionary lookup (ItemKey -> ValueListItem) for the specified list name with caching.
     /// </summary>
-    Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListNameAsync(string listName, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Gets countries as a dictionary lookup with caching.

@@ -35,8 +35,6 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         ArgumentNullException.ThrowIfNull(valueList);
         if (string.IsNullOrWhiteSpace(valueList.ListName))
             throw new ValidationException("ValueList ListName cannot be null or empty.");
-        if (string.IsNullOrWhiteSpace(valueList.ListKey))
-            throw new ValidationException("ValueList ListKey cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(valueList.Description))
             throw new ValidationException("ValueList Description cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(valueList.ValueListType))
@@ -66,8 +64,6 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             throw new ValidationException("ValueList Id must be a positive integer for update.");
         if (string.IsNullOrWhiteSpace(valueList.ListName))
             throw new ValidationException("ValueList ListName cannot be null or empty.");
-        if (string.IsNullOrWhiteSpace(valueList.ListKey))
-            throw new ValidationException("ValueList ListKey cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(valueList.Description))
             throw new ValidationException("ValueList Description cannot be null or empty.");
         if (string.IsNullOrWhiteSpace(valueList.ValueListType))
@@ -81,9 +77,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
             throw new InvalidOperationException($"ValueList with ID '{valueList.Id}' not found.");
         }
 
-        var oldKey = existing.ListKey;
         existing.ListName = valueList.ListName.Trim();
-        existing.ListKey = valueList.ListKey.Trim();
         existing.Description = valueList.Description.Trim();
         existing.ValueListType = valueList.ValueListType.Trim();
         existing.IsActive = valueList.IsActive;
@@ -126,17 +120,6 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     }
 
     /// <inheritdoc />
-    public async Task<ValueList?> GetByKeyAsync(string key, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ValidationException("ValueList Key cannot be null or empty.");
-
-        var trimmed = key.Trim();
-        _logger.LogDebug("Getting ValueList by Key: {Key}", trimmed);
-        return await _unitOfWork.GetRepository<IValueListRepository>().GetByKeyAsync(trimmed, cancellationToken);
-    }
-
-    /// <inheritdoc />
     public async Task<ValueList> ActivateAsync(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Activating ValueList: {Id}", id);
@@ -158,24 +141,24 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
         return entity;
     }
 
-    private async Task<IEnumerable<ValueListItem>> GetItemsByListKeyAsync(string listKey, CancellationToken cancellationToken)
+    private async Task<IEnumerable<ValueListItem>> GetItemsByListNameAsync(string listName, CancellationToken cancellationToken)
     {
         // Map key to list name, resolve ValueList, then fetch items by ListId
-        var list = await GetByKeyAsync(listKey, cancellationToken);
+        var list = await GetByNameAsync(listName, cancellationToken);
         if (list == null) return Array.Empty<ValueListItem>();
         return await _valueListItemService.GetByListIdAsync(list.Id, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListKeyAsync(string listKey, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLookupByListNameAsync(string listName, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(listKey))
-            throw new ValidationException("ListKey cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(listName))
+            throw new ValidationException("ListName cannot be null or empty.");
         // Cache by list id to avoid string key reliance
-        var list = await GetByKeyAsync(listKey, cancellationToken);
+        var list = await GetByNameAsync(listName, cancellationToken);
         if (list == null)
         {
-            _logger.LogWarning("ValueList not found: {Key}", listKey);
+            _logger.LogWarning("ValueList not found: {listName}", listName);
             return new Dictionary<string, ValueListItem>(capacity: 0, comparer: StringComparer.OrdinalIgnoreCase);
         }
         var cacheKey = $"{_valueListLookupCachePrefix}{list.Id}";
@@ -196,20 +179,20 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetCountriesLookupAsync(CancellationToken cancellationToken = default)
-        => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
+        => await GetLookupByListNameAsync(CommonConstant.ValueListNames.Countries, cancellationToken);
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetCurrenciesLookupAsync(CancellationToken cancellationToken = default)
-        => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
+        => await GetLookupByListNameAsync(CommonConstant.ValueListNames.Currencies, cancellationToken);
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, ValueListItem>> GetUserProfilesLookupAsync(CancellationToken cancellationToken = default)
-        => await GetLookupByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
+        => await GetLookupByListNameAsync(CommonConstant.ValueListNames.UserProfiles, cancellationToken);
 
     /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetCountriesAsync(CancellationToken cancellationToken = default)
     {
-        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Countries, cancellationToken);
+        var items = await GetItemsByListNameAsync(CommonConstant.ValueListNames.Countries, cancellationToken);
         return items
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
@@ -217,7 +200,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetCurrenciesAsync(CancellationToken cancellationToken = default)
     {
-        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.Currencies, cancellationToken);
+        var items = await GetItemsByListNameAsync(CommonConstant.ValueListNames.Currencies, cancellationToken);
         return items
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
@@ -225,25 +208,25 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     /// <inheritdoc />
     public async Task<IEnumerable<ValueListItemOption>> GetUserProfilesAsync(CancellationToken cancellationToken = default)
     {
-        var items = await GetItemsByListKeyAsync(CommonConstant.ValueListKeys.UserProfiles, cancellationToken);
+        var items = await GetItemsByListNameAsync(CommonConstant.ValueListNames.UserProfiles, cancellationToken);
         return items
             .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyDictionary<TKey, ValueListItem>> GetLookupAsync<TKey>(
-        string listKey,
+        string listName,
         Func<ValueListItem, TKey> keySelector,
         IEqualityComparer<TKey>? comparer = null,
         CancellationToken cancellationToken = default)
         where TKey : notnull
     {
-        if (string.IsNullOrWhiteSpace(listKey))
-            throw new ValidationException("ListKey cannot be null or empty.");
+        if (string.IsNullOrWhiteSpace(listName))
+            throw new ValidationException("ListName cannot be null or empty.");
         ArgumentNullException.ThrowIfNull(keySelector);
 
         // Build from already-cached items (single source of truth), no extra caching.
-        var items = await GetItemsByListKeyAsync(listKey, cancellationToken);
+        var items = await GetItemsByListNameAsync(listName, cancellationToken);
         var dict = comparer != null
             ? items.ToDictionary(keySelector, i => i, comparer)
             : items.ToDictionary(keySelector, i => i);
