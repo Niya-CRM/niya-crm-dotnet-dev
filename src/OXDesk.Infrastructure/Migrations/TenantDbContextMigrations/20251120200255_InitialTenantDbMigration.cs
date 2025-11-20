@@ -166,6 +166,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
+                    form_type_id = table.Column<int>(type: "integer", nullable: false),
                     field_type_id = table.Column<int>(type: "integer", nullable: false),
                     label = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
                     indexed = table.Column<bool>(type: "boolean", nullable: false),
@@ -225,6 +226,29 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_dynamic_objects", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "form_types",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_form_types", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -320,6 +344,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10000001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    form_type_id = table.Column<int>(type: "integer", nullable: false),
                     ticket_number = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
                     ticket_key = table.Column<Guid>(type: "uuid", nullable: false),
                     channel_id = table.Column<int>(type: "integer", nullable: false),
@@ -787,6 +812,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_form_types_object_id",
+                schema: "public",
+                table: "form_types",
+                column: "object_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_priorities_priority_name",
                 schema: "public",
                 table: "priorities",
@@ -937,6 +968,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             migrationBuilder.DropTable(
                 name: "dynamic_objects",
+                schema: "public");
+
+            migrationBuilder.DropTable(
+                name: "form_types",
                 schema: "public");
 
             migrationBuilder.DropTable(

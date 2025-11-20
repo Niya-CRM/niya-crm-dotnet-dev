@@ -16,6 +16,10 @@ public class Ticket : AuditedEntityWithSoftDelete, IEntity
     [Required]
     public int Id { get; set; }
 
+    // Type
+    [Required]
+    public int FormTypeId { get; set; }
+
     // Ticket Number with or w/o Suffix and Prefix
     [Required]
     [StringLength(30)]

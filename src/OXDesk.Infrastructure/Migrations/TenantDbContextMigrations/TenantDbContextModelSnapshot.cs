@@ -314,6 +314,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("integer")
                         .HasColumnName("field_type_id");
 
+                    b.Property<int>("FormTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("form_type_id");
+
                     b.Property<string>("HelpText")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
@@ -507,6 +511,64 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasDatabaseName("ix_dynamic_object_field_types_field_type_key");
 
                     b.ToTable("dynamic_object_field_types", "public");
+                });
+
+            modelBuilder.Entity("OXDesk.Core.FormTypes.FormType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 101L, null, null, null, null, null);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("varchar(60)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("integer")
+                        .HasColumnName("object_id");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_form_types");
+
+                    b.HasIndex("ObjectId")
+                        .HasDatabaseName("ix_form_types_object_id");
+
+                    b.ToTable("form_types", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRole", b =>
@@ -1311,6 +1373,10 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                     b.Property<DateTime?>("FirstResolutionDueAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("first_resolution_due_at");
+
+                    b.Property<int>("FormTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("form_type_id");
 
                     b.Property<bool>("HasScheduledReply")
                         .ValueGeneratedOnAdd()

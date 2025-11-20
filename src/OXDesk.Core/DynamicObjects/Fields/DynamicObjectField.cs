@@ -22,7 +22,11 @@ public class DynamicObjectField : AuditedEntityWithSoftDelete, IEntity
     /// Object identifier referring to the owning DynamicObject (FK to Id).
     /// </summary>
     [Required]
-    public int ObjectId { get; set; }    
+    public int ObjectId { get; set; }
+
+    // Type
+    [Required]
+    public int FormTypeId { get; set; }
 
     /// <summary>
     /// Field type identifier referencing DynamicObjectFieldType.

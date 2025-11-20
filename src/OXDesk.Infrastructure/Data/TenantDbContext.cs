@@ -16,6 +16,7 @@ using OXDesk.Core.Tickets;
 using OXDesk.Core.Workflows;
 using OXDesk.Core.Helpers.Naming;
 using System.Reflection;
+using OXDesk.Core.FormTypes;
 
 namespace OXDesk.Infrastructure.Data
 {
@@ -72,6 +73,7 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
         public DbSet<UserRefreshToken> UserRefreshTokens { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
+        public DbSet<FormType> FormTypes { get; set; } = null!;
         public DbSet<Status> Statuses { get; set; } = null!;
         public DbSet<Channel> Channels { get; set; } = null!;
         public DbSet<Brand> Brands { get; set; } = null!;
