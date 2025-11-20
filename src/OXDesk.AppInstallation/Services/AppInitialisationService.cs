@@ -547,7 +547,7 @@ namespace OXDesk.AppInstallation.Services
                     "Tenants",
                     DynamicObjectConstants.DynamicObjectKeys.Tenant,
                     "Tenant entity representing a customer account",
-                    DynamicObjectConstants.ObjectTypes.Standard,
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,
@@ -558,7 +558,7 @@ namespace OXDesk.AppInstallation.Services
                     "Brands",
                     DynamicObjectConstants.DynamicObjectKeys.Brand,
                     "Brand entity",
-                    DynamicObjectConstants.ObjectTypes.Standard,
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,
@@ -569,7 +569,7 @@ namespace OXDesk.AppInstallation.Services
                     "Organisations",
                     DynamicObjectConstants.DynamicObjectKeys.Organisation,
                     "Organisation entity",
-                    DynamicObjectConstants.ObjectTypes.Standard,
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,
@@ -580,7 +580,7 @@ namespace OXDesk.AppInstallation.Services
                     "Departments",
                     DynamicObjectConstants.DynamicObjectKeys.Department,
                     "Department entity",
-                    DynamicObjectConstants.ObjectTypes.Standard,
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,
@@ -591,7 +591,7 @@ namespace OXDesk.AppInstallation.Services
                     "Teams",
                     DynamicObjectConstants.DynamicObjectKeys.Team,
                     "Team entity",
-                    DynamicObjectConstants.ObjectTypes.Standard,
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,

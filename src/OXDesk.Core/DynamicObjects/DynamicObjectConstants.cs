@@ -21,6 +21,11 @@ public static class DynamicObjectConstants
         public const string Dedicated = "dedicated";
 
         /// <summary>
+        /// System object type - used for system-defined objects that cannot be viewed or modified by the user.
+        /// </summary>
+        public const string System = "system";
+
+        /// <summary>
         /// Custom object type - used for user-defined objects that are specific to a tenant's implementation.
         /// </summary>
         public const string Custom = "custom";
