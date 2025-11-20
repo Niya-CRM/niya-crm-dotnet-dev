@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using OXDesk.Core.Tickets;
+using OXDesk.Core.Workflows;
 
-namespace OXDesk.Infrastructure.Data.Tickets
+namespace OXDesk.Infrastructure.Data.Workflows
 {
     /// <summary>
     /// EF Core configuration for WorkflowMapping entity.
@@ -16,7 +16,10 @@ namespace OXDesk.Infrastructure.Data.Tickets
 
             builder.Property(x => x.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
+
+            builder.HasIndex(x => x.WorkFlowId)
+                   .HasDatabaseName("ix_workflow_mappings_workflow_id");
         }
     }
 }

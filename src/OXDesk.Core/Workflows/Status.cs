@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using OXDesk.Core.Entities;
 
-namespace OXDesk.Core.Tickets;
+namespace OXDesk.Core.Workflows;
 
 [Table("statuses")]
 public class Status : AuditedEntityWithSoftDelete, IEntity
@@ -16,7 +16,7 @@ public class Status : AuditedEntityWithSoftDelete, IEntity
     /// Object identifier referring to the owning DynamicObject.
     /// </summary>
     [Required]
-    public int ObjectId { get; set; } 
+    public int ObjectId { get; set; }
 
     [Required]
     [StringLength(30)]

@@ -1,9 +1,8 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using OXDesk.Core.Entities;
 
-namespace OXDesk.Core.Tickets;
+namespace OXDesk.Core.Workflows;
 
 /// <summary>
 /// Represents a workflow step or definition used for ticket status transitions.
@@ -17,6 +16,12 @@ public class Workflow : AuditedEntityWithSoftDelete, IEntity
     [Key]
     [Required]
     public int Id { get; set; }
+
+    /// <summary>
+    /// Object identifier referring to the owning DynamicObject.
+    /// </summary>
+    [Required]
+    public int ObjectId { get; set; }
 
     /// <summary>
     /// Workflow name.

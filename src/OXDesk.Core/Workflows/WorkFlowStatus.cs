@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using OXDesk.Core.Entities;
 
-namespace OXDesk.Core.Tickets;
+namespace OXDesk.Core.Workflows;
 
 /// <summary>
 /// Represents a status within a workflow.

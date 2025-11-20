@@ -17,7 +17,10 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
+
+            builder.HasIndex(c => c.ChannelName)
+                   .HasDatabaseName("ix_channels_channel_name");
         }
     }
 }

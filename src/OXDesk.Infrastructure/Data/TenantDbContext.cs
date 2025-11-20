@@ -13,6 +13,7 @@ using OXDesk.Core.ValueLists;
 using OXDesk.Core.AppInstallation;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tickets;
+using OXDesk.Core.Workflows;
 using OXDesk.Core.Helpers.Naming;
 using System.Reflection;
 
@@ -71,7 +72,7 @@ namespace OXDesk.Infrastructure.Data
         public DbSet<DynamicObjectFieldType> DynamicObjectFieldTypes { get; set; } = null!;
         public DbSet<UserRefreshToken> UserRefreshTokens { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
-        public DbSet<Status> TicketStatuses { get; set; } = null!;
+        public DbSet<Status> Statuses { get; set; } = null!;
         public DbSet<Channel> Channels { get; set; } = null!;
         public DbSet<Brand> Brands { get; set; } = null!;
         public DbSet<Priority> Priorities { get; set; } = null!;

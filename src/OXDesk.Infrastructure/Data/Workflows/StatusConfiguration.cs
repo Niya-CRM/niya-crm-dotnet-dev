@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using OXDesk.Core.Tickets;
+using OXDesk.Core.Workflows;
 
-namespace OXDesk.Infrastructure.Data.Tickets
+namespace OXDesk.Infrastructure.Data.Statuses
 {
     /// <summary>
     /// Entity Framework configuration for the Status entity.
@@ -13,16 +13,15 @@ namespace OXDesk.Infrastructure.Data.Tickets
         /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<Status> builder)
         {
-            // Table mapping
             builder.ToTable("statuses");
 
-            // Primary key
             builder.HasKey(s => s.Id);
             builder.Property(s => s.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
 
-            // Indexes
+            builder.HasIndex(x => x.ObjectId)
+                   .HasDatabaseName("ix_statuses_object_id");
         }
     }
 }

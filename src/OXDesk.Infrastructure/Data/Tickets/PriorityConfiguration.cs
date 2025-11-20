@@ -17,7 +17,10 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.HasKey(p => p.Id);
             builder.Property(p => p.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
+
+            builder.HasIndex(p => p.PriorityName)
+                   .HasDatabaseName("ix_priorities_priority_name");
         }
     }
 }

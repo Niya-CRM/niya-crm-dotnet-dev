@@ -17,7 +17,10 @@ namespace OXDesk.Infrastructure.Data.Tickets
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
                    .UseIdentityByDefaultColumn()
-                   .HasIdentityOptions(startValue: 10001L);
+                   .HasIdentityOptions(startValue: 101L);
+
+            builder.HasIndex(b => b.BrandName)
+                   .HasDatabaseName("ix_brands_brand_name");
         }
     }
 }

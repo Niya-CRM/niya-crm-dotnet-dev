@@ -18,5 +18,8 @@ public class DynamicObjectFieldConfiguration : IEntityTypeConfiguration<DynamicO
         builder.Property(x => x.Id)
                .UseIdentityByDefaultColumn()
                .HasIdentityOptions(startValue: 10001L);
+
+        builder.HasIndex(x => x.ObjectId)
+               .HasDatabaseName("ix_dynamic_object_fields_object_id");
     }
 }

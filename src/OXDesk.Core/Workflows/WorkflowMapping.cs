@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using OXDesk.Core.Entities;
 
-namespace OXDesk.Core.Tickets;
+namespace OXDesk.Core.Workflows;
 
 /// <summary>
 /// Maps a workflow to a Topic/SubTopic for routing and processing.
