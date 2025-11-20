@@ -481,10 +481,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     list_name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    list_key = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     value_list_type = table.Column<string>(type: "varchar(10)", nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
@@ -915,6 +914,12 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                 schema: "public",
                 table: "value_list_items",
                 column: "list_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_value_lists_list_name",
+                schema: "public",
+                table: "value_lists",
+                column: "list_name");
 
             migrationBuilder.CreateIndex(
                 name: "ix_workflow_mappings_workflow_id",

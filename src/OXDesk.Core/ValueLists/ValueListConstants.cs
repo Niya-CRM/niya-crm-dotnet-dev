@@ -11,7 +11,7 @@ public static class ValueListConstants
     public static class ValueListTypes
     {
         /// <summary>
-        /// Standard value list type - used for system-defined value lists that are common across all CRM implementations.
+        /// Standard value list type - used for system-defined value lists that are common across all implementations.
         /// </summary>
         public const string Standard = "Standard";
 
@@ -19,5 +19,10 @@ public static class ValueListConstants
         /// Custom value list type - used for user-defined value lists that are specific to a tenant's implementation.
         /// </summary>
         public const string Custom = "Custom";
+
+        /// <summary>
+        /// System value list type - used for system-defined value lists that are common across all implementations and not displayed to user.
+        /// </summary>
+        public const string System = "System";
     }
 }

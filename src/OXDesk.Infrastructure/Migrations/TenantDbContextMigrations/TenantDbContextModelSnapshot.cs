@@ -1648,7 +1648,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 101L, null, null, null, null, null);
 
                     b.Property<bool>("AllowModify")
                         .HasColumnType("boolean")
@@ -1684,12 +1684,6 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
-                    b.Property<string>("ListKey")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("list_key");
-
                     b.Property<string>("ListName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1711,6 +1705,9 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
                     b.HasKey("Id")
                         .HasName("pk_value_lists");
+
+                    b.HasIndex("ListName")
+                        .HasDatabaseName("ix_value_lists_list_name");
 
                     b.ToTable("value_lists", "public");
                 });
