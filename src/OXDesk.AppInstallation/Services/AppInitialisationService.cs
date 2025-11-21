@@ -39,7 +39,7 @@ namespace OXDesk.AppInstallation.Services
         private readonly ICurrentUser _currentUser;
         private readonly IDynamicObjectService _dynamicObjectService;
         private readonly Guid _tenantId;
-        private readonly Guid _technicalUserId;
+        private readonly int _technicalUserId;
         
         // Static dictionary of steps
         // Key: (pipeline, version, order), Value: (step name, step action)
@@ -122,7 +122,7 @@ namespace OXDesk.AppInstallation.Services
 
             // Generate a tenant ID for initialization process
             _tenantId = Guid.CreateVersion7();
-            _technicalUserId = Guid.CreateVersion7();
+            _technicalUserId = 1; // Reserved int ID for technical/system user
         }
 
         /// <inheritdoc/>

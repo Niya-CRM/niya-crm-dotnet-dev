@@ -29,7 +29,7 @@ public class UpdateTenantRequest
     /// <summary>
     /// Gets or sets the user identifier.
     /// </summary>
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the tenant time zone.

@@ -13,5 +13,5 @@ public interface ICreationAudited
     /// <summary>
     /// Gets or sets the identifier of the principal that created the entity.
     /// </summary>
-    Guid CreatedBy { get; set; }
+    int CreatedBy { get; set; }
 }

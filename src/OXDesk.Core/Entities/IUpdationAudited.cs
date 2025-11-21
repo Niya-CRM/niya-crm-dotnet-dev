@@ -13,5 +13,5 @@ public interface IUpdationAudited
     /// <summary>
     /// Gets the identifier of the principal that last updated the entity.
     /// </summary>
-    Guid UpdatedBy { get; }
+    int UpdatedBy { get; }
 }

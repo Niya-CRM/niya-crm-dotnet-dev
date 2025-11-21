@@ -18,7 +18,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Gets all refresh tokens for a user.
         /// </summary>
-        Task<IEnumerable<UserRefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<UserRefreshToken>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets a refresh token by its hashed token value.
@@ -34,7 +34,7 @@ namespace OXDesk.Core.Identity
         /// Deletes all refresh tokens for a user.
         /// Returns the number of tokens deleted.
         /// </summary>
-        Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<int> DeleteByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a refresh token by its hashed token value.

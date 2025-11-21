@@ -22,11 +22,11 @@ public interface IChangeHistoryLogService
     /// <returns>The created change history log entry.</returns>
     Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
         int objectId,
-        Guid objectItemId,
+        int objectItemId,
         string fieldName,
         string? oldValue,
         string? newValue,
-        Guid createdBy,
+        int createdBy,
         CancellationToken cancellationToken = default);
 
     /// <summary>

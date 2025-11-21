@@ -6,9 +6,9 @@ using OXDesk.Core.Entities;
 namespace OXDesk.Core.Identity;
 
 /// <summary>
-/// Custom application role claim that uses Guid as primary key with audit fields.
+/// Custom application role claim that uses int as primary key with audit fields.
 /// </summary>
-public class ApplicationRoleClaim : IdentityRoleClaim<Guid>, ICreationAudited, IUpdationAudited
+public class ApplicationRoleClaim : IdentityRoleClaim<int>, ICreationAudited, IUpdationAudited
 {
     public ApplicationRoleClaim() : base() 
     { 
@@ -20,7 +20,7 @@ public class ApplicationRoleClaim : IdentityRoleClaim<Guid>, ICreationAudited, I
     /// Gets or sets the ID of the user who created this role claim.
     /// </summary>
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this role claim was created.
@@ -32,7 +32,7 @@ public class ApplicationRoleClaim : IdentityRoleClaim<Guid>, ICreationAudited, I
     /// Gets or sets the ID of the user who last updated this role claim.
     /// </summary>
     [Required]
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this role claim was last updated.

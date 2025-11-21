@@ -167,7 +167,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 .ReturnsAsync(false);
 
             // Setup technical user ID
-            var technicalUserId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+            var technicalUserId = 99;
             _mockUserService
                 .Setup(service => service.GetTechnicalUserIdAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(technicalUserId);
@@ -234,7 +234,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
                 .ReturnsAsync(false);
 
             // Setup technical user ID
-            var technicalUserId = Guid.Parse("00000000-0000-0000-0000-000000000099");
+            var technicalUserId = 99;
             _mockUserService
                 .Setup(service => service.GetTechnicalUserIdAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(technicalUserId);

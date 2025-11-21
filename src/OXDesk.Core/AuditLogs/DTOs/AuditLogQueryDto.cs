@@ -10,7 +10,7 @@ namespace OXDesk.Core.AuditLogs.DTOs
         public int? ObjectId { get; set; }
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
-        public Guid? CreatedBy { get; set; }
+        public int? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int PageNumber { get; set; } = CommonConstant.PAGE_NUMBER_DEFAULT;

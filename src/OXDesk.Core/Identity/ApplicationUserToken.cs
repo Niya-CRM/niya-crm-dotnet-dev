@@ -6,8 +6,8 @@ using OXDesk.Core.Entities;
 namespace OXDesk.Core.Identity;
 
 /// <summary>
-/// Custom application user token that uses Guid as primary key with tenant_id.
+/// Custom application user token that uses int as primary key with tenant_id.
 /// </summary>
-public class ApplicationUserToken : IdentityUserToken<Guid>
+public class ApplicationUserToken : IdentityUserToken<int>
 {
 }

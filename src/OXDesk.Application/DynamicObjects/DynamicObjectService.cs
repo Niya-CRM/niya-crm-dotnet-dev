@@ -50,7 +50,7 @@ public class DynamicObjectService : IDynamicObjectService
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }
@@ -90,7 +90,7 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectItemId, string data, Guid createdBy, CancellationToken cancellationToken = default)
+    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectItemId, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             objectId: objectItemId,

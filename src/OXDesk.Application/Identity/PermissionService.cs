@@ -28,7 +28,7 @@ public class PermissionService : IPermissionService
         _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
     }
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }

@@ -81,7 +81,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Act
             var changeHistoryLog = new ChangeHistoryLog(
                 1,
-                Guid.Parse("00000000-0000-0000-0000-0000000003EB"), // 1003
+                1003,
                 "Email",
                 "old@example.com",
                 "new@example.com",

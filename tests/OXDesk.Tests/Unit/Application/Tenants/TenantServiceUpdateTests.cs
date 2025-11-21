@@ -74,7 +74,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             _mockHttpContextAccessor.Setup(h => h.HttpContext).Returns(mockHttpContext.Object);
             
             // Setup current user with test user ID - use SetupGet for properties
-            var testUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var testUserId = 1;
             _mockCurrentUser.SetupGet(u => u.Id).Returns(testUserId);
             _mockCurrentUser.SetupGet(u => u.Name).Returns("testuser");
             _mockCurrentUser.SetupGet(u => u.Email).Returns("test@example.com");

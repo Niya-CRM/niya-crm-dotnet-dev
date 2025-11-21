@@ -37,7 +37,7 @@ public class Tenant : AuditedEntityWithSoftDelete, IEntityGuid
     /// <summary>
     /// Gets or sets the user identifier associated with this tenant.
     /// </summary>
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
 
     /// <summary>
     /// Gets or sets the database name for this tenant.
@@ -76,7 +76,7 @@ public class Tenant : AuditedEntityWithSoftDelete, IEntityGuid
     /// <param name="isActive">Whether active.</param>
     /// <param name="createdAt">Creation timestamp.</param>
     /// <param name="createdBy">Creator user id.</param>
-    public Tenant(string name, string host, string email, Guid userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, Guid createdBy)
+    public Tenant(string name, string host, string email, int userId, string timeZone, string? databaseName, string isActive, DateTime createdAt, int createdBy)
     {
         Id = Guid.CreateVersion7();
         Name = name;

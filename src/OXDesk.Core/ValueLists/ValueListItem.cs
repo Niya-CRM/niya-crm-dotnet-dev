@@ -75,7 +75,7 @@ public class ValueListItem : AuditedEntity, IEntity
         string itemKey,
         int listId,
         bool isActive,
-        Guid createdBy,
+        int createdBy,
         int? order = null)
     {
         ItemName = itemName;

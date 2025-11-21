@@ -30,11 +30,11 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
         /// <inheritdoc/>
         public async Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
             int objectId,
-            Guid objectItemId,
+            int objectItemId,
             string fieldName,
             string? oldValue,
             string? newValue,
-            Guid createdBy,
+            int createdBy,
             CancellationToken cancellationToken = default)
         {
             var changeHistoryLog = new ChangeHistoryLog(

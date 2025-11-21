@@ -9,17 +9,17 @@ public class AuditedEntityWithSoftDelete : ICreationAudited, IUpdationAudited, I
     public DateTime CreatedAt { get; set; }
 
     /// <inheritdoc />
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     /// <inheritdoc />
     public DateTime? DeletedAt { get; set; }
 
     /// <inheritdoc />
-    public Guid? DeletedBy { get; set; }
+    public int? DeletedBy { get; set; }
 
     /// <inheritdoc />
     public DateTime UpdatedAt { get; set; }
 
     /// <inheritdoc />
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 }

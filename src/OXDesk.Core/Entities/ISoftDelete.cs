@@ -13,5 +13,5 @@ public interface ISoftDelete
     /// <summary>
     /// Gets or sets the identifier of the principal that performed the soft delete.
     /// </summary>
-    Guid? DeletedBy { get; set; }
+    int? DeletedBy { get; set; }
 }

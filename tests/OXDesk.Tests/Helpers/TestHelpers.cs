@@ -11,9 +11,9 @@ namespace OXDesk.Tests.Helpers;
 public static class TestHelpers
 {
     // Test user IDs
-    public static readonly Guid TestUserId1 = Guid.Parse("10000000-0000-0000-0000-000000010001");
-    public static readonly Guid TestUserId2 = Guid.Parse("10000000-0000-0000-0000-000000010002");
-    public static readonly Guid TestUserId3 = Guid.Parse("10000000-0000-0000-0000-000000010003");
+    public static readonly int TestUserId1 = 1001;
+    public static readonly int TestUserId2 = 1002;
+    public static readonly int TestUserId3 = 1003;
     
 
     public static UserManager<ApplicationUser> MockUserManager()

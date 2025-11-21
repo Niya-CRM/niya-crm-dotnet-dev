@@ -11,7 +11,7 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory.DTOs
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
         public string? FieldName { get; set; }
-        public Guid? CreatedBy { get; set; }
+        public int? CreatedBy { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int PageNumber { get; set; } = CommonConstant.PAGE_NUMBER_DEFAULT;

@@ -20,7 +20,7 @@ public class ValueListItemService(IValueListItemRepository repository, IUnitOfWo
     private readonly ILogger<ValueListItemService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }

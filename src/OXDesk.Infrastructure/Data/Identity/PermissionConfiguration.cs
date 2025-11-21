@@ -18,5 +18,10 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 
         // Primary key
         builder.HasKey(p => p.Id);
+
+        // Configure Id to start from 10001
+        builder.Property(p => p.Id)
+               .UseIdentityByDefaultColumn()
+               .HasIdentityOptions(startValue: 10001L);
     }
 }

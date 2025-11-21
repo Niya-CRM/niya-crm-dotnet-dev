@@ -83,7 +83,7 @@ public class DynamicObject : AuditedEntityWithSoftDelete, IEntity
         string objectKey,
         string description,
         string objectType,
-        Guid createdBy)
+        int createdBy)
     {
         ObjectName = objectName;
         SingularName = singularName;

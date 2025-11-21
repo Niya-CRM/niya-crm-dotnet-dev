@@ -33,7 +33,7 @@ namespace OXDesk.Core.Auth.DTOs
         /// <summary>
         /// The unique identifier of the authenticated user
         /// </summary>
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Display name of the user (e.g., FirstName LastName)

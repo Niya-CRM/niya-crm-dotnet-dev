@@ -20,16 +20,16 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                     host = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     time_zone = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
                     database_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     schema = table.Column<string>(type: "text", nullable: true),
                     is_active = table.Column<string>(type: "text", nullable: false, defaultValue: "True"),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    created_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false),
+                    created_by = table.Column<int>(type: "integer", maxLength: 100, nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deleted_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false)
+                    updated_by = table.Column<int>(type: "integer", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {

@@ -13,7 +13,7 @@ public interface IRoleClaimRepository
     /// <summary>
     /// Removes role claims for the given role with the specified claim type and values.
     /// </summary>
-    Task RemoveRoleClaimsAsync(Guid roleId, string claimType, IEnumerable<string> claimValues, CancellationToken cancellationToken = default);
+    Task RemoveRoleClaimsAsync(int roleId, string claimType, IEnumerable<string> claimValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds a batch of role claims.
@@ -27,5 +27,5 @@ public interface IRoleClaimRepository
     /// <param name="claimType">The claim type to filter by.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of role claims with audit fields.</returns>
-    Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(Guid roleId, string claimType, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRoleClaim>> GetRoleClaimsAsync(int roleId, string claimType, CancellationToken cancellationToken = default);
 }

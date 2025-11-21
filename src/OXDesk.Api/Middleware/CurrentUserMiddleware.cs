@@ -39,12 +39,12 @@ namespace OXDesk.Api.Middleware
             {
                 if (context.User?.Identity?.IsAuthenticated == true)
                 {
-                    // Extract user id from 'sub' or nameidentifier claim (Guid)
+                    // Extract user id from 'sub' or nameidentifier claim (int)
                     var sub = context.User.FindFirst(ClaimTypes.NameIdentifier) ??
                               context.User.FindFirst(JwtRegisteredClaimNamesSub);
 
-                    Guid? userId = null;
-                    if (sub != null && Guid.TryParse(sub.Value, out var parsed))
+                    int? userId = null;
+                    if (sub != null && int.TryParse(sub.Value, out var parsed))
                     {
                         userId = parsed;
                     }

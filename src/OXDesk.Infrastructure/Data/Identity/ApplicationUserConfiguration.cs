@@ -13,6 +13,10 @@ namespace OXDesk.Infrastructure.Data.Identity
         /// <inheritdoc/>
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
+            // Configure Id to start from 10001
+            builder.Property(u => u.Id)
+                   .UseIdentityByDefaultColumn()
+                   .HasIdentityOptions(startValue: 10001L);
 
             // Location: required, max length 60, default empty string to support existing rows during migration
             builder.Property(u => u.Location)

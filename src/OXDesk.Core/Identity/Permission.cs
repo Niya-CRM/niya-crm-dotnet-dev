@@ -37,7 +37,7 @@ public class Permission : ICreationAudited, IUpdationAudited, IEntity
     /// Gets or sets the ID of the user who created this permission.
     /// </summary>
     [Required]
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this permission was created.
@@ -49,7 +49,7 @@ public class Permission : ICreationAudited, IUpdationAudited, IEntity
     /// Gets or sets the ID of the user who last updated this permission.
     /// </summary>
     [Required]
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
     
     /// <summary>
     /// Gets or sets the date and time when this permission was last updated.

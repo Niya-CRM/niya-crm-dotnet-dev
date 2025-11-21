@@ -9,5 +9,5 @@ public class SoftDeletedEntity : ISoftDelete
     public DateTime? DeletedAt { get; set; }
 
     /// <inheritdoc />
-    public Guid? DeletedBy { get; set; }
+    public int? DeletedBy { get; set; }
 }

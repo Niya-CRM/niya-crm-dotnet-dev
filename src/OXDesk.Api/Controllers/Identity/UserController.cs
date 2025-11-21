@@ -96,10 +96,10 @@ public class UserController : ControllerBase
     /// <param name="id">The user identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user with display values if found, otherwise 404.</returns>
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetUserById(int id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting user by ID with display values: {UserId}", id);
         
@@ -136,11 +136,11 @@ public class UserController : ControllerBase
     /// <param name="request">The activation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user with related reference data.</returns>
-    [HttpPatch("{id:guid}/activate")]
+    [HttpPatch("{id:int}/activate")]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ActivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ActivateUser(int id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeUserActivationStatus(id, request, true, cancellationToken);
     }
@@ -152,11 +152,11 @@ public class UserController : ControllerBase
     /// <param name="request">The deactivation request containing the reason.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user with related reference data.</returns>
-    [HttpPatch("{id:guid}/deactivate")]
+    [HttpPatch("{id:int}/deactivate")]
     [ProducesResponseType(typeof(EntityWithRelatedResponse<UserResponse, UserDetailsRelated>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> DeactivateUser(Guid id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> DeactivateUser(int id, [FromBody] ActivateDeactivateUserRequest request, CancellationToken cancellationToken = default)
     {
         return await ChangeUserActivationStatus(id, request, false, cancellationToken);
     }
@@ -164,7 +164,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// Private helper to change user activation status with validation and logging.
     /// </summary>
-    private async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ChangeUserActivationStatus(Guid id, ActivateDeactivateUserRequest request, bool activate, CancellationToken cancellationToken = default)
+    private async Task<ActionResult<EntityWithRelatedResponse<UserResponse, UserDetailsRelated>>> ChangeUserActivationStatus(int id, ActivateDeactivateUserRequest request, bool activate, CancellationToken cancellationToken = default)
     {
         var validationResult = await _activateDeactivateUserRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
@@ -173,7 +173,7 @@ public class UserController : ControllerBase
         }
 
         // Deny operation if targeting the current authenticated user
-        Guid currentUserId = _userService.GetCurrentUserId();
+        int currentUserId = _userService.GetCurrentUserId();
         if (id == currentUserId)
             return this.CreateBadRequestProblem("You cannot activate or deactivate your own account.");
 
@@ -201,11 +201,11 @@ public class UserController : ControllerBase
     /// <summary>
     /// Gets the roles assigned to a user.
     /// </summary>
-    [HttpGet("{id:guid}/roles")]
+    [HttpGet("{id:int}/roles")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
     [ProducesResponseType(typeof(PagedListWithRelatedResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserRoles(Guid id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetUserRoles(int id, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -222,14 +222,14 @@ public class UserController : ControllerBase
     /// <summary>
     /// Assigns a role to a user. Succeeds even if already assigned.
     /// </summary>
-    [HttpPost("{id:guid}/roles")]
+    [HttpPost("{id:int}/roles")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(PagedListWithRelatedResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddUserRole(Guid id, [FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> AddUserRole(int id, [FromBody] AssignUserRoleRequest request, CancellationToken cancellationToken = default)
     {
-        if (request == null || request.RoleId == Guid.Empty)
+        if (request == null || request.RoleId == 0)
         {
             return this.CreateBadRequestProblem("RoleId is required.");
         }
@@ -252,11 +252,11 @@ public class UserController : ControllerBase
     /// <summary>
     /// Removes a role from a user. Succeeds even if already removed.
     /// </summary>
-    [HttpDelete("{id:guid}/roles/{roleId:guid}")]
+    [HttpDelete("{id:int}/roles/{roleId:int}")]
     [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
     [ProducesResponseType(typeof(PagedListWithRelatedResponse<RoleResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RemoveUserRole(Guid id, Guid roleId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> RemoveUserRole(int id, int roleId, CancellationToken cancellationToken = default)
     {
         try
         {

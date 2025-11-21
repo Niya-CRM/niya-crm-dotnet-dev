@@ -56,7 +56,7 @@ public class TenantService : ITenantService
     private string GetUserIp() =>
         _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }

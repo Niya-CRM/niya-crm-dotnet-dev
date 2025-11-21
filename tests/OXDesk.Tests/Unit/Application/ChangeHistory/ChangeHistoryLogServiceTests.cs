@@ -29,7 +29,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectId = 1;
-            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003E9"); // 1001
+            var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
@@ -55,7 +55,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             result.ShouldNotBeNull();
             capturedLog.ShouldNotBeNull();
             capturedLog!.ObjectId.ShouldBe(objectId);
-            capturedLog.ObjectItemIdUuid.ShouldBe(objectItemId);
+            capturedLog.ObjectItemIdInt.ShouldBe(objectItemId);
             capturedLog.FieldName.ShouldBe(fieldName);
             capturedLog.OldValue.ShouldBe(oldValue);
             capturedLog.NewValue.ShouldBe(newValue);
@@ -71,7 +71,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             var logId = 123;
             var expectedLog = new ChangeHistoryLog(
                 1,
-                Guid.Parse("00000000-0000-0000-0000-0000000003EA"),
+                1002,
                 "Email",
                 "old@example.com",
                 "new@example.com",
@@ -96,7 +96,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         {
             // Arrange
             var objectId = 1;
-            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003EB"); // 1003
+            var objectItemId = 1003;
             var fieldName = "Email";
             var createdBy = TestHelpers.TestUserId3;
             var startDate = DateTime.UtcNow.AddDays(-7);
@@ -116,7 +116,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
                 .Setup(r => r.GetChangeHistoryLogsAsync(
                     It.Is<ChangeHistoryLogQueryDto>(q =>
                         q.ObjectId == objectId &&
-                        q.ObjectItemIdUuid == objectItemId &&
+                        q.ObjectItemIdInt == objectItemId &&
                         q.FieldName == fieldName &&
                         q.CreatedBy == createdBy &&
                         q.StartDate == startDate &&
@@ -130,7 +130,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             var query = new ChangeHistoryLogQueryDto
             {
                 ObjectId = objectId,
-                ObjectItemIdUuid = objectItemId,
+                ObjectItemIdInt = objectItemId,
                 FieldName = fieldName,
                 CreatedBy = createdBy,
                 StartDate = startDate,
@@ -145,14 +145,14 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             result.Count().ShouldBe(expectedLogs.Count);
             var entity = result.First();
             entity.ObjectId.ShouldBe(objectId);
-            entity.ObjectItemIdUuid.ShouldBe(objectItemId);
+            entity.ObjectItemIdInt.ShouldBe(objectItemId);
             entity.FieldName.ShouldBe(fieldName);
             entity.CreatedBy.ShouldBe(createdBy);
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 It.Is<ChangeHistoryLogQueryDto>(q =>
                     q.ObjectId == objectId &&
-                    q.ObjectItemIdUuid == objectItemId &&
+                    q.ObjectItemIdInt == objectItemId &&
                     q.FieldName == fieldName &&
                     q.CreatedBy == createdBy &&
                     q.StartDate == startDate &&

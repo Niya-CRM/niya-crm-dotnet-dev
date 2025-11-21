@@ -71,7 +71,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, Guid? technicalUserId = null, CancellationToken cancellationToken = default)
+    public async Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, int? technicalUserId = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(setupDto);
 
@@ -85,7 +85,7 @@ public class AppSetupService : IAppSetupService
         }
 
         // Get technical user
-        if (technicalUserId == null || technicalUserId == Guid.Empty)
+        if (technicalUserId == null || technicalUserId == 0)
         {
             technicalUserId = await _userService.GetTechnicalUserIdAsync(cancellationToken);
         }
@@ -117,7 +117,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, Guid systemUserId, Guid tenantId)
+    private async Task CreateInitialAdminUserAsync(AppSetupDto setupDto, int systemUserId, Guid tenantId)
     {
 
         // Use the 'agent' profile key directly
@@ -200,7 +200,7 @@ public class AppSetupService : IAppSetupService
     }
 
     /// <inheritdoc/>
-    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, Guid systemUserId, Guid? tenantId, CancellationToken cancellationToken = default)
+    private async Task<Tenant> CreateInitialTenantAsync(AppSetupDto setupDto, int systemUserId, Guid? tenantId, CancellationToken cancellationToken = default)
     {
         var createTenantRequest = new CreateTenantRequest
         {

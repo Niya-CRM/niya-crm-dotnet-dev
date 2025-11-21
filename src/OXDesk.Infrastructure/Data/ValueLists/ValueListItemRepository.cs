@@ -68,7 +68,7 @@ public class ValueListItemRepository : IValueListItemRepository
         return entry.Entity;
     }
 
-    public async Task<ValueListItem> ActivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> ActivateAsync(int id, int modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)
@@ -87,7 +87,7 @@ public class ValueListItemRepository : IValueListItemRepository
         return entity;
     }
 
-    public async Task<ValueListItem> DeactivateAsync(int id, Guid modifiedBy, CancellationToken cancellationToken = default)
+    public async Task<ValueListItem> DeactivateAsync(int id, int modifiedBy, CancellationToken cancellationToken = default)
     {
         var entity = await _dbSet
             .Where(v => v.Id == id)

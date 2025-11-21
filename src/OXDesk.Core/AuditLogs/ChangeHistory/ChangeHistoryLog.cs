@@ -87,7 +87,7 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
         string fieldName,
         string? oldValue,
         string? newValue,
-        Guid changedBy)
+        int changedBy)
     {
         ObjectId = objectId;
         ObjectItemIdUuid = entityId;
@@ -114,7 +114,7 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
         string fieldName,
         string? oldValue,
         string? newValue,
-        Guid changedBy)
+        int changedBy)
     {
         ObjectId = objectId;
         ObjectItemIdInt = entityId;

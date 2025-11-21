@@ -7,8 +7,8 @@ using OXDesk.Core.Entities;
 namespace OXDesk.Core.Identity;
 
 /// <summary>
-/// Custom application user claim that uses Guid as primary key with tenant_id.
+/// Custom application user claim that uses int as primary key with tenant_id.
 /// </summary>
-public class ApplicationUserClaim : IdentityUserClaim<Guid>
+public class ApplicationUserClaim : IdentityUserClaim<int>
 {
 }

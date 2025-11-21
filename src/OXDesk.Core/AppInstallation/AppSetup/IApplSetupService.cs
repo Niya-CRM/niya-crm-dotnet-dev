@@ -17,7 +17,7 @@ public interface IAppSetupService
     /// <param name="technicalUserId">Optional technical user ID to use for audit fields.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created tenant.</returns>
-    Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, Guid? technicalUserId = null, CancellationToken cancellationToken = default);
+    Task<Tenant> InstallApplicationAsync(AppSetupDto setupDto, Guid? tenantId = null, int? technicalUserId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks if the application has already been installed.

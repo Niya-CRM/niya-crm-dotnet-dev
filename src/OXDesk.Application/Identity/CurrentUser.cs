@@ -10,14 +10,14 @@ namespace OXDesk.Application.Identity
     /// </summary>
     public sealed class CurrentUser : ICurrentUser
     {
-        private Guid? _id;
+        private int? _id;
         private readonly HashSet<string> _roles = new(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _permissions = new(StringComparer.OrdinalIgnoreCase);
         private string? _name;
         private string? _email;
 
         /// <inheritdoc />
-        public Guid? Id => _id;
+        public int? Id => _id;
 
         /// <inheritdoc />
         public IReadOnlyCollection<string> Roles => _roles;
@@ -32,7 +32,7 @@ namespace OXDesk.Application.Identity
         public string? Email => _email;
 
         /// <inheritdoc />
-        public void Change(Guid? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null)
+        public void Change(int? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null)
         {
             _id = id;
             _name = string.IsNullOrWhiteSpace(name) ? null : name;
@@ -58,7 +58,7 @@ namespace OXDesk.Application.Identity
         }
 
         /// <inheritdoc />
-        public IDisposable ChangeScoped(Guid? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null)
+        public IDisposable ChangeScoped(int? id, IEnumerable<string>? roles = null, IEnumerable<string>? permissions = null, string? name = null, string? email = null)
         {
             var prevId = _id;
             var prevRoles = _roles.ToArray();

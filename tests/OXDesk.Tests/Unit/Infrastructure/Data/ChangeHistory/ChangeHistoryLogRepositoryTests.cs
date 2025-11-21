@@ -51,7 +51,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             {
                 new ChangeHistoryLog(
                     1,
-                    Guid.Parse("00000000-0000-0000-0000-000000000065"), // 101
+                    1001,
                     "Email",
                     "old@example.com",
                     "new@example.com",
@@ -59,7 +59,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                 ),
                 new ChangeHistoryLog(
                     2,
-                    Guid.Parse("00000000-0000-0000-0000-000000000066"), // 102
+                    1002,
                     "Phone",
                     "123456789",
                     "987654321",
@@ -104,6 +104,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
 
             // Assert
             result.ShouldNotBeNull();
+            result.ShouldNotBeEmpty();
             result.First().ObjectId.ShouldBe(objectId);
         }
 
@@ -113,7 +114,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             // Arrange
             var newLog = new ChangeHistoryLog(
                 3,
-                Guid.Parse("00000000-0000-0000-0000-0000000000C9"), // 201
+                1003,
                 "Price",
                 "100",
                 "150",

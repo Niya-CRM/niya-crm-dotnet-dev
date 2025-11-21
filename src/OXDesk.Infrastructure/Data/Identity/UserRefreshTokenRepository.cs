@@ -41,7 +41,7 @@ namespace OXDesk.Infrastructure.Data.Identity
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserRefreshToken>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<UserRefreshToken>> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
         {
             return await _dbContext.UserRefreshTokens
                 .AsNoTracking()
@@ -72,7 +72,7 @@ namespace OXDesk.Infrastructure.Data.Identity
         }
 
         /// <inheritdoc/>
-        public async Task<int> DeleteByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<int> DeleteByUserIdAsync(int userId, CancellationToken cancellationToken = default)
         {
             var tokens = await _dbContext.UserRefreshTokens
                 .Where(rt => rt.UserId == userId)

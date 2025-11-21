@@ -12,7 +12,7 @@ using OXDesk.Infrastructure.Data;
 namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20251120220919_InitialTenantDbMigration")]
+    [Migration("20251121203553_InitialTenantDbMigration")]
     partial class InitialTenantDbMigration
     {
         /// <inheritdoc />
@@ -86,8 +86,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Data")
@@ -145,8 +145,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<string>("FieldName")
@@ -200,16 +200,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Description")
@@ -251,8 +251,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -288,8 +288,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<int?>("Decimals")
@@ -300,8 +300,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Description")
@@ -385,8 +385,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<int?>("ValueListId")
@@ -433,8 +433,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<int?>("Decimals")
@@ -445,8 +445,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Description")
@@ -499,8 +499,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<int?>("ValueListId")
@@ -530,16 +530,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Description")
@@ -561,8 +561,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -576,10 +576,13 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -590,8 +593,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Name")
@@ -608,8 +611,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -630,6 +633,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text")
@@ -643,20 +647,20 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
                         .HasColumnName("role_id");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -670,10 +674,13 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUser", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer")
@@ -693,16 +700,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Email")
@@ -794,8 +801,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("UserName")
@@ -834,6 +841,7 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("text")
@@ -843,8 +851,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("text")
                         .HasColumnName("claim_value");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
@@ -870,8 +878,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("text")
                         .HasColumnName("provider_display_name");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("LoginProvider", "ProviderKey")
@@ -885,28 +893,28 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserRole", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
                         .HasColumnName("role_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("UserId", "RoleId")
@@ -920,8 +928,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
 
             modelBuilder.Entity("OXDesk.Core.Identity.ApplicationUserToken", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.Property<string>("LoginProvider")
@@ -950,13 +958,14 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Name")
@@ -975,8 +984,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -1032,8 +1041,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("integer")
                         .HasColumnName("used_counter");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
@@ -1076,16 +1085,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Logo")
@@ -1102,8 +1111,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Website")
@@ -1140,24 +1149,24 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -1183,16 +1192,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<int?>("IncrementScore")
@@ -1209,8 +1218,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -1336,8 +1345,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("CustomerRespondedAt")
@@ -1348,8 +1357,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<int?>("DepartmentId")
@@ -1620,8 +1629,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<int?>("WorkFlowId")
@@ -1665,16 +1674,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Description")
@@ -1697,8 +1706,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("ValueListType")
@@ -1729,8 +1738,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<bool>("IsActive")
@@ -1761,8 +1770,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -1788,16 +1797,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<bool>("IsDefault")
@@ -1828,8 +1837,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
@@ -1855,16 +1864,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<bool>("IsDefault")
@@ -1883,8 +1892,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<int>("WorkFlowId")
@@ -1920,16 +1929,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<int>("ObjectId")
@@ -1940,8 +1949,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("WorkFlowName")
@@ -1973,16 +1982,16 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<int?>("SubTopicId")
@@ -1997,8 +2006,8 @@ namespace OXDesk.Infrastructure.Migrations.TenantDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
 
-                    b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
                     b.Property<int>("WorkFlowId")

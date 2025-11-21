@@ -15,6 +15,9 @@ public class ApplicationUserClaimConfiguration : IEntityTypeConfiguration<Applic
         // Table name
         builder.ToTable("user_claims");
 
-        // Primary key is already configured by Identity
+        // Configure Id to start from 10001
+        builder.Property(c => c.Id)
+               .UseIdentityByDefaultColumn()
+               .HasIdentityOptions(startValue: 10001L);
     }
 }

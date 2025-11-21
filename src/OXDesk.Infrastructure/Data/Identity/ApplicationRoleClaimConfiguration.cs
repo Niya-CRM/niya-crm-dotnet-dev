@@ -15,5 +15,10 @@ public class ApplicationRoleClaimConfiguration : IEntityTypeConfiguration<Applic
     {
         // Table name
         builder.ToTable("role_claims");
+
+        // Configure Id to start from 10001
+        builder.Property(c => c.Id)
+               .UseIdentityByDefaultColumn()
+               .HasIdentityOptions(startValue: 10001L);
     }
 }

@@ -24,7 +24,7 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     private readonly ICacheService _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     private readonly string _valueListLookupCachePrefix = "valuelist:lookup:id:";
 
-    private Guid GetCurrentUserId()
+    private int GetCurrentUserId()
     {
         return _currentUser.Id ?? throw new InvalidOperationException("Current user ID is null.");
     }

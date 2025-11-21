@@ -9,7 +9,7 @@ namespace OXDesk.Core.Identity
     /// <summary>
     /// Application user entity that extends IdentityUser.
     /// </summary>
-    public class ApplicationUser : IdentityUser<Guid>, ICreationAudited, IUpdationAudited, ISoftDelete, IEntityGuid, ITenantScoped
+    public class ApplicationUser : IdentityUser<int>, ICreationAudited, IUpdationAudited, ISoftDelete, ITenantScoped
     {
         /// <summary>
         /// Gets or sets the tenant identifier.
@@ -62,7 +62,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Gets or sets the user who created the user.
         /// </summary>
-        public Guid CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the date when the user was deleted.
@@ -72,7 +72,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Gets or sets the user who deleted the user.
         /// </summary>
-        public Guid? DeletedBy { get; set; }
+        public int? DeletedBy { get; set; }
 
         /// <summary>
         /// Gets or sets the date when the user was last updated.
@@ -82,7 +82,7 @@ namespace OXDesk.Core.Identity
         /// <summary>
         /// Gets or sets the user who last updated the user.
         /// </summary>
-        public Guid UpdatedBy { get; set; }
+        public int UpdatedBy { get; set; }
         
         /// <summary>
         /// Gets or sets a value indicating whether the user is active.

@@ -76,9 +76,9 @@ public class CreateUserRequest
 
 /// <summary>
 /// Response DTO for user information.
-/// Inherits: Id (Guid), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy from AuditedDtoGuid.
+/// Inherits: Id (int), CreatedAt, CreatedBy, UpdatedAt, UpdatedBy from AuditedDto.
 /// </summary>
-public class UserResponse : AuditedDtoGuid
+public class UserResponse : AuditedDto
 {
 
     /// <summary>

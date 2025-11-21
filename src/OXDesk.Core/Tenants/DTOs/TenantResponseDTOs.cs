@@ -13,7 +13,7 @@ public class TenantResponse : AuditedDtoGuid
     public string Host { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string TimeZone { get; set; } = TimeZoneInfo.Local.Id;
-    public Guid UserId { get; set; }
+    public int UserId { get; set; }
     public string? DatabaseName { get; set; }
     public string IsActive { get; set; } = "Y";
     public DateTime? DeletedAt { get; set; }

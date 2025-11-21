@@ -82,7 +82,7 @@ public class AuditLog : CreationAuditedEntity, IEntity
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(int objectId, string @event, Guid objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(int objectId, string @event, Guid objectItemId, string ip, string? data, int createdBy)
     {
         ObjectId = objectId;
         Event = @event;
@@ -104,7 +104,7 @@ public class AuditLog : CreationAuditedEntity, IEntity
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <remarks>TenantId is assigned automatically in ApplicationDbContext before saving.</remarks>
-    public AuditLog(int objectId, string @event, int objectItemId, string ip, string? data, Guid createdBy)
+    public AuditLog(int objectId, string @event, int objectItemId, string ip, string? data, int createdBy)
     {
         ObjectId = objectId;
         Event = @event;

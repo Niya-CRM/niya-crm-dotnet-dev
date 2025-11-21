@@ -77,7 +77,7 @@ public class ValueList : AuditedEntityWithSoftDelete, IEntity
         bool isActive,
         bool allowModify,
         bool allowNewItem,
-        Guid createdBy)
+        int createdBy)
     {
         ListName = listName;
         Description = description;

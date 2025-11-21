@@ -74,7 +74,7 @@ namespace OXDesk.Api.Controllers.Identity
             return Ok(response);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:int}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<PermissionResponse, PermissionDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -112,7 +112,7 @@ namespace OXDesk.Api.Controllers.Identity
             }
         }
 
-        [HttpPatch("{id:guid}")]
+        [HttpPatch("{id:int}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(EntityWithRelatedResponse<PermissionResponse, PermissionDetailsRelated>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -139,7 +139,7 @@ namespace OXDesk.Api.Controllers.Identity
             }
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("{id:int}")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupWrite)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status405MethodNotAllowed)]
         public IActionResult DeleteAsync(int id, CancellationToken cancellationToken = default)
@@ -147,7 +147,7 @@ namespace OXDesk.Api.Controllers.Identity
             return this.CreateMethodNotAllowedProblem("Deleting permissions is not allowed.");
         }
 
-        [HttpGet("{id:guid}/roles")]
+        [HttpGet("{id:int}/roles")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<RoleResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -174,7 +174,7 @@ namespace OXDesk.Api.Controllers.Identity
             return Ok(response);
         }
 
-        [HttpGet("{id:guid}/users")]
+        [HttpGet("{id:int}/users")]
         [Authorize(Policy = CommonConstant.PermissionNames.SysSetupRead)]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<UserResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -199,7 +199,7 @@ namespace OXDesk.Api.Controllers.Identity
 
             // Accumulate users from all roles, deduplicate by user Id
             var users = new List<ApplicationUser>();
-            var seen = new HashSet<Guid>();
+            var seen = new HashSet<int>();
             foreach (var role in roles)
             {
                 var roleUsers = await _userService.GetUsersByRoleIdAsync(role.Id, cancellationToken);

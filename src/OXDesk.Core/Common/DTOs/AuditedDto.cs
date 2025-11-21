@@ -14,7 +14,7 @@ public abstract class AuditedDto : BaseDto
     /// <summary>
     /// Gets or sets the user who created the entity.
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the entity was last updated.
@@ -24,7 +24,7 @@ public abstract class AuditedDto : BaseDto
     /// <summary>
     /// Gets or sets the user who last updated the entity.
     /// </summary>
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 }
 
 /// <summary>
@@ -41,7 +41,7 @@ public abstract class AuditedDtoGuid : BaseDtoGuid
     /// <summary>
     /// Gets or sets the user who created the entity.
     /// </summary>
-    public Guid CreatedBy { get; set; }
+    public int CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the entity was last updated.
@@ -51,5 +51,5 @@ public abstract class AuditedDtoGuid : BaseDtoGuid
     /// <summary>
     /// Gets or sets the user who last updated the entity.
     /// </summary>
-    public Guid UpdatedBy { get; set; }
+    public int UpdatedBy { get; set; }
 }

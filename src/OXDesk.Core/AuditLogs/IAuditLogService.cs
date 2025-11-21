@@ -19,7 +19,7 @@ public interface IAuditLogService
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created audit log entry.</returns>
-    Task<AuditLog> CreateAuditLogAsync(int objectId, string @event, Guid objectItemId, string ip, string data, Guid createdBy, CancellationToken cancellationToken = default);
+    Task<AuditLog> CreateAuditLogAsync(int objectId, string @event, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an audit log by its identifier.

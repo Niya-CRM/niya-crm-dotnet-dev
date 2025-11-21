@@ -23,7 +23,7 @@ public interface IUserService
     /// <param name="id">The user identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The user entity if found, otherwise null.</returns>
-    Task<ApplicationUser?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ApplicationUser?> GetUserByIdAsync(int id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all user entities.
@@ -37,7 +37,7 @@ public interface IUserService
     /// </summary>
     /// <returns>The current user's Id.</returns>
     /// <exception cref="InvalidOperationException">Thrown if user id claim is not found.</exception>
-    Guid GetCurrentUserId();
+    int GetCurrentUserId();
 
     /// <summary>
     /// Changes the activation status of a user.
@@ -47,7 +47,7 @@ public interface IUserService
     /// <param name="reason">The reason for the status change.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated user entity.</returns>
-    Task<ApplicationUser> ChangeUserActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default);
+    Task<ApplicationUser> ChangeUserActivationStatusAsync(int id, string action, string reason, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns a dictionary of users keyed by their Ids for the provided set of userIds.
@@ -56,12 +56,12 @@ public interface IUserService
     /// <param name="userIds">Collection of user IDs to fetch.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A read-only dictionary mapping userId to ApplicationUser.</returns>
-    Task<IReadOnlyDictionary<Guid, ApplicationUser>> GetUsersLookupByIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default);
+    Task<IReadOnlyDictionary<int, ApplicationUser>> GetUsersLookupByIdsAsync(IEnumerable<int> userIds, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a single user's display name by Id with caching support.
     /// </summary>
-    Task<string?> GetUserNameByIdAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<string?> GetUserNameByIdAsync(int userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the roles assigned to a user.
@@ -69,17 +69,17 @@ public interface IUserService
     /// <param name="userId">The user identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of role entities assigned to the user.</returns>
-    Task<IReadOnlyList<ApplicationRole>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRole>> GetUserRolesAsync(int userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds the specified role to the user. Returns the updated set of roles. No-ops if already assigned.
     /// </summary>
-    Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRole>> AddRoleToUserAsync(int userId, int roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes the specified role from the user. Returns the updated set of roles. No-ops if not assigned.
     /// </summary>
-    Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationRole>> RemoveRoleFromUserAsync(int userId, int roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets all users that are assigned to the specified role.
@@ -87,14 +87,14 @@ public interface IUserService
     /// <param name="roleId">The role identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of user entities in the role.</returns>
-    Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ApplicationUser>> GetUsersByRoleIdAsync(int roleId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets the Technical User ID by looking up the user with the technical username.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The Technical User ID if found, otherwise null.</returns>
-    Task<Guid?> GetTechnicalUserIdAsync(CancellationToken cancellationToken = default);
+    Task<int?> GetTechnicalUserIdAsync(CancellationToken cancellationToken = default);
 }
 
 

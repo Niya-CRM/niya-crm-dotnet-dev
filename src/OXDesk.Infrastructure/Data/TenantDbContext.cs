@@ -23,7 +23,7 @@ namespace OXDesk.Infrastructure.Data
     /// <summary>
     /// Database context dedicated to tenant-scoped entities.
     /// </summary>
-    public class TenantDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
+    public class TenantDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int, ApplicationUserClaim, ApplicationUserRole, ApplicationUserLogin, ApplicationRoleClaim, ApplicationUserToken>
     {
         private readonly ICurrentTenant _currentTenant;
         private readonly string _hostingModel;
@@ -94,8 +94,6 @@ namespace OXDesk.Infrastructure.Data
                 Assembly.GetExecutingAssembly(),
                 t => t.Namespace != null && !t.Namespace.Contains(".Data.Tenants"));
 
-
-
             // Determine schema based on hosting model
             var tenantSchema = _currentTenant?.Schema;
             string schema = "public";
@@ -150,6 +148,60 @@ namespace OXDesk.Infrastructure.Data
                     index.SetDatabaseName(index.GetDatabaseName()!.ToSnakeCase());
                 }
             }
+        }
+
+        /// <summary>
+        /// Saves changes to the database and automatically sets TenantId for tenant-scoped entities.
+        /// </summary>
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var tenantId = _currentTenant?.Id;
+            
+            // Automatically set TenantId for entities that have it
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                {
+                    var tenantIdProperty = entry.Entity.GetType().GetProperty("TenantId");
+                    if (tenantIdProperty != null && tenantIdProperty.PropertyType == typeof(Guid?))
+                    {
+                        var currentValue = tenantIdProperty.GetValue(entry.Entity) as Guid?;
+                        if (entry.State == EntityState.Added && currentValue == null)
+                        {
+                            tenantIdProperty.SetValue(entry.Entity, tenantId);
+                        }
+                    }
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Saves changes to the database and automatically sets TenantId for tenant-scoped entities.
+        /// </summary>
+        public override int SaveChanges()
+        {
+            var tenantId = _currentTenant?.Id;
+            
+            // Automatically set TenantId for entities that have it
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                {
+                    var tenantIdProperty = entry.Entity.GetType().GetProperty("TenantId");
+                    if (tenantIdProperty != null && tenantIdProperty.PropertyType == typeof(Guid?))
+                    {
+                        var currentValue = tenantIdProperty.GetValue(entry.Entity) as Guid?;
+                        if (entry.State == EntityState.Added && currentValue == null)
+                        {
+                            tenantIdProperty.SetValue(entry.Entity, tenantId);
+                        }
+                    }
+                }
+            }
+
+            return base.SaveChanges();
         }
     }
 }

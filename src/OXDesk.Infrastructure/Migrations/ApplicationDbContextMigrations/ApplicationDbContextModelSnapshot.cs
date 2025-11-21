@@ -35,9 +35,9 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<int>("CreatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("created_by");
 
                     b.Property<string>("DatabaseName")
@@ -49,8 +49,8 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
+                    b.Property<int?>("DeletedBy")
+                        .HasColumnType("integer")
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Email")
@@ -94,13 +94,13 @@ namespace OXDesk.Infrastructure.Migrations.ApplicationDbContextMigrations
                         .HasColumnName("updated_at")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<Guid>("UpdatedBy")
+                    b.Property<int>("UpdatedBy")
                         .HasMaxLength(100)
-                        .HasColumnType("uuid")
+                        .HasColumnType("integer")
                         .HasColumnName("updated_by");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
