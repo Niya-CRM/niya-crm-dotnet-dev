@@ -122,7 +122,7 @@ namespace OXDesk.AppInstallation.Services
 
             // Generate a tenant ID for initialization process
             _tenantId = Guid.CreateVersion7();
-            _technicalUserId = 1; // Reserved int ID for technical/system user
+            _technicalUserId = 10001; // Reserved int ID for technical/system user
         }
 
         /// <inheritdoc/>
@@ -364,7 +364,6 @@ namespace OXDesk.AppInstallation.Services
                 // Create the system user
                 var systemUser = new OXDesk.Core.Identity.ApplicationUser
                 {
-                    Id = _technicalUserId,
                     TenantId = _tenantId,
                     UserName = systemUserEmail,
                     Email = systemUserEmail,
