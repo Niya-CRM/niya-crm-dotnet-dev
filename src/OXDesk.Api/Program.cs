@@ -198,6 +198,9 @@ builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
 
+// Register Correlation ID Accessor
+builder.Services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
+
 // Register AuditLog Services
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();

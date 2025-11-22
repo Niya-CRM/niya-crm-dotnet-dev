@@ -27,11 +27,11 @@ namespace OXDesk.Api.Factories.AuditLogs
         {
             Id = log.Id,
             ObjectId = log.ObjectId,
-            ObjectItemIdUuid = log.ObjectItemIdUuid,
             ObjectItemIdInt = log.ObjectItemIdInt,
             FieldName = log.FieldName,
             OldValue = log.OldValue,
             NewValue = log.NewValue,
+            CorrelationId = log.CorrelationId,
             CreatedAt = log.CreatedAt,
             CreatedBy = log.CreatedBy
         };

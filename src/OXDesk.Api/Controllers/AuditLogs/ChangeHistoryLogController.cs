@@ -67,10 +67,10 @@ namespace OXDesk.Api.Controllers.AuditLogs
                     return this.CreateBadRequestProblem("ObjectId is required");
                 }
 
-                if (!query.ObjectItemIdUuid.HasValue && !query.ObjectItemIdInt.HasValue)
+                if (!query.ObjectItemIdInt.HasValue)
                 {
-                    _logger.LogWarning("Missing required parameter: ObjectItemId (UUID or Int)");
-                    return this.CreateBadRequestProblem("ObjectItemId (UUID or Int) is required");
+                    _logger.LogWarning("Missing required parameter: ObjectItemIdInt");
+                    return this.CreateBadRequestProblem("ObjectItemIdInt is required");
                 }
                 
                 _logger.LogDebug("Retrieving change history logs with filters: {Query}", query);

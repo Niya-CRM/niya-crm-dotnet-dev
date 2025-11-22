@@ -17,8 +17,8 @@ namespace OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
 
-            builder.HasIndex(c => new { c.ObjectId, c.ObjectItemIdUuid, c.ObjectItemIdInt })
-                   .HasDatabaseName("ix_change_history_logs_object_id_object_item_ids");
+            builder.HasIndex(c => new { c.ObjectId, c.ObjectItemIdInt })
+                   .HasDatabaseName("ix_change_history_logs_object_id_object_item_id");
         }
     }
 }

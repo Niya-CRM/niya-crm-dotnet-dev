@@ -13,7 +13,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         {
             // Arrange
             var objectId = 1;
-            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003E9"); // 1001
+            var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
             var newValue = "new@example.com";
@@ -31,7 +31,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectId.ShouldBe(objectId);
-            changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
+            changeHistoryLog.ObjectItemIdInt.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBe(oldValue);
             changeHistoryLog.NewValue.ShouldBe(newValue);
@@ -46,7 +46,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
         {
             // Arrange
             var objectId = 1;
-            var objectItemId = Guid.Parse("00000000-0000-0000-0000-0000000003EA"); // 1002
+            var objectItemId = 1002;
             var fieldName = "Email";
             string? oldValue = null;
             string? newValue = null;
@@ -64,7 +64,7 @@ namespace OXDesk.Tests.Unit.Core.ChangeHistory
             // Assert
             changeHistoryLog.Id.ShouldBe(0);
             changeHistoryLog.ObjectId.ShouldBe(objectId);
-            changeHistoryLog.ObjectItemIdUuid.ShouldBe(objectItemId);
+            changeHistoryLog.ObjectItemIdInt.ShouldBe(objectItemId);
             changeHistoryLog.FieldName.ShouldBe(fieldName);
             changeHistoryLog.OldValue.ShouldBeNull();
             changeHistoryLog.NewValue.ShouldBeNull();

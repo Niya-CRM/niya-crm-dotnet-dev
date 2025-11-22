@@ -61,6 +61,13 @@ public class AuditLog : CreationAuditedEntity, IEntity
     [MaxLength(1000)]
     public string? Data { get; set; }
 
+    /// <summary>
+    /// Gets or sets the correlation ID for tracking related operations.
+    /// </summary>
+    [Column("correlation_id")]
+    [MaxLength(100)]
+    public string? CorrelationId { get; set; }
+
     // Audit fields inherited from CreationAuditedEntity:
     // - CreatedAt, CreatedBy (append-only, no updates)
 

@@ -7,6 +7,7 @@ using Moq;
 using OXDesk.Application.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
+using OXDesk.Core.Common;
 using OXDesk.Tests.Helpers;
 using Shouldly;
 using Xunit;
@@ -16,12 +17,15 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
     public class ChangeHistoryLogServiceTests
     {
         private readonly Mock<IChangeHistoryLogRepository> _mockRepository;
+        private readonly Mock<ICorrelationIdAccessor> _mockCorrelationIdAccessor;
         private readonly ChangeHistoryLogService _service;
 
         public ChangeHistoryLogServiceTests()
         {
             _mockRepository = new Mock<IChangeHistoryLogRepository>();
-            _service = new ChangeHistoryLogService(_mockRepository.Object);
+            _mockCorrelationIdAccessor = new Mock<ICorrelationIdAccessor>();
+            _mockCorrelationIdAccessor.Setup(x => x.GetCorrelationId()).Returns("test-correlation-id");
+            _service = new ChangeHistoryLogService(_mockRepository.Object, _mockCorrelationIdAccessor.Object);
         }
 
         [Fact]
@@ -60,6 +64,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             capturedLog.OldValue.ShouldBe(oldValue);
             capturedLog.NewValue.ShouldBe(newValue);
             capturedLog.CreatedBy.ShouldBe(createdBy);
+            capturedLog.CorrelationId.ShouldBe("test-correlation-id");
             
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<ChangeHistoryLog>(), It.IsAny<CancellationToken>()), Times.Once);
         }

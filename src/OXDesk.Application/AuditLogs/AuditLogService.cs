@@ -13,11 +13,14 @@ namespace OXDesk.Application.AuditLogs
     public class AuditLogService : IAuditLogService
     {
         private readonly IAuditLogRepository _repository;
+        private readonly ICorrelationIdAccessor _correlationIdAccessor;
 
         public AuditLogService(
-            IAuditLogRepository repository)
+            IAuditLogRepository repository,
+            ICorrelationIdAccessor correlationIdAccessor)
         {
             _repository = repository;
+            _correlationIdAccessor = correlationIdAccessor;
         }
 
         /// <inheritdoc/>
@@ -31,6 +34,10 @@ namespace OXDesk.Application.AuditLogs
                 data,
                 createdBy
             );
+
+            // Set correlation ID from current request context
+            auditLog.CorrelationId = _correlationIdAccessor.GetCorrelationId();
+
             return await _repository.AddAsync(auditLog, cancellationToken);
         }
 

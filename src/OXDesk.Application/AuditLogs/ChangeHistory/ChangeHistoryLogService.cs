@@ -17,14 +17,19 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
     public class ChangeHistoryLogService : IChangeHistoryLogService
     {
         private readonly IChangeHistoryLogRepository _repository;
+        private readonly ICorrelationIdAccessor _correlationIdAccessor;
 
         /// <summary>
-        /// Backward-compatible constructor to satisfy existing tests injecting IUserService.
-        /// DI will prefer the marked constructor above.
+        /// Initializes a new instance of the <see cref="ChangeHistoryLogService"/> class.
         /// </summary>
-        public ChangeHistoryLogService(IChangeHistoryLogRepository repository)
+        /// <param name="repository">The change history log repository.</param>
+        /// <param name="correlationIdAccessor">The correlation ID accessor.</param>
+        public ChangeHistoryLogService(
+            IChangeHistoryLogRepository repository,
+            ICorrelationIdAccessor correlationIdAccessor)
         {
             _repository = repository;
+            _correlationIdAccessor = correlationIdAccessor;
         }
 
         /// <inheritdoc/>
@@ -45,6 +50,9 @@ namespace OXDesk.Application.AuditLogs.ChangeHistory
                 newValue,
                 createdBy
             );
+
+            // Set correlation ID from current request context
+            changeHistoryLog.CorrelationId = _correlationIdAccessor.GetCorrelationId();
 
             return await _repository.AddAsync(changeHistoryLog, cancellationToken);
         }
