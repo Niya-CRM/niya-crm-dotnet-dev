@@ -1,22 +1,23 @@
 using System;
+using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OXDesk.Core.Common;
-using OXDesk.Core.Tenants;
+using OpenIddict.EntityFrameworkCore;
+using OXDesk.Core.AppInstallation;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.ChangeHistory;
+using OXDesk.Core.Common;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.Fields;
-using OXDesk.Core.ValueLists;
-using OXDesk.Core.AppInstallation;
-using OXDesk.Core.Identity;
-using OXDesk.Core.Tickets;
-using OXDesk.Core.Workflows;
-using OXDesk.Core.Helpers.Naming;
-using System.Reflection;
 using OXDesk.Core.FormTypes;
+using OXDesk.Core.Helpers.Naming;
+using OXDesk.Core.Identity;
+using OXDesk.Core.Tenants;
+using OXDesk.Core.Tickets;
+using OXDesk.Core.ValueLists;
+using OXDesk.Core.Workflows;
 
 namespace OXDesk.Infrastructure.Data
 {
@@ -88,6 +89,9 @@ namespace OXDesk.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Configure OpenIddict to use default entity types
+            builder.UseOpenIddict();
 
             // Exclude Tenant configuration (that's in ApplicationDbContext)
             builder.ApplyConfigurationsFromAssembly(

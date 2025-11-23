@@ -18,14 +18,16 @@ using OXDesk.Core.DynamicObjects;
 namespace OXDesk.Api.Controllers.Auth
 {
     /// <summary>
-    /// API Authentication controller for external clients
+    /// Legacy API Authentication controller for external clients
     /// </summary>
     /// <remarks>
-    /// This controller provides endpoints for external API authentication using JWT tokens
+    /// This controller provides legacy endpoints for external API authentication using JWT tokens.
+    /// For new implementations, use the OpenIddict endpoints at /api/auth/token.
     /// </remarks>
-    [Route("auth")]
+    [Route("auth/legacy")]
     [ApiController]
     [Produces("application/json")]
+    [Obsolete("Use OpenIddict endpoints at /api/auth/token instead. This will be removed in a future version.")]
     public class ApiAuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -55,13 +57,14 @@ namespace OXDesk.Api.Controllers.Auth
         }
 
         /// <summary>
-        /// Authenticates a user and returns a JWT token
+        /// [LEGACY] Authenticates a user and returns a JWT token
         /// </summary>
         /// <param name="model">Login credentials containing email and password</param>
         /// <returns>JWT token response with token, expiry time, and token type</returns>
         /// <response code="200">Returns the JWT token information</response>
         /// <response code="400">If the model is invalid</response>
         /// <response code="401">If authentication fails or account is deactivated</response>
+        /// <remarks>DEPRECATED: Use POST /api/auth/token with OpenIddict instead</remarks>
         [HttpPost("token")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
@@ -137,13 +140,14 @@ namespace OXDesk.Api.Controllers.Auth
         }
 
         /// <summary>
-        /// Refreshes the access token using a valid refresh token. Issues a new refresh token as well.
+        /// [LEGACY] Refreshes the access token using a valid refresh token. Issues a new refresh token as well.
         /// </summary>
         /// <param name="request">The refresh token request.</param>
         /// <returns>New access and refresh token pair.</returns>
         /// <response code="200">Returns a new TokenResponse</response>
         /// <response code="400">If the model is invalid</response>
         /// <response code="401">If the refresh token is invalid</response>
+        /// <remarks>DEPRECATED: Use POST /api/auth/token with grant_type=refresh_token instead</remarks>
         [HttpPost("refresh")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TokenResponse))]
@@ -168,12 +172,13 @@ namespace OXDesk.Api.Controllers.Auth
         }
 
         /// <summary>
-        /// Logs out the current user by revoking all their refresh tokens.
+        /// [LEGACY] Logs out the current user by revoking all their refresh tokens.
         /// Requires a valid access token.
         /// </summary>
         /// <returns>No content on success.</returns>
         /// <response code="204">All refresh tokens revoked</response>
         /// <response code="401">If not authenticated</response>
+        /// <remarks>DEPRECATED: Use POST /api/auth/logout instead</remarks>
         [HttpPost("logout")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

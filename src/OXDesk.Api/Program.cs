@@ -145,12 +145,11 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
 .AddEntityFrameworkStores<TenantDbContext>()
 .AddDefaultTokenProviders();
 
-// Configure JWT Authentication
-builder.Services.AddAuthentication(options => {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+// Configure OpenIddict for OAuth 2.0 and OpenID Connect
+builder.Services.AddOpenIddictServices(builder.Configuration);
+
+// Keep JWT Bearer for backward compatibility (optional - can be removed later)
+builder.Services.AddAuthentication()
 .AddJwtBearer(options => {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false;
@@ -309,6 +308,9 @@ using (var scope = app.Services.CreateScope())
     var initialiser = scope.ServiceProvider.GetRequiredService<OXDesk.Core.AppInstallation.AppInitialisation.IAppInitialisationService>();
     await initialiser.InitialiseAppAsync();
 }
+
+// Seed OpenIddict applications
+await app.SeedOpenIddictApplicationsAsync();
 
 await app.RunAsync();
 }
