@@ -1,7 +1,7 @@
 using FluentValidation;
 using OXDesk.Core.Tenants.DTOs;
 
-namespace OXDesk.Api.Validators.Tenants;
+namespace OXDesk.Tenant.Validators;
 
 /// <summary>
 /// Validator for CreateTenantRequest

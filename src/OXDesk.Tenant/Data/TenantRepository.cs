@@ -2,35 +2,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Common;
+using OXDesk.Infrastructure.Data;
 
-namespace OXDesk.Infrastructure.Data.Tenants;
+namespace OXDesk.Tenant.Data;
 
 /// <summary>
 /// Repository implementation for tenant data access operations using Entity Framework.
 /// </summary>
 public class TenantRepository : ITenantRepository
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly TenantDbContext _dbContext;
     private readonly ILogger<TenantRepository> _logger;
-    private readonly DbSet<Tenant> _dbSet;
+    private readonly DbSet<OXDesk.Core.Tenants.Tenant> _dbSet;
 
     /// <summary>
     /// Initializes a new instance of the TenantRepository.
     /// </summary>
-    /// <param name="context">The database context.</param>
+    /// <param name="dbContext">The database context.</param>
     /// <param name="logger">The logger.</param>
-    public TenantRepository(ApplicationDbContext dbContext, ILogger<TenantRepository> logger)
+    public TenantRepository(TenantDbContext dbContext, ILogger<TenantRepository> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(logger);
         
         _dbContext = dbContext;
         _logger = logger;
-        _dbSet = dbContext.Set<Tenant>();
+        _dbSet = dbContext.Set<OXDesk.Core.Tenants.Tenant>();
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         
@@ -38,31 +39,31 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetByHostAsync(string host, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant?> GetByHostAsync(string host, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(host))
             throw new ArgumentException("Host cannot be null or empty.", nameof(host));
 
         _logger.LogDebug("Getting tenant by host: {Host}", host);
         
-        var normalizedHost = host.Trim().ToLowerInvariant();
+        var normalizedHost = host.Trim().ToUpperInvariant();
         return await _dbSet.FirstOrDefaultAsync(t => t.Host == normalizedHost, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email cannot be null or empty.", nameof(email));
 
         _logger.LogDebug("Getting tenant by email: {Email}", email);
         
-        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var normalizedEmail = email.Trim().ToUpperInvariant();
         return await _dbSet.FirstOrDefaultAsync(t => t.Email == normalizedEmail, cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OXDesk.Core.Tenants.Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all active tenants");
         
@@ -72,7 +73,7 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Tenant>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OXDesk.Core.Tenants.Tenant>> GetAllAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         if (pageNumber < CommonConstant.PAGE_NUMBER_DEFAULT)
             throw new ArgumentException($"Page number must be greater than {CommonConstant.PAGE_NUMBER_DEFAULT}.", nameof(pageNumber));
@@ -90,11 +91,15 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> AddAsync(Tenant tenant, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant> AddAsync(OXDesk.Core.Tenants.Tenant tenant, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
         _logger.LogDebug("Adding new tenant: {TenantName} with host: {Host}", tenant.Name, tenant.Host);
+
+        // Normalize Email & Host to UpperCase
+        tenant.Host = tenant.Host.ToUpperInvariant();
+        tenant.Email = tenant.Email.ToUpperInvariant();
         
         var entry = await _dbSet.AddAsync(tenant, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -104,11 +109,15 @@ public class TenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateAsync(Tenant tenant, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant> UpdateAsync(OXDesk.Core.Tenants.Tenant tenant, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tenant);
 
         _logger.LogDebug("Updating tenant: {TenantId}", tenant.Id);
+
+        // Normalize Email & Host to UpperCase
+        tenant.Host = tenant.Host.ToUpperInvariant();
+        tenant.Email = tenant.Email.ToUpperInvariant();
         
         var entry = _dbSet.Update(tenant);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -125,7 +134,7 @@ public class TenantRepository : ITenantRepository
 
         _logger.LogDebug("Checking if host exists: {Host}, excluding ID: {ExcludeId}", host, excludeId);
         
-        var normalizedHost = host.Trim().ToLowerInvariant();
+        var normalizedHost = host.Trim().ToUpperInvariant();
         var query = _dbSet.Where(t => t.Host == normalizedHost);
         
         if (excludeId.HasValue)
@@ -144,7 +153,7 @@ public class TenantRepository : ITenantRepository
 
         _logger.LogDebug("Checking if email exists: {Email}, excluding ID: {ExcludeId}", email, excludeId);
         
-        var normalizedEmail = email.Trim().ToLowerInvariant();
+        var normalizedEmail = email.Trim().ToUpperInvariant();
         var query = _dbSet.Where(t => t.Email == normalizedEmail);
         
         if (excludeId.HasValue)

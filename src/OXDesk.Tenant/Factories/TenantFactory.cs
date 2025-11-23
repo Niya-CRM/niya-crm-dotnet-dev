@@ -4,7 +4,7 @@ using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using System.Linq;
 
-namespace OXDesk.Api.Factories.Tenants;
+namespace OXDesk.Tenant.Factories;
 
 public class TenantFactory : ITenantFactory
 {
@@ -15,9 +15,9 @@ public class TenantFactory : ITenantFactory
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
     }
 
-    public async Task<PagedListWithRelatedResponse<TenantResponse>> BuildListAsync(IEnumerable<Tenant> tenants, int pageNumber, CancellationToken cancellationToken = default)
+    public async Task<PagedListWithRelatedResponse<TenantResponse>> BuildListAsync(IEnumerable<OXDesk.Core.Tenants.Tenant> tenants, int pageNumber, CancellationToken cancellationToken = default)
     {
-        var list = tenants?.ToList() ?? new List<Tenant>();
+        var list = tenants?.ToList() ?? new List<OXDesk.Core.Tenants.Tenant>();
         var dtoList = new List<TenantResponse>(list.Count);
 
         // Collect userIds for enrichment
@@ -68,7 +68,7 @@ public class TenantFactory : ITenantFactory
         };
     }
 
-    public async Task<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>> BuildDetailsAsync(Tenant tenant, CancellationToken cancellationToken = default)
+    public async Task<EntityWithRelatedResponse<TenantResponse, TenantDetailsRelated>> BuildDetailsAsync(OXDesk.Core.Tenants.Tenant tenant, CancellationToken cancellationToken = default)
     {
         var createdByText = await _userService.GetUserNameByIdAsync(tenant.CreatedBy, cancellationToken);
         var updatedByText = await _userService.GetUserNameByIdAsync(tenant.UpdatedBy, cancellationToken);
@@ -99,7 +99,7 @@ public class TenantFactory : ITenantFactory
         };
     }
 
-    public TenantPublicResponse BuildPublicResponse(Tenant tenant)
+    public TenantPublicResponse BuildPublicResponse(OXDesk.Core.Tenants.Tenant tenant)
     {
         return new TenantPublicResponse
         {

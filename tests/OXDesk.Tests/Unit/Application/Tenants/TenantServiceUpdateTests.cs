@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using OXDesk.Application.Common;
-using OXDesk.Application.Tenants;
+using OXDesk.Tenant.Services;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
+using TenantEntity = OXDesk.Core.Tenants.Tenant;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Tests.Helpers;
@@ -174,7 +175,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             _mockTenantRepository
                 .Setup(repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Tenant)null!);
+                .ReturnsAsync((TenantEntity)null!);
 
             // Act & Assert
             var exception = await Should.ThrowAsync<InvalidOperationException>(
@@ -204,7 +205,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 TimeZone = "UTC"
             };
 
-            var existingTenant = new Tenant
+            var existingTenant = new TenantEntity
             {
                 Id = existingTenantId,
                 Name = "Existing Tenant",
@@ -213,7 +214,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 IsActive = "Y"
             };
 
-            var currentTenant = new Tenant
+            var currentTenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Current Tenant",
@@ -264,7 +265,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 TimeZone = "UTC"
             };
 
-            var existingTenant = new Tenant
+            var existingTenant = new TenantEntity
             {
                 Id = existingTenantId,
                 Name = "Existing Tenant",
@@ -273,7 +274,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 IsActive = "Y"
             };
 
-            var currentTenant = new Tenant
+            var currentTenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Current Tenant",
@@ -327,7 +328,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 TimeZone = "UTC"
             };
 
-            var existingTenant = new Tenant
+            var existingTenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Original Tenant",
@@ -341,7 +342,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 UpdatedBy = TestHelpers.TestUserId1
             };
 
-            var updatedTenant = new Tenant
+            var updatedTenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = name,
@@ -360,7 +361,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 .ReturnsAsync(existingTenant);
 
             _mockTenantRepository
-                .Setup(repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
+                .Setup(repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(updatedTenant);
 
             _mockUnitOfWork
@@ -399,7 +400,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             
             // Verify tenant was updated
             _mockTenantRepository.Verify(
-                repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()),
                 Times.Once);
             
             // Verify audit log was created

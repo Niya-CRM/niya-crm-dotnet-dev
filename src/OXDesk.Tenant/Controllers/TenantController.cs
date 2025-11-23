@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.Common;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using OXDesk.Api.Validators.Tenants;
-using OXDesk.Api.Common;
+using OXDesk.Tenant.Validators;
+using OXDesk.Tenant.Factories;
 using OXDesk.Core.Common.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
-namespace OXDesk.Api.Controllers.Tenants;
+namespace OXDesk.Tenant.Controllers;
 
 /// <summary>
 /// Controller for managing tenant operations in the multi-tenant CRM system.
@@ -68,7 +70,7 @@ public class TenantController : ControllerBase
         if (tenantId == null)
         {
             _logger.LogWarning("No current tenant context available");
-            return this.CreateNotFoundProblem("No current tenant context available.");
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = "No current tenant context available.", Status = StatusCodes.Status404NotFound });
         }
 
         _logger.LogDebug("Getting current tenant: {TenantId}", tenantId);
@@ -77,7 +79,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Current tenant not found: {TenantId}", tenantId);
-            return this.CreateNotFoundProblem($"Tenant with ID '{tenantId}' was not found.");
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = $"Tenant with ID '{tenantId}' was not found.", Status = StatusCodes.Status404NotFound });
         }
         
         var response = _tenantFactory.BuildPublicResponse(tenant);
@@ -128,12 +130,12 @@ public class TenantController : ControllerBase
         catch (System.ComponentModel.DataAnnotations.ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation error in tenant creation request: {Message}", ex.Message);
-            return this.CreateBadRequestProblem(ex.Message);
+            return BadRequest(new ProblemDetails { Title = "Bad Request", Detail = ex.Message, Status = StatusCodes.Status400BadRequest });
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Tenant creation conflict: {Message}", ex.Message);
-            return this.CreateConflictProblem(ex.Message);
+            return Conflict(new ProblemDetails { Title = "Conflict", Detail = ex.Message, Status = StatusCodes.Status409Conflict });
         }
     }
 
@@ -155,7 +157,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found: {TenantId}", id);
-            return this.CreateNotFoundProblem($"Tenant with ID '{id}' was not found.");
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = $"Tenant with ID '{id}' was not found.", Status = StatusCodes.Status404NotFound });
         }
         var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
         return Ok(response);
@@ -179,7 +181,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found for host: {Host}", host);
-            return this.CreateNotFoundProblem($"Tenant with host '{host}' was not found.");
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = $"Tenant with host '{host}' was not found.", Status = StatusCodes.Status404NotFound });
         }
         var response = await _tenantFactory.BuildDetailsAsync(tenant, cancellationToken);
         return Ok(response);
@@ -229,7 +231,7 @@ public class TenantController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid pagination parameters: {Message}", ex.Message);
-            return this.CreateBadRequestProblem(ex.Message);
+            return BadRequest(new ProblemDetails { Title = "Bad Request", Detail = ex.Message, Status = StatusCodes.Status400BadRequest });
         }
     }
 
@@ -257,7 +259,7 @@ public class TenantController : ControllerBase
         if (tenant == null)
         {
             _logger.LogWarning("Tenant not found: {TenantId}", id);
-            return this.CreateNotFoundProblem($"Tenant with ID '{id}' was not found.");
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = $"Tenant with ID '{id}' was not found.", Status = StatusCodes.Status404NotFound });
         }
 
         try
@@ -286,17 +288,17 @@ public class TenantController : ControllerBase
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "Invalid tenant update request: {Message}", ex.Message);
-            return this.CreateBadRequestProblem(ex.Message);
+            return BadRequest(new ProblemDetails { Title = "Bad Request", Detail = ex.Message, Status = StatusCodes.Status400BadRequest });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found"))
         {
             _logger.LogWarning(ex, "Tenant not found for update: {TenantId}", id);
-            return this.CreateNotFoundProblem(ex.Message);
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = ex.Message, Status = StatusCodes.Status404NotFound });
         }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Tenant update conflict: {Message}", ex.Message);
-            return this.CreateConflictProblem(ex.Message);
+            return Conflict(new ProblemDetails { Title = "Conflict", Detail = ex.Message, Status = StatusCodes.Status409Conflict });
         }
     }
 
@@ -347,7 +349,7 @@ public class TenantController : ControllerBase
         var validationResult = await _activateDeactivateTenantRequestValidator.ValidateAsync(request, cancellationToken);
         if (!validationResult.IsValid)
         {
-            return this.CreateBadRequestProblem(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
+            return BadRequest(new ProblemDetails { Title = "Bad Request", Detail = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)), Status = StatusCodes.Status400BadRequest });
         }
 
         try
@@ -367,7 +369,7 @@ public class TenantController : ControllerBase
         {
             string action = activate ? "activation" : "deactivation";
             _logger.LogWarning(ex, "Tenant not found for {Action}: {TenantId}", action, id);
-            return this.CreateNotFoundProblem(ex.Message);
+            return NotFound(new ProblemDetails { Title = "Not Found", Detail = ex.Message, Status = StatusCodes.Status404NotFound });
         }
     }
 }

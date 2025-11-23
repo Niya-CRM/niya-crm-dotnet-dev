@@ -19,7 +19,7 @@ namespace OXDesk.Tests.Helpers
 
         // Add DbSet properties for all entities used in tests
         public DbSet<ChangeHistoryLog> ChangeHistoryLogs { get; set; } = null!;
-        public DbSet<Tenant> Tenants { get; set; } = null!;
+        public DbSet<OXDesk.Core.Tenants.Tenant> Tenants { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<DynamicObject> DynamicObjects { get; set; } = null!;
         public DbSet<ValueList> ValueLists { get; set; } = null!;

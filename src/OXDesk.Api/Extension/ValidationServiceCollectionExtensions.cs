@@ -1,10 +1,9 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using OXDesk.Api.Validators.Tenants;
 using OXDesk.Application.Identity.Validators;
-using OXDesk.Application.Tenants.Validators;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Tenant.Validators;
 
 namespace OXDesk.Api.Extension
 {

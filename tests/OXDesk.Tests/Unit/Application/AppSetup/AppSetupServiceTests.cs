@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OXDesk.Core.Identity;
 using OXDesk.Tests.Helpers;
 using OXDesk.Core.Tenants;
+using TenantEntity = OXDesk.Core.Tenants.Tenant;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.AppInstallation.Services;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
@@ -152,7 +153,7 @@ namespace OXDesk.Tests.Unit.Application.AppSetup
             };
 
             var tenantId = Guid.Parse("00000000-0000-0000-0000-00000000012D");
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Test Organization",

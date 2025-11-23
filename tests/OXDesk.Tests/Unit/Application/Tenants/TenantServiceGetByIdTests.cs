@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using OXDesk.Application.Tenants;
+using OXDesk.Tenant.Services;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
+using TenantEntity = OXDesk.Core.Tenants.Tenant;
 using OXDesk.Core.DynamicObjects;
 using Shouldly;
 using System;
@@ -88,7 +89,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         {
             // Arrange
             var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000065");
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Test Tenant",
@@ -126,7 +127,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             _mockTenantRepository
                 .Setup(repo => repo.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Tenant?)null);
+                .ReturnsAsync((TenantEntity?)null);
 
             // Act
             var result = await _tenantService.GetTenantByIdAsync(tenantId);

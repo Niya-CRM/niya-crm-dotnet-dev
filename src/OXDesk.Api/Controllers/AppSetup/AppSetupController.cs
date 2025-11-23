@@ -6,6 +6,7 @@ using OXDesk.Core.Tenants;
 using Microsoft.AspNetCore.Authorization;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.ValueLists.DTOs;
+using TenantEntity = OXDesk.Core.Tenants.Tenant;
 
 namespace OXDesk.Api.Controllers.AppSetup;
 
@@ -100,7 +101,7 @@ public class AppSetupController : Controller
 
         try
         {
-            Tenant tenant = await _AppSetupService.InstallApplicationAsync(setupDto, tenantId: null, technicalUserId: null, cancellationToken: cancellationToken);
+            TenantEntity tenant = await _AppSetupService.InstallApplicationAsync(setupDto, tenantId: null, technicalUserId: null, cancellationToken: cancellationToken);
             _logger.LogInformation("Application installed for tenant {TenantId}", tenant.Id);
             return RedirectToAction(nameof(Success));
         }

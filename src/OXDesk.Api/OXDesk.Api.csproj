@@ -5,6 +5,7 @@
     <ProjectReference Include="..\OXDesk.Application\OXDesk.Application.csproj" />
     <ProjectReference Include="..\OXDesk.Infrastructure\OXDesk.Infrastructure.csproj" />
     <ProjectReference Include="..\OXDesk.AppInstallation\OXDesk.AppInstallation.csproj" />
+    <ProjectReference Include="..\OXDesk.Tenant\OXDesk.Tenant.csproj" />
   </ItemGroup>
 
   <ItemGroup>

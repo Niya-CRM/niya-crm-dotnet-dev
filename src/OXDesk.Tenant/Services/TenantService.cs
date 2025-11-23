@@ -10,7 +10,7 @@ using OXDesk.Core.Cache;
 using OXDesk.Core.Identity;
 using OXDesk.Core.DynamicObjects;
 
-namespace OXDesk.Application.Tenants;
+namespace OXDesk.Tenant.Services;
 
 /// <summary>
 /// Service implementation for tenant management operations.
@@ -85,7 +85,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> CreateTenantAsync(CreateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant> CreateTenantAsync(CreateTenantRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating tenant with name: {Name}, host: {Host}, email: {Email}", request.Name, request.Host, request.Email);
 
@@ -115,7 +115,7 @@ public class TenantService : ITenantService
 
         // Create new tenant
         var currentUserId = GetCurrentUserId();
-        var tenant = new Tenant(
+        var tenant = new OXDesk.Core.Tenants.Tenant(
             name: normalizedName,
             host: normalizedHost,
             email: normalizedEmail,
@@ -153,11 +153,11 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant?> GetTenantByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting tenant by ID: {TenantId}", id);
         var cacheKey = $"{_tenantCachePrefix}{id}";
-        var cachedTenant = await _cacheService.GetAsync<Tenant>(cacheKey);
+        var cachedTenant = await _cacheService.GetAsync<OXDesk.Core.Tenants.Tenant>(cacheKey);
         if (cachedTenant != null)
         {
             _logger.LogDebug("Tenant {TenantId} found in cache", id);
@@ -173,7 +173,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant?> GetTenantByHostAsync(string host, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant?> GetTenantByHostAsync(string host, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(host))
             throw new ArgumentException("Host cannot be null or empty.", nameof(host));
@@ -182,7 +182,7 @@ public class TenantService : ITenantService
         var cacheKey = $"{_tenantCachePrefix}{normalizedHost}";
         _logger.LogDebug("Getting tenant by host: {Host}", normalizedHost);
 
-        var cachedTenant = await _cacheService.GetAsync<Tenant>(cacheKey);
+        var cachedTenant = await _cacheService.GetAsync<OXDesk.Core.Tenants.Tenant>(cacheKey);
         if (cachedTenant != null)
         {
             _logger.LogDebug("Tenant for host {Host} found in cache", normalizedHost);
@@ -199,7 +199,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant> UpdateTenantAsync(Guid id, UpdateTenantRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Updating tenant {TenantId} with name: {Name}, host: {Host}, email: {Email}, databaseName: {DatabaseName}", id, request.Name, request.Host, request.Email, request.DatabaseName);
 
@@ -282,7 +282,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default)
+    public async Task<OXDesk.Core.Tenants.Tenant> ChangeTenantActivationStatusAsync(Guid id, string action, string reason, CancellationToken cancellationToken = default)
     {
         bool isActivating = action.Equals(TenantConstant.ActivationAction.Activate, StringComparison.OrdinalIgnoreCase);
         string actionVerb = isActivating ? "Activating" : "Deactivating";
@@ -323,7 +323,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OXDesk.Core.Tenants.Tenant>> GetActiveTenantsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all active tenants");
         return await _unitOfWork.GetRepository<ITenantRepository>().GetActiveTenantsAsync(cancellationToken);
@@ -343,7 +343,7 @@ public class TenantService : ITenantService
     }
 
     /// <inheritdoc />
-    public async Task<IEnumerable<Tenant>> GetAllTenantsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<OXDesk.Core.Tenants.Tenant>> GetAllTenantsAsync(int pageNumber = CommonConstant.PAGE_NUMBER_DEFAULT, int pageSize = CommonConstant.PAGE_SIZE_DEFAULT, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Getting all tenants - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
         return await _unitOfWork.GetRepository<ITenantRepository>().GetAllAsync(pageNumber, pageSize, cancellationToken);

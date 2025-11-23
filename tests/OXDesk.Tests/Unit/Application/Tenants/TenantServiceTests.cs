@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
-using OXDesk.Application.Tenants;
+using OXDesk.Tenant.Services;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
+using TenantEntity = OXDesk.Core.Tenants.Tenant;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Tests.Helpers;
@@ -170,7 +171,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 TimeZone = "UTC"
             };
             
-            var existingTenant = new Tenant
+            var existingTenant = new TenantEntity
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-0000000000C8"),
                 Name = "Existing Tenant",
@@ -196,7 +197,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             
             // Verify tenant was not added
             _mockTenantRepository.Verify(
-                repo => repo.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                repo => repo.AddAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
@@ -205,7 +206,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task AnyTenantsExistAsync_ShouldReturnTrue_WhenTenantsExist()
         {
             // Arrange
-            var tenants = new List<Tenant>
+            var tenants = new List<TenantEntity>
             {
                 new() { Id = Guid.Parse("00000000-0000-0000-0000-0000000000C9"), Name = "Tenant 1" }
             };
@@ -230,7 +231,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
         public async Task AnyTenantsExistAsync_ShouldReturnFalse_WhenNoTenantsExist()
         {
             // Arrange
-            var tenants = new List<Tenant>();
+            var tenants = new List<TenantEntity>();
 
             _mockTenantRepository
                 .Setup(repo => repo.GetAllAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -254,7 +255,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             // Arrange
             var tenantId = Guid.Parse("00000000-0000-0000-0000-0000000000D2");
             var reason = "Test activation";
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Test Tenant",
@@ -268,8 +269,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 .ReturnsAsync(tenant);
 
             _mockTenantRepository
-                .Setup(repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Tenant t, CancellationToken ct) => t);
+                .Setup(repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TenantEntity t, CancellationToken ct) => t);
 
             _mockUnitOfWork
                 .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -289,7 +290,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             // Verify tenant was updated
             _mockTenantRepository.Verify(
-                repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()),
                 Times.Once);
 
             // Verify audit log was created
@@ -314,7 +315,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             // Arrange
             var tenantId = Guid.Parse("00000000-0000-0000-0000-0000000000D3");
             var reason = "Test deactivation";
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Id = tenantId,
                 Name = "Test Tenant",
@@ -328,8 +329,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 .ReturnsAsync(tenant);
 
             _mockTenantRepository
-                .Setup(repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Tenant t, CancellationToken ct) => t);
+                .Setup(repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((TenantEntity t, CancellationToken ct) => t);
 
             _mockUnitOfWork
                 .Setup(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -349,7 +350,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             // Verify tenant was updated
             _mockTenantRepository.Verify(
-                repo => repo.UpdateAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                repo => repo.UpdateAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()),
                 Times.Once);
 
             // Verify audit log was created
@@ -385,7 +386,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
                 TimeZone = "UTC"
             };
             
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Name = tenantName,
                 Host = tenantHost,
@@ -394,7 +395,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             };
 
             _mockTenantRepository
-                .Setup(repo => repo.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()))
+                .Setup(repo => repo.AddAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(tenant);
 
             _mockUnitOfWork
@@ -413,7 +414,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             // Verify tenant was added
             _mockTenantRepository.Verify(
-                repo => repo.AddAsync(It.IsAny<Tenant>(), It.IsAny<CancellationToken>()),
+                repo => repo.AddAsync(It.IsAny<TenantEntity>(), It.IsAny<CancellationToken>()),
                 Times.Once);
 
             // Verify audit log was created
@@ -448,7 +449,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var host = "test.niyacrm.com";
             var normalizedHost = host.Trim().ToLowerInvariant();
             var cacheKey = $"tenant:{normalizedHost}";
-            var cachedTenant = new Tenant
+            var cachedTenant = new TenantEntity
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-0000000000DC"),
                 Name = "Test Tenant",
@@ -458,7 +459,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             };
 
             _mockCacheService
-                .Setup(c => c.GetAsync<Tenant>(cacheKey))
+                .Setup(c => c.GetAsync<TenantEntity>(cacheKey))
                 .ReturnsAsync(cachedTenant);
 
             // Act
@@ -469,7 +470,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             result.ShouldBe(cachedTenant);
             
             // Verify cache was checked
-            _mockCacheService.Verify(c => c.GetAsync<Tenant>(cacheKey), Times.Once);
+            _mockCacheService.Verify(c => c.GetAsync<TenantEntity>(cacheKey), Times.Once);
             
             // Verify repository was not called
             _mockTenantRepository.Verify(r => r.GetByHostAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -482,7 +483,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             var host = "test.niyacrm.com";
             var normalizedHost = host.Trim().ToLowerInvariant();
             var cacheKey = $"tenant:{normalizedHost}";
-            var tenant = new Tenant
+            var tenant = new TenantEntity
             {
                 Id = Guid.Parse("00000000-0000-0000-0000-0000000000DD"),
                 Name = "Test Tenant",
@@ -493,8 +494,8 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             // Setup cache miss
             _mockCacheService
-                .Setup(c => c.GetAsync<Tenant>(cacheKey))
-                .ReturnsAsync((Tenant)null!);
+                .Setup(c => c.GetAsync<TenantEntity>(cacheKey))
+                .ReturnsAsync((TenantEntity)null!);
 
             // Setup repository hit
             _mockTenantRepository
@@ -509,7 +510,7 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             result.ShouldBe(tenant);
             
             // Verify cache was checked
-            _mockCacheService.Verify(c => c.GetAsync<Tenant>(cacheKey), Times.Once);
+            _mockCacheService.Verify(c => c.GetAsync<TenantEntity>(cacheKey), Times.Once);
             
             // Verify repository was called
             _mockTenantRepository.Verify(r => r.GetByHostAsync(normalizedHost, It.IsAny<CancellationToken>()), Times.Once);
@@ -528,13 +529,13 @@ namespace OXDesk.Tests.Unit.Application.Tenants
 
             // Setup cache miss
             _mockCacheService
-                .Setup(c => c.GetAsync<Tenant>(cacheKey))
-                .ReturnsAsync((Tenant)null!);
+                .Setup(c => c.GetAsync<TenantEntity>(cacheKey))
+                .ReturnsAsync((TenantEntity)null!);
 
             // Setup repository miss
             _mockTenantRepository
                 .Setup(r => r.GetByHostAsync(normalizedHost, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Tenant)null!);
+                .ReturnsAsync((TenantEntity)null!);
 
             // Act
             var result = await _tenantService.GetTenantByHostAsync(host);
@@ -543,13 +544,13 @@ namespace OXDesk.Tests.Unit.Application.Tenants
             result.ShouldBeNull();
             
             // Verify cache was checked
-            _mockCacheService.Verify(c => c.GetAsync<Tenant>(cacheKey), Times.Once);
+            _mockCacheService.Verify(c => c.GetAsync<TenantEntity>(cacheKey), Times.Once);
             
             // Verify repository was called
             _mockTenantRepository.Verify(r => r.GetByHostAsync(normalizedHost, It.IsAny<CancellationToken>()), Times.Once);
             
             // Verify no caching occurred
-            _mockCacheService.Verify(c => c.SetAsync(cacheKey, It.IsAny<Tenant>(), null, null), Times.Never);
+            _mockCacheService.Verify(c => c.SetAsync(cacheKey, It.IsAny<TenantEntity>(), null, null), Times.Never);
         }
     }
 
