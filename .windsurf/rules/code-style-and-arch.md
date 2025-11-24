@@ -6,7 +6,6 @@ trigger: always_on
 - The Application is an API Microservice writtern in .NET 9.0
 - However, there are is web page servered directly by app i.e. /setup.
 - Application Name is OXDesk which provides Helpdesk Tool and Customer Surveys and leverage LLM/AI using external providers mainly OpenAI.
-- Application is Multi-tenant, we use single Database and tenant_id column exists in all tenant specific tables.
 
 # General Code Style & Formatting
 - Use English for all code and documentation.
@@ -21,7 +20,6 @@ trigger: always_on
 - Core project include the Domain Models, Entities, Value Objects, , Specifications, Interfaces, DTOs, Constants, etc.
 - All common functionalities are under Common folder in Core Project.
 - All specific features are directly added into their respective folder.
-- Infrastructure project contains database, redis connection, logging, Email Services, and other external services.
 - Data folder for database access related code
 - Entity Configurations are stored in respective Data/feature folder under Infrasture Project 
 - Application project contains business logic
@@ -29,8 +27,9 @@ trigger: always_on
 - Factory Service is responsible for DTOs transformation.
 - Validators folder in API project contains validation logic using FluentValidation
 - All Configuration are in Configurations folder under OXDesk.Api project with specific json files for different modules.
-- Refer 'Tenant' as an example.
 - Middlewares are stored in src\OXDesk.Api\Middleware
+- Shared functionalities are implemented in Shared Project.
+- We have specific project for Tenant, Identity, etc. We need each domain to have separate projects for easy maintanance.
 
 # Functions & Logic
 - API Endpoints call the Application Service layer and Application  Services layer calls the Infrastructure layer.
