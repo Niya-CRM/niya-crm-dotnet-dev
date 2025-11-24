@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OXDesk.Core\OXDesk.Core.csproj" />
+    <ProjectReference Include="..\OXDesk.DbContext\OXDesk.DbContext.csproj" />
+    <ProjectReference Include="..\OXDesk.Infrastructure\OXDesk.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NodaTime" Version="3.2.2" />
+  </ItemGroup>
+
+</Project>

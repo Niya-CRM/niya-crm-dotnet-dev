@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 
 namespace OXDesk.Api.Helpers
 {

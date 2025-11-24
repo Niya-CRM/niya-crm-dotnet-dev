@@ -8,7 +8,7 @@ using TenantEntity = OXDesk.Core.Tenants.Tenant;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.AppInstallation.Services;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 using OXDesk.Core;
 using Moq;
 using Shouldly;

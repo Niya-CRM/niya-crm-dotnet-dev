@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OXDesk.Core\OXDesk.Core.csproj" />
+    <ProjectReference Include="..\OXDesk.DbContext\OXDesk.DbContext.csproj" />
     <ProjectReference Include="..\OXDesk.Infrastructure\OXDesk.Infrastructure.csproj" />
   </ItemGroup>
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OXDesk.Api.Common;
+using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common;

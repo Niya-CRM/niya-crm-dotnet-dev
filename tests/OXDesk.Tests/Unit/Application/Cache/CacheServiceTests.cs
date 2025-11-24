@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using OXDesk.Application.Cache;
+using OXDesk.Shared.Services;
 using OXDesk.Core.Cache;
 using OXDesk.Core.Tenants;
 using Shouldly;

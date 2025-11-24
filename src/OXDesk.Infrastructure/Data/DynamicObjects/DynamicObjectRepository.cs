@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.Common;
+using OXDesk.DbContext.Data;
 
 namespace OXDesk.Infrastructure.Data.DynamicObjects;
 

@@ -10,7 +10,7 @@ using OXDesk.Core.AppInstallation.AppSetup;
 using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.ValueLists;
 using System.Linq;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.DynamicObjects;
 

@@ -13,7 +13,7 @@ using OXDesk.Core.AppInstallation.AppSetup.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.DynamicObjects.Fields;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 using OXDesk.Core.Common;
 using OXDesk.Core.ValueLists;
 using OXDesk.Core.AuditLogs.ChangeHistory;

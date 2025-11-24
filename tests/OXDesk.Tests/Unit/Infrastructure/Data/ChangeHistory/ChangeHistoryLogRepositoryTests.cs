@@ -6,7 +6,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common;
 using OXDesk.Core.Tenants;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 using OXDesk.Infrastructure.Data.AuditLogs.ChangeHistory;
 using OXDesk.Tests.Helpers;
 using Shouldly;

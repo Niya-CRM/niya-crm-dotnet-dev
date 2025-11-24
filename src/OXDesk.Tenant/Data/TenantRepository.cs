@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Common;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 
 namespace OXDesk.Tenant.Data;
 
@@ -11,23 +11,23 @@ namespace OXDesk.Tenant.Data;
 /// </summary>
 public class TenantRepository : ITenantRepository
 {
-    private readonly TenantDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<TenantRepository> _logger;
     private readonly DbSet<OXDesk.Core.Tenants.Tenant> _dbSet;
 
     /// <summary>
     /// Initializes a new instance of the TenantRepository.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
+    /// <param name="dbContext">The application database context.</param>
     /// <param name="logger">The logger.</param>
-    public TenantRepository(TenantDbContext dbContext, ILogger<TenantRepository> logger)
+    public TenantRepository(ApplicationDbContext dbContext, ILogger<TenantRepository> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(logger);
         
         _dbContext = dbContext;
         _logger = logger;
-        _dbSet = dbContext.Set<OXDesk.Core.Tenants.Tenant>();
+        _dbSet = dbContext.Tenants;
     }
 
     /// <inheritdoc />

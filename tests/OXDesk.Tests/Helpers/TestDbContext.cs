@@ -5,7 +5,6 @@ using OXDesk.Core.DynamicObjects;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.ValueLists;
-using OXDesk.Infrastructure.Data;
 using System;
 
 namespace OXDesk.Tests.Helpers
@@ -13,7 +12,7 @@ namespace OXDesk.Tests.Helpers
     /// <summary>
     /// A test double for ApplicationDbContext that can be used in unit tests
     /// </summary>
-    public class TestDbContext : DbContext
+    public class TestDbContext : Microsoft.EntityFrameworkCore.DbContext
     {
         public TestDbContext() { }
 

@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OXDesk.Core\OXDesk.Core.csproj" />
+    <ProjectReference Include="..\OXDesk.DbContext\OXDesk.DbContext.csproj" />
   </ItemGroup>
 
   <ItemGroup>

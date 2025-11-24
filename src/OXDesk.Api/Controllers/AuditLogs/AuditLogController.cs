@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.DTOs;
-using OXDesk.Api.Common;
+using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Common.Response;
 

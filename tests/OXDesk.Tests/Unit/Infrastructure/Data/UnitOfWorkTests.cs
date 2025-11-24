@@ -6,7 +6,7 @@ using Moq;
 using OXDesk.Core;
 using OXDesk.Core.Common;
 using OXDesk.Core.Tenants;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 using Shouldly;
 using System;
 using System.Threading;

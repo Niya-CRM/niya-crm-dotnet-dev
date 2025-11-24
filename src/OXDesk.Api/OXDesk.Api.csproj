@@ -3,9 +3,12 @@
   <ItemGroup>
     <ProjectReference Include="..\OXDesk.Core\OXDesk.Core.csproj" />
     <ProjectReference Include="..\OXDesk.Application\OXDesk.Application.csproj" />
+    <ProjectReference Include="..\OXDesk.DbContext\OXDesk.DbContext.csproj" />
     <ProjectReference Include="..\OXDesk.Infrastructure\OXDesk.Infrastructure.csproj" />
     <ProjectReference Include="..\OXDesk.AppInstallation\OXDesk.AppInstallation.csproj" />
     <ProjectReference Include="..\OXDesk.Tenant\OXDesk.Tenant.csproj" />
+    <ProjectReference Include="..\OXDesk.Identity\OXDesk.Identity.csproj" />
+    <ProjectReference Include="..\OXDesk.Shared\OXDesk.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

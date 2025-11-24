@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.Identity;
-using OXDesk.Infrastructure.Data;
+using OXDesk.DbContext.Data;
 
 namespace OXDesk.Infrastructure.Data.Identity;
 

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OXDesk.Api.Common;
+using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;

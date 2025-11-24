@@ -4,7 +4,7 @@ using OXDesk.Core.DynamicObjects.DTOs;
 using OXDesk.Core.Common;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using OXDesk.Api.Common;
+using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common.DTOs;
  
 using Microsoft.AspNetCore.Authorization;

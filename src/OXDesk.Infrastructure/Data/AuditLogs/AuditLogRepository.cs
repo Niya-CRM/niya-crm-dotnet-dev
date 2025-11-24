@@ -4,6 +4,7 @@ using OXDesk.Core.Common;
 using OXDesk.Core.AuditLogs.DTOs;
 using OXDesk.Infrastructure.Data.AuditLogs;
 using OXDesk.Core.Identity;
+using OXDesk.DbContext.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

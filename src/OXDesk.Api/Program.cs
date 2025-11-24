@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 using OXDesk.Api.Configurations;
 using OXDesk.Api.Conventions;
@@ -18,17 +20,11 @@ using OXDesk.Api.Factories.DynamicObjects;
 using OXDesk.Api.Factories.Identity;
 using OXDesk.Api.Helpers;
 using OXDesk.Api.Middleware;
-using OXDesk.AppInstallation;
-using OXDesk.Application.AuditLogs;
-using OXDesk.Application.AuditLogs.ChangeHistory;
-using OXDesk.Application.Cache;
-using OXDesk.Application.Common;
 using OXDesk.Application.DynamicObjects;
 using OXDesk.Application.DynamicObjects.Fields;
 using OXDesk.Application.Identity;
-using OXDesk.Application.Identity.Validators;
-using OXDesk.Application.Tenants;
 using OXDesk.Application.ValueLists;
+using OXDesk.AppInstallation;
 using OXDesk.Core;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.ChangeHistory;
@@ -42,6 +38,7 @@ using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.ValueLists;
+using OXDesk.DbContext.Data;
 using OXDesk.Infrastructure.Cache;
 using OXDesk.Infrastructure.Data;
 using OXDesk.Infrastructure.Data.AuditLogs;
@@ -55,264 +52,264 @@ using OXDesk.Infrastructure.Redaction;
 using OXDesk.Tenant.Data;
 using OXDesk.Tenant.Factories;
 using OXDesk.Tenant.Services;
-
-using Serilog;
-
-using Swashbuckle.AspNetCore.SwaggerGen;
+using OXDesk.Identity.Data;
+using OXDesk.Identity.Services;
+using OXDesk.Identity.Factories;
+using OXDesk.Identity.Extensions;
+using OXDesk.Shared.Services;
+using OXDesk.Shared.Common;
 
 try
 {
-var builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateBuilder(args);
 
-builder.AddConfigurations();
+    builder.AddConfigurations();
 
-Log.Error("Server Booting Up...");
+    Log.Error("Server Booting Up...");
 
-// HTTP Logging Config (hardened to avoid sensitive data leakage)
-/* builder.Services.AddHttpLogging(logging =>
-{
-    // Log request/response properties and headers only. Do NOT log bodies or query strings.
-    logging.LoggingFields =
-        HttpLoggingFields.RequestPropertiesAndHeaders |
-        HttpLoggingFields.ResponsePropertiesAndHeaders;
+    // HTTP Logging Config (hardened to avoid sensitive data leakage)
+    /* builder.Services.AddHttpLogging(logging =>
+    {
+        // Log request/response properties and headers only. Do NOT log bodies or query strings.
+        logging.LoggingFields =
+            HttpLoggingFields.RequestPropertiesAndHeaders |
+            HttpLoggingFields.ResponsePropertiesAndHeaders;
 
-    // Whitelist safe request headers; avoid Authorization/Cookie headers.
-    logging.RequestHeaders.Add("x-correlation-id");
-    logging.RequestHeaders.Add("X-Forwarded-For");
-    logging.RequestHeaders.Add("X-Forwarded-Proto");
-    logging.RequestHeaders.Add("X-Forwarded-Port");
-    logging.RequestHeaders.Add("X-Forwarded-Host");
-    logging.RequestHeaders.Add("X-Forwarded-Server");
-    logging.RequestHeaders.Add("X-Amzn-Trace-Id");
-    logging.RequestHeaders.Add("Upgrade-Insecure-Requests");
-    logging.RequestHeaders.Add("sec-ch-ua");
-    logging.RequestHeaders.Add("sec-ch-ua-mobile");
-    logging.RequestHeaders.Add("sec-ch-ua-platform");
+        // Whitelist safe request headers; avoid Authorization/Cookie headers.
+        logging.RequestHeaders.Add("x-correlation-id");
+        logging.RequestHeaders.Add("X-Forwarded-For");
+        logging.RequestHeaders.Add("X-Forwarded-Proto");
+        logging.RequestHeaders.Add("X-Forwarded-Port");
+        logging.RequestHeaders.Add("X-Forwarded-Host");
+        logging.RequestHeaders.Add("X-Forwarded-Server");
+        logging.RequestHeaders.Add("X-Amzn-Trace-Id");
+        logging.RequestHeaders.Add("Upgrade-Insecure-Requests");
+        logging.RequestHeaders.Add("sec-ch-ua");
+        logging.RequestHeaders.Add("sec-ch-ua-mobile");
+        logging.RequestHeaders.Add("sec-ch-ua-platform");
 
-    // Whitelist safe response headers.
-    logging.ResponseHeaders.Add("x-correlation-id");
-    logging.ResponseHeaders.Add("Pragma");
-    logging.ResponseHeaders.Add("Cache-Control");
-    logging.ResponseHeaders.Add("max-age");
+        // Whitelist safe response headers.
+        logging.ResponseHeaders.Add("x-correlation-id");
+        logging.ResponseHeaders.Add("Pragma");
+        logging.ResponseHeaders.Add("Cache-Control");
+        logging.ResponseHeaders.Add("max-age");
 
-    // Explicitly ensure sensitive headers are not logged.
-    logging.RequestHeaders.Remove("Authorization");
-    logging.RequestHeaders.Remove("Cookie");
-    logging.ResponseHeaders.Remove("Set-Cookie");
-}); */
+        // Explicitly ensure sensitive headers are not logged.
+        logging.RequestHeaders.Remove("Authorization");
+        logging.RequestHeaders.Remove("Cookie");
+        logging.ResponseHeaders.Remove("Set-Cookie");
+    }); */
 
-builder.Services.AddControllersWithViews(options =>
-{
-    // Add a route convention to prefix all controller routes with 'api'
-    // except for controllers that should be served directly
-    options.Conventions.Add(new ApiControllerRouteConvention());
-});
+    builder.Services.AddControllersWithViews(options =>
+    {
+        // Add a route convention to prefix all controller routes with 'api'
+        // except for controllers that should be served directly
+        options.Conventions.Add(new ApiControllerRouteConvention());
+    });
 
-// Register data redaction for sensitive & personal data
-builder.Services.AddOxDeskRedaction();
+    // Register data redaction for sensitive & personal data
+    builder.Services.AddOxDeskRedaction();
 
-// Register all FluentValidation validators via extension method
-builder.Services.AddOxDeskValidators();
+    // Register all FluentValidation validators via extension method
+    builder.Services.AddOxDeskValidators();
 
-// For http request context accessing
-builder.Services.AddHttpContextAccessor();
+    // For http request context accessing
+    builder.Services.AddHttpContextAccessor();
 
-// Register current tenant holder (scoped per request)
-builder.Services.AddScoped<ICurrentTenant, CurrentTenant>();
+    // Register current tenant holder (scoped per request)
+    builder.Services.AddScoped<OXDesk.Core.Tenants.ICurrentTenant, OXDesk.Shared.Common.CurrentTenant>();
 
-// Register current user holder (scoped per request)
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+    // Register current user holder (scoped per request)
+    builder.Services.AddScoped<OXDesk.Core.Identity.ICurrentUser, OXDesk.Shared.Common.CurrentUser>();
 
-// Register ApplicationDbContext with PostgreSQL
-builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
+    // Register ApplicationDbContext with PostgreSQL
+    builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
 
-// Configure Identity
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
-    // Password settings
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-    
-    // Lockout settings
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    
-    // User settings
-    options.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<TenantDbContext>()
-.AddDefaultTokenProviders();
+    // Configure Identity
+    builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
+        // Password settings
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequiredLength = 8;
+        
+        // Lockout settings
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        
+        // User settings
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<TenantDbContext>()
+    .AddDefaultTokenProviders();
 
-// Configure OpenIddict for OAuth 2.0 and OpenID Connect
-builder.Services.AddOpenIddictServices(builder.Configuration);
+    // Configure OpenIddict for OAuth 2.0 and OpenID Connect
+    builder.Services.AddOpenIddictServices(builder.Configuration);
 
-// Keep JWT Bearer for backward compatibility (optional - can be removed later)
-builder.Services.AddAuthentication()
-.AddJwtBearer(options => {
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = AuthConstants.Jwt.Issuer,
-        ValidAudience = AuthConstants.Jwt.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(JwtHelper.GetJwtSigningKey())
-    };
-});
+    // Keep JWT Bearer for backward compatibility (optional - can be removed later)
+    builder.Services.AddAuthentication()
+    .AddJwtBearer(options => {
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = AuthConstants.Jwt.Issuer,
+            ValidAudience = AuthConstants.Jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(JwtHelper.GetJwtSigningKey())
+        };
+    });
 
-// Roles and Permissions
-builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddScoped<IPermissionFactory, PermissionsFactory>();
-builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IRoleFactory, RolesFactory>();
+    // Roles and Permissions
+    builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+    builder.Services.AddScoped<IPermissionService, PermissionService>();
+    builder.Services.AddScoped<IPermissionFactory, PermissionsFactory>();
+    builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+    builder.Services.AddScoped<IRoleService, RoleService>();
+    builder.Services.AddScoped<IRoleFactory, RolesFactory>();
 
-// Register User Services
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserFactory, UserFactory>();
+    // Register User Services (from OXDesk.Identity)
+    builder.Services.AddScoped<IUserRepository, OXDesk.Identity.Data.UserRepository>();
+    builder.Services.AddScoped<IUserService, OXDesk.Identity.Services.UserService>();
+    builder.Services.AddScoped<IUserFactory, OXDesk.Identity.Factories.UserFactory>();
 
+    // Add Authorization policies with global fallback policy using AuthorizationBuilder
+    var authBuilder = builder.Services.AddAuthorizationBuilder();
 
-// Add Authorization policies with global fallback policy using AuthorizationBuilder
-var authBuilder = builder.Services.AddAuthorizationBuilder();
+    // This makes all endpoints require authentication by default
+    authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build());
 
-// This makes all endpoints require authentication by default
-authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
-    .RequireAuthenticatedUser()
-    .Build());
+    // Permission-based policies
+    authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupRead, policy =>
+       policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupRead));
+    authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupWrite, policy =>
+       policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupWrite));
 
-// Permission-based policies
-authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupRead, policy =>
-   policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupRead));
-authBuilder.AddPolicy(CommonConstant.PermissionNames.SysSetupWrite, policy =>
-   policy.RequireClaim("permission", CommonConstant.PermissionNames.SysSetupWrite));
+    // Register Tenant Services
+    builder.Services.AddScoped<ITenantService, TenantService>();
+    builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+    builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
 
-// Register Tenant Services
-builder.Services.AddScoped<ITenantService, TenantService>();
-builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
+    // Register Correlation ID Accessor
+    builder.Services.AddScoped<ICorrelationIdAccessor, OXDesk.Application.Common.CorrelationIdAccessor>();
 
-// Register Correlation ID Accessor
-builder.Services.AddScoped<ICorrelationIdAccessor, CorrelationIdAccessor>();
+    // Register AuditLog Services
+    builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+    builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+    builder.Services.AddScoped<IAuditLogFactory, AuditLogFactory>();
 
-// Register AuditLog Services
-builder.Services.AddScoped<IAuditLogService, AuditLogService>();
-builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-builder.Services.AddScoped<IAuditLogFactory, AuditLogFactory>();
+    // Cache Services
+    builder.Services.AddScoped<ICacheRepository, CacheRepository>();
+    builder.Services.AddScoped<ICacheService, CacheService>();
+    builder.Services.AddMemoryCache();
 
-// Cache Services
-builder.Services.AddScoped<ICacheRepository, CacheRepository>();
-builder.Services.AddScoped<ICacheService, CacheService>();
-builder.Services.AddMemoryCache();
+    // ChangeHistoryLog Services
+    builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
+    builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
+    builder.Services.AddScoped<IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
 
-// ChangeHistoryLog Services
-builder.Services.AddScoped<IChangeHistoryLogService, ChangeHistoryLogService>();
-builder.Services.AddScoped<IChangeHistoryLogRepository, ChangeHistoryLogRepository>();
-builder.Services.AddScoped<IChangeHistoryLogFactory, ChangeHistoryLogFactory>();
+    // DynamicObject Services
+    builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
+    builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
+    builder.Services.AddScoped<IDynamicObjectFactory, DynamicObjectFactory>();
 
-// DynamicObject Services
-builder.Services.AddScoped<IDynamicObjectService, DynamicObjectService>();
-builder.Services.AddScoped<IDynamicObjectRepository, DynamicObjectRepository>();
-builder.Services.AddScoped<IDynamicObjectFactory, DynamicObjectFactory>();
+    // DynamicObject Field Type Services
+    builder.Services.AddScoped<IDynamicObjectFieldRepository, DynamicObjectFieldRepository>();
+    builder.Services.AddScoped<IDynamicObjectFieldService, DynamicObjectFieldService>();
+    builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
 
-// DynamicObject Field Type Services
-builder.Services.AddScoped<IDynamicObjectFieldRepository, DynamicObjectFieldRepository>();
-builder.Services.AddScoped<IDynamicObjectFieldService, DynamicObjectFieldService>();
-builder.Services.AddScoped<IDynamicObjectFieldFactory, DynamicObjectFieldFactory>();
+    // Refresh Token Repository (from OXDesk.Identity)
+    builder.Services.AddScoped<IUserRefreshTokenRepository, OXDesk.Identity.Data.UserRefreshTokenRepository>();
 
-// Refresh Token Repository
-builder.Services.AddScoped<IUserRefreshTokenRepository, UserRefreshTokenRepository>();
+    // ValueList Services
+    builder.Services.AddScoped<IValueListRepository, ValueListRepository>();
+    builder.Services.AddScoped<IValueListService, ValueListService>();
+    builder.Services.AddScoped<IValueListItemRepository, ValueListItemRepository>();
+    builder.Services.AddScoped<IValueListItemService, ValueListItemService>();
 
-// ValueList Services
-builder.Services.AddScoped<IValueListRepository, ValueListRepository>();
-builder.Services.AddScoped<IValueListService, ValueListService>();
-builder.Services.AddScoped<IValueListItemRepository, ValueListItemRepository>();
-builder.Services.AddScoped<IValueListItemService, ValueListItemService>();
+    // Register Unit of Work
+    builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+    // Register JwtHelper
+    builder.Services.AddScoped<JwtHelper>();
 
-// Register Unit of Work
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+    // Register AppInstallation Services
+    builder.Services.AddAppInstallation();
 
-// Register JwtHelper
-builder.Services.AddScoped<JwtHelper>();
+    // Register Swagger/OpenAPI
+    builder.Services.AddSwaggerServices(builder.Configuration);
 
-// Register AppInstallation Services
-builder.Services.AddAppInstallation();
+    // Health Checks
+    builder.Services.AddHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy(), tags: CommonConstant.HealthCheck.ServiceTags)
+        .AddCheck<DatabaseHealthCheck>("database_connection", tags: CommonConstant.HealthCheck.DatabaseTags);
 
-// Register Swagger/OpenAPI
-builder.Services.AddSwaggerServices(builder.Configuration);
+    // Register the database health check as a service
+    builder.Services.AddScoped<DatabaseHealthCheck>();
 
-// Health Checks
-builder.Services.AddHealthChecks()
-    .AddCheck("self", () => HealthCheckResult.Healthy(), tags: CommonConstant.HealthCheck.ServiceTags)
-    .AddCheck<DatabaseHealthCheck>("database_connection", tags: CommonConstant.HealthCheck.DatabaseTags);
+    // Register Serilog using the extension method
+    builder.Host.RegisterSerilog();
 
-// Register the database health check as a service
-builder.Services.AddScoped<DatabaseHealthCheck>();
+    builder.Host.UseDefaultServiceProvider(options =>
+    {
+        options.ValidateScopes = true;
+        options.ValidateOnBuild = true;
+    });
 
-// Register Serilog using the extension method
-builder.Host.RegisterSerilog();
+    var app = builder.Build();
 
-builder.Host.UseDefaultServiceProvider(options =>
-{
-    options.ValidateScopes = true;
-    options.ValidateOnBuild = true;
-});
+    // Apply database migrations and tenant policies automatically
+    await app.ApplyMigrationsAndTenantPolicies(Log.Logger);
 
-var app = builder.Build();
+    // Configure Swagger and Swagger UI
+    app.UseSwaggerMiddleware(app.Environment);
 
-// Apply database migrations and tenant policies automatically
-await app.ApplyMigrationsAndTenantPolicies(Log.Logger);
+    // Add CorrelationId to response headers for all requests
+    app.UseMiddleware<CorrelationIdMiddleware>();
 
-// Configure Swagger and Swagger UI
-app.UseSwaggerMiddleware(app.Environment);
+    // Add Domain to log context for all requests
+    app.UseMiddleware<DomainMiddleware>();
 
-// Add CorrelationId to response headers for all requests
-app.UseMiddleware<CorrelationIdMiddleware>();
+    // Log requests/responses 
+    app.UseHttpLogging();
 
-// Add Domain to log context for all requests
-app.UseMiddleware<DomainMiddleware>();
+    // Enable authentication & authorization
+    app.UseAuthentication();
 
-// Log requests/responses 
-app.UseHttpLogging();
+    // Add JWT cookie authentication middleware
+    app.UseJwtCookieAuthentication();
 
-// Enable authentication & authorization
-app.UseAuthentication();
+    // Add tenant middleware to extract tenant_id from JWT token
+    app.UseTenantMiddleware();
 
-// Add JWT cookie authentication middleware
-app.UseJwtCookieAuthentication();
+    // Populate current user from JWT when authenticated
+    app.UseCurrentUserMiddleware();
 
-// Add tenant middleware to extract tenant_id from JWT token
-app.UseTenantMiddleware();
+    app.UseAuthorization();
 
-// Populate current user from JWT when authenticated
-app.UseCurrentUserMiddleware();
+    // Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
+    app.UseSerilogRequestLogging();
 
-app.UseAuthorization();
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Streamlines framework logs into a single message per request, including path, method, timings, status code, and exception.
-app.UseSerilogRequestLogging();
+    // Initialise application (seed roles, etc.)
+    using (var scope = app.Services.CreateScope())
+    {
+        var initialiser = scope.ServiceProvider.GetRequiredService<OXDesk.Core.AppInstallation.AppInitialisation.IAppInitialisationService>();
+        await initialiser.InitialiseAppAsync();
+    }
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    // Seed OpenIddict applications
+    await app.SeedOpenIddictApplicationsAsync();
 
-// Initialise application (seed roles, etc.)
-using (var scope = app.Services.CreateScope())
-{
-    var initialiser = scope.ServiceProvider.GetRequiredService<OXDesk.Core.AppInstallation.AppInitialisation.IAppInitialisationService>();
-    await initialiser.InitialiseAppAsync();
-}
-
-// Seed OpenIddict applications
-await app.SeedOpenIddictApplicationsAsync();
-
-await app.RunAsync();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
