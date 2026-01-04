@@ -33,23 +33,45 @@ public static class OpenIddictExtensions
             // Register the OpenIddict server components
             .AddServer(options =>
             {
-                // Enable the token endpoint for password and refresh_token flows
-                options.SetTokenEndpointUris("/api/auth/token");
+                // Enable the authorization endpoint for authorization code flow
+                options.SetAuthorizationEndpointUris("/oauth/authorize");
+                
+                // Enable the token endpoint
+                options.SetTokenEndpointUris("/oauth/token");
+                
+                // Enable the logout endpoint
+                options.SetLogoutEndpointUris("/oauth/logout");
 
-                // Enable the password flow (Resource Owner Password Credentials)
-                options.AllowPasswordFlow();
+                // Enable the authorization code flow with PKCE (required for public clients like SPAs)
+                options.AllowAuthorizationCodeFlow()
+                    .RequireProofKeyForCodeExchange();
                 
                 // Enable the refresh token flow
                 options.AllowRefreshTokenFlow();
 
-                // Accept anonymous clients (i.e., clients that don't send a client_id)
-                options.AcceptAnonymousClients();
-
                 // Register signing and encryption credentials
-                // In production, use certificates or keys from secure storage
-                var signingKey = GetSigningKey();
-                options.AddSigningKey(signingKey);
-                options.AddEncryptionKey(signingKey);
+                // In development, use ephemeral keys (auto-generated on each startup)
+                // In production, use certificates from secure storage
+                string? environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                bool isDevelopment = string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase);
+
+                if (isDevelopment)
+                {
+                    // Use development certificates (persisted to disk, auto-generated if missing)
+                    options.AddDevelopmentEncryptionCertificate()
+                           .AddDevelopmentSigningCertificate();
+                }
+                else
+                {
+                    // In production, load certificates from secure storage
+                    // TODO: Configure production certificates
+                    // options.AddEncryptionCertificate(certificate);
+                    // options.AddSigningCertificate(certificate);
+                    
+                    // Fallback to development certificates for now
+                    options.AddDevelopmentEncryptionCertificate()
+                           .AddDevelopmentSigningCertificate();
+                }
 
                 // Register scopes (permissions)
                 options.RegisterScopes(
@@ -57,12 +79,14 @@ public static class OpenIddictExtensions
                     OpenIddictConstants.Scopes.Email,
                     OpenIddictConstants.Scopes.Profile,
                     OpenIddictConstants.Scopes.Roles,
+                    OpenIddictConstants.Scopes.OfflineAccess,
                     "api"
                 );
 
                 // Set token lifetimes
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(AuthConstants.Jwt.TokenExpiryHours));
                 options.SetRefreshTokenLifetime(TimeSpan.FromHours(AuthConstants.Refresh.RefreshTokenExpiryHours));
+                options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
 
                 // Configure refresh token behavior
                 // Allow refresh token reuse within a 10-minute window to handle network delays
@@ -70,7 +94,9 @@ public static class OpenIddictExtensions
 
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options
                 options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough()
                     .EnableTokenEndpointPassthrough()
+                    .EnableLogoutEndpointPassthrough()
                     .DisableTransportSecurityRequirement(); // Only for development, remove in production
             })
             // Register the OpenIddict validation components
@@ -87,50 +113,6 @@ public static class OpenIddictExtensions
     }
 
     /// <summary>
-    /// Gets the signing key for OpenIddict from environment variables
-    /// </summary>
-    /// <returns>Symmetric security key</returns>
-    private static Microsoft.IdentityModel.Tokens.SymmetricSecurityKey GetSigningKey()
-    {
-        string? jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
-        
-        if (string.IsNullOrEmpty(jwtSecret))
-        {
-            // Check if we're in development environment
-            string? environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            bool isDevelopment = string.Equals(environmentName, "Development", StringComparison.OrdinalIgnoreCase);
-            
-            if (isDevelopment)
-            {
-                // Generate a random key for development
-                jwtSecret = GenerateRandomKey(64);
-                Console.WriteLine("WARNING: JWT_SECRET environment variable not found. Using a randomly generated key for development.");
-                Console.WriteLine($"Generated key: {jwtSecret}");
-            }
-            else
-            {
-                throw new InvalidOperationException("JWT_SECRET environment variable not found");
-            }
-        }
-        
-        return new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(jwtSecret));
-    }
-
-    /// <summary>
-    /// Generates a random key with the specified length
-    /// </summary>
-    /// <param name="length">The length of the key to generate</param>
-    /// <returns>A random key</returns>
-    private static string GenerateRandomKey(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-        var random = new Random();
-        return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
-    }
-
-    /// <summary>
     /// Seeds the OpenIddict application configuration
     /// </summary>
     /// <param name="app">The web application</param>
@@ -144,22 +126,50 @@ public static class OpenIddictExtensions
         // Ensure database is created
         await context.Database.EnsureCreatedAsync();
 
-        // Check if the application already exists
-        if (await manager.FindByClientIdAsync("oxdesk-web-client") == null)
+        // Seed NextJS client for authorization code flow with PKCE
+        if (await manager.FindByClientIdAsync("oxdesk-web") == null)
         {
             await manager.CreateAsync(new OpenIddictApplicationDescriptor
             {
-                ClientId = "oxdesk-web-client",
-                DisplayName = "OXDesk Web Client",
+                ClientId = "oxdesk-web",
+                DisplayName = "OXDesk Frontend",
+                ClientType = OpenIddictConstants.ClientTypes.Public,
+                RedirectUris =
+                {
+                    new Uri("https://oxdesk.local/auth/callback"),
+                    new Uri("http://localhost:3000/auth/callback"),
+                    new Uri("https://localhost:3000/auth/callback")
+                },
+                PostLogoutRedirectUris =
+                {
+                    new Uri("https://oxdesk.local/"),
+                    new Uri("http://localhost:3000/"),
+                    new Uri("https://localhost:3000/")
+                },
                 Permissions =
                 {
+                    // Endpoints
+                    OpenIddictConstants.Permissions.Endpoints.Authorization,
                     OpenIddictConstants.Permissions.Endpoints.Token,
-                    OpenIddictConstants.Permissions.GrantTypes.Password,
+                    OpenIddictConstants.Permissions.Endpoints.Logout,
+                    
+                    // Grant types
+                    OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
                     OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                    
+                    // Response types
+                    OpenIddictConstants.Permissions.ResponseTypes.Code,
+                    
+                    // Scopes
                     OpenIddictConstants.Permissions.Scopes.Email,
                     OpenIddictConstants.Permissions.Scopes.Profile,
                     OpenIddictConstants.Permissions.Scopes.Roles,
+                    OpenIddictConstants.Permissions.Prefixes.Scope + OpenIddictConstants.Scopes.OfflineAccess,
                     OpenIddictConstants.Permissions.Prefixes.Scope + "api"
+                },
+                Requirements =
+                {
+                    OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange
                 }
             });
         }

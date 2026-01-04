@@ -1,14 +1,14 @@
 using FluentValidation;
 
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Validation.AspNetCore;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -65,46 +65,21 @@ try
 
     builder.AddConfigurations();
 
-    Log.Error("Server Booting Up...");
+    var cookiePrefix = builder.ConfigureDataProtectionAndGetCookiePrefix();
 
-    // HTTP Logging Config (hardened to avoid sensitive data leakage)
-    /* builder.Services.AddHttpLogging(logging =>
+    Log.Information("Server Booting Up...");
+
+    builder.Services
+        .AddControllersWithViews(options =>
+        {
+            // Add a route convention to prefix all controller routes with 'api'
+            // except for controllers that should be served directly
+            options.Conventions.Add(new ApiControllerRouteConvention());
+        });
+
+    builder.Services.AddAntiforgery(options =>
     {
-        // Log request/response properties and headers only. Do NOT log bodies or query strings.
-        logging.LoggingFields =
-            HttpLoggingFields.RequestPropertiesAndHeaders |
-            HttpLoggingFields.ResponsePropertiesAndHeaders;
-
-        // Whitelist safe request headers; avoid Authorization/Cookie headers.
-        logging.RequestHeaders.Add("x-correlation-id");
-        logging.RequestHeaders.Add("X-Forwarded-For");
-        logging.RequestHeaders.Add("X-Forwarded-Proto");
-        logging.RequestHeaders.Add("X-Forwarded-Port");
-        logging.RequestHeaders.Add("X-Forwarded-Host");
-        logging.RequestHeaders.Add("X-Forwarded-Server");
-        logging.RequestHeaders.Add("X-Amzn-Trace-Id");
-        logging.RequestHeaders.Add("Upgrade-Insecure-Requests");
-        logging.RequestHeaders.Add("sec-ch-ua");
-        logging.RequestHeaders.Add("sec-ch-ua-mobile");
-        logging.RequestHeaders.Add("sec-ch-ua-platform");
-
-        // Whitelist safe response headers.
-        logging.ResponseHeaders.Add("x-correlation-id");
-        logging.ResponseHeaders.Add("Pragma");
-        logging.ResponseHeaders.Add("Cache-Control");
-        logging.ResponseHeaders.Add("max-age");
-
-        // Explicitly ensure sensitive headers are not logged.
-        logging.RequestHeaders.Remove("Authorization");
-        logging.RequestHeaders.Remove("Cookie");
-        logging.ResponseHeaders.Remove("Set-Cookie");
-    }); */
-
-    builder.Services.AddControllersWithViews(options =>
-    {
-        // Add a route convention to prefix all controller routes with 'api'
-        // except for controllers that should be served directly
-        options.Conventions.Add(new ApiControllerRouteConvention());
+        options.Cookie.Name = $"{cookiePrefix}.Antiforgery";
     });
 
     // Register data redaction for sensitive & personal data
@@ -125,43 +100,7 @@ try
     // Register ApplicationDbContext with PostgreSQL
     builder.Services.AddPostgreSqlDbContext(builder.Configuration, builder.Environment);
 
-    // Configure Identity
-    builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => {
-        // Password settings
-        options.Password.RequireDigit = true;
-        options.Password.RequireLowercase = true;
-        options.Password.RequireUppercase = true;
-        options.Password.RequireNonAlphanumeric = true;
-        options.Password.RequiredLength = 8;
-        
-        // Lockout settings
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-        options.Lockout.MaxFailedAccessAttempts = 5;
-        
-        // User settings
-        options.User.RequireUniqueEmail = true;
-    })
-    .AddEntityFrameworkStores<TenantDbContext>()
-    .AddDefaultTokenProviders();
-
-    // Configure OpenIddict for OAuth 2.0 and OpenID Connect
-    builder.Services.AddOpenIddictServices(builder.Configuration);
-
-    // Keep JWT Bearer for backward compatibility (optional - can be removed later)
-    builder.Services.AddAuthentication()
-    .AddJwtBearer(options => {
-        options.SaveToken = true;
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = AuthConstants.Jwt.Issuer,
-            ValidAudience = AuthConstants.Jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(JwtHelper.GetJwtSigningKey())
-        };
-    });
+    builder.ConfigureIdentityAndCookies(cookiePrefix);
 
     // Roles and Permissions
     builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
@@ -181,6 +120,9 @@ try
 
     // This makes all endpoints require authentication by default
     authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(
+            IdentityConstants.ApplicationScheme,
+            OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build());
 
@@ -269,6 +211,8 @@ try
     // Configure Swagger and Swagger UI
     app.UseSwaggerMiddleware(app.Environment);
 
+    app.UseStaticFiles();
+
     // Add CorrelationId to response headers for all requests
     app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -278,11 +222,11 @@ try
     // Log requests/responses 
     app.UseHttpLogging();
 
-    // Enable authentication & authorization
-    app.UseAuthentication();
-
     // Add JWT cookie authentication middleware
     app.UseJwtCookieAuthentication();
+
+    // Enable authentication & authorization
+    app.UseAuthentication();
 
     // Add tenant middleware to extract tenant_id from JWT token
     app.UseTenantMiddleware();

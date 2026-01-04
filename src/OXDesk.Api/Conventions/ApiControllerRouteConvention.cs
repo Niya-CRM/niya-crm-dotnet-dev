@@ -3,15 +3,16 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 namespace OXDesk.Api.Conventions
 {
     /// <summary>
-    /// Route convention that adds 'api' prefix to all controllers except Auth and Setup controllers
+    /// Route convention that adds 'api' prefix to all controllers except Auth, OAuth, and Setup controllers
     /// </summary>
     public class ApiControllerRouteConvention : IControllerModelConvention
     {
         /// <inheritdoc/>
         public void Apply(ControllerModel controller)
         {
-            // Skip Auth and Setup controllers - they should be served directly
+            // Skip Auth, OAuth, and Setup controllers - they should be served directly
             if (controller.ControllerName.Equals("Auth", StringComparison.OrdinalIgnoreCase) ||
+                controller.ControllerName.Equals("OAuth", StringComparison.OrdinalIgnoreCase) ||
                 controller.ControllerName.Equals("AppSetup", StringComparison.OrdinalIgnoreCase))
             {
                 return;
