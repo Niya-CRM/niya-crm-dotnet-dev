@@ -46,6 +46,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.RequestHeaders.Add("Upgrade-Insecure-Requests");
                     logging.RequestHeaders.Add("sec-ch-ua");
                     logging.RequestHeaders.Add("sec-ch-ua-mobile");
+                    logging.RequestHeaders.Add("Authorization");
 
                     // Whitelist safe response headers
                     logging.ResponseHeaders.Add("x-correlation-id");
@@ -55,7 +56,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.ResponseHeaders.Add("X-RequestBody-Log");
 
                     // Explicitly ensure sensitive headers are not logged
-                    logging.RequestHeaders.Remove("Authorization");
+                    //logging.RequestHeaders.Remove("Authorization");
                     logging.RequestHeaders.Remove("Cookie");
                     logging.ResponseHeaders.Remove("Set-Cookie");
                 });

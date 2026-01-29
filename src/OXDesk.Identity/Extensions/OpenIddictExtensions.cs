@@ -33,6 +33,9 @@ public static class OpenIddictExtensions
             // Register the OpenIddict server components
             .AddServer(options =>
             {
+                // Set issuer to match local development domain
+                options.SetIssuer(new Uri("http://oxdesk.local/"));
+
                 // Enable the authorization endpoint for authorization code flow
                 options.SetAuthorizationEndpointUris("/oauth/authorize");
                 
@@ -83,14 +86,18 @@ public static class OpenIddictExtensions
                     "api"
                 );
 
+                // Issue signed JWTs (JWS) instead of encrypted tokens (JWE)
+                options.DisableAccessTokenEncryption();
+                options.UseReferenceRefreshTokens();
+
                 // Set token lifetimes
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(AuthConstants.Jwt.TokenExpiryHours));
                 options.SetRefreshTokenLifetime(TimeSpan.FromHours(AuthConstants.Refresh.RefreshTokenExpiryHours));
                 options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
 
                 // Configure refresh token behavior
-                // Allow refresh token reuse within a 10-minute window to handle network delays
-                options.SetRefreshTokenReuseLeeway(TimeSpan.FromMinutes(10));
+                // Allow refresh token reuse within a 2-minute window to handle network delays
+                options.SetRefreshTokenReuseLeeway(TimeSpan.FromMinutes(2));
 
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options
                 options.UseAspNetCore()

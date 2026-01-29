@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -118,10 +119,16 @@ try
     // Add Authorization policies with global fallback policy using AuthorizationBuilder
     var authBuilder = builder.Services.AddAuthorizationBuilder();
 
+    // This makes [Authorize] use both cookie and bearer authentication by default
+    authBuilder.SetDefaultPolicy(new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(
+            OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build());
+
     // This makes all endpoints require authentication by default
     authBuilder.SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .AddAuthenticationSchemes(
-            IdentityConstants.ApplicationScheme,
             OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build());
