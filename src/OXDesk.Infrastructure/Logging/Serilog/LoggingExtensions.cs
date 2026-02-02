@@ -15,6 +15,7 @@ using Serilog.Formatting.Compact;
 using Serilog.Formatting.Json;
 using Serilog.Redaction;
 using System;
+using System.Diagnostics;
 
 namespace OXDesk.Infrastructure.Logging.Serilog
 {
@@ -36,7 +37,6 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.CombineLogs = true;
 
                     // Whitelist safe request headers
-                    logging.RequestHeaders.Add("x-correlation-id");
                     logging.RequestHeaders.Add("X-Forwarded-For");
                     logging.RequestHeaders.Add("X-Forwarded-Proto");
                     logging.RequestHeaders.Add("X-Forwarded-Port");
@@ -49,7 +49,6 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                     logging.RequestHeaders.Add("Authorization");
 
                     // Whitelist safe response headers
-                    logging.ResponseHeaders.Add("x-correlation-id");
                     logging.ResponseHeaders.Add("Pragma");
                     logging.ResponseHeaders.Add("Cache-Control");
                     logging.ResponseHeaders.Add("max-age");
@@ -69,7 +68,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
                 string applicationName = context.Configuration["ApplicationName"]?.Replace(".", "-").Replace(" ", "-") ?? "MyDotNetApplication";
 
-                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{CorrelationId}] [{SourceContext}] [{Domain}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
+                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{TraceId}] [{SourceContext}] [{Domain}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
 
                 var minLogLevel = context.Configuration["LoggerSettings:LogLevel:Default"] ?? "Information";
                 SetMinimumLogLevel(configuration, minLogLevel);
@@ -143,7 +142,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 .Enrich.WithThreadId()
                 .Enrich.WithThreadName()
                 .Enrich.WithClientIp()
-                .Enrich.WithCorrelationId(headerName: "X-Correlation-Id", addValueIfHeaderAbsence: true)
+                .Enrich.With<TraceIdEnricher>()
                 .Enrich.WithMachineName()
                 .Enrich.WithProperty("Application", applicationName)
                 .Enrich.WithProperty("Environment", environment)
@@ -247,6 +246,28 @@ namespace OXDesk.Infrastructure.Logging.Serilog
         }
     }
 
+
+    /// <summary>
+    /// Enriches logs with the current activity TraceId.
+    /// </summary>
+    public class TraceIdEnricher : ILogEventEnricher
+    {
+        /// <summary>
+        /// Adds the TraceId property to the log event when available.
+        /// </summary>
+        /// <param name="logEvent">The log event to enrich.</param>
+        /// <param name="propertyFactory">Factory to create log event properties.</param>
+        public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+        {
+            string? traceId = Activity.Current?.TraceId.ToString();
+            if (string.IsNullOrWhiteSpace(traceId))
+            {
+                return;
+            }
+
+            logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("TraceId", traceId));
+        }
+    }
 
     public class PasswordValueMaskingOperator : RegexMaskingOperator
     {
