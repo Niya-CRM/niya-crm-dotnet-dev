@@ -99,19 +99,22 @@ namespace OXDesk.Api.Middleware
                     {
                         // Some proxies may send multiple hosts separated by comma, take the first
                         var firstHost = forwardedHostHeader.Split(',').FirstOrDefault()?.Trim();
-                        if (!string.IsNullOrWhiteSpace(firstHost))
+                        if (!string.IsNullOrWhiteSpace(firstHost) && !firstHost.Contains("localhost", StringComparison.OrdinalIgnoreCase))
                         {
                             // Strip port if present (host:port)
                             hostToResolve = firstHost.Split(':').FirstOrDefault() ?? firstHost;
                         }
                     }
-                    else
+                    
+                    if (string.IsNullOrWhiteSpace(hostToResolve))
                     {
                         // Fallback to current request host if X-Forwarded-Host is not present
                         var currentHost = context.Request.Host.Host;
-                        if (!string.IsNullOrWhiteSpace(currentHost))
+                        var firstHost = currentHost.Split(',').FirstOrDefault()?.Trim();
+                        if (!string.IsNullOrWhiteSpace(firstHost))
                         {
-                            hostToResolve = currentHost;
+                            // Strip port if present (host:port)
+                            hostToResolve = firstHost.Split(':').FirstOrDefault() ?? firstHost;
                         }
                     }
 
