@@ -144,8 +144,8 @@ try
     builder.Services.AddScoped<ITenantRepository, TenantRepository>();
     builder.Services.AddScoped<OXDesk.Core.Tenants.ITenantFactory, TenantFactory>();
 
-    // Register Correlation ID Accessor
-    builder.Services.AddScoped<ICorrelationIdAccessor, OXDesk.Application.Common.CorrelationIdAccessor>();
+    // Register Trace ID Accessor
+    builder.Services.AddScoped<ITraceIdAccessor, OXDesk.Application.Common.TraceIdAccessor>();
 
     // Register AuditLog Services
     builder.Services.AddScoped<IAuditLogService, AuditLogService>();
@@ -220,8 +220,8 @@ try
 
     app.UseStaticFiles();
 
-    // Add CorrelationId to response headers for all requests
-    app.UseMiddleware<CorrelationIdMiddleware>();
+    // Add TraceId to response headers for all requests
+    app.UseMiddleware<TraceIdMiddleware>();
 
     // Add Domain to log context for all requests
     app.UseMiddleware<DomainMiddleware>();

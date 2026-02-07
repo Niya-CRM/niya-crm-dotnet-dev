@@ -69,13 +69,10 @@ public class TenantService : ITenantService
     /// <param name="cancellationToken">Cancellation token.</param>
     private async Task AddTenantAuditLogAsync(string @event, Guid objectItemId, string data, CancellationToken cancellationToken = default)
     {
-        var tenantObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-            DynamicObjectConstants.DynamicObjectKeys.Tenant,
-            cancellationToken);
-
+        var tenantObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.Tenant, cancellationToken);
         var auditLog = new AuditLog(
-            objectId: tenantObjectId,
             @event: @event,
+            objectId: tenantObjectId,
             objectItemId: objectItemId,
             ip: GetUserIp(),
             data: data,

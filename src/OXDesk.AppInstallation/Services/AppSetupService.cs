@@ -150,10 +150,7 @@ public class AppSetupService : IAppSetupService
             }
 
             // Add change history log (first creation event)
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-                DynamicObjectConstants.DynamicObjectKeys.User,
-                CancellationToken.None);
-
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
             await _changeHistoryLogService.CreateChangeHistoryLogAsync(
                 objectId: userObjectId,
                 objectItemId: user.Id,

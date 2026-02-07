@@ -86,16 +86,14 @@ namespace OXDesk.Api.Controllers.Auth
                 return Unauthorized(new { Message = "Invalid email or password." });
             }
 
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-                DynamicObjectConstants.DynamicObjectKeys.User);
-
             if (user.IsActive != "Y")
             {
                 _logger.LogWarning("User account is deactivated: {Email}", model.Email);
                 // Audit: Login denied due to inactive account
+                var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
                 await _auditLogService.CreateAuditLogAsync(
-                    objectId: userObjectId,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                    objectId: userObjectId,
                     objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Login Denied - Account not Active",
@@ -110,9 +108,10 @@ namespace OXDesk.Api.Controllers.Auth
             {
                 _logger.LogWarning("Invalid password for user: {Email}", model.Email);
                 // Audit: Invalid credential attempt
+                var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
                 await _auditLogService.CreateAuditLogAsync(
-                    objectId: userObjectId,
                     @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                    objectId: userObjectId,
                     objectItemId: user.Id,
                     ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                     data: "Invalid Credential",
@@ -124,9 +123,10 @@ namespace OXDesk.Api.Controllers.Auth
 
             _logger.LogInformation("User authenticated successfully: {Email}", model.Email);
             // Audit: Successful login
+            var userObjId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
             await _auditLogService.CreateAuditLogAsync(
-                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
+                objectId: userObjId,
                 objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                 data: "Login Successful",

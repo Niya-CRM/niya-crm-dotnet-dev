@@ -257,13 +257,10 @@ public class UserService : IUserService
         }
 
         // Add audit log
-        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-            DynamicObjectConstants.DynamicObjectKeys.User,
-            cancellationToken);
-
+        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User, cancellationToken);
         await _auditLogService.CreateAuditLogAsync(
-            objectId: userObjectId,
             @event: CommonConstant.AUDIT_LOG_EVENT_CREATE,
+            objectId: userObjectId,
             objectItemId: user.Id,
             data: $"User created: {user.FirstName} {user.LastName}",
             ip: GetUserIp(),
@@ -326,13 +323,10 @@ public class UserService : IUserService
         // Audit log
         string actionPastTense = isActivating ? "activated" : "deactivated";
 
-        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-            DynamicObjectConstants.DynamicObjectKeys.User,
-            cancellationToken);
-
+        var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User, cancellationToken);
         await _auditLogService.CreateAuditLogAsync(
-            objectId: userObjectId,
             @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            objectId: userObjectId,
             objectItemId: user.Id,
             data: $"User {actionPastTense}: {{ \"Reason\": \"{reason}\" }}",
             ip: GetUserIp(),
@@ -409,13 +403,11 @@ public class UserService : IUserService
             }
 
             var actorId = GetCurrentUserId();
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-                DynamicObjectConstants.DynamicObjectKeys.User,
-                cancellationToken);
 
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User, cancellationToken);
             await _auditLogService.CreateAuditLogAsync(
-                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+                objectId: userObjectId,
                 objectItemId: user.Id,
                 data: $"Role assigned to user: {role.Name}",
                 ip: GetUserIp(),
@@ -461,13 +453,11 @@ public class UserService : IUserService
             }
 
             var actorId = GetCurrentUserId();
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(
-                DynamicObjectConstants.DynamicObjectKeys.User,
-                cancellationToken);
 
+            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User, cancellationToken);
             await _auditLogService.CreateAuditLogAsync(
-                objectId: userObjectId,
                 @event: CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+                objectId: userObjectId,
                 objectItemId: user.Id,
                 data: $"Role removed from user: {role.Name}",
                 ip: GetUserIp(),

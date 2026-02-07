@@ -17,19 +17,19 @@ namespace OXDesk.Shared.Services;
 public class ChangeHistoryLogService : IChangeHistoryLogService
 {
     private readonly IChangeHistoryLogRepository _repository;
-    private readonly ICorrelationIdAccessor _correlationIdAccessor;
+    private readonly ITraceIdAccessor _traceIdAccessor;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ChangeHistoryLogService"/> class.
     /// </summary>
     /// <param name="repository">The change history log repository.</param>
-    /// <param name="correlationIdAccessor">The correlation ID accessor.</param>
+    /// <param name="traceIdAccessor">The trace ID accessor.</param>
     public ChangeHistoryLogService(
         IChangeHistoryLogRepository repository,
-        ICorrelationIdAccessor correlationIdAccessor)
+        ITraceIdAccessor traceIdAccessor)
     {
         _repository = repository;
-        _correlationIdAccessor = correlationIdAccessor;
+        _traceIdAccessor = traceIdAccessor;
     }
 
     /// <inheritdoc/>
@@ -51,8 +51,31 @@ public class ChangeHistoryLogService : IChangeHistoryLogService
             createdBy
         );
 
-        // Set correlation ID from current request context
-        changeHistoryLog.CorrelationId = _correlationIdAccessor.GetCorrelationId();
+        changeHistoryLog.TraceId = _traceIdAccessor.GetTraceId();
+
+        return await _repository.AddAsync(changeHistoryLog, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
+        int objectId,
+        Guid objectItemId,
+        string fieldName,
+        string? oldValue,
+        string? newValue,
+        int createdBy,
+        CancellationToken cancellationToken = default)
+    {
+        var changeHistoryLog = new ChangeHistoryLog(
+            objectId,
+            objectItemId,
+            fieldName,
+            oldValue,
+            newValue,
+            createdBy
+        );
+
+        changeHistoryLog.TraceId = _traceIdAccessor.GetTraceId();
 
         return await _repository.AddAsync(changeHistoryLog, cancellationToken);
     }

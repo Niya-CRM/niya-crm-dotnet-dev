@@ -18,10 +18,10 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                    .HasIdentityOptions(startValue: 10001L);
 
             builder.HasIndex(a => new { a.ObjectId, a.ObjectItemIdUuid, a.ObjectItemIdInt })
-                   .HasDatabaseName("ix_audit_logs_object_id_object_item_ids");
+                   .HasDatabaseName("ix_audit_logs_object_ids");
 
-            builder.HasIndex(a => new { a.ObjectId, a.CreatedAt })
-                   .HasDatabaseName("ix_audit_logs_object_id_created_at");
+            builder.HasIndex(a => a.CreatedAt)
+                   .HasDatabaseName("ix_audit_logs_created_at");
         }
     }
 }

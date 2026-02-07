@@ -42,13 +42,13 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    object_id = table.Column<int>(type: "integer", nullable: false),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
+                    object_id = table.Column<int>(type: "integer", nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
                     ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
                     data = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    correlation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    trace_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -91,11 +91,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     object_id = table.Column<int>(type: "integer", nullable: false),
+                    object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
                     field_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     old_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     new_value = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    correlation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    trace_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     created_by = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -879,13 +880,13 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "version");
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_object_id_created_at",
+                name: "ix_audit_logs_created_at",
                 schema: "public",
                 table: "audit_logs",
-                columns: new[] { "object_id", "created_at" });
+                column: "created_at");
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_object_id_object_item_ids",
+                name: "ix_audit_logs_object_ids",
                 schema: "public",
                 table: "audit_logs",
                 columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
@@ -897,10 +898,16 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "brand_name");
 
             migrationBuilder.CreateIndex(
-                name: "ix_change_history_logs_object_id_object_item_id",
+                name: "ix_change_history_logs_created_at",
                 schema: "public",
                 table: "change_history_logs",
-                columns: new[] { "object_id", "object_item_id_int" });
+                column: "created_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_change_history_logs_object_ids",
+                schema: "public",
+                table: "change_history_logs",
+                columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_channels_channel_name",

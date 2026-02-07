@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OXDesk.Core.AuditLogs;
 using OXDesk.Core.AuditLogs.DTOs;
+using OXDesk.Core.DynamicObjects;
 using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Common.Response;
@@ -13,12 +14,14 @@ namespace OXDesk.Api.Controllers.AuditLogs
     {
         private readonly IAuditLogService _auditLogService;
         private readonly IAuditLogFactory _auditLogFactory;
+        private readonly IDynamicObjectService _dynamicObjectService;
         private readonly ILogger<AuditLogController> _logger;
 
-        public AuditLogController(IAuditLogService auditLogService, IAuditLogFactory auditLogFactory, ILogger<AuditLogController> logger)
+        public AuditLogController(IAuditLogService auditLogService, IAuditLogFactory auditLogFactory, IDynamicObjectService dynamicObjectService, ILogger<AuditLogController> logger)
         {
             _auditLogService = auditLogService;
             _auditLogFactory = auditLogFactory;
+            _dynamicObjectService = dynamicObjectService;
             _logger = logger;
         }
 
@@ -28,6 +31,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
         [HttpGet]
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<AuditLogResponse>), 200)]
         public async Task<ActionResult<PagedListWithRelatedResponse<AuditLogResponse>>> GetAll(
+            [FromQuery] string objectKey,
             [FromQuery] AuditLogQueryDto query,
             CancellationToken cancellationToken = default)
         {
@@ -36,11 +40,14 @@ namespace OXDesk.Api.Controllers.AuditLogs
                 return BadRequest(ModelState);
             }
 
-            if (!query.ObjectItemIdUuid.HasValue && !query.ObjectItemIdInt.HasValue)
+            if (string.IsNullOrWhiteSpace(objectKey))
             {
-                _logger.LogWarning("Missing required parameter: ObjectItemId (UUID or Int)");
-                return this.CreateBadRequestProblem("ObjectItemId (UUID or Int) is required");
+                _logger.LogWarning("Missing required parameter: objectKey");
+                return this.CreateBadRequestProblem("objectKey is required");
             }
+
+            var objectId = await _dynamicObjectService.GetDynamicObjectIdAsync(objectKey, cancellationToken);
+            query.ObjectId = objectId;
 
             var logs = await _auditLogService.GetAuditLogsAsync(
                 query,

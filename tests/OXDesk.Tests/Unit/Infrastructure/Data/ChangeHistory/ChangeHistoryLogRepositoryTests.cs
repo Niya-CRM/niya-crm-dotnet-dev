@@ -50,7 +50,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
                 new ChangeHistoryLog(
-                    1,
+                    100,
                     1001,
                     "Email",
                     "old@example.com",
@@ -58,7 +58,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     TestHelpers.TestUserId1
                 ),
                 new ChangeHistoryLog(
-                    2,
+                    100,
                     1002,
                     "Phone",
                     "123456789",
@@ -86,26 +86,26 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             // Assert
             result.ShouldNotBeNull();
             result.Id.ShouldBe(targetLog.Id);
-            result.ObjectId.ShouldBe(targetLog.ObjectId);
+            result.ObjectItemIdInt.ShouldBe(targetLog.ObjectItemIdInt);
             result.FieldName.ShouldBe(targetLog.FieldName);
         }
 
         [Fact]
-        public async Task GetChangeHistoryLogsAsync_WithObjectIdFilter_ShouldReturnFilteredLogs()
+        public async Task GetChangeHistoryLogsAsync_WithObjectItemIdIntFilter_ShouldReturnFilteredLogs()
         {
-            var objectId = 1;
+            var objectItemId = 1001;
 
             // Act
             var query = new ChangeHistoryLogQueryDto
             {
-                ObjectId = objectId
+                ObjectItemIdInt = objectItemId
             };
             var result = await _repository.GetChangeHistoryLogsAsync(query);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldNotBeEmpty();
-            result.First().ObjectId.ShouldBe(objectId);
+            result.First().ObjectItemIdInt.ShouldBe(objectItemId);
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Arrange
             var newLog = new ChangeHistoryLog(
-                3,
+                100,
                 1003,
                 "Price",
                 "100",

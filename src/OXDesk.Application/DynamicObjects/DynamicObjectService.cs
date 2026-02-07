@@ -7,7 +7,6 @@ using OXDesk.Core.DynamicObjects.DTOs;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using OXDesk.Core.Cache;
-using OXDesk.Core.Common.Extensions;
 using OXDesk.Core.Identity;
 
 namespace OXDesk.Application.DynamicObjects;
@@ -90,12 +89,12 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectItemId, string data, int createdBy, CancellationToken cancellationToken = default)
+    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectId, int objectItemId, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
-            objectId: objectItemId,
             @event: @event,
-            objectItemId: objectItemId.ToGuid(),
+            objectId: objectId,
+            objectItemId: objectItemId,
             ip: GetUserIp(),
             data: data,
             createdBy: createdBy
@@ -157,6 +156,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
+            createdDynamicObject.Id,
             createdDynamicObject.Id,
             $"Dynamic object created: {{ \"ObjectName\": \"{createdDynamicObject.ObjectName}\", \"ObjectKey\": \"{createdDynamicObject.ObjectKey}\" }}",
             createdBy,
@@ -249,6 +249,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log for update
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
+            updatedDynamicObject.Id,
             updatedDynamicObject.Id,
             $"Dynamic object updated: {{ \"ObjectName\": \"{updatedDynamicObject.ObjectName}\", \"ObjectKey\": \"{updatedDynamicObject.ObjectKey}\" }}",
             modifiedBy,

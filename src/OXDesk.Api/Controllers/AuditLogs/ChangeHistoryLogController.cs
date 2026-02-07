@@ -5,6 +5,7 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common;
 using OXDesk.Core.Common.DTOs;
+using OXDesk.Core.DynamicObjects;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -24,6 +25,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
     {
         private readonly IChangeHistoryLogService _changeHistoryLogService;
         private readonly IChangeHistoryLogFactory _changeHistoryLogFactory;
+        private readonly IDynamicObjectService _dynamicObjectService;
         private readonly ILogger<ChangeHistoryLogController> _logger;
 
         /// <summary>
@@ -32,19 +34,23 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// <param name="changeHistoryLogService">The change history log service.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="changeHistoryLogFactory">The change history log factory.</param>
+        /// <param name="dynamicObjectService">The dynamic object service.</param>
         public ChangeHistoryLogController(
             IChangeHistoryLogService changeHistoryLogService,
             ILogger<ChangeHistoryLogController> logger,
-            IChangeHistoryLogFactory changeHistoryLogFactory)
+            IChangeHistoryLogFactory changeHistoryLogFactory,
+            IDynamicObjectService dynamicObjectService)
         {
             _changeHistoryLogService = changeHistoryLogService;
             _logger = logger;
             _changeHistoryLogFactory = changeHistoryLogFactory;
+            _dynamicObjectService = dynamicObjectService;
         }
 
         /// <summary>
         /// Gets change history logs with optional filtering and pagination.
         /// </summary>
+        /// <param name="objectKey">The object key used to resolve the dynamic object identifier.</param>
         /// <param name="query">The query parameters for filtering change history logs.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of change history logs matching the filters.</returns>
@@ -55,23 +61,21 @@ namespace OXDesk.Api.Controllers.AuditLogs
         [ProducesResponseType(typeof(PagedListWithRelatedResponse<ChangeHistoryLogResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PagedListWithRelatedResponse<ChangeHistoryLogResponse>>> GetChangeHistoryLogs(
+            [FromQuery] string objectKey,
             [FromQuery] ChangeHistoryLogQueryDto query,
             CancellationToken cancellationToken)
         {
             try
             {
                 // Validate required parameters
-                if (!query.ObjectId.HasValue)
+                if (string.IsNullOrWhiteSpace(objectKey))
                 {
-                    _logger.LogWarning("Missing required parameter: ObjectId");
-                    return this.CreateBadRequestProblem("ObjectId is required");
+                    _logger.LogWarning("Missing required parameter: objectKey");
+                    return this.CreateBadRequestProblem("objectKey is required");
                 }
 
-                if (!query.ObjectItemIdInt.HasValue)
-                {
-                    _logger.LogWarning("Missing required parameter: ObjectItemIdInt");
-                    return this.CreateBadRequestProblem("ObjectItemIdInt is required");
-                }
+                var objectId = await _dynamicObjectService.GetDynamicObjectIdAsync(objectKey, cancellationToken);
+                query.ObjectId = objectId;
                 
                 _logger.LogDebug("Retrieving change history logs with filters: {Query}", query);
                 

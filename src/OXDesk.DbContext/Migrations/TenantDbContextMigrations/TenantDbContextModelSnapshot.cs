@@ -79,11 +79,6 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
                     NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
 
-                    b.Property<string>("CorrelationId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("correlation_id");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -121,14 +116,19 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("uuid")
                         .HasColumnName("object_item_id_uuid");
 
+                    b.Property<string>("TraceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("trace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_audit_logs");
 
-                    b.HasIndex("ObjectId", "CreatedAt")
-                        .HasDatabaseName("ix_audit_logs_object_id_created_at");
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_created_at");
 
                     b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
-                        .HasDatabaseName("ix_audit_logs_object_id_object_item_ids");
+                        .HasDatabaseName("ix_audit_logs_object_ids");
 
                     b.ToTable("audit_logs", "public");
                 });
@@ -142,11 +142,6 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
                     NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
-
-                    b.Property<string>("CorrelationId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("correlation_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -175,16 +170,28 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("integer")
                         .HasColumnName("object_item_id_int");
 
+                    b.Property<Guid?>("ObjectItemIdUuid")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_item_id_uuid");
+
                     b.Property<string>("OldValue")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("old_value");
 
+                    b.Property<string>("TraceId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("trace_id");
+
                     b.HasKey("Id")
                         .HasName("pk_change_history_logs");
 
-                    b.HasIndex("ObjectId", "ObjectItemIdInt")
-                        .HasDatabaseName("ix_change_history_logs_object_id_object_item_id");
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_change_history_logs_created_at");
+
+                    b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
+                        .HasDatabaseName("ix_change_history_logs_object_ids");
 
                     b.ToTable("change_history_logs", "public");
                 });

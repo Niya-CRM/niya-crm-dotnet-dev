@@ -26,12 +26,13 @@ namespace OXDesk.Api.Factories.AuditLogs
         private static AuditLogResponse Map(AuditLog log) => new()
         {
             Id = log.Id,
-            ObjectId = log.ObjectId,
             Event = log.Event,
+            ObjectId = log.ObjectId,
             ObjectItemIdUuid = log.ObjectItemIdUuid,
             ObjectItemIdInt = log.ObjectItemIdInt,
             IP = log.IP,
             Data = log.Data,
+            TraceId = log.TraceId,
             CreatedAt = log.CreatedAt,
             CreatedBy = log.CreatedBy
         };

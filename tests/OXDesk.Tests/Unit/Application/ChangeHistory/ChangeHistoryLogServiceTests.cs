@@ -17,22 +17,22 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
     public class ChangeHistoryLogServiceTests
     {
         private readonly Mock<IChangeHistoryLogRepository> _mockRepository;
-        private readonly Mock<ICorrelationIdAccessor> _mockCorrelationIdAccessor;
+        private readonly Mock<ITraceIdAccessor> _mockTraceIdAccessor;
         private readonly ChangeHistoryLogService _service;
 
         public ChangeHistoryLogServiceTests()
         {
             _mockRepository = new Mock<IChangeHistoryLogRepository>();
-            _mockCorrelationIdAccessor = new Mock<ICorrelationIdAccessor>();
-            _mockCorrelationIdAccessor.Setup(x => x.GetCorrelationId()).Returns("test-correlation-id");
-            _service = new ChangeHistoryLogService(_mockRepository.Object, _mockCorrelationIdAccessor.Object);
+            _mockTraceIdAccessor = new Mock<ITraceIdAccessor>();
+            _mockTraceIdAccessor.Setup(x => x.GetTraceId()).Returns("test-trace-id");
+            _service = new ChangeHistoryLogService(_mockRepository.Object, _mockTraceIdAccessor.Object);
         }
 
         [Fact]
         public async Task CreateChangeHistoryLogAsync_ShouldCreateAndReturnLog()
         {
             // Arrange
-            var objectId = 1;
+            var objectId = 100;
             var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
@@ -64,7 +64,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             capturedLog.OldValue.ShouldBe(oldValue);
             capturedLog.NewValue.ShouldBe(newValue);
             capturedLog.CreatedBy.ShouldBe(createdBy);
-            capturedLog.CorrelationId.ShouldBe("test-correlation-id");
+            capturedLog.TraceId.ShouldBe("test-trace-id");
             
             _mockRepository.Verify(r => r.AddAsync(It.IsAny<ChangeHistoryLog>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -75,7 +75,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Arrange
             var logId = 123;
             var expectedLog = new ChangeHistoryLog(
-                1,
+                100,
                 1002,
                 "Email",
                 "old@example.com",
@@ -100,7 +100,6 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task GetChangeHistoryLogsAsync_ShouldPassFiltersToRepository()
         {
             // Arrange
-            var objectId = 1;
             var objectItemId = 1003;
             var fieldName = "Email";
             var createdBy = TestHelpers.TestUserId3;
@@ -111,7 +110,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             var expectedLogs = new List<ChangeHistoryLog>
             {
-                new(objectId, objectItemId, fieldName, null, null, createdBy) {
+                new(100, objectItemId, fieldName, null, null, createdBy) {
                     Id = 456,
                     CreatedAt = DateTime.UtcNow.AddDays(-3)
                 }
@@ -120,7 +119,6 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             _mockRepository
                 .Setup(r => r.GetChangeHistoryLogsAsync(
                     It.Is<ChangeHistoryLogQueryDto>(q =>
-                        q.ObjectId == objectId &&
                         q.ObjectItemIdInt == objectItemId &&
                         q.FieldName == fieldName &&
                         q.CreatedBy == createdBy &&
@@ -134,7 +132,6 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Act
             var query = new ChangeHistoryLogQueryDto
             {
-                ObjectId = objectId,
                 ObjectItemIdInt = objectItemId,
                 FieldName = fieldName,
                 CreatedBy = createdBy,
@@ -149,14 +146,12 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             result.ShouldNotBeNull();
             result.Count().ShouldBe(expectedLogs.Count);
             var entity = result.First();
-            entity.ObjectId.ShouldBe(objectId);
             entity.ObjectItemIdInt.ShouldBe(objectItemId);
             entity.FieldName.ShouldBe(fieldName);
             entity.CreatedBy.ShouldBe(createdBy);
             
             _mockRepository.Verify(r => r.GetChangeHistoryLogsAsync(
                 It.Is<ChangeHistoryLogQueryDto>(q =>
-                    q.ObjectId == objectId &&
                     q.ObjectItemIdInt == objectItemId &&
                     q.FieldName == fieldName &&
                     q.CreatedBy == createdBy &&

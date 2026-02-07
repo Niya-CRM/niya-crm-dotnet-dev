@@ -16,30 +16,46 @@ namespace OXDesk.Shared.Services;
 public class AuditLogService : IAuditLogService
 {
     private readonly IAuditLogRepository _repository;
-    private readonly ICorrelationIdAccessor _correlationIdAccessor;
+    private readonly ITraceIdAccessor _traceIdAccessor;
 
     public AuditLogService(
         IAuditLogRepository repository,
-        ICorrelationIdAccessor correlationIdAccessor)
+        ITraceIdAccessor traceIdAccessor)
     {
         _repository = repository;
-        _correlationIdAccessor = correlationIdAccessor;
+        _traceIdAccessor = traceIdAccessor;
     }
 
     /// <inheritdoc/>
-    public async Task<AuditLog> CreateAuditLogAsync(int objectId, string @event, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
-            objectId,
             @event,
+            objectId,
             objectItemId,
             ip,
             data,
             createdBy
         );
 
-        // Set correlation ID from current request context
-        auditLog.CorrelationId = _correlationIdAccessor.GetCorrelationId();
+        auditLog.TraceId = _traceIdAccessor.GetTraceId();
+
+        return await _repository.AddAsync(auditLog, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
+    {
+        var auditLog = new AuditLog(
+            @event,
+            objectId,
+            objectItemId,
+            ip,
+            data,
+            createdBy
+        );
+
+        auditLog.TraceId = _traceIdAccessor.GetTraceId();
 
         return await _repository.AddAsync(auditLog, cancellationToken);
     }
