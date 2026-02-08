@@ -64,7 +64,7 @@ public partial class CacheService : ICacheService
         var trimmed = key.Trim().ToLowerInvariant();
 
         var tenantPart = _currentTenant?.Id.HasValue == true
-            ? _currentTenant.Id!.Value.ToString()
+            ? _currentTenant.Id!.Value.ToString("N")
             : "global";
 
         var combined = $"t:{tenantPart}:{trimmed}";
