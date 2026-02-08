@@ -113,6 +113,11 @@ try
     builder.Services.AddScoped<IUserService, OXDesk.Identity.Services.UserService>();
     builder.Services.AddScoped<IUserFactory, OXDesk.Identity.Factories.UserFactory>();
 
+    // User Signature Services (from OXDesk.Identity)
+    builder.Services.AddScoped<IUserSignatureRepository, OXDesk.Identity.Data.UserSignatureRepository>();
+    builder.Services.AddScoped<IUserSignatureService, OXDesk.Identity.Services.UserSignatureService>();
+    builder.Services.AddScoped<IUserSignatureFactory, OXDesk.Identity.Factories.UserSignatureFactory>();
+
     // Add Authorization policies with global fallback policy using AuthorizationBuilder
     var authBuilder = builder.Services.AddAuthorizationBuilder();
 

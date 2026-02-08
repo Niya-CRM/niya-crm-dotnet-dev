@@ -12,7 +12,7 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260208094114_InitialTenantDbMigration")]
+    [Migration("20260208115822_InitialTenantDbMigration")]
     partial class InitialTenantDbMigration
     {
         /// <inheritdoc />
@@ -1071,6 +1071,105 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasDatabaseName("ix_user_refresh_tokens_user_id");
 
                     b.ToTable("user_refresh_tokens", "public");
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Identity.UserSignature", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 10001L, null, null, null, null, null);
+
+                    b.Property<string>("AddressLine1")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address_line1");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address_line2");
+
+                    b.Property<string>("AddressLine3")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("address_line3");
+
+                    b.Property<string>("Company")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("company");
+
+                    b.Property<string>("ComplimentaryClose")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("complimentary_close");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Department")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("job_title");
+
+                    b.Property<string>("Mobile")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("mobile");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("telephone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_signatures");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_signatures_user_id");
+
+                    b.ToTable("user_signatures", "public");
                 });
 
             modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
@@ -2358,6 +2457,17 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OXDesk.Core.Identity.UserSignature", b =>
+                {
+                    b.HasOne("OXDesk.Core.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");

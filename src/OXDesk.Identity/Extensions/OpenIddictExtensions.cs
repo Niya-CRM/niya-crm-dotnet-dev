@@ -143,13 +143,13 @@ public static class OpenIddictExtensions
                 ClientType = OpenIddictConstants.ClientTypes.Public,
                 RedirectUris =
                 {
-                    new Uri("https://oxdesk.local/auth/callback"),
+                    new Uri("http://oxdesk.local/auth/callback"),
                     new Uri("http://localhost:3000/auth/callback"),
                     new Uri("https://localhost:3000/auth/callback")
                 },
                 PostLogoutRedirectUris =
                 {
-                    new Uri("https://oxdesk.local/"),
+                    new Uri("http://oxdesk.local/"),
                     new Uri("http://localhost:3000/"),
                     new Uri("https://localhost:3000/")
                 },

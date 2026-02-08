@@ -14,16 +14,26 @@ public sealed class UserFactory : IUserFactory
 {
     private readonly IUserService _userService;
     private readonly IValueListService _valueListService;
+    private readonly IUserSignatureService _signatureService;
+    private readonly IUserSignatureFactory _signatureFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserFactory"/> class.
     /// </summary>
     /// <param name="userService">The user service.</param>
     /// <param name="valueListService">The value list service.</param>
-    public UserFactory(IUserService userService, IValueListService valueListService)
+    /// <param name="signatureService">The user signature service.</param>
+    /// <param name="signatureFactory">The user signature factory.</param>
+    public UserFactory(
+        IUserService userService,
+        IValueListService valueListService,
+        IUserSignatureService signatureService,
+        IUserSignatureFactory signatureFactory)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _valueListService = valueListService ?? throw new ArgumentNullException(nameof(valueListService));
+        _signatureService = signatureService ?? throw new ArgumentNullException(nameof(signatureService));
+        _signatureFactory = signatureFactory ?? throw new ArgumentNullException(nameof(signatureFactory));
     }
 
     /// <summary>
@@ -188,6 +198,12 @@ public sealed class UserFactory : IUserFactory
             .ToArray();
         var statuses = _valueListService.GetStatuses().ToArray();
 
+        // Fetch user signature if exists
+        var signatureEntity = await _signatureService.GetByUserIdAsync(user.Id, cancellationToken);
+        var signatureDto = signatureEntity != null
+            ? await _signatureFactory.BuildResponseAsync(signatureEntity, cancellationToken)
+            : null;
+
         return new EntityWithRelatedResponse<UserResponse, UserDetailsRelated>
         {
             Data = dto,
@@ -196,7 +212,8 @@ public sealed class UserFactory : IUserFactory
                 Countries = countries,
                 Profiles = profiles,
                 TimeZones = timeZones,
-                Statuses = statuses
+                Statuses = statuses,
+                Signature = signatureDto
             }
         };
     }

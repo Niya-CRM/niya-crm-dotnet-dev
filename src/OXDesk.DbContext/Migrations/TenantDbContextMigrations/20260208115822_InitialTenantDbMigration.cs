@@ -786,6 +786,44 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "user_signatures",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    complimentary_close = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    full_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    job_title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    company = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    department = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    address_line1 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    address_line2 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    address_line3 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    telephone = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    mobile = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
+                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    website = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_user_signatures", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_user_signatures_users_user_id",
+                        column: x => x.user_id,
+                        principalSchema: "public",
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_tokens",
                 schema: "public",
                 columns: table => new
@@ -1041,6 +1079,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_user_signatures_user_id",
+                schema: "public",
+                table: "user_signatures",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "email_index",
                 schema: "public",
                 table: "users",
@@ -1184,6 +1228,10 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 
             migrationBuilder.DropTable(
                 name: "user_roles",
+                schema: "public");
+
+            migrationBuilder.DropTable(
+                name: "user_signatures",
                 schema: "public");
 
             migrationBuilder.DropTable(

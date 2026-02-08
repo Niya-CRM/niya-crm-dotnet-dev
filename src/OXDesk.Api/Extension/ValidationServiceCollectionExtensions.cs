@@ -29,6 +29,7 @@ namespace OXDesk.Api.Extension
             services.AddScoped<IValidator<CreateRoleRequest>, CreateRoleRequestValidator>();
             services.AddScoped<IValidator<UpdateRoleRequest>, UpdateRoleRequestValidator>();
             services.AddScoped<IValidator<ActivateDeactivateUserRequest>, ActivateDeactivateUserRequestValidator>();
+            services.AddScoped<IValidator<UpsertUserSignatureRequest>, UpsertUserSignatureRequestValidator>();
 
             return services;
         }

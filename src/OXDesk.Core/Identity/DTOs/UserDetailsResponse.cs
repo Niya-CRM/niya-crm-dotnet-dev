@@ -27,4 +27,9 @@ public class UserDetailsRelated
     /// Status options: Active/true, Inactive/false.
     /// </summary>
     public IEnumerable<StatusOption> Statuses { get; set; } = Array.Empty<StatusOption>();
+
+    /// <summary>
+    /// The user's signature, if one exists.
+    /// </summary>
+    public UserSignatureResponse? Signature { get; set; }
 }
