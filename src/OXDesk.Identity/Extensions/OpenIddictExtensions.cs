@@ -96,8 +96,8 @@ public static class OpenIddictExtensions
                 options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
 
                 // Configure refresh token behavior
-                // Allow refresh token reuse within a 2-minute window to handle network delays
-                options.SetRefreshTokenReuseLeeway(TimeSpan.FromMinutes(2));
+                // Allow refresh token reuse within a 30 seconds window to handle network delays
+                options.SetRefreshTokenReuseLeeway(TimeSpan.FromSeconds(30));
 
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options
                 options.UseAspNetCore()

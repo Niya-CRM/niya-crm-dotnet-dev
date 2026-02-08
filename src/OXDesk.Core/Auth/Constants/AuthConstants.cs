@@ -5,7 +5,7 @@ namespace OXDesk.Core.Auth.Constants
         // JWT Settings
         public static class Jwt
         {
-            public const double TokenExpiryHours = 0.03; //2 minutes
+            public const double TokenExpiryHours = 0.25; //15 minutes
             public const string SecretConfigKey = "JWT:Secret";
             public const string Issuer = "OXDesk";
             public const string Audience = "OXDeskClient";
