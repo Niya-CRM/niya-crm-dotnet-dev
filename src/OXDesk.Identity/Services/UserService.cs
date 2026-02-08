@@ -302,6 +302,12 @@ public class UserService : IUserService
             throw new InvalidOperationException($"User with ID '{id}' not found.");
         }
 
+        if(user.Profile == CommonConstant.UserProfiles.System.Key)
+        {
+            _logger.LogWarning("User profile is system for {ActionVerb}: {UserId}", actionVerb.ToLower(), id);
+            throw new InvalidOperationException($"User with ID '{id}' profile is system.");
+        }
+
         // Determine actor: current user from context
         var actorId = GetCurrentUserId();
 
