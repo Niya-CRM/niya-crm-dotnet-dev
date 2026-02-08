@@ -25,6 +25,26 @@ namespace OXDesk.Infrastructure.Data.Identity
                    .IsRequired()
                    .HasDefaultValue(string.Empty);
                    
+            // MiddleName: nullable, max length 30
+            builder.Property(u => u.MiddleName)
+                   .HasMaxLength(30)
+                   .HasColumnType("varchar(30)");
+
+            // MobileNumber: nullable, max length 20
+            builder.Property(u => u.MobileNumber)
+                   .HasMaxLength(20)
+                   .HasColumnType("varchar(20)");
+
+            // JobTitle: nullable, max length 100
+            builder.Property(u => u.JobTitle)
+                   .HasMaxLength(100)
+                   .HasColumnType("varchar(100)");
+
+            // Language: nullable, max length 10 (value list item key, e.g. "en-US")
+            builder.Property(u => u.Language)
+                   .HasMaxLength(10)
+                   .HasColumnType("varchar(10)");
+
             // Add tenant_id index
             builder.HasIndex(u => u.TenantId)
                 .HasDatabaseName("ix_asp_net_users_tenant_id");

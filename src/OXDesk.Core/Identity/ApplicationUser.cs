@@ -30,6 +30,31 @@ namespace OXDesk.Core.Identity
         public string? LastName { get; set; }
 
         /// <summary>
+        /// Gets or sets the middle name of the user.
+        /// </summary>
+        [MaxLength(30)]
+        public string? MiddleName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the mobile number of the user.
+        /// </summary>
+        [Phone]
+        [MaxLength(20)]
+        public string? MobileNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets the job title of the user.
+        /// </summary>
+        [MaxLength(100)]
+        public string? JobTitle { get; set; }
+
+        /// <summary>
+        /// Gets or sets the language key (value list item key) associated with the user.
+        /// </summary>
+        [MaxLength(10)]
+        public string? Language { get; set; }
+
+        /// <summary>
         /// Gets or sets the location of the user.
         /// </summary>
         [Required]

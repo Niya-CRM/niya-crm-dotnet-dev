@@ -136,6 +136,7 @@ public class AppSetupService : IAppSetupService
                 Profile = agentProfileKey,
                 Location = setupDto.Location,
                 CountryCode = setupDto.CountryCode,
+                Language = "en-US",
                 IsActive = "Y",
                 TenantId = tenantId, // Explicitly set tenant ID
                 CreatedBy = systemUserId,

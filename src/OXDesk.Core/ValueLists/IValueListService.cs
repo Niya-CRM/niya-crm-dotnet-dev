@@ -82,6 +82,16 @@ public interface IValueListService
     Task<IReadOnlyDictionary<string, ValueListItem>> GetUserProfilesLookupAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets languages as value list item options.
+    /// </summary>
+    Task<IEnumerable<ValueListItemOption>> GetLanguagesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets languages as a dictionary lookup with caching.
+    /// </summary>
+    Task<IReadOnlyDictionary<string, ValueListItem>> GetLanguagesLookupAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets a generic dictionary lookup built from cached items with custom key selector.
     /// </summary>
     /// <typeparam name="TKey">The type of the dictionary key.</typeparam>

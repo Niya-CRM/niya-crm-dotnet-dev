@@ -24,6 +24,11 @@ public class UserDetailsRelated
     public IEnumerable<StringOption> TimeZones { get; set; } = Array.Empty<StringOption>();
 
     /// <summary>
+    /// All languages as options.
+    /// </summary>
+    public IEnumerable<ValueListItemOption> Languages { get; set; } = Array.Empty<ValueListItemOption>();
+
+    /// <summary>
     /// Status options: Active/true, Inactive/false.
     /// </summary>
     public IEnumerable<StatusOption> Statuses { get; set; } = Array.Empty<StatusOption>();

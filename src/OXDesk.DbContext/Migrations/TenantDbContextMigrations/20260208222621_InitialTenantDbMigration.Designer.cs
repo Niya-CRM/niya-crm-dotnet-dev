@@ -12,7 +12,7 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260208115822_InitialTenantDbMigration")]
+    [Migration("20260208222621_InitialTenantDbMigration")]
     partial class InitialTenantDbMigration
     {
         /// <inheritdoc />
@@ -745,6 +745,16 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(1)")
                         .HasColumnName("is_active");
 
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("job_title");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("language");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
@@ -765,6 +775,16 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lockout_end");
+
+                    b.Property<string>("MiddleName")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("middle_name");
+
+                    b.Property<string>("MobileNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("mobile_number");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)

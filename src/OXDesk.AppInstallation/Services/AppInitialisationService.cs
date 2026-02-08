@@ -372,6 +372,7 @@ namespace OXDesk.AppInstallation.Services
                     Location = "Earth",
                     Profile = systemProfileKey,
                     CountryCode = "IN",
+                    Language = "en-US",
                     TimeZone = "UTC",
                     IsActive = "N", // Inactive user
                     EmailConfirmed = true,

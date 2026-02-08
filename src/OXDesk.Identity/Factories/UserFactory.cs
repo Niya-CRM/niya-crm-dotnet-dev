@@ -48,11 +48,15 @@ public sealed class UserFactory : IUserFactory
         UserName = user.UserName ?? string.Empty,
         FirstName = user.FirstName,
         LastName = user.LastName,
+        MiddleName = user.MiddleName,
         FullName = user.FirstName + " " + user.LastName,
         Location = user.Location,
         TimeZone = user.TimeZone ?? string.Empty,
         CountryCode = user.CountryCode,
         PhoneNumber = user.PhoneNumber,
+        MobileNumber = user.MobileNumber,
+        JobTitle = user.JobTitle,
+        Language = user.Language,
         Profile = user.Profile,
         IsActive = user.IsActive == "Y",
         CreatedAt = user.CreatedAt,
@@ -91,6 +95,7 @@ public sealed class UserFactory : IUserFactory
         // Value list lookups
         var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
         var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
+        var languagesLookup = await _valueListService.GetLanguagesLookupAsync(cancellationToken);
 
         // Batch audit user lookup
         var auditUserIds = list
@@ -116,6 +121,9 @@ public sealed class UserFactory : IUserFactory
                 : null;
             u.ProfileText = !string.IsNullOrEmpty(u.Profile) && profilesLookup.TryGetValue(u.Profile, out var profileItem)
                 ? profileItem.ItemName
+                : null;
+            u.LanguageText = !string.IsNullOrEmpty(u.Language) && languagesLookup.TryGetValue(u.Language, out var langItem)
+                ? langItem.ItemName
                 : null;
 
             if (auditUsers.TryGetValue(u.CreatedBy, out var createdByUser))
@@ -153,12 +161,16 @@ public sealed class UserFactory : IUserFactory
         // Lookups
         var countriesLookup = await _valueListService.GetCountriesLookupAsync(cancellationToken);
         var profilesLookup = await _valueListService.GetUserProfilesLookupAsync(cancellationToken);
+        var languagesLookup = await _valueListService.GetLanguagesLookupAsync(cancellationToken);
 
         dto.CountryCodeText = !string.IsNullOrEmpty(dto.CountryCode) && countriesLookup.TryGetValue(dto.CountryCode, out var countryItem)
             ? countryItem.ItemName
             : null;
         dto.ProfileText = !string.IsNullOrEmpty(dto.Profile) && profilesLookup.TryGetValue(dto.Profile, out var profileItem)
             ? profileItem.ItemName
+            : null;
+        dto.LanguageText = !string.IsNullOrEmpty(dto.Language) && languagesLookup.TryGetValue(dto.Language, out var langItem)
+            ? langItem.ItemName
             : null;
 
         // Audit names (batch-friendly even for single)
@@ -193,6 +205,7 @@ public sealed class UserFactory : IUserFactory
         // Related lists
         var countries = (await _valueListService.GetCountriesAsync(cancellationToken)).ToArray();
         var profiles = (await _valueListService.GetUserProfilesAsync(cancellationToken)).ToArray();
+        var languages = (await _valueListService.GetLanguagesAsync(cancellationToken)).ToArray();
         var timeZones = TimeZoneHelper.GetAllIanaTimeZones()
             .Select(tz => new StringOption { Value = tz.Key, Name = tz.Value })
             .ToArray();
@@ -211,6 +224,7 @@ public sealed class UserFactory : IUserFactory
             {
                 Countries = countries,
                 Profiles = profiles,
+                Languages = languages,
                 TimeZones = timeZones,
                 Statuses = statuses,
                 Signature = signatureDto

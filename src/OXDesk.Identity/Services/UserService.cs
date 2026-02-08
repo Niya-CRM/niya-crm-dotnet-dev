@@ -236,6 +236,10 @@ public class UserService : IUserService
             Email = request.Email,
             FirstName = request.FirstName,
             LastName = request.LastName,
+            MiddleName = request.MiddleName,
+            MobileNumber = request.MobileNumber,
+            JobTitle = request.JobTitle,
+            Language = request.Language,
             Location = request.Location,
             TimeZone = request.TimeZone ?? TimeZoneInfo.Local.Id,
             PhoneNumber = request.PhoneNumber,
@@ -298,14 +302,14 @@ public class UserService : IUserService
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
         {
-            _logger.LogWarning("User not found for {ActionVerb}: {UserId}", actionVerb.ToLower(), id);
+            _logger.LogWarning("User not found for {ActionVerb} {UserId}", actionVerb.ToLower(), id);
             throw new InvalidOperationException($"User with ID '{id}' not found.");
         }
 
-        if(user.Profile == CommonConstant.UserProfiles.System.Key)
+        if(user.Profile == CommonConstant.UserProfiles.System.Key | user.Profile == CommonConstant.UserProfiles.AIAgent.Key)
         {
-            _logger.LogWarning("User profile is system for {ActionVerb}: {UserId}", actionVerb.ToLower(), id);
-            throw new InvalidOperationException($"User with ID '{id}' profile is system.");
+            _logger.LogWarning("User {ActionVerb} is not allowed as profile is {profile} for {UserId}", actionVerb.ToLower(), user.Profile, id);
+            throw new InvalidOperationException($"User {actionVerb.ToLower()} is not allowed as profile is {user.Profile} for {id}");
         }
 
         // Determine actor: current user from context

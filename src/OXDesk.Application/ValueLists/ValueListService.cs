@@ -214,6 +214,18 @@ public class ValueListService(IUnitOfWork unitOfWork, IValueListItemService valu
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<ValueListItemOption>> GetLanguagesAsync(CancellationToken cancellationToken = default)
+    {
+        var items = await GetItemsByListNameAsync(CommonConstant.ValueListNames.Languages, cancellationToken);
+        return items
+            .Select(i => new ValueListItemOption { Id = i.Id, ItemName = i.ItemName, ItemKey = i.ItemKey, IsActive = i.IsActive, Order = i.Order });
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyDictionary<string, ValueListItem>> GetLanguagesLookupAsync(CancellationToken cancellationToken = default)
+        => await GetLookupByListNameAsync(CommonConstant.ValueListNames.Languages, cancellationToken);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<TKey, ValueListItem>> GetLookupAsync<TKey>(
         string listName,
         Func<ValueListItem, TKey> keySelector,

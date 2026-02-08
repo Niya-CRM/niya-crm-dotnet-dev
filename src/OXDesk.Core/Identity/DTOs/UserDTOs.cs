@@ -67,6 +67,31 @@ public class CreateUserRequest
     public string? Profile { get; set; }
 
     /// <summary>
+    /// Gets or sets the middle name of the user.
+    /// </summary>
+    [StringLength(30)]
+    public string? MiddleName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the mobile number of the user.
+    /// </summary>
+    [Phone]
+    [StringLength(20)]
+    public string? MobileNumber { get; set; }
+
+    /// <summary>
+    /// Gets or sets the job title of the user.
+    /// </summary>
+    [StringLength(100)]
+    public string? JobTitle { get; set; }
+
+    /// <summary>
+    /// Gets or sets the language key (value list item key) associated with the user.
+    /// </summary>
+    [StringLength(10)]
+    public string? Language { get; set; }
+
+    /// <summary>
     /// Gets or sets the phone number of the user.
     /// </summary>
     [Phone]
@@ -137,6 +162,31 @@ public class UserResponse : AuditedDto
     /// Gets or sets the phone number of the user.
     /// </summary>
     public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// Gets or sets the middle name of the user.
+    /// </summary>
+    public string? MiddleName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the mobile number of the user.
+    /// </summary>
+    public string? MobileNumber { get; set; }
+
+    /// <summary>
+    /// Gets or sets the job title of the user.
+    /// </summary>
+    public string? JobTitle { get; set; }
+
+    /// <summary>
+    /// Gets or sets the language key (value list item key) associated with the user.
+    /// </summary>
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// Gets or sets the display text for the language, resolved from value list cache.
+    /// </summary>
+    public string? LanguageText { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the user is active.
