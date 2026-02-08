@@ -31,6 +31,7 @@ namespace OXDesk.Identity.Factories
         {
             Id = role.Id,
             Name = role.Name ?? string.Empty,
+            Description = role.Description,
             NormalizedName = role.NormalizedName ?? string.Empty,
             CreatedAt = role.CreatedAt,
             UpdatedAt = role.UpdatedAt,

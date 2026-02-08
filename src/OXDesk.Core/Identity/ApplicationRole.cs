@@ -23,6 +23,12 @@ public class ApplicationRole : IdentityRole<int>, ICreationAudited, IUpdationAud
     }
     
     /// <summary>
+    /// Gets or sets the optional description for this role.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Description { get; set; }
+
+    /// <summary>
     /// Gets or sets the ID of the user who created this role.
     /// </summary>
     [Required]

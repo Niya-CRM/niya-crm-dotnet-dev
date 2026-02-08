@@ -607,6 +607,11 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("integer")
                         .HasColumnName("created_by");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")

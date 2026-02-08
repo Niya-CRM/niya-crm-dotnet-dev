@@ -174,13 +174,27 @@ namespace OXDesk.AppInstallation.Services
         private async Task SeedDefaultRolesAsync()
         {
             var utcNow = DateTime.UtcNow;
-            
+
+            var roleDescriptions = new Dictionary<string, string>
+            {
+                { CommonConstant.RoleNames.AccountOwner, "Full access owner of the tenant account" },
+                { CommonConstant.RoleNames.Administrator, "Administrative access to manage system settings and users" },
+                { CommonConstant.RoleNames.PowerUser, "Advanced user with elevated permissions" },
+                { CommonConstant.RoleNames.SupportAgent, "Handles customer support tickets and requests" },
+                { CommonConstant.RoleNames.LightAgent, "Limited support agent with read-heavy access" },
+                { CommonConstant.RoleNames.EndUser, "External customer or end-user with self-service access" },
+                { CommonConstant.RoleNames.System, "Internal system role for automated operations" }
+            };
+
             foreach (var role in OXDesk.Core.Common.CommonConstant.RoleNames.All)
             {
                 if (!await _roleManager.RoleExistsAsync(role))
                 {
+                    roleDescriptions.TryGetValue(role, out var description);
+
                     var newRole = new OXDesk.Core.Identity.ApplicationRole(role)
                     {
+                        Description = description,
                         CreatedBy = _technicalUserId,
                         UpdatedBy = _technicalUserId,
                         CreatedAt = utcNow,

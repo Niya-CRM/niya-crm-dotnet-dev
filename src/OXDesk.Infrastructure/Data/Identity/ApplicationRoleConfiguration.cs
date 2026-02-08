@@ -22,6 +22,9 @@ public class ApplicationRoleConfiguration : IEntityTypeConfiguration<Application
                .UseIdentityByDefaultColumn()
                .HasIdentityOptions(startValue: 10001L);
 
+        // Configure description
+        builder.Property(r => r.Description).HasMaxLength(500).IsRequired(false);
+
         // Configure audit fields
         builder.Property(r => r.CreatedBy).IsRequired();
         builder.Property(r => r.CreatedAt).IsRequired();

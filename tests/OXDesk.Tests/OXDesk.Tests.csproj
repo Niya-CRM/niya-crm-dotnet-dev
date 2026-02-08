@@ -41,6 +41,7 @@
     <ProjectReference Include="..\..\src\OXDesk.Infrastructure\OXDesk.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\OXDesk.AppInstallation\OXDesk.AppInstallation.csproj" />
     <ProjectReference Include="..\..\src\OXDesk.Tenant\OXDesk.Tenant.csproj" />
+    <ProjectReference Include="..\..\src\OXDesk.Identity\OXDesk.Identity.csproj" />
     <ProjectReference Include="..\..\src\OXDesk.Shared\OXDesk.Shared.csproj" />
   </ItemGroup>
 

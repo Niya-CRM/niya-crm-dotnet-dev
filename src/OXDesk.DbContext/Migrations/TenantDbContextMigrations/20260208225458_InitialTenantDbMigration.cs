@@ -350,6 +350,7 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<int>(type: "integer", nullable: false),

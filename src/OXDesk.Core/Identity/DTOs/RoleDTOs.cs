@@ -6,17 +6,20 @@ namespace OXDesk.Core.Identity.DTOs
     public sealed class CreateRoleRequest
     {
         public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 
     public sealed class UpdateRoleRequest
     {
         public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 
     public sealed class RoleResponse
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
         public string NormalizedName { get; set; } = string.Empty;
         public int CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }

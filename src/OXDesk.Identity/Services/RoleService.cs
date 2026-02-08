@@ -69,6 +69,7 @@ namespace OXDesk.Identity.Services
             {
                 Name = request.Name,
                 NormalizedName = request.Name.ToUpperInvariant(),
+                Description = request.Description,
                 CreatedAt = now,
                 UpdatedAt = now,
                 CreatedBy = userId,
@@ -104,6 +105,7 @@ namespace OXDesk.Identity.Services
                 role.NormalizedName = request.Name.ToUpperInvariant();
             }
 
+            role.Description = request.Description;
             role.UpdatedAt = DateTime.UtcNow;
             var userId = GetCurrentUserId();
             role.UpdatedBy = userId;

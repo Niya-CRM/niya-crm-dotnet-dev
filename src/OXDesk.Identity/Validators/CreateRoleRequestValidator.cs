@@ -10,6 +10,9 @@ namespace OXDesk.Identity.Validators
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Role name is required.")
                 .MaximumLength(256).WithMessage("Role name must be 256 characters or fewer.");
+
+            RuleFor(x => x.Description)
+                .MaximumLength(500).WithMessage("Role description must be 500 characters or fewer.");
         }
     }
 }
