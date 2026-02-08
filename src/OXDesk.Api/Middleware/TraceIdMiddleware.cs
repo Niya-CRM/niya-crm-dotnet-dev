@@ -15,7 +15,9 @@ namespace OXDesk.Api.Middleware
         public async Task Invoke(HttpContext context)
         {
             // Use the W3C TraceId from the current Activity (set by ASP.NET Core)
-            string traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
+            var activity = Activity.Current ?? new Activity("IncomingRequest").Start();
+
+            var traceId = activity.Id ?? activity.TraceId.ToString();
 
             // Store in HttpContext for downstream usage
             context.Items[TraceIdHeader] = traceId;

@@ -68,7 +68,7 @@ namespace OXDesk.Infrastructure.Logging.Serilog
                 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
                 string applicationName = context.Configuration["ApplicationName"]?.Replace(".", "-").Replace(" ", "-") ?? "MyDotNetApplication";
 
-                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{TraceId}] [{SourceContext}] [{Domain}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
+                string outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u4}] [{Environment}] [{Application}] [{MachineName}] [{ClientIp}] [{TraceParent}] [{SourceContext}] [{Domain}] [{RequestPath}] [{ThreadId}] [{Message} {Exception}]{NewLine}";
 
                 var minLogLevel = context.Configuration["LoggerSettings:LogLevel:Default"] ?? "Information";
                 SetMinimumLogLevel(configuration, minLogLevel);
@@ -259,13 +259,13 @@ namespace OXDesk.Infrastructure.Logging.Serilog
         /// <param name="propertyFactory">Factory to create log event properties.</param>
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            string? traceId = Activity.Current?.TraceId.ToString();
+            string? traceId = Activity.Current?.Id;
             if (string.IsNullOrWhiteSpace(traceId))
             {
                 return;
             }
 
-            logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("TraceId", traceId));
+            logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("TraceParent", traceId));
         }
     }
 

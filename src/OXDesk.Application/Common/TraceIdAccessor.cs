@@ -11,6 +11,6 @@ public class TraceIdAccessor : ITraceIdAccessor
     /// <inheritdoc/>
     public string? GetTraceId()
     {
-        return Activity.Current?.TraceId.ToString();
+        return Activity.Current?.Id;
     }
 }
