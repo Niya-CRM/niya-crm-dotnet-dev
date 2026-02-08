@@ -12,7 +12,7 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260207225216_InitialTenantDbMigration")]
+    [Migration("20260208094114_InitialTenantDbMigration")]
     partial class InitialTenantDbMigration
     {
         /// <inheritdoc />

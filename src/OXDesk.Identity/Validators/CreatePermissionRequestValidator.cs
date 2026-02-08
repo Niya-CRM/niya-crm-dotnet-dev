@@ -4,7 +4,7 @@ using FluentValidation;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 
-namespace OXDesk.Application.Identity.Validators
+namespace OXDesk.Identity.Validators
 {
     public sealed class CreatePermissionRequestValidator : AbstractValidator<CreatePermissionRequest>
     {

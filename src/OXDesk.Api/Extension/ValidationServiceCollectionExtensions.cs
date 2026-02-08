@@ -4,7 +4,6 @@ using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Tenant.Validators;
 using OXDesk.Identity.Validators;
-using OXDesk.Application.Identity.Validators;
 
 namespace OXDesk.Api.Extension
 {

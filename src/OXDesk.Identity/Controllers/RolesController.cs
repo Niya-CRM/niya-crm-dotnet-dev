@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common;
@@ -13,7 +14,7 @@ using OXDesk.Core.Common.DTOs;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 
-namespace OXDesk.Api.Controllers.Identity
+namespace OXDesk.Identity.Controllers
 {
     [ApiController]
     [Route("roles")]

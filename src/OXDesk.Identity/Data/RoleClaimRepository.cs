@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using OXDesk.Core.Identity;
 using OXDesk.DbContext.Data;
 
-namespace OXDesk.Infrastructure.Data.Identity;
+namespace OXDesk.Identity.Data;
 
 /// <summary>
 /// Repository implementation for managing role claims (permissions).

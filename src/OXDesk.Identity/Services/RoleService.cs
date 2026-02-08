@@ -9,7 +9,7 @@ using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
  
 
-namespace OXDesk.Application.Identity
+namespace OXDesk.Identity.Services
 {
     public sealed class RoleService : IRoleService
     {

@@ -1,7 +1,7 @@
 using FluentValidation;
 using OXDesk.Core.Identity.DTOs;
 
-namespace OXDesk.Application.Identity.Validators
+namespace OXDesk.Identity.Validators
 {
     public sealed class UpdateRoleRequestValidator : AbstractValidator<UpdateRoleRequest>
     {

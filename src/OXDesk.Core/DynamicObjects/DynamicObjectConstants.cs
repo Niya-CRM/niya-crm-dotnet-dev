@@ -34,6 +34,8 @@ public static class DynamicObjectConstants
     public static class DynamicObjectNames
     {
         public const string User = "Users";
+        public const string Role = "Roles";
+        public const string Permission = "Permissions";
         public const string Account = "Accounts";
         public const string Contact = "Contacts";
         public const string Ticket = "Tickets";
@@ -47,6 +49,8 @@ public static class DynamicObjectConstants
         public static readonly string[] All = 
         {
             User,
+            Role,
+            Permission,
             Account,
             Contact,
             Ticket,
@@ -62,6 +66,8 @@ public static class DynamicObjectConstants
     public static class DynamicObjectKeys
     {
         public const string User = "users";
+        public const string Role = "roles";
+        public const string Permission = "permissions";
         public const string Account = "accounts";
         public const string Contact = "contacts";
         public const string Ticket = "tickets";
@@ -75,6 +81,8 @@ public static class DynamicObjectConstants
         public static readonly string[] All = 
         {
             User,
+            Role,
+            Permission,
             Account,
             Contact,
             Ticket,

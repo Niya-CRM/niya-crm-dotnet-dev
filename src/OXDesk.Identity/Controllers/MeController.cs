@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OXDesk.Shared.Extensions.Http;
 using OXDesk.Core.Common.DTOs;
@@ -9,7 +10,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OXDesk.Api.Controllers.Identity
+namespace OXDesk.Identity.Controllers
 {
     /// <summary>
     /// Provides the authenticated user's profile.

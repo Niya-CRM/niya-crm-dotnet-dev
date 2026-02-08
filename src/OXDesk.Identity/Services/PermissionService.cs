@@ -8,7 +8,7 @@ using OXDesk.Core.Common;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
 
-namespace OXDesk.Application.Identity;
+namespace OXDesk.Identity.Services;
 
 public class PermissionService : IPermissionService
 {
@@ -135,4 +135,3 @@ public class PermissionService : IPermissionService
         return rolesWithPermission.Distinct().OrderBy(r => r).ToArray();
     }
 }
-

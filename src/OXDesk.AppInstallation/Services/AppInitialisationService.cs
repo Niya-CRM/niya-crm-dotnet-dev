@@ -501,6 +501,28 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.ObjectTypes.Dedicated,
                     _technicalUserId
                 ),
+
+                // Role dynamic object
+                new DynamicObject(
+                    DynamicObjectConstants.DynamicObjectNames.Role,
+                    "Role",
+                    "Roles",
+                    DynamicObjectConstants.DynamicObjectKeys.Role,
+                    "System user roles entity",
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    _technicalUserId
+                ),
+
+                // Permission dynamic object
+                new DynamicObject(
+                    DynamicObjectConstants.DynamicObjectNames.Permission,
+                    "Permission",
+                    "Permissions",
+                    DynamicObjectConstants.DynamicObjectKeys.Permission,
+                    "System user permissions entity",
+                    DynamicObjectConstants.ObjectTypes.Dedicated,
+                    _technicalUserId
+                ),
                 
                 // Account dynamic object
                 new DynamicObject(
