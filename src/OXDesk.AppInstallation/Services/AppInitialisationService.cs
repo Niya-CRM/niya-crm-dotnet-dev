@@ -593,35 +593,24 @@ namespace OXDesk.AppInstallation.Services
                     _technicalUserId
                 )
                 ,
-                // Organisation dynamic object
+                // Entity dynamic object
                 new DynamicObject(
-                    DynamicObjectConstants.DynamicObjectNames.Organisation,
-                    "Organisation",
-                    "Organisations",
-                    DynamicObjectConstants.DynamicObjectKeys.Organisation,
-                    "Organisation entity",
+                    DynamicObjectConstants.DynamicObjectNames.Entity,
+                    "Entity",
+                    "Entities",
+                    DynamicObjectConstants.DynamicObjectKeys.Entity,
+                    "Entity",
                     DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
                 ,
-                // Department dynamic object
+                // Group dynamic object
                 new DynamicObject(
-                    DynamicObjectConstants.DynamicObjectNames.Department,
-                    "Department",
-                    "Departments",
-                    DynamicObjectConstants.DynamicObjectKeys.Department,
-                    "Department entity",
-                    DynamicObjectConstants.ObjectTypes.System,
-                    _technicalUserId
-                )
-                ,
-                // Team dynamic object
-                new DynamicObject(
-                    DynamicObjectConstants.DynamicObjectNames.Team,
-                    "Team",
-                    "Teams",
-                    DynamicObjectConstants.DynamicObjectKeys.Team,
-                    "Team entity",
+                    DynamicObjectConstants.DynamicObjectNames.Group,
+                    "Group",
+                    "Groups",
+                    DynamicObjectConstants.DynamicObjectKeys.Group,
+                    "Group",
                     DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
@@ -634,6 +623,28 @@ namespace OXDesk.AppInstallation.Services
                     DynamicObjectConstants.DynamicObjectKeys.Product,
                     "Product entity",
                     DynamicObjectConstants.ObjectTypes.Standard,
+                    _technicalUserId
+                )
+                ,
+                // Business hours dynamic object
+                new DynamicObject(
+                    DynamicObjectConstants.DynamicObjectNames.BusinessHours,
+                    "BusinessHour",
+                    "BusinessHours",
+                    DynamicObjectConstants.DynamicObjectKeys.BusinessHours,
+                    "Business hours",
+                    DynamicObjectConstants.ObjectTypes.System,
+                    _technicalUserId
+                )
+                ,
+                // Signatures dynamic object
+                new DynamicObject(
+                    DynamicObjectConstants.DynamicObjectNames.Signatures,
+                    "Signature",
+                    "Signatures",
+                    DynamicObjectConstants.DynamicObjectKeys.Signatures,
+                    "Signature",
+                    DynamicObjectConstants.ObjectTypes.System,
                     _technicalUserId
                 )
             };

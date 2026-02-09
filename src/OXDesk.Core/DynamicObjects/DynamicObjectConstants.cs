@@ -41,10 +41,11 @@ public static class DynamicObjectConstants
         public const string Ticket = "Tickets";
         public const string Tenant = "Tenants";
         public const string Brand = "Brands";
-        public const string Organisation = "Organisations";
-        public const string Department = "Departments";
-        public const string Team = "Teams";
+        public const string Entity = "Entities";
+        public const string Group = "Groups";
         public const string Product = "Products";
+        public const string BusinessHours = "BusinessHours";
+        public const string Signatures = "Signatures";
         
         public static readonly string[] All = 
         {
@@ -56,10 +57,11 @@ public static class DynamicObjectConstants
             Ticket,
             Tenant,
             Brand,
-            Organisation,
-            Department,
-            Team,
-            Product
+            Entity,
+            Group,
+            Product,
+            BusinessHours,
+            Signatures
         };
     }
 
@@ -73,10 +75,11 @@ public static class DynamicObjectConstants
         public const string Ticket = "tickets";
         public const string Tenant = "tenants";
         public const string Brand = "brands";
-        public const string Organisation = "organisations";
-        public const string Department = "departments";
-        public const string Team = "teams";
+        public const string Entity = "entities";
+        public const string Group = "groups";
         public const string Product = "products";
+        public const string BusinessHours = "businessHours";
+        public const string Signatures = "signatures";
         
         public static readonly string[] All = 
         {
@@ -88,10 +91,11 @@ public static class DynamicObjectConstants
             Ticket,
             Tenant,
             Brand,
-            Organisation,
-            Department,
-            Team,
-            Product
+            Entity,
+            Group,
+            Product,
+            BusinessHours,
+            Signatures
         };
     }
 }
