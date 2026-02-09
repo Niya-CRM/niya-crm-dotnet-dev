@@ -17,8 +17,8 @@ namespace OXDesk.Infrastructure.Data.AuditLogs
                    .UseIdentityByDefaultColumn()
                    .HasIdentityOptions(startValue: 10001L);
 
-            builder.HasIndex(a => new { a.ObjectId, a.ObjectItemIdUuid, a.ObjectItemIdInt })
-                   .HasDatabaseName("ix_audit_logs_object_ids");
+            builder.HasIndex(a => new { a.ObjectKey, a.ObjectItemIdUuid, a.ObjectItemIdInt })
+                   .HasDatabaseName("ix_audit_logs_object_keys");
 
             builder.HasIndex(a => a.CreatedAt)
                    .HasDatabaseName("ix_audit_logs_created_at");

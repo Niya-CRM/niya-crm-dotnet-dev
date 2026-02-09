@@ -34,7 +34,7 @@ public class ChangeHistoryLogService : IChangeHistoryLogService
 
     /// <inheritdoc/>
     public async Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
-        int objectId,
+        string objectKey,
         int objectItemId,
         string fieldName,
         string? oldValue,
@@ -43,7 +43,7 @@ public class ChangeHistoryLogService : IChangeHistoryLogService
         CancellationToken cancellationToken = default)
     {
         var changeHistoryLog = new ChangeHistoryLog(
-            objectId,
+            objectKey,
             objectItemId,
             fieldName,
             oldValue,
@@ -58,7 +58,7 @@ public class ChangeHistoryLogService : IChangeHistoryLogService
 
     /// <inheritdoc/>
     public async Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
-        int objectId,
+        string objectKey,
         Guid objectItemId,
         string fieldName,
         string? oldValue,
@@ -67,7 +67,7 @@ public class ChangeHistoryLogService : IChangeHistoryLogService
         CancellationToken cancellationToken = default)
     {
         var changeHistoryLog = new ChangeHistoryLog(
-            objectId,
+            objectKey,
             objectItemId,
             fieldName,
             oldValue,

@@ -27,11 +27,11 @@ public class AuditLogService : IAuditLogService
     }
 
     /// <inheritdoc/>
-    public async Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<AuditLog> CreateAuditLogAsync(string @event, string objectKey, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             @event,
-            objectId,
+            objectKey,
             objectItemId,
             ip,
             data,
@@ -44,11 +44,11 @@ public class AuditLogService : IAuditLogService
     }
 
     /// <inheritdoc/>
-    public async Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
+    public async Task<AuditLog> CreateAuditLogAsync(string @event, string objectKey, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             @event,
-            objectId,
+            objectKey,
             objectItemId,
             ip,
             data,

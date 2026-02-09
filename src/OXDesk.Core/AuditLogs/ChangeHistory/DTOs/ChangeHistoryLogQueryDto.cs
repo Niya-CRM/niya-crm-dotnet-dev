@@ -7,7 +7,7 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory.DTOs
     /// </summary>
     public class ChangeHistoryLogQueryDto
     {
-        public int? ObjectId { get; set; }
+        public string? ObjectKey { get; set; }
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
         public string? FieldName { get; set; }

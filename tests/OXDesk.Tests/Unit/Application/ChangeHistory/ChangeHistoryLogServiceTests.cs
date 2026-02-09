@@ -32,7 +32,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
         public async Task CreateChangeHistoryLogAsync_ShouldCreateAndReturnLog()
         {
             // Arrange
-            var objectId = 100;
+            var objectKey = "users";
             var objectItemId = 1001;
             var fieldName = "Email";
             var oldValue = "old@example.com";
@@ -48,7 +48,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             // Act
             var result = await _service.CreateChangeHistoryLogAsync(
-                objectId,
+                objectKey,
                 objectItemId,
                 fieldName,
                 oldValue,
@@ -58,7 +58,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Assert
             result.ShouldNotBeNull();
             capturedLog.ShouldNotBeNull();
-            capturedLog!.ObjectId.ShouldBe(objectId);
+            capturedLog!.ObjectKey.ShouldBe(objectKey);
             capturedLog.ObjectItemIdInt.ShouldBe(objectItemId);
             capturedLog.FieldName.ShouldBe(fieldName);
             capturedLog.OldValue.ShouldBe(oldValue);
@@ -75,7 +75,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
             // Arrange
             var logId = 123;
             var expectedLog = new ChangeHistoryLog(
-                100,
+                "users",
                 1002,
                 "Email",
                 "old@example.com",
@@ -110,7 +110,7 @@ namespace OXDesk.Tests.Unit.Application.ChangeHistory
 
             var expectedLogs = new List<ChangeHistoryLog>
             {
-                new(100, objectItemId, fieldName, null, null, createdBy) {
+                new("users", objectItemId, fieldName, null, null, createdBy) {
                     Id = 456,
                     CreatedAt = DateTime.UtcNow.AddDays(-3)
                 }

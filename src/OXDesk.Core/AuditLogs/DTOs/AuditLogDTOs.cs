@@ -4,7 +4,7 @@ namespace OXDesk.Core.AuditLogs.DTOs
     {
         public int Id { get; set; }
         public string Event { get; set; } = string.Empty;
-        public int ObjectId { get; set; }
+        public string ObjectKey { get; set; } = string.Empty;
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
         public string IP { get; set; } = string.Empty;

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     /// <inheritdoc />
-    public partial class InitialTenantDb : Migration
+    public partial class InitialTenantDbMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,7 +43,7 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     @event = table.Column<string>(name: "event", type: "character varying(100)", maxLength: 100, nullable: false),
-                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    object_key = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
                     ip = table.Column<string>(type: "character varying(45)", maxLength: 45, nullable: false),
@@ -90,7 +90,7 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:IdentitySequenceOptions", "'10001', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    object_id = table.Column<int>(type: "integer", nullable: false),
+                    object_key = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
                     object_item_id_uuid = table.Column<Guid>(type: "uuid", nullable: true),
                     object_item_id_int = table.Column<int>(type: "integer", nullable: true),
                     field_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -929,10 +929,10 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "created_at");
 
             migrationBuilder.CreateIndex(
-                name: "ix_audit_logs_object_ids",
+                name: "ix_audit_logs_object_keys",
                 schema: "public",
                 table: "audit_logs",
-                columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
+                columns: new[] { "object_key", "object_item_id_uuid", "object_item_id_int" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_brands_brand_name",
@@ -947,10 +947,10 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "created_at");
 
             migrationBuilder.CreateIndex(
-                name: "ix_change_history_logs_object_ids",
+                name: "ix_change_history_logs_object_keys",
                 schema: "public",
                 table: "change_history_logs",
-                columns: new[] { "object_id", "object_item_id_uuid", "object_item_id_int" });
+                columns: new[] { "object_key", "object_item_id_uuid", "object_item_id_int" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_channels_channel_name",

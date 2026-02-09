@@ -407,9 +407,8 @@ namespace OXDesk.AppInstallation.Services
                     // Instead of using UserManager.AddToRoleAsync, we'll create the user role directly
 
                     // Add change history log for creation (first change event)
-                    var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
                     await _changeHistoryLogService.CreateChangeHistoryLogAsync(
-                        objectId: userObjectId,
+                        objectKey: DynamicObjectConstants.DynamicObjectKeys.User,
                         objectItemId: systemUser.Id,
                         fieldName: CommonConstant.ChangeHistoryFields.Created,
                         oldValue: null,

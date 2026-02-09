@@ -5,7 +5,6 @@ using OXDesk.Core.AuditLogs.ChangeHistory;
 using OXDesk.Core.AuditLogs.ChangeHistory.DTOs;
 using OXDesk.Core.Common;
 using OXDesk.Core.Common.DTOs;
-using OXDesk.Core.DynamicObjects;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -25,7 +24,6 @@ namespace OXDesk.Api.Controllers.AuditLogs
     {
         private readonly IChangeHistoryLogService _changeHistoryLogService;
         private readonly IChangeHistoryLogFactory _changeHistoryLogFactory;
-        private readonly IDynamicObjectService _dynamicObjectService;
         private readonly ILogger<ChangeHistoryLogController> _logger;
 
         /// <summary>
@@ -34,17 +32,14 @@ namespace OXDesk.Api.Controllers.AuditLogs
         /// <param name="changeHistoryLogService">The change history log service.</param>
         /// <param name="logger">The logger.</param>
         /// <param name="changeHistoryLogFactory">The change history log factory.</param>
-        /// <param name="dynamicObjectService">The dynamic object service.</param>
         public ChangeHistoryLogController(
             IChangeHistoryLogService changeHistoryLogService,
             ILogger<ChangeHistoryLogController> logger,
-            IChangeHistoryLogFactory changeHistoryLogFactory,
-            IDynamicObjectService dynamicObjectService)
+            IChangeHistoryLogFactory changeHistoryLogFactory)
         {
             _changeHistoryLogService = changeHistoryLogService;
             _logger = logger;
             _changeHistoryLogFactory = changeHistoryLogFactory;
-            _dynamicObjectService = dynamicObjectService;
         }
 
         /// <summary>
@@ -74,8 +69,7 @@ namespace OXDesk.Api.Controllers.AuditLogs
                     return this.CreateBadRequestProblem("objectKey is required");
                 }
 
-                var objectId = await _dynamicObjectService.GetDynamicObjectIdAsync(objectKey, cancellationToken);
-                query.ObjectId = objectId;
+                query.ObjectKey = objectKey;
                 
                 _logger.LogDebug("Retrieving change history logs with filters: {Query}", query);
                 

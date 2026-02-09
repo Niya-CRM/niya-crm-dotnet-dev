@@ -174,10 +174,9 @@ public class OAuthController : Controller
         {
             _logger.LogWarning("User account is deactivated: {Email}", user.Email);
             
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
             await _auditLogService.CreateAuditLogAsync(
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                objectId: userObjectId,
+                objectKey: DynamicObjectConstants.DynamicObjectKeys.User,
                 objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                 data: "OAuth Login Denied - Account not Active",
@@ -194,10 +193,9 @@ public class OAuthController : Controller
         {
             _logger.LogWarning("Invalid password for user: {Email}", user.Email);
             
-            var userObjectId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
             await _auditLogService.CreateAuditLogAsync(
                 @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-                objectId: userObjectId,
+                objectKey: DynamicObjectConstants.DynamicObjectKeys.User,
                 objectItemId: user.Id,
                 ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
                 data: "OAuth Invalid Credential",
@@ -211,10 +209,9 @@ public class OAuthController : Controller
         _logger.LogInformation("User authenticated successfully for OAuth: {Email}", user.Email);
 
         // Audit: Successful login
-        var userObjId = await _dynamicObjectService.GetDynamicObjectIdAsync(DynamicObjectConstants.DynamicObjectKeys.User);
         await _auditLogService.CreateAuditLogAsync(
             @event: CommonConstant.AUDIT_LOG_EVENT_LOGIN,
-            objectId: userObjId,
+            objectKey: DynamicObjectConstants.DynamicObjectKeys.User,
             objectItemId: user.Id,
             ip: HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty,
             data: "OAuth Login Successful",

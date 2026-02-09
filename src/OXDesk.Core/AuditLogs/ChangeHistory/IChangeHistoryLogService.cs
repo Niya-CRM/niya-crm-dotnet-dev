@@ -12,7 +12,7 @@ public interface IChangeHistoryLogService
     /// <summary>
     /// Creates a new change history log entry with an int-based entity ID.
     /// </summary>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="objectItemId">The object item ID (entity ID) as int.</param>
     /// <param name="fieldName">The name of the field that was changed.</param>
     /// <param name="oldValue">The previous value of the field.</param>
@@ -21,7 +21,7 @@ public interface IChangeHistoryLogService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created change history log entry.</returns>
     Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
-        int objectId,
+        string objectKey,
         int objectItemId,
         string fieldName,
         string? oldValue,
@@ -32,7 +32,7 @@ public interface IChangeHistoryLogService
     /// <summary>
     /// Creates a new change history log entry with a Guid-based entity ID.
     /// </summary>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="objectItemId">The object item ID (entity ID) as Guid.</param>
     /// <param name="fieldName">The name of the field that was changed.</param>
     /// <param name="oldValue">The previous value of the field.</param>
@@ -41,7 +41,7 @@ public interface IChangeHistoryLogService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created change history log entry.</returns>
     Task<ChangeHistoryLog> CreateChangeHistoryLogAsync(
-        int objectId,
+        string objectKey,
         Guid objectItemId,
         string fieldName,
         string? oldValue,

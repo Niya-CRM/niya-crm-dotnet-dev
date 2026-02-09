@@ -12,8 +12,8 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260209085032_InitialTenantDb")]
-    partial class InitialTenantDb
+    [Migration("20260209203350_InitialTenantDbMigration")]
+    partial class InitialTenantDbMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,10 +107,6 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(45)")
                         .HasColumnName("ip");
 
-                    b.Property<int>("ObjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("object_id");
-
                     b.Property<int?>("ObjectItemIdInt")
                         .HasColumnType("integer")
                         .HasColumnName("object_item_id_int");
@@ -118,6 +114,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.Property<Guid?>("ObjectItemIdUuid")
                         .HasColumnType("uuid")
                         .HasColumnName("object_item_id_uuid");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("object_key");
 
                     b.Property<string>("TraceId")
                         .HasMaxLength(100)
@@ -130,8 +132,8 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("ix_audit_logs_created_at");
 
-                    b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
-                        .HasDatabaseName("ix_audit_logs_object_ids");
+                    b.HasIndex("ObjectKey", "ObjectItemIdUuid", "ObjectItemIdInt")
+                        .HasDatabaseName("ix_audit_logs_object_keys");
 
                     b.ToTable("audit_logs", "public");
                 });
@@ -165,10 +167,6 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("new_value");
 
-                    b.Property<int>("ObjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("object_id");
-
                     b.Property<int?>("ObjectItemIdInt")
                         .HasColumnType("integer")
                         .HasColumnName("object_item_id_int");
@@ -176,6 +174,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.Property<Guid?>("ObjectItemIdUuid")
                         .HasColumnType("uuid")
                         .HasColumnName("object_item_id_uuid");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("object_key");
 
                     b.Property<string>("OldValue")
                         .HasMaxLength(1000)
@@ -193,8 +197,8 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("ix_change_history_logs_created_at");
 
-                    b.HasIndex("ObjectId", "ObjectItemIdUuid", "ObjectItemIdInt")
-                        .HasDatabaseName("ix_change_history_logs_object_ids");
+                    b.HasIndex("ObjectKey", "ObjectItemIdUuid", "ObjectItemIdInt")
+                        .HasDatabaseName("ix_change_history_logs_object_keys");
 
                     b.ToTable("change_history_logs", "public");
                 });

@@ -5,7 +5,7 @@ namespace OXDesk.Core.AuditLogs.ChangeHistory.DTOs
     public sealed class ChangeHistoryLogResponse
     {
         public int Id { get; set; }
-        public int ObjectId { get; set; }
+        public string ObjectKey { get; set; } = string.Empty;
         public Guid? ObjectItemIdUuid { get; set; }
         public int? ObjectItemIdInt { get; set; }
         public string FieldName { get; set; } = string.Empty;

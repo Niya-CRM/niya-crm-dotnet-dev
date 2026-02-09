@@ -50,7 +50,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
             _changeHistoryLogs = new List<ChangeHistoryLog>
             {
                 new ChangeHistoryLog(
-                    100,
+                    "users",
                     1001,
                     "Email",
                     "old@example.com",
@@ -58,7 +58,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
                     TestHelpers.TestUserId1
                 ),
                 new ChangeHistoryLog(
-                    100,
+                    "users",
                     1002,
                     "Phone",
                     "123456789",
@@ -113,7 +113,7 @@ namespace OXDesk.Tests.Unit.Infrastructure.Data.ChangeHistory
         {
             // Arrange
             var newLog = new ChangeHistoryLog(
-                100,
+                "users",
                 1003,
                 "Price",
                 "100",

@@ -21,12 +21,13 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the identifier of the dynamic object type.
-    /// References the DynamicObject.Id.
+    /// Gets or sets the key of the dynamic object type.
+    /// References the DynamicObject.ObjectKey.
     /// </summary>
-    [Column("object_id")]
+    [Column("object_key")]
     [Required]
-    public int ObjectId { get; set; }
+    [MaxLength(60)]
+    public string ObjectKey { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the UUID of the entity that was changed (for Guid-based entities).
@@ -84,21 +85,21 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     /// Initializes a new instance of the <see cref="ChangeHistoryLog"/> class.
     /// Constructor for creating new change history log entries with int-based entity ID.
     /// </summary>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="entityId">The object item ID (entity ID) as int.</param>
     /// <param name="fieldName">The name of the field that was changed.</param>
     /// <param name="oldValue">The previous value of the field.</param>
     /// <param name="newValue">The new value of the field.</param>
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
-        int objectId,
+        string objectKey,
         int entityId,
         string fieldName,
         string? oldValue,
         string? newValue,
         int changedBy)
     {
-        ObjectId = objectId;
+        ObjectKey = objectKey;
         ObjectItemIdInt = entityId;
         FieldName = fieldName;
         OldValue = oldValue;
@@ -111,21 +112,21 @@ public class ChangeHistoryLog : CreationAuditedEntity, IEntity
     /// Initializes a new instance of the <see cref="ChangeHistoryLog"/> class.
     /// Constructor for creating new change history log entries with UUID-based entity ID.
     /// </summary>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="entityId">The object item ID (entity ID) as Guid.</param>
     /// <param name="fieldName">The name of the field that was changed.</param>
     /// <param name="oldValue">The previous value of the field.</param>
     /// <param name="newValue">The new value of the field.</param>
     /// <param name="changedBy">The user who created the change.</param>
     public ChangeHistoryLog(
-        int objectId,
+        string objectKey,
         Guid entityId,
         string fieldName,
         string? oldValue,
         string? newValue,
         int changedBy)
     {
-        ObjectId = objectId;
+        ObjectKey = objectKey;
         ObjectItemIdUuid = entityId;
         FieldName = fieldName;
         OldValue = oldValue;

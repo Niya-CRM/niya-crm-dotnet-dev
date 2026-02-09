@@ -89,11 +89,11 @@ public class DynamicObjectService : IDynamicObjectService
     /// <param name="data">The data/details of the action.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task AddDynamicObjectAuditLogAsync(string @event, int objectId, int objectItemId, string data, int createdBy, CancellationToken cancellationToken = default)
+    private async Task AddDynamicObjectAuditLogAsync(string @event, string objectKey, int objectItemId, string data, int createdBy, CancellationToken cancellationToken = default)
     {
         var auditLog = new AuditLog(
             @event: @event,
-            objectId: objectId,
+            objectKey: objectKey,
             objectItemId: objectItemId,
             ip: GetUserIp(),
             data: data,
@@ -156,7 +156,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_CREATE,
-            createdDynamicObject.Id,
+            createdDynamicObject.ObjectKey,
             createdDynamicObject.Id,
             $"Dynamic object created: {{ \"ObjectName\": \"{createdDynamicObject.ObjectName}\", \"ObjectKey\": \"{createdDynamicObject.ObjectKey}\" }}",
             createdBy,
@@ -249,7 +249,7 @@ public class DynamicObjectService : IDynamicObjectService
         // Insert audit log for update
         await AddDynamicObjectAuditLogAsync(
             CommonConstant.AUDIT_LOG_EVENT_UPDATE,
-            updatedDynamicObject.Id,
+            updatedDynamicObject.ObjectKey,
             updatedDynamicObject.Id,
             $"Dynamic object updated: {{ \"ObjectName\": \"{updatedDynamicObject.ObjectName}\", \"ObjectKey\": \"{updatedDynamicObject.ObjectKey}\" }}",
             modifiedBy,

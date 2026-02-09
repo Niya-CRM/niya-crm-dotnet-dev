@@ -12,27 +12,27 @@ public interface IAuditLogService
     /// Creates a new audit log entry with a Guid-based entity ID.
     /// </summary>
     /// <param name="event">The event/action type.</param>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="objectItemId">The affected entity ID (Guid).</param>
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created audit log entry.</returns>
-    Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default);
+    Task<AuditLog> CreateAuditLogAsync(string @event, string objectKey, Guid objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Creates a new audit log entry with an int-based entity ID.
     /// </summary>
     /// <param name="event">The event/action type.</param>
-    /// <param name="objectId">The dynamic object type ID.</param>
+    /// <param name="objectKey">The dynamic object type key.</param>
     /// <param name="objectItemId">The affected entity ID (int).</param>
     /// <param name="ip">The IP address.</param>
     /// <param name="data">The audit data.</param>
     /// <param name="createdBy">The user who performed the action.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created audit log entry.</returns>
-    Task<AuditLog> CreateAuditLogAsync(string @event, int objectId, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default);
+    Task<AuditLog> CreateAuditLogAsync(string @event, string objectKey, int objectItemId, string ip, string data, int createdBy, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets an audit log by its identifier.
