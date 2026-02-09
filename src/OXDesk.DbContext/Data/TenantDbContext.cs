@@ -83,6 +83,9 @@ namespace OXDesk.DbContext.Data
         public DbSet<WorkFlowStatus> WorkFlowStatuses { get; set; } = null!;
         public DbSet<WorkflowMapping> WorkflowMappings { get; set; } = null!;
         public DbSet<UserSignature> UserSignatures { get; set; } = null!;
+        public DbSet<BusinessHours> BusinessHours { get; set; } = null!;
+        public DbSet<CustomBusinessHours> CustomBusinessHours { get; set; } = null!;
+        public DbSet<Holiday> Holidays { get; set; } = null!;
 
         /// <summary>
         /// Configures tenant-scoped global query filters.

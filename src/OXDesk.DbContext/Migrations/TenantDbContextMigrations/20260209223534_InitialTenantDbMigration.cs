@@ -83,6 +83,31 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "business_hours",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    time_zone = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    business_hours_type = table.Column<string>(type: "varchar(30)", maxLength: 30, nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_business_hours", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "change_history_logs",
                 schema: "public",
                 columns: table => new
@@ -124,6 +149,30 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_channels", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "custom_business_hours",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    business_hour_id = table.Column<int>(type: "integer", nullable: false),
+                    day = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    start_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_custom_business_hours", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -251,6 +300,29 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_form_types", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "holidays",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    business_hour_id = table.Column<int>(type: "integer", nullable: false),
+                    name = table.Column<string>(type: "varchar(60)", maxLength: 60, nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deleted_by = table.Column<int>(type: "integer", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_holidays", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -941,6 +1013,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 column: "brand_name");
 
             migrationBuilder.CreateIndex(
+                name: "ix_business_hours_name",
+                schema: "public",
+                table: "business_hours",
+                column: "name");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_change_history_logs_created_at",
                 schema: "public",
                 table: "change_history_logs",
@@ -957,6 +1035,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 schema: "public",
                 table: "channels",
                 column: "channel_name");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_custom_business_hours_business_hour_id",
+                schema: "public",
+                table: "custom_business_hours",
+                column: "business_hour_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_dynamic_object_field_types_field_type_key",
@@ -982,6 +1066,12 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 schema: "public",
                 table: "form_types",
                 column: "object_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_holidays_business_hour_id",
+                schema: "public",
+                table: "holidays",
+                column: "business_hour_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_open_iddict_applications_client_id",
@@ -1168,11 +1258,19 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 schema: "public");
 
             migrationBuilder.DropTable(
+                name: "business_hours",
+                schema: "public");
+
+            migrationBuilder.DropTable(
                 name: "change_history_logs",
                 schema: "public");
 
             migrationBuilder.DropTable(
                 name: "channels",
+                schema: "public");
+
+            migrationBuilder.DropTable(
+                name: "custom_business_hours",
                 schema: "public");
 
             migrationBuilder.DropTable(
@@ -1189,6 +1287,10 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 
             migrationBuilder.DropTable(
                 name: "form_types",
+                schema: "public");
+
+            migrationBuilder.DropTable(
+                name: "holidays",
                 schema: "public");
 
             migrationBuilder.DropTable(

@@ -9,6 +9,7 @@
     <ProjectReference Include="..\OXDesk.Tenant\OXDesk.Tenant.csproj" />
     <ProjectReference Include="..\OXDesk.Identity\OXDesk.Identity.csproj" />
     <ProjectReference Include="..\OXDesk.Shared\OXDesk.Shared.csproj" />
+    <ProjectReference Include="..\OXDesk.Tickets\OXDesk.Tickets.csproj" />
   </ItemGroup>
 
   <ItemGroup>

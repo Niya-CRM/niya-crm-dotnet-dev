@@ -2,8 +2,10 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants.DTOs;
+using OXDesk.Core.Tickets.DTOs;
 using OXDesk.Tenant.Validators;
 using OXDesk.Identity.Validators;
+using OXDesk.Tickets.Validators;
 
 namespace OXDesk.Api.Extension
 {
@@ -30,6 +32,11 @@ namespace OXDesk.Api.Extension
             services.AddScoped<IValidator<UpdateRoleRequest>, UpdateRoleRequestValidator>();
             services.AddScoped<IValidator<ActivateDeactivateUserRequest>, ActivateDeactivateUserRequestValidator>();
             services.AddScoped<IValidator<UpsertUserSignatureRequest>, UpsertUserSignatureRequestValidator>();
+
+            // Business Hours validators
+            services.AddScoped<IValidator<CreateBusinessHoursRequest>, CreateBusinessHoursRequestValidator>();
+            services.AddScoped<IValidator<PatchBusinessHoursRequest>, PatchBusinessHoursRequestValidator>();
+            services.AddScoped<IValidator<CreateHolidayRequest>, CreateHolidayRequestValidator>();
 
             return services;
         }
