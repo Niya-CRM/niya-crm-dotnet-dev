@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     /// <inheritdoc />
-    public partial class InitialTenantDbMigration : Migration
+    public partial class InitialTenantDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
