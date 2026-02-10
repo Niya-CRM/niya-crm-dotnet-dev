@@ -12,8 +12,8 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260209223534_InitialTenantDbMigration")]
-    partial class InitialTenantDbMigration
+    [Migration("20260210091710_InitialTenantDb")]
+    partial class InitialTenantDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OXDesk.DbContext.Migrations.ApplicationDbContextMigrations
 {
     /// <inheritdoc />
-    public partial class InitialAppDbMigration : Migration
+    public partial class InitialApplicationDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
