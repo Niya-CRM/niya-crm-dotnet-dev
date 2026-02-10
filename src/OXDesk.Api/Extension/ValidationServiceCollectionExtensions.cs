@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using OXDesk.Core.Identity.DTOs;
 using OXDesk.Core.Tenants.DTOs;
 using OXDesk.Core.Tickets.DTOs;
+using OXDesk.Core.Settings.DTOs;
 using OXDesk.Tenant.Validators;
 using OXDesk.Identity.Validators;
 using OXDesk.Tickets.Validators;
+using OXDesk.Settings.Validators;
 
 namespace OXDesk.Api.Extension
 {
@@ -37,6 +39,9 @@ namespace OXDesk.Api.Extension
             services.AddScoped<IValidator<CreateBusinessHoursRequest>, CreateBusinessHoursRequestValidator>();
             services.AddScoped<IValidator<PatchBusinessHoursRequest>, PatchBusinessHoursRequestValidator>();
             services.AddScoped<IValidator<CreateHolidayRequest>, CreateHolidayRequestValidator>();
+
+            // Settings validators
+            services.AddScoped<IValidator<UpsertSettingRequest>, UpsertSettingRequestValidator>();
 
             return services;
         }

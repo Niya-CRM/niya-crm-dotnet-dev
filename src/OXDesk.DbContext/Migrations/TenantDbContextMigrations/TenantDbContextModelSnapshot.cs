@@ -1198,6 +1198,59 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     b.ToTable("user_signatures", "public");
                 });
 
+            modelBuilder.Entity("OXDesk.Core.Settings.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 101L, null, null, null, null, null);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("key");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedBy")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("value_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_settings");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_settings_key");
+
+                    b.ToTable("settings", "public");
+                });
+
             modelBuilder.Entity("OXDesk.Core.Tickets.Brand", b =>
                 {
                     b.Property<int>("Id")

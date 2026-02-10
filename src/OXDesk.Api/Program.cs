@@ -57,6 +57,7 @@ using OXDesk.Identity.Extensions;
 using OXDesk.Shared.Services;
 using OXDesk.Shared.Common;
 using OXDesk.Tickets;
+using OXDesk.Settings;
 
 try
 {
@@ -195,6 +196,9 @@ try
 
     // Register Ticket Services (BusinessHours, CustomBusinessHours, Holidays)
     builder.Services.AddTickets();
+
+    // Register Settings Services (SignatureSettings)
+    builder.Services.AddSettings();
 
     // Register Swagger/OpenAPI
     builder.Services.AddSwaggerServices(builder.Configuration);

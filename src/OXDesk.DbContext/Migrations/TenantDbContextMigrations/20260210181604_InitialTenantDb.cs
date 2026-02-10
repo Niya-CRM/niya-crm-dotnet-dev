@@ -437,6 +437,27 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "settings",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'101', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    key = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    value = table.Column<string>(type: "text", nullable: false),
+                    value_type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    created_by = table.Column<int>(type: "integer", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_settings", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "statuses",
                 schema: "public",
                 columns: table => new
@@ -1132,6 +1153,13 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_settings_key",
+                schema: "public",
+                table: "settings",
+                column: "key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_statuses_object_id",
                 schema: "public",
                 table: "statuses",
@@ -1311,6 +1339,10 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 
             migrationBuilder.DropTable(
                 name: "role_claims",
+                schema: "public");
+
+            migrationBuilder.DropTable(
+                name: "settings",
                 schema: "public");
 
             migrationBuilder.DropTable(

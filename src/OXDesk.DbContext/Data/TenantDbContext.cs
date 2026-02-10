@@ -17,6 +17,7 @@ using OXDesk.Core.Identity;
 using OXDesk.Core.Tenants;
 using OXDesk.Core.Tickets;
 using OXDesk.Core.ValueLists;
+using OXDesk.Core.Settings;
 using OXDesk.Core.Workflows;
 
 namespace OXDesk.DbContext.Data
@@ -86,6 +87,7 @@ namespace OXDesk.DbContext.Data
         public DbSet<BusinessHours> BusinessHours { get; set; } = null!;
         public DbSet<CustomBusinessHours> CustomBusinessHours { get; set; } = null!;
         public DbSet<Holiday> Holidays { get; set; } = null!;
+        public DbSet<Setting> Settings { get; set; } = null!;
 
         /// <summary>
         /// Configures tenant-scoped global query filters.
