@@ -904,6 +904,7 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                     mobile = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: true),
                     email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     website = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    free_style_signature = table.Column<string>(type: "character varying(30000)", maxLength: 30000, nullable: true),
                     created_by = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<int>(type: "integer", nullable: false),

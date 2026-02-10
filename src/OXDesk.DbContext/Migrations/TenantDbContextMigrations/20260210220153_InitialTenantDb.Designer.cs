@@ -12,7 +12,7 @@ using OXDesk.DbContext.Data;
 namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20260210181604_InitialTenantDb")]
+    [Migration("20260210220153_InitialTenantDb")]
     partial class InitialTenantDb
     {
         /// <inheritdoc />
@@ -1154,6 +1154,11 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
+
+                    b.Property<string>("FreeStyleSignature")
+                        .HasMaxLength(30000)
+                        .HasColumnType("character varying(30000)")
+                        .HasColumnName("free_style_signature");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(100)

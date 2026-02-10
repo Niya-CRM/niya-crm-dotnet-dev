@@ -47,5 +47,8 @@ public sealed class UpsertUserSignatureRequestValidator : AbstractValidator<Upse
 
         RuleFor(x => x.Website)
             .MaximumLength(255).WithMessage("Website must be 255 characters or fewer.");
+
+        RuleFor(x => x.FreeStyleSignature)
+            .MaximumLength(30000).WithMessage("Free-style signature must be 1000 characters or fewer.");
     }
 }

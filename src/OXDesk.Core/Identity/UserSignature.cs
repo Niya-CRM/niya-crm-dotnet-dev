@@ -95,6 +95,13 @@ public class UserSignature : ICreationAudited, IUpdationAudited, IEntity
     public string? Website { get; set; }
 
     /// <summary>
+    /// Gets or sets the free-style HTML signature content.
+    /// Used when the global signature setting type is "free-style".
+    /// </summary>
+    [MaxLength(30000)]
+    public string? FreeStyleSignature { get; set; }
+
+    /// <summary>
     /// Gets or sets the ID of the user who created this signature.
     /// </summary>
     [Required]

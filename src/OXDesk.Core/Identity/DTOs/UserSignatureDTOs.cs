@@ -1,3 +1,5 @@
+using OXDesk.Core.Settings.DTOs;
+
 namespace OXDesk.Core.Identity.DTOs;
 
 /// <summary>
@@ -18,6 +20,7 @@ public sealed class UpsertUserSignatureRequest
     public string? Mobile { get; set; }
     public string? Email { get; set; }
     public string? Website { get; set; }
+    public string? FreeStyleSignature { get; set; }
 }
 
 /// <summary>
@@ -39,6 +42,8 @@ public sealed class UserSignatureResponse
     public string? Mobile { get; set; }
     public string? Email { get; set; }
     public string? Website { get; set; }
+    public string? FreeStyleSignature { get; set; }
+    public SignatureSettingValue? SignatureSetting { get; set; }
     public int CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? CreatedByText { get; set; }

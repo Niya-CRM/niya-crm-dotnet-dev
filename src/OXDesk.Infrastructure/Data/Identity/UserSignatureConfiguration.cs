@@ -23,6 +23,9 @@ public class UserSignatureConfiguration : IEntityTypeConfiguration<UserSignature
         builder.HasIndex(us => us.UserId)
                .HasDatabaseName("ix_user_signatures_user_id");
 
+        builder.Property(us => us.FreeStyleSignature)
+               .HasMaxLength(30000);
+
         builder.HasOne(us => us.User)
                .WithMany()
                .HasForeignKey(us => us.UserId)

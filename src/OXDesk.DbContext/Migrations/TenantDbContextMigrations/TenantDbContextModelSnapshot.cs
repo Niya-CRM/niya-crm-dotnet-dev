@@ -1152,6 +1152,11 @@ namespace OXDesk.DbContext.Migrations.TenantDbContextMigrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
+                    b.Property<string>("FreeStyleSignature")
+                        .HasMaxLength(30000)
+                        .HasColumnType("character varying(30000)")
+                        .HasColumnName("free_style_signature");
+
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")

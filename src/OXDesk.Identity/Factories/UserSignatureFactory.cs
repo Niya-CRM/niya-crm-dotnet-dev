@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OXDesk.Core.Identity;
 using OXDesk.Core.Identity.DTOs;
+using OXDesk.Core.Settings;
 
 namespace OXDesk.Identity.Factories;
 
@@ -12,14 +13,17 @@ namespace OXDesk.Identity.Factories;
 public sealed class UserSignatureFactory : IUserSignatureFactory
 {
     private readonly IUserService _userService;
+    private readonly ISettingService _settingService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserSignatureFactory"/> class.
     /// </summary>
     /// <param name="userService">The user service for resolving display names.</param>
-    public UserSignatureFactory(IUserService userService)
+    /// <param name="settingService">The setting service for retrieving signature settings.</param>
+    public UserSignatureFactory(IUserService userService, ISettingService settingService)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
     }
 
     /// <inheritdoc/>
@@ -41,12 +45,14 @@ public sealed class UserSignatureFactory : IUserSignatureFactory
             Mobile = userSignature.Mobile,
             Email = userSignature.Email,
             Website = userSignature.Website,
+            FreeStyleSignature = userSignature.FreeStyleSignature,
             CreatedBy = userSignature.CreatedBy,
             CreatedAt = userSignature.CreatedAt,
             UpdatedBy = userSignature.UpdatedBy,
             UpdatedAt = userSignature.UpdatedAt
         };
 
+        dto.SignatureSetting = await _settingService.GetSignatureAsync(cancellationToken);
         dto.CreatedByText = await _userService.GetUserNameByIdAsync(dto.CreatedBy, cancellationToken);
         dto.UpdatedByText = await _userService.GetUserNameByIdAsync(dto.UpdatedBy, cancellationToken);
 
