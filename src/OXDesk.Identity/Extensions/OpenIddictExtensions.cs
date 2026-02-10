@@ -144,7 +144,7 @@ public static class OpenIddictExtensions
                 RedirectUris =
                 {
                     new Uri("http://oxdesk.local/auth/callback"),
-                    new Uri("http://localhost:8000/auth/callback"),
+                    new Uri("http://localhost:8080/auth/callback"),
                     new Uri("http://localhost:3000/auth/callback"),
                     new Uri("https://localhost:3000/auth/callback")
                 },
@@ -152,7 +152,7 @@ public static class OpenIddictExtensions
                 {
                     new Uri("http://oxdesk.local/"),
                     new Uri("http://localhost:3000/"),
-                    new Uri("http://localhost:8000/"),
+                    new Uri("http://localhost:8080/"),
                     new Uri("https://localhost:3000/")
                 },
                 Permissions =
